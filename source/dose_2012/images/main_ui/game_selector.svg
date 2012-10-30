@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800"
+   height="600"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.2 r9819"
+   sodipodi:docname="game_selector.svg"
+   inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient3987">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop3989" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop3991" />
+    </linearGradient>
+    <filter
+       id="filter3829"
+       inkscape:label="Glow"
+       inkscape:menu="Shadows and Glows"
+       inkscape:menu-tooltip="Glow of object's own color at the edges"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur3831"
+         stdDeviation="5"
+         result="result91" />
+      <feComposite
+         id="feComposite3833"
+         in2="result91"
+         in="SourceGraphic"
+         operator="over" />
+    </filter>
+    <filter
+       id="filter3939"
+       inkscape:menu="Textures"
+       inkscape:label="Watercolor"
+       inkscape:menu-tooltip="Cloudy watercolor effect"
+       height="2"
+       y="-0.5"
+       width="1.6"
+       x="-0.3"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur3941"
+         stdDeviation="15"
+         result="result8" />
+      <feTurbulence
+         id="feTurbulence3943"
+         seed="27"
+         result="result7"
+         type="fractalNoise"
+         numOctaves="5"
+         baseFrequency="0.025" />
+      <feComposite
+         id="feComposite3945"
+         in2="result8"
+         result="result6"
+         operator="over"
+         in="result7" />
+      <feColorMatrix
+         id="feColorMatrix3947"
+         result="result9"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 6 -4 " />
+      <feDisplacementMap
+         id="feDisplacementMap3949"
+         in2="result9"
+         in="result7"
+         xChannelSelector="A"
+         yChannelSelector="A"
+         scale="50"
+         result="result4" />
+      <feComposite
+         id="feComposite3951"
+         in2="result4"
+         result="result2"
+         operator="in"
+         in="result8" />
+      <feComposite
+         id="feComposite3953"
+         in2="result9"
+         result="fbSourceGraphic"
+         in="result2"
+         operator="in" />
+      <feComposite
+         id="feComposite3955"
+         in2="fbSourceGraphic"
+         operator="arithmetic"
+         k2="1"
+         k1="0.5"
+         in="fbSourceGraphic"
+         result="result91" />
+      <feBlend
+         id="feBlend3957"
+         in2="result91"
+         in="fbSourceGraphic"
+         mode="multiply" />
+    </filter>
+    <filter
+       id="filter3959"
+       y="-0.2"
+       width="1.2"
+       height="1.4"
+       x="-0.1"
+       inkscape:label="Fire"
+       inkscape:menu="Protrusions"
+       inkscape:menu-tooltip="Edges of object are on fire"
+       color-interpolation-filters="sRGB">
+      <feMorphology
+         id="feMorphology3961"
+         result="result1"
+         radius="2.4"
+         operator="dilate" />
+      <feTurbulence
+         id="feTurbulence3963"
+         baseFrequency="0.09 0.028"
+         numOctaves="1" />
+      <feColorMatrix
+         id="feColorMatrix3965"
+         result="result2"
+         values="2 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 1 0" />
+      <feDisplacementMap
+         id="feDisplacementMap3967"
+         in2="result2"
+         result="result4"
+         scale="10.319410319410318"
+         yChannelSelector="G"
+         xChannelSelector="R"
+         in="result1" />
+      <feFlood
+         id="feFlood3969"
+         result="result3"
+         flood-opacity="1"
+         flood-color="rgb(255,159,54)" />
+      <feMorphology
+         id="feMorphology3971"
+         radius="3.8"
+         result="result7"
+         in="result4" />
+      <feGaussianBlur
+         id="feGaussianBlur3973"
+         result="result7"
+         in="result7"
+         stdDeviation="2.4" />
+      <feComposite
+         id="feComposite3975"
+         in2="result4"
+         result="result5"
+         in="result3"
+         operator="in" />
+      <feComposite
+         id="feComposite3977"
+         in2="result7"
+         operator="out" />
+      <feOffset
+         id="feOffset3979"
+         result="result6"
+         dy="-7"
+         dx="-4.5" />
+      <feGaussianBlur
+         id="feGaussianBlur3981"
+         result="result7"
+         stdDeviation="4.8" />
+      <feComposite
+         id="feComposite3983"
+         in2="result6"
+         in="SourceGraphic"
+         result="result8" />
+      <feComposite
+         id="feComposite3985"
+         in2="result7" />
+    </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3987"
+       id="linearGradient3993"
+       x1="140.2439"
+       y1="493.82556"
+       x2="302.43903"
+       y2="1040.167"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0,6)" />
+    <filter
+       id="filter3829-7"
+       inkscape:label="Glow"
+       inkscape:menu="Shadows and Glows"
+       inkscape:menu-tooltip="Glow of object's own color at the edges"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur3831-4"
+         stdDeviation="5"
+         result="result91" />
+      <feComposite
+         id="feComposite3833-9"
+         in2="result91"
+         in="SourceGraphic"
+         operator="over" />
+    </filter>
+    <filter
+       id="filter3829-7-7"
+       inkscape:label="Glow"
+       inkscape:menu="Shadows and Glows"
+       inkscape:menu-tooltip="Glow of object's own color at the edges"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur3831-4-3"
+         stdDeviation="5"
+         result="result91" />
+      <feComposite
+         id="feComposite3833-9-6"
+         in2="result91"
+         in="SourceGraphic"
+         operator="over" />
+    </filter>
+    <filter
+       id="filter3959-1"
+       y="-0.2"
+       width="1.2"
+       height="1.4"
+       x="-0.1"
+       inkscape:label="Fire"
+       inkscape:menu="Protrusions"
+       inkscape:menu-tooltip="Edges of object are on fire"
+       color-interpolation-filters="sRGB">
+      <feMorphology
+         id="feMorphology3961-3"
+         result="result1"
+         radius="2.4"
+         operator="dilate" />
+      <feTurbulence
+         id="feTurbulence3963-6"
+         baseFrequency="0.09 0.028"
+         numOctaves="1" />
+      <feColorMatrix
+         id="feColorMatrix3965-8"
+         result="result2"
+         values="2 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 1 0" />
+      <feDisplacementMap
+         id="feDisplacementMap3967-2"
+         in2="result2"
+         result="result4"
+         scale="10.31941"
+         yChannelSelector="G"
+         xChannelSelector="R"
+         in="result1" />
+      <feFlood
+         id="feFlood3969-2"
+         result="result3"
+         flood-opacity="1"
+         flood-color="rgb(255,159,54)" />
+      <feMorphology
+         id="feMorphology3971-1"
+         radius="3.8"
+         result="result7"
+         in="result4" />
+      <feGaussianBlur
+         id="feGaussianBlur3973-5"
+         result="result7"
+         in="result7"
+         stdDeviation="2.4" />
+      <feComposite
+         id="feComposite3975-6"
+         in2="result4"
+         result="result5"
+         in="result3"
+         operator="in" />
+      <feComposite
+         id="feComposite3977-4"
+         in2="result7"
+         operator="out" />
+      <feOffset
+         id="feOffset3979-8"
+         result="result6"
+         dy="-7"
+         dx="-4.5" />
+      <feGaussianBlur
+         id="feGaussianBlur3981-9"
+         result="result7"
+         stdDeviation="4.8" />
+      <feComposite
+         id="feComposite3983-1"
+         in2="result6"
+         in="SourceGraphic"
+         result="result8" />
+      <feComposite
+         id="feComposite3985-8"
+         in2="result7" />
+    </filter>
+    <filter
+       id="filter3829-7-0"
+       inkscape:label="Glow"
+       inkscape:menu="Shadows and Glows"
+       inkscape:menu-tooltip="Glow of object's own color at the edges"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur3831-4-7"
+         stdDeviation="5"
+         result="result91" />
+      <feComposite
+         id="feComposite3833-9-5"
+         in2="result91"
+         in="SourceGraphic"
+         operator="over" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#f3b36c"
+     bordercolor="#000000"
+     borderopacity="1"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.94"
+     inkscape:cx="104.09198"
+     inkscape:cy="282.15506"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     width="800px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1138"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-452.36216)">
+    <rect
+       style="opacity:0.98999999;fill:#cccccc;fill-opacity:1;stroke:#f3ea82;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter3939)"
+       id="rect3757"
+       width="843.90247"
+       height="609.7561"
+       x="-26.226194"
+       y="448.70361"
+       ry="24.390244"
+       rx="0"
+       inkscape:export-filename="C:\Users\hce\ETH\Teaching\DOSE\2011\src\game_selector.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="opacity:0.98999999000000005;fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:2.06946595;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter3829)"
+       id="rect3759"
+       width="842.35699"
+       height="112.19511"
+       x="-25.725641"
+       y="456.02069"
+       ry="24.390244"
+       transform="matrix(0.9339937,0,0,0.99999879,31.545492,5.7628912)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:url(#linearGradient3993);fill-opacity:1;stroke:none;filter:url(#filter3959);font-family:Sans"
+       x="117.07317"
+       y="544.94751"
+       id="text3835"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3837"
+         x="117.07317"
+         y="544.94751"
+         style="font-size:72px;fill:#ffdd55;fill-opacity:1;font-family:Showcard Gothic;-inkscape-font-specification:Showcard Gothic;stroke:#000000;stroke-opacity:1">Game Selector</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="702.43903"
+       y="479.09387"
+       id="text3839"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3841"
+         x="702.43903"
+         y="479.09387"
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ff6600;font-family:Comic Sans MS;-inkscape-font-specification:Comic Sans MS">DOSE 2012</tspan></text>
+    <rect
+       style="opacity:0.68350166;fill:#999999;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3995"
+       width="785.06799"
+       height="350.65897"
+       x="10.292683"
+       y="595.38617"
+       ry="22.623159"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:none;stroke:none;filter:url(#filter3959-1);font-family:Sans"
+       x="-162.28732"
+       y="1017.8065"
+       id="text3835-7"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3837-0"
+         x="-162.28732"
+         y="1017.8065"
+         style="font-size:72px;fill:none;stroke:#000000;stroke-opacity:1;font-family:Showcard Gothic;-inkscape-font-specification:Showcard Gothic" /></text>
+    <g
+       id="g4169"
+       transform="matrix(0.99833335,0,0,1.0252464,-27.774043,-23.642645)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         rx="132.80132"
+         transform="matrix(0.34320838,0,0,0.67589082,87.434322,649.60545)"
+         ry="56.097553"
+         y="456.02069"
+         x="-25.725641"
+         height="112.19511"
+         width="842.35699"
+         id="rect3759-8"
+         style="opacity:0.98999999;fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:3.11439753;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter3829-7)" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text4144"
+         y="1022.7766"
+         x="132.20784"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-opacity:1;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:72px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-opacity:1;font-family:Showcard Gothic;-inkscape-font-specification:Showcard Gothic"
+           y="1022.7766"
+           x="132.20784"
+           id="tspan4146"
+           sodipodi:role="line">PLAY</tspan></text>
+    </g>
+    <rect
+       style="opacity:0.98999999000000005;fill:#666666;fill-opacity:1;stroke:#000000;stroke-width:3.11531984;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;filter:url(#filter3829-7-0)"
+       id="rect3759-8-1"
+       width="842.35699"
+       height="112.19511"
+       x="-25.725641"
+       y="456.02069"
+       ry="56.097553"
+       transform="matrix(0.34263637,0,0,0.69295463,460.94247,642.6094)"
+       rx="132.80132"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:40.46801376px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-width:1.01170039;stroke-opacity:1;font-family:Sans"
+       x="512.41156"
+       y="1011.6564"
+       id="text4144-0"
+       sodipodi:linespacing="125%"
+       transform="scale(0.98678755,1.0133894)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan4146-3"
+         x="512.41156"
+         y="1011.6564"
+         style="font-size:72.84243011px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-width:1.01170039;stroke-opacity:1;font-family:Showcard Gothic;-inkscape-font-specification:Showcard Gothic">QUIT</tspan></text>
+    <image
+       y="528.08514"
+       x="-219.97733"
+       id="image4270"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAABGVJREFU WIWtl01vG1UUhp9z545nkthxnDRNqANtU6FW0KIIlkWAEHv4A0iw5hfwB/gP3bBmicQWxKZCAiFE SWlJS9OUJP2QcWgcO7bHM/ewmHFsN592827mQ3fe8577njNzBvZDDrh3GjiQV/qOCpjsWvvWGF4O 7oB4rhvTGmvFGF+zmCr71faLGQUDXF0yESHutJEvbtzEywUzxga+AGJE+kMKRkbTIKg4cHSTy1JU VVVB4y3ftdq2+uThl6Xy5a+mggQDiBj6AwoJo7ngUhaT5aMuEyG0Y6XebLG59udbtrr56MPrH3zE 2XFD5BTPZDvWl3R/cZw8PIiAcw5B9oxwCmO+x+/rdX759sZ71hiPnWbCTiNCRPG6DhxQDEMj23xR xTG4r1YMu7UtY8kWGKOICoJgzGhZ7xeQ2uCM4KWXOHEYTa0wYtQ6oOMUUYeIIALiTu9l0C2/bvmr atoBmuBUsRfOhFwrT0CSoKIIqXfHQoS914ce0iW6v3/Sa0Os8GM+h33/8hSfLE2PkBugbZBgtGeB 72ZDbBRnm6SKqmLM0c5Hu3V2n62grgVxjHgeEhQYK71GLl8aWOtcautBEBESBTuM4u31ZaLKXcQP EfGIqvcR4+GXLtAyHooQ5KeGoTy5gNr6beLna2jcpr6xTG17l/azOxRfv86kWwMT0K48YHbp46EE nKjTnFPazzegU6NeecTTOz9xbuI2V960ROvf8/TeLaLqPVSgUfnn9AU0/9vAz3m06ts8u/srV5fG abWFqC2cv1QkqT+i9ngVP+cT1R4PJ+CwIhlAJyJJDGbsLOoiCjPjtNuOZiNCRJgqgNgA7AQaR8MJ 6J6IyKEdIEGIuCZJ5TdyxTLVzW3OX5wEFQqzOSr/OoJCkc7WaipkFAFHISzOo15Ibu4a06/M8WDj DGsrFcRz/PxDhdLFdwgLs3j5eYLJ+aEEnKgLjPHITS7QMZbCuSTtYW+JWvVv5t9+gyA/gfh5TFhi fPb8aAKUo8eOQvkKjWqeRmuHycV3wcV08jls6VW8oAS2wMTcpQEeYXAeo+9+dwa02leER5WjAmMz C4TTZZpbm0TbT7BjM4iAlz9LYW5xH4/jaE5BsKFvjg0+QCxCfmYBZhaOXe8d81oXa7DfLG9z/2YF TTqZCMkCpRX6MhNpNgP2zsm+OSIYG/DH0xa2LUIdwSFZwOyYPWHojcrDQrRng8s4JYuBQEfA4ntI 6OEl2ZdaFQyZjF7BjAKX8TnAOJclkrIZ3wdrxZowMC60EOnpzIEvitizwPRsAAgt+Ba7uXJr4+pn n+NaDrTXHkg6Fb6MGMWhL/ingBghNsLWg78eS+jbiwRjnxrPWhHBuQQRUURM7w9llHLsOi8oOFEV BxgjOAfJbqMS5gtfS7lcRlRJXEKxWGRx8RLWWqzn4Vl76ERzUjjniOMY5xIa9QarD1dpNlt7356B n9Pp6WkTx7F2J9fucVSo9sa9dOIWUVW3s7OzF/Oo50+zFg/l+h8M+NSH/u7frgAAAABJRU5ErkJg gg== "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="641.31415"
+       x="-37.975571"
+       id="image4292"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAA0ZJREFU WIXtl7GOHEUQhr+/pndmhS1wQIaRCMBCDpzwABbyAxAbiQQ/ASEvQExEAhGPQEyAhAhIiQjMIR0C GXFG4nRn9nZ36ifo3r1dn5F867UsJEpazcz2dP1/V/9VXQPbJp6vXfCvjevmoNs19gScj/lfPbvb APIGYLdH8E3/sL1o9M2NWwyYiUREB1Ib2pwD6JJ8nBsPWj/bkOOSBWYx6SmHi7OPX5uPn1y98RZj 12FBaP9SSHtFheXDPzk9OuJwfnarHBwf37n97h107Rrj2VkFXwdpT0QaeBrIZHLzJsfffseXP/14 u3QhLX59wPjbAwiQmh61tVXPgt520oBxmsXBz3Q2f+UYhQhbQp0gVMmutPCYn6eW5QXNG2SwkUac VfsRQZFXMwKsFgGf/wWEfbmcCMjUdhBXmrQqmWaFCEjjMMbrt0MBCQqTiq2EeBqTWhgSUJISjHUb 5DZmKJWVIY3CQGJaFFwZ67LoqzCslm2Q3XyufolClPH4mOXDPxjpcARIRIjlZjb8ixAFpBPGEecI Nm6LWb8TVdShICUCIRL/PSMXS8obn3/G2+/f3WGFz26v3vuQ8HLxQsCh7kSsisSLsn0eOP8T+I8S eLl/6YWBT6Jzuff1p/po9hVkPQdkEWFqyWi2S6Joe6rTWMaZjAJCHN//PsqJz3g0PyVa2e2iEWkF ODacXcp8figmRjZjK++jkxTAUqUbhijTAVl0rqVTjlZCaUfCbiEojXySKEWRGTMpQHYwDr1KTCaO 6UAkiLoFDiNHBQ6InbSa9ShKCESqkuhkEoMgholKDH0wDCjriaUQOFoP6g3oy5LI816/9QbCkAmC roOc9CoaJuqmfSWAMCJc+wAROwX/IuUkskbBiA7jTmhaouhKLw1TlHUwqGxXAtxHW7oSY9jt3lA6 GPqu+P7RYbz3Dp4tiABZG+z3Ae8tLyFjC4WZ/fDLga5Mpm8uBn3gUImo7UJNwxaKHXNgTd/CGFdr 90iP5r9PX7n6hV6/fp2hHxiGgb6f0PcDgEoplFIqmR2/D2wz5si4HMkxnU5msxmZIycnpyyXy0py GAZso2rryZKIiNpm7RIBCa/atObT5840n8+f6Ph5faI/0e8/WlGKPicdU+8AAAAASUVORK5CYII= "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="679.05713"
+       x="22.691698"
+       id="image4314"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAABI1JREFU WIWtl8tuXEUQhr+/uufm+DKRZZFYSQQECS9ggYJYsEIIsUA8AA+QZ4A8AkuWSHmJLHgIEDsWSJZg k4iAscDGNtZ45nQXi+4zHjsTe2xSo1HP6Tmn66+/rgdeFM3ZexUy91zNrA5YvfaZe4z/J3mOvtzq jDPKW8WzQM4fcB2ZtTyfu0ZLDz9gYr6SjI4AYQIHM+QwSRPd37jDN198yefvfDhFeZE2f/wYPXoE +/tgdnq7e3ncXeOlpb+Ob90iNn8efTVZ5uvb67cxGe6ODMAQDohff/mZT++/z/7BIU1KF9u7tga9 HvHgAN/cnFVcVjO0t8fo6Ijvd3bejuOdvU/e/egz3rz1BsejYzAjuOMYhuMGw73X6Q66dAfdxfxx 7x724D24uQ5SUZzz6bqxAU+e8N3h4cfRYsjbf++wvfs75hBMoKocw4CD3WdT6vNF/Fcf5Od/EH/4 Ea2uniqWoLKnlEBiVyI6Rs9AdIkCJIKrusER4iB2F7H7VDo1hgeDonz2m3MBMpkQ3KtOd4K8hGcG WUZZOFaA6IqJ4FbySHNSX4IQoGkAiBi4Vz8JzAEXLmE4qteV3UURAHYWQJ4xog1KM6w4LQEJkpNJ 4I55wlva0mWOf8HMWklmANiceuZOnALOXqh2AYmcSyBmAT4/9eY5ptw+hibD+KRu6tRy6QwzUQh5 wj2SSYQcyBLBnIxXl+Spwnl19UXL6trWjNkgTKmwUcFEqvGWE5LIygSEZ5VngiB7LUnX6FTnA9Gs gKhxEFFB4NlxBIJkItQgSqMxHP5zVbULiwlwT7XApGqlyJOG8fG/5DyZH0DXlVqOW4ntpjwVBjyR JmPMM1J4dYpfIhGEe3FBFnjKxStm2FWzbxGZKckVACUG3PGUMYTMSrBpgdp/PRS0qVJdkMjJMZUG PK1UbcxfFcT58ca9rrla5NP/I1FYMEylFAeEFHD5dCKgqzNj06USKJWwX4tOFsgh2Qw4h0bE0BPx hmE5gwJyRwIzw91Kmizb1UjoAjeBmzbtI7T9xr0AIsMJxNgL9FYCnkTwgMyR27QZOQYr8WoM9AJs CNY7tYqGc22Z0hH3jRj7Rnct4JNAkAoDVkYzI5QwSCVvFwWggeC1UBhQKJ1QXvzvXtp119EzI4Yl 0R120CgjE3IhCohWBh7OuO5i7UAf2OzAaqdQrVCb3QwLPYe+iJ2B0R8G8qi1XhihJR8wOiHWX4sV xbwUsM2Ar4RCP7XLtiCywzLYDSN21mLorwVyV5RP4Vp22kR6IZ42oQUYsL7BZoClWklzqFNVjSR3 WDXCiik2Tw9+W3uwTLPX0CabY9gM18PxjenvuEg7fGsZHgxQtzezWc9TZWEl8NPT5rn6dO+kkB8q mAmR0gSQu2Tte0HyhkAg5XR5ILYDh6AOlOCeUenLIRgiqxnZ7nCt863u3r2LudE0E4bDIVtbW4QQ CSHQ6USkMhckLnkhOSMGKuU85UTTJFJKHB0dsb29zWg0IpgoJlfcgK+vr9vJyYm7e1XsLfBriVc3 tueYmYB8eHg41XnR86/yNf2lZ/0HUOwibtW3H+AAAAAASUVORK5CYII= "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="716.80011"
+       x="83.35891"
+       id="image4325"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAoBJREFU WIXtVzFu20AQnLlbMZZtCGAaS35CXuBUSZkqyCOc0r2LVPlGHpC/uEjhykDKwAICFTFsgKBk3m4K kuJRppXIopUmW3APp+XNcDS3RxIPgx1zfYU9Braau2p6A43mTI6Ojui9J8k/EXlqxGu1yMznc+Pl 5SX39/cnSZIMnHN85MY+wgDAysBisbjNsuyX3NzcfBqPx5+TJOkZbw0TM2RZll9dXb2V6+vrNycn JxCRnREAgCRJ9i4uLl4LSU8SlQd2FiQxm83E7RS1I/4T+OcEZD43ZJma9+FJC1hXn1sTtdfzXJHn ZnJ6CpydASKEc2VBnevieIOYASGUWXU9gfi31foQiKIgBCBUHVVdC2w1qzbAm+5Yswa4JqJKhABK V5FqqUI9Vm0W67tdyCp4HTXwc/SneM1W/40V2FVjbClQS91lvj4jVtvFk12O3nSbbRpSHtNmZto8 MbH128A63iWOQVCYfJGP9j45M+8cwKgB9HVCGmCwRmJTQA1zDTjXHDJ8cc/RAZ13bfDGCMvL5shR agiUZstVMSwWFDd0wMhX7Q8rBHpy4dJgNQGCSjAnhAcOSB/KD3CLp2+h12+DLQVoBG9dTcB3EIjA n8rBooHFRAiqgT8JcYcOfCnRU8cE2jz+jol1DluHAQiogcNIAUPf0ncQW/qAIAzYo8m33H68S33V kTrk75VAlWHICwvfb23KdHT4Kt3DB/FM6BwI0NVHYaXGVhaoLma2/ChRVWT3mCncV04mE5J0ZsbR aMTj42MMBgN47+m937oZqSpCCAghWJZlmE6nyPO8+i8QWnqnadrYrQLehoBVxrPoQCmKwu7u7pYl 61Z/lm/D1fgNuWdAUso/u8EAAAAASUVORK5CYII= "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="754.54315"
+       x="144.02615"
+       id="image4336"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAABOlJREFU WIW9l8uPVEUUxn+nbvV7Hj3Mg8cMTzUEUCMEZSEu0AXGRBIXhoVooi7cauLGBYnxD2DjlqWJCxcs MQZYKAoIjIoLGOQ1Q2YEmWl6Znqmp2/fW8dF952+c6cRw2Mqqdxbt+rW953vVJ06JaoqgALCyhYF sM2GSXQ+LTKabNvmx2THShWxU6UShVptnavV0oAgAk9HgYaRqiCiXqFQmQrDSTm8detn+0ulw7ZY zGBtC1meIAdtCayAq1ZR35/+urPzkM2NjBzsWbu2p7B+PS4IGsARePL5iKCL784tGjgzPJz3Jybe tB4mpDTN/M9nGxoZ06hxIo9CIklAFZyD0CECRhWLYL0uq6YzjbEWjcCbBAR5/NWg2jAsIuAc4kLw 68h9X+3QkSGePbAJyMIioLAUuT2L6OuDt5Am3rWljFbo/eIy1vZabH8aSMemldh7O8iouOYzGUaW bXeW7nYF0ngdBquBNicKEwSSKiwl4tQwNh6gChuHMhhxbYDjZCKcqO1QtxgJk+ySFrUmq1Q8SmUh KPuUxxdQVVw5xCsaeotKZ2ewjOxSw+LfwDYaEbuoM04mPpFh4mqF8lfXWAgCNAhRlFmBrDXMH97I 9leyCUuTStA0MAQkrkDcn46k/HP3FqjX6mzYLtx7Vbh5tYbNgalWCavK5mc62LJdmJkMsBbyxXYq RsRaKplWx4OqD9S4cOI6J7+7gpQdQwN5grLgn4WO/D6ye99i4KN3ILWGU9+OcO74bcBrQyCuZqO0 USDqDJtMFQgZ2LWHdL1A9dJFbn4+yprXhdVTXVT3fow3V2f0pwI9bx9n6LV9WAmBOw8hsYxA5KOQ pA/VheQmV1G9kWf62gzmhRSZ9w3ucoBXmyc1D92DOaZ/nyYz2kN6UNFwHPEeTsAsVcA1rXaxIcLC qM/EN7dYKM0yf7tOGBpKwz2cWT3EL+d/o7YqT1goULurLEzOcufYGNWbPv8njCYIhLRbvZl1aYov 92BG58i910U1F9D1/T8Mr93BhekpUj8cITj2Jfnsdbgb0L2tm+xgus1cy0ubNQDJMFwv15kb9Sge 2kmu5xJ2vZLKwIE7J8nNCGwsk7lVI6eb6P/kXcaPXsQv+WQHMzws37EiEXg8UEQ/NWJCZnWKgQ+z zFb+RgLXqBmhr2+anoxStVmwgrEGXybo+yDTVMAl5ktWMI1T1iU6HPF1EYZpTl+c5Mfz19GOAYo7 Cmgqw+zgG9wb2E+uJHRtziLPr+HU6Wv8+ucUQZihta7agTtEFGuk3RZMngPK9hez+EGKrr777Pp0 E6WJbiZr/YShstbsprjhPvUU7NxdIGUDhHrCrXFXNEgZAWuy8QHtDyDPc+x87kZzjAU8+jfM0M8f 0QjAw8Nnz7aRyLsJ8MiwlrEmBbZ6Yoq5ShWngkoj3rM45EkkJKBLzhZFVPGMUr9Swfrny9RmZggC QYVm6hVPTJ5E0aYIjYREFDIpRzim2I41YvObBb8uCfAnSSDiIYskCmlD/mpo7fC0G9vfpXss0hTq MTLh/wRvucEIVOrKlUkdl87Ojpe29NYOpkyYF2NURIhq857yWEwaOami2qjOOVBnFsLM5F935aic OXuOWl3x64HxjEGMNPLhRRKPaTig6poCqDrnCENHRyHn6rU5JHY7hpW5IS+Jy9FmXcmr+ZII9y+O VkHcXF+92AAAAABJRU5ErkJggg== "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="792.28613"
+       x="204.69342"
+       id="image4347"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAABAJJREFU WIXFlz2PHEUQhp/q6Z29/Tzb6DiBdIBE4AQkAmQSEjIyQgvJTsgJkBAJvj9AisgckxDwD5AjwImF kCwBQrLFAfadzmfvwXE3O9tdBN3zubu3lpCXkmZ3Zrq66q23qqt7RFUFUEBYryiAjQ+mNfiswGj7 2caX7YF1idjDoyMuuOxFnWYpgsTg5xlQhbQLF7eq54YpAe/h0T6oW2RCq3mipj/4+2HmDuXzty9/ dN0e7TK+0CWJGVmEIcvg9Stw4ya42TyAJIHJBD59H57sU9oqfBfqApyeQj6dfPx4dM1u3/v56uab L1zk8g7MZlGjRYQITM9gZxsG/aV8Ygy8sg3HEgCVGAsAvorrzp1+59c/37XSSxz5Mfx0O64FEy9p spD9A8NLy50DeAf37sLjPUg6LQYU1IcrEbCepGuwIIoXMBYwIQpMZKEGIHFRZ4UkKSTdJgCNdV4A wMV/1JZBqoTINQKQ4h2RiQLYCtG6bi33WtiR4ENDgLacpFIpGkqFcqLOVfVyANrS18iCFgCqIVuh A2YOfF7VQL0Ophnk+QrnwGwadK3WqK/VQJJEdksAEdHMw+g52Nyqct8AcArP75wPwAhsvQydbqgX kaqOC1OPHsDZpMZAgebkL3jvQ/hgd7kDWZGGwRA++3rJ3Pizex1ufQXpBkiZAgWvYBKwncUGnlY6 6QoFA5mHRIsnwBMAeP/fnD+VaKO9mOJdWSjrkHkACo7/ZU+sGPCsj4Gam4oBz3oYaK2kqhF5wEUg 58mqbrxqvm9GaSUhdK1xD775En64VWse9d3wDF67Ap98EV+06ZLQS25cg8lB8zxQdkRg/z6MesFH AlZSoEdov2cPYe/3uCO2zgTZKWyPo8VFFWvBT+HBj3C0F3bFQkejc/VgLQwMqEcsWNkABjEikwRD 5T5QB+Bg2InOZwsAAOJgnILfqG3HxY5YLHMf0iCKpGBlQ2EUlYynOge0GOh46DkgX8IAIDMYuLCv JEUxtAAUlwGTgjU9YByLT2pXlcDwlyr0fYx+EQMKksNAQzEn7WpsAUgiA6anMPbgTAtA/RQJ5AWA /BwAMxj6QLNpnETmAXQU6Sq2O1TLpoKrUdDIf+zduYe+i/QvSoGAcTByIZVSS0GJsfgEUUiVtKfW fnugv73T9W8lAn6O/9p9B+hk4I7ALziWGwvTJ7CRh3FTt6ON+wTlJFfuHvCHjEbDN169lF21xvXF GDXxNCQiRQ2GalQPnT6MXloQfQTrHRzfDwAksqeoqqLhBvWKqjOZ6x7+ciA35bvvb5PlyjSfmcQY xIRjjNRBlOB9WOtLReL6r2aFjdZHwlS99zjnGQ56Ps9OkNrXcYvzZyYN+op+uc5P80Zx/AvAF8/6 jch5awAAAABJRU5ErkJggg== "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="867.77216"
+       x="326.02789"
+       id="image4358"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAABN1JREFU WIWtl8+LXEUQxz/V3TuzO9lkEzbiLmYlJpisSiKIePIURZGQnNSDiKCIiie9qCfxFNSDehEFNQj6 B3jIWU/+AC9BkLCgIKKBRGPc7Oxmdmdel4eqfvOyzu7GNQWPntevu+rbVd+q6oF/i4yYuxEyUq80 RgWCv2tjTeD/SR5hLxebqWG8GG4CWa9gO9I8eV73jly5r0NH+ztjrsYQgSAyhCDrFWxDVIemFTIK Kv1W59Ly1Azp++7g1Xu0/6bMzqIh+HoxAHqD6GCGbSQgVy7TW+zy3eKFw+ncpbUHjx0/AgcOwMqK 74gQFDQAOpoFCiwDOxjtozpw4gCyb8qw5yamznzBmR+WjqVWK2QuLMD5BZAAEv30wUCMsq7AInAK eAWYHtoaiSQriECubK9UEISLlZDM5W1oC5BMiUTTphtoFWANuB+4FVgBxtiArgpJDURSqDKECnp9 oiiBIBZrjT4KVAJZHEwZw/BZCfBIMO+c8Pfc+F7v80cbj7gtP5j5V3SYgFoUOAdUTDlOTgRWBI77 7xMCi664fCfYAZqGUagKDTzrJTiAiuHHKvvoGVGXDAHNRqarGe7N5vNdCjMKg/oEDI/WCJ86l6ph ZEBJzVDVxiogZN+UPbbBPl4FHmgqz3BS4VOFyVynfS0FiGCkDo3wAgnxmBeCxGgnvBJBMtdWZ4GL GV6vHK0jPgm8DMw2LTeAdNQ8ldVOl9y7IsUD2VwuAksZnojwgsKfCpUblgpyH3oK+wsoH28GzgGl sFM8lGFG4GvgRWDKQ9GvPMVxAIojUhgHPq5gIcK7JWgDanJtJHMbzH8EvAnc0phrUMMSv1KI7oUo sFfg2wxHB/BlgL3bbIgngJ8cXM1PtVR1NppmxXiAu7w3gFaGKYG7BU7/R8M/AgeBi8DM5kuDpZgT pMrQH9jvkCEJHALe9tNcj5wCHgb2AZ1RCzydawAwLA6DPKxWzTSbBX4G3trC+C/AO8DtbHGNGZIg 1KcfNO4KzZpSCtAy8NIWAPYDdwB9bI/KOl35mlplABIQsWaUsjWVMSw/UrZRBeYztEvub/I8nWHV w9fUkRpzLdcfIEgCxtVINy5mpJ1hQg1UWw35U81aL/CrwCGBz9bNPynQE5jItrctpmtCoI3Nt4AJ a7pJ2jhZxCqfRuNAKcUB+Evh0YbfTgPvA0eAT4CvGGZKCzgKrKh5FvxCokZ29VofFUmQpAVMljLp lxDFR7UadBhoexd5HvjNjQPsxPjxEPAecCfwGOaZjjqtXL80QCRFkpJkXE1JX+2iINFiqcHeuwGe Ay4DzwB7sEtIUyZ8/jXguIP8XGESv4r5tYwCQKGlSKuEYKc6c4vrpa7VjGVLwQ+w4rJZeu0CzgJv AHcB3bK+8g7Y8MS4EiKkTkcjkwpr5RLsHVA8JXdgjebgJoab0sHbuYcHvPB4c0IRVZiA1rhK+uZv fn/8tgzLikhpOAP3wnUa3UoK8er/QNb0zl6I54UwuU9k7dmYxJzV7yMxqqoG0dI4dBPtWxnOqEhW VRGEmCJolsFa/GPPrvihzM3NoRLp9wfs3r2b+fl5YoykFElpzL2yTQAIVa6oBgOqKtPtdllYWKDX u0oMQgjh2j+n09PTYXV1VVUtHGXcrqhfz4qeEIIAeWlpqba5OfwbJxvq+gc+axTGYE1WCwAAAABJ RU5ErkJggg== "
+       height="32"
+       width="32"
+       transform="matrix(0.84909119,-0.5282463,0.5282463,0.84909119,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="570.23157"
+       x="-140.07323"
+       id="image3325"
+       xlink:href="data:image/png;base64,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 TkSuQmCC "
+       height="32"
+       width="32"
+       transform="matrix(0.8660254,-0.5,0.5,0.8660254,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="605.95636"
+       x="-78.196075"
+       id="image3336"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAABExJREFU WIXtlk2IVWUYx3/P+75nZu6g18mPGaGwKVApUBGkhZJCH4sCKYlqIaUtWgRBELkoahFBGFG0KHAR 0apFSURFJAYtDMqoJDIjsoSpaXQmP+Z+33PO+z4t3vsxk6OjdwZa1H9x73nvPef5P8//+TrwX4eA BTHxpAqASyx9iSEEyPKA96Hz34LpZMZRc9zQdc8gxi5TtX0alGJxgKee2MqjezZz+kyF5186wgcf ncBYO+vZq0VQgICogKqo5Od9Xs5cnk0+LTL84urVSzAWpqebrLtxGaKBG64f4tffJlm1soBzZkGx a9AYvUK53KRa84T09AaXNaZu27JtB6Ojy2mkGbV6xvDIKgYKSwDYuHk9w1M1EtuNXxWqtezyETND 7QBBFAkQVCkWCxz69Eea9VM7nLGWPyaqjE9WEVHKlYzpUqNj6MRPU4yNl7EtBVQVI7D/ue1ULuOE QFv36IMQHYgZYOcdo7zx2mfGGcCI4BwghsTmiHSjtRacExLbMtSyuevutZdV4Epw+OOV6qq1lAul Oi6JjpSrGWnqOzdVqxmlcpPESceBhVXDbLhn923nnvseIOQeRfE+cNP6FZ0bDrx8J83U0xZFRAgB dj38PoXBZF4CAUKIqVON9aNA2sj45sgp3Lq1K9iyafiSBjZtGJnz98+/GGN45WCXZQ5iiEUHEHx0 Imgs0Hol5fxUBVcYcPNGMRdKpSaFfosPAQ0BHxQNimqAFokBENOacxKvEXIgrTbRILjHnvyEF15P EVGsCJV6ypuv3sWtW9cAcO/ug4yfLuOcoAjBB3zu8ZP7OD/dQLUd7QwZZk07LjoYa7DWsnfPt7hq NWPqbA1nQQQq5ZQ06xbhhVKDv87VEQ2kaY73HkQQY1h+zWBP6rVRKCQ4YwQjsQMMihhmtWGe5TTr TZLEYK1gjGXOpPcAa8DBjAqVdh67uvk8dkDbqdgFgaXX7me+9STEto3fioZAUMFHMrRyHBeCkucK 6jEIWeYJGjpGQlB8UIwPs4wPDQ3MG2EIMa2h04KxC1DFe6FUE9zgYMJQsQ9DQAwE77GmO2qKS/tZ VuzvbRm1FoKGSNxWOqiCGnwpgYMH3zms/xL27nnocVOrpVcf2SIh9x738y9nOfrdBD73IEq3AQzM W2ZXCgFC56VKVJDEMnGmhtt/4Gteec8gKMYKoooY06r8tgPmil2KVHQ+Ia5f1YBq7CBFQIV0YgzX V+ynMLIEo3kcMGLiPBAQTHux9xi5AQWlRa6AKN4rGEt+LsFt37qGzds24tUjCmIE2uN1oVnoyhHN iBI7XDDW8eHby3GP7LyZB++/ZQEsvWPiqxHMorxt9wgFce8emzAnV50kZFkcGoBZpFk/E63S6zDb gQG+P1PBHTr65e/HNtwOzSYS2S+ilx4d0n8UkLYnIwKuzvgPx/8UYFSSvt1Ym1z0BAvbe5fMriDa qE+R9L21APP/Y3HwN86RiM5eWySyAAAAAElFTkSuQmCC "
+       height="32"
+       width="32"
+       transform="matrix(0.8660254,-0.5,0.5,0.8660254,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="820.30524"
+       x="293.06714"
+       id="image3347"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAA8xJREFU WIW1lr+OHEUQxn9fTe+uDZawSAgwGSQEPAASIkCCBwAShIiIyQlJSHgFREzOSziwkDNCCwskMIgT Ps53tztdRVA9s3PrubP2tFfB/Oueqq+qq74quCjiZuU5/Zrcp4vR7nYgw76jf3iPbmIoJga7Axqf 6oeLTqN3v/oJbIUtFnQy1Mwqpv8H2J54fOt0DCY9n/vqRL9mQU85O/r9a7/92rdvvv4K1vloWFPM APT7AcgI582nqsTR8Tl/nz7j2fFv75SjPx598NHH73H3zoKzTcW4mUwcADjw9ktL7v/yFw8f/Ph+ 6UqnJ097nvx7npk4sa4DIYlJJD3g1zhDKvRnT60AoQgkYcrNZi0HZo79ks+jd89hdnADtfNXAJ04 BcxEGYyKoBIoMn9GEDvSTnZWZgOm9o8gGohtVholvQo8AsgoqIHy5u916tHHq0bQEe1OoOZdAhhj F+mdp+EwYcO3PSWNtjKM1BGCqLnqnnvKdkNgHtQufQ4cq+nDCMB0IcwS1Bq4p47qvk04B6wxUGd0 ZGkLpb4xAoIagSJAwhxqOGaWxiccpAiqw6av9H1QfRIb7XBtgGp73jh4jEdgXSqUTSIAUJuvQUDN sJlB9WCzCTZ9peHMgNjlddopk1kNmCwIFzXAq+NNSRHgNZPCiCwZWSZgwHpTWW8iFUl7ccMF0m/1 q9qOtC2W4/Ud/jm9C+HIIjNehnuw2fSYdEl9vVgyoYeqE+GOhwiEA70XyjcffscXn/xAdZHmDagQ gQ5GysG2AB0RWBd8+fiIYgoW3QbJGtShJndHhMMAAEc4ZkHpKiVCeAx8PRgfWtJNAGjMG0GgRnIR jSEOafRF4gBRJLJT0OXHcUgakHPF+2Wy68QQWb9QGhJWTKEcHCqoa+wxRGLaBa7qg7sy1xcHVqqN tCLzoCEBiQgH65qxub7nEzBzMjfXTp+TxSQnTBRDpbMwzFEEomvHoYZ4zuOrIjFEb+6foc/nPino TCqSItT4dZga7KquD5fPh5f9Nxgf1pXM24WKmZsp8OHsRz5oivYaBmaMe7vYwDEB1GxEhspigVAg 05YLRsKv+1ifl9GBLRcIwIJSZOXBw/7xp58F5XxieNotDiKxoy4b3f2f+0cq5eW3bq02n3cWxcyy OKXMV6mBuc5MBKB2mkGkNMoNHZ/oz1fv3v5e9+69wWK54tZqxWKxZLlcIqGuFEopbVq+XjQ8Aq+V vq+4e7g75+dn1OqcnPxH3/cZmNVqReRonl7D8I6ZjQPL3v5LOe7F0AMyEsPyer2eVXxTzWBW7//c YvLzfjkfUwAAAABJRU5ErkJggg== "
+       height="32"
+       width="32"
+       transform="matrix(0.8660254,-0.5,0.5,0.8660254,0,0)"
+       inkscape:export-filename="C:\Users\hce\ETH\teaching\DOSE\2012\repository\src\dose_2012\images\main_ui\background2.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <image
+       y="498.78192"
+       x="-263.82758"
+       id="image3247"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAA5VJREFU
+WIW9lz+PHEUQxX+vunfXNnA2lgzC6ISEHNgBJGQIATKIGCGniADJGRECiQ8ACZ+BCJERQgIJEiT+
+CiAQ/gPYwhi4P9zt3XQVQU/fza3PZm/vTEmr1s5M1Xv1+nVpBvaGeLBxV30N1uHN6Fc7ImCfqd/+
+h47lEZSiiAhVwNiP6RFEa0oBLtAUyF+evUDanD6UOx9hFgaG1CfoiBSI2nEEEeEOKslWtyejLl9f
+X/vgyen2R8cunIeUMEQo2BXjsCHAazuIEGzdvs3Grd+57lvP5h/XV1958fmL2KlTlI0pZqJX4Og2
+IoAICPBwxucu8Nd33/LpzR9eyimZtq/+Qrn6G0o9uKhrE+Iw4dRdD6BARLD1/U9YF6x4WEYKzJAl
+MIEFIYOhJQ0OxqY3uQMJcIcQskARhBvRgRlk7RCMfsdVYcyrB5sfDySFVRLW76EJwvFSa4nAvD6X
+wfC6SfVgNtaoMjejP7IHINDn03cv4QipgIMiqFyCjILwIFQIDDMRPvAC5f7YGoDNRsuLKj0euAeK
+3bTcra2zne/QJXOpl0tpz2ysD8+CCDQiypTwDooTUZXEHQcMAwsg1XJtS1yw8Y9FcfK5zz+JZ964
+NKessw1+g3h5oVyAM5cve47V9dba3C4L76pK3XlCd0AnIE3QnIMjIpBEdJ3lRZj7tbex02/i5U9k
+J4i1K9jDL8DJ1+bK12A7Fxoz0a1SbryLyhS/+THx9xcQ00VKLTjnBIzPwrGnsKWLQB2x/x+B7RvY
+6beIPz5DJ1+HydPQ/bpQqYU8kB57H0aPEqMz+PoV0uPvQWzPnd9MCJCXlpYOTECnLwHXSI88B2z0
+V5+YP7+B54wkfW1mr5pZMTMk7fndo0Q9hjsREOWegFFfRIgI3OvAKqWknPM7OeesnDNmliQxJDFk
++9+R7rpSJ+Pu2sDdnZQSpRTLKSVSSkjaWYcEWvIiYbbr8YjAzCilYGaNTGRJMjNm5W8J8ytw73D3
+nTp956225VnZh+BD5ocBbh0PSbg7feP3Bz9M1/vVaEew4WZJNgvekhbtfDa3dQvMGlxWSrnabjZW
+zRNHFUOVh0S6rruWJX24srLyc0SMZrbjKL+OYmYOSNKt48ePf6Xl5WUmkwmTyYTxeMx4PAZQzrlN
+qoVPQj9wKKXg7uHubG5u4u6sra3RdV19g5hMJs0cO40PzbKoGZuvhgMpdotpa2tr38IP6hN937r/
+AqRiyRJGtFjXAAAAAElFTkSuQmCC
+"
+       height="32"
+       width="32"
+       transform="matrix(0.8660254,-0.5,0.5,0.8660254,0,0)" />
+  </g>
+</svg>

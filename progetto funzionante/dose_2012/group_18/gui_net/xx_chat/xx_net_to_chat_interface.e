@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_NET_TO_CHAT_INTERFACE}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Interface between net and chat"
+	author: "Team Milano2"
+	date: "13-11-12"
+	revision: "0.2"
 
 deferred class
 	XX_NET_TO_CHAT_INTERFACE

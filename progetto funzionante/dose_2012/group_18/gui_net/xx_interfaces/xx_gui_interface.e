@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_GUI_INTERFACE}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Interface of the gui"
+	author: "Team Milano2"
+	date: "13-11-12"
+	revision: "0.2"
 
 deferred class
 	XX_GUI_INTERFACE

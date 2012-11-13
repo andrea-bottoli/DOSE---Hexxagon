@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_GUI}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Class that implements the gui"
+	author: "Team Milano2"
+	date: "13-11-12"
+	revision: "0.2"
 
 class
 	XX_GUI

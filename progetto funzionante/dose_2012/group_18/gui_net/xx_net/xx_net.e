@@ -1,22 +1,21 @@
 note
-	description: "Class that implements net manager"
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Class that implements net manager"
+	author: "Team Milano2"
+	date: "13-11-12"
+	revision: "0.2"
 
-class
-	XX_NET
+class
+	XX_NET
 
-create
-	make
+create
+	make
 
-feature {NONE} -- Initialization
+feature {NONE} -- Initialization
 
-	make
-			-- Initialization for `Current'.
-		do
-			
-		end
+	make
+			-- Initialization for `Current'.
+		do
 
-end
-
+		end
+
+end

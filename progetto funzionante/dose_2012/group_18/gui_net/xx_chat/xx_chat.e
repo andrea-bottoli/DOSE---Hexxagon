@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_CHAT}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Class that implement the game chat"
+	author: "Team Milano2"
+	date: "13-11-12"
+	revision: "0.2"
 
 class
 	XX_CHAT
@@ -17,7 +17,7 @@ feature --Method inherited from XX_GUI_TO_CHAT_INTERFACE
 	end
 	set_net_manager(a_net: XX_NET)
 	do
-		
+
 	end
 feature --Method inherited from XX_NET_TO_CHAT_INTERFACE
 	set_chat_message(a_chat_message: STRING)

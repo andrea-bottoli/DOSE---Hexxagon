@@ -22,7 +22,7 @@ feature --Deferred Metods
 			chat_message_is_visible: not a_chat_message.is_equal ("")
 		end
 
-	--Allow to set the network manager
+	--Allow to set the chat manager
 	set_chat_manager(a_chat_manager: XX_CHAT)
 		require
 			a_chat_manager_not_void: a_chat_manager/=Void

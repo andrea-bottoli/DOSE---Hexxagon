@@ -69,6 +69,8 @@
 				<cluster name="gui_net" location="c:\users\andrea\documents\github\dose---hexxagon\progetto funzionante\dose_2012\group_18\gui_net\">
 					<cluster name="xx_chat" location="c:\users\andrea\documents\github\dose---hexxagon\progetto funzionante\dose_2012\group_18\gui_net\xx_chat\"/>
 					<cluster name="xx_interfaces" location="c:\users\andrea\documents\github\dose---hexxagon\progetto funzionante\dose_2012\group_18\gui_net\xx_interfaces\"/>
+					<cluster name="xx_gui" location="c:\users\andrea\documents\github\dose---hexxagon\progetto funzionante\dose_2012\group_18\gui_net\xx_gui\"/>
+					<cluster name="xx_net" location="c:\users\andrea\documents\github\dose---hexxagon\progetto funzionante\dose_2012\group_18\gui_net\xx_net\"/>
 				</cluster>
 			</cluster>
 			<cluster name="group_19" location=".\dose_2012\group_19\" recursive="true"/>

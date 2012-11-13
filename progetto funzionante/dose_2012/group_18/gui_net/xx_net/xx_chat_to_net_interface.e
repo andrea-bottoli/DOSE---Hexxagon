@@ -17,7 +17,7 @@ feature --Deferred Metods
 		require
 			chat_message_not_void: a_chat_message/=Void
 			chat_message_not_empty: a_chat_message.is_empty=FALSE
-			owner_not_void: a_owner/=Void
+			
 		deferred
 		end
 

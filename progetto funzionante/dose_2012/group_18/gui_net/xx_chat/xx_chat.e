@@ -9,6 +9,7 @@ class
 inherit
 	XX_GUI_TO_CHAT_INTERFACE
 	XX_NET_TO_CHAT_INTERFACE
+
 feature --Method inherited from XX_GUI_TO_CHAT_INTERFACE
 	send_chat_message(a_chat_message: STRING)
 	do

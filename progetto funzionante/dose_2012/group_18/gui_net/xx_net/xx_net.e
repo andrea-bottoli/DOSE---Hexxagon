@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {XX_NET}."
+	description: "Class that implements net manager"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {XX_CHAT_TO_NET_INTERFACE}."
+	description: "Interface for communication between chat and net"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

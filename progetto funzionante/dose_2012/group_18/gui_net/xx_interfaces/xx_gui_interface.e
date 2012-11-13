@@ -27,10 +27,21 @@ feature{NONE} --Attributes of the gui that are involved with pre & post conditio
 	label_minutes: EV_LABEL
 	label_seconds: EV_LABEL
 
+	--There are the component that compose the windows --> panels
+	game_panel: EV_HORIZONTAL_BOX
+	menu_panel: EV_HORIZONTAL_BOX
+
+	--There are some components of the gui
+	board: EV_ANY
+	chat: EV_SCROLLABLE_AREA
+	net_manager: XX_NET
+	game_window: XX_GUI
+	menu_window: XX_GUI
+
 feature --Deferred Methods for change the gui view
 
 	--Allow to set the game status in the express field
-	set_game_statut(a_player1, a_player2: XX_PLAYER)
+	set_game_status(a_player1, a_player2: XX_PLAYER)
 	require
 		player_are_not_void: a_player1/=Void and a_player2/=Void
 	deferred
@@ -44,7 +55,7 @@ feature --Deferred Methods for change the gui view
 	end
 
 	--Allow to set the net status in the express field
-	set_network_statut(a_net1, a_net2: ANY)
+	set_network_status(a_net1, a_net2: ANY)
 	require
 		network_status_not_void: a_net1/=Void and a_net2/=Void
 	deferred
@@ -70,16 +81,14 @@ feature --Deferred Methods for change the gui view
 	require
 		board_not_void: a_board/=Void
 	deferred
-	ensure
-	--Create Board Obj
 	end
 
 	--Allow to clean the view of the timer in the gui, bringing it back to the default status
 	clean_timer
 	deferred
 	ensure
-			label_minutes_is_in_default_state: label_minutes.text.is_equal("--")
-			label_seconds_is_in_default_state: label_seconds.text.is_equal("--")
+		label_minutes_is_in_default_state: label_minutes.text.is_equal("--")
+		label_seconds_is_in_default_state: label_seconds.text.is_equal("--")
 	end
 
 	--Allow to clean the view of the game status in the gui, bringing it back to the default status
@@ -108,32 +117,33 @@ feature --Deferred Methods for change the gui view
 	clean_chat
 	deferred
 	ensure
-	-- Create Chat Obj
+		chat_is_in_default_state: chat.is_empty=TRUE
 	end
 
 	--Allow to clean the view of the board in the gui, bringing it back to the default status
 	clean_board
 	deferred
-	ensure
-	--Create Board Obj
 	end
 
 	--Allow to clean the view of the main window/panel in the gui, bringing it back to the default status
 	clean_main_window
 	deferred
 	ensure
+		menu_window_is_empty: menu_window.is_menu_window_empty=TRUE
 	end
 
 	--Allow to clean the view of the game window/panel in the gui, bringing it back to the default status
 	clean_game_window
 	deferred
 	ensure
+		game_window_is_empty: game_window.is_game_window_empty=TRUE
 	end
 
 	--Allow to clean the set enable the interaction with the player
 	chat_enable(a_condition: BOOLEAN)
 	deferred
 	ensure
+		chat_is_enabled: chat.is_displayed=a_condition
 	--chat_is_enable: CHAT_Obj.is_enable=a_condition
 	end
 
@@ -141,14 +151,16 @@ feature --Deferred Methods for change the gui view
 	switch_panel_game_to_menu
 	deferred
 	ensure
-	-- Verify that the game panel object is visible and the menu is hidden
+		game_panel_not_visible: game_panel.is_displayed=FALSE
+		menu_panel_visible: menu_panel.is_displayed=TRUE
 	end
 
 	--Allow to switch the panel from game panel to menu panel
 	switch_panel_menu_to_game
 	deferred
 	ensure
-	-- Verify that the menu object is visible and the game panel is hidden
+		game_panel_not_visible: game_panel.is_displayed=TRUE
+		menu_panel_visible: menu_panel.is_displayed=FALSE
 	end
 
 	--Allow to set the net manager (for the chat)
@@ -157,6 +169,6 @@ feature --Deferred Methods for change the gui view
 		a_net_manager_is_not_void: a_net_manager/=Void
 	deferred
 	ensure
-	--object doesn't modified'
+		net_manager=a_net_manager
 	end
 end

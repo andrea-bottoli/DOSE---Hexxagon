@@ -1,22 +1,24 @@
 note
-	description: "Summary description for {XX_GUI}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Summary description for {XX_GUI}."
+	author: ""
+	date: "$Date$"
+	revision: "$Revision$"
 
-class
-	XX_GUI
+class
+	XX_GUI
 
-create
-	make
+create
+	make
 
-feature {NONE} -- Initialization
+feature {NONE} -- Initialization
 
-	make
-			-- Initialization for `Current'.
-		do
-			
-		end
+	make
+			-- Initialization for `Current'.
+		do
 
-end
-
+		end
+feature --Methods
+	is_menu_window_empty:BOOLEAN
+	is_game_window_empty:BOOLEAN
+
+end

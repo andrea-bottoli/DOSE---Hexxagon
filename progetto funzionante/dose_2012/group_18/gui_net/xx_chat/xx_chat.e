@@ -15,6 +15,10 @@ feature --Method inherited from XX_GUI_TO_CHAT_INTERFACE
 	do
 
 	end
+	set_net_manager(a_net: XX_NET)
+	do
+		
+	end
 feature --Method inherited from XX_NET_TO_CHAT_INTERFACE
 	set_chat_message(a_chat_message: STRING)
 	do

@@ -121,18 +121,56 @@ feature --Deferred Methods for change the gui view
 		net_manager_is_setted: is_net_manager_setted(a_net_manager)=TRUE
 	end
 
-feature{NONE} --Methods 
+feature{NONE} --Private Methods
+	--Allow to check if game panel is empy
 	is_game_panel_empty:BOOLEAN deferred end
+
+	--Allow to check if menu panel is empy
 	is_menu_panel_empty:BOOLEAN deferred end
 
-	is_game_status_empty:BOOLEAN deferred end
-	is_network_status_empty:BOOLEAN deferred end
-	is_board_empty:BOOLEAN deferred end
-	is_timer_empty:BOOLEAN deferred end
-	is_chat_empty:BOOLEAN deferred end
-	is_chat_displayed:BOOLEAN deferred end
+	--Allow to check if game_status is empy
+	is_game_status_empty:BOOLEAN
+	deferred
+	end
 
-	is_switched_panel_menu_to_game:BOOLEAN deferred end
-	is_switched_panel_game_to_menu:BOOLEAN deferred end
-	is_net_manager_setted(a_net_manager: XX_NET):BOOLEAN deferred end
+	--Allow to check if network_status is empy
+	is_network_status_empty:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if board is empy
+	is_board_empty:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if timer is empy
+	is_timer_empty:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if chat is empy
+	is_chat_empty:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if chat is displayed
+	is_chat_displayed:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if menu_panel is switched with game_panel
+	is_switched_panel_menu_to_game:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if game_panel is switched with menu_panel
+	is_switched_panel_game_to_menu:BOOLEAN
+	deferred
+	end
+
+	--Allow to check if network_manager is setted
+	is_net_manager_setted(a_net_manager: XX_NET):BOOLEAN
+	deferred
+	end
+
 end

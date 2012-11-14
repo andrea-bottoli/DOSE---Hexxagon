@@ -6,11 +6,12 @@ note
 
 class
 	XX_GUI
-
+inherit
+--	XX_GUI_INTERFACE
 create
 	make
 
-feature{NONE} --Attributes of the gui that are involved with pre & post conditions
+feature{NONE} --Attributes of the gui
 
 	--There are the EV component that compose the "Game Status"
 	label_name_player1: EV_LABEL
@@ -47,11 +48,20 @@ feature {NONE} -- Initialization
 		do
 
 		end
-feature --Methods
-
+feature{NONE} --Private Methods
+	--Allow to check if game panel is empy
 	is_game_panel_empty:BOOLEAN
-	is_menu_panel_empty:BOOLEAN
+	do
 
+	end
+
+	--Allow to check if menu panel is empy
+	is_menu_panel_empty:BOOLEAN
+	do
+
+	end
+
+	--Allow to check if game_status is empy
 	is_game_status_empty:BOOLEAN
 	do
 --		label_ip_player1_is_in_default_state: label_ip_player1.text.is_equal("")
@@ -60,6 +70,7 @@ feature --Methods
 --		label_port_player2_is_in_default_state: label_port_player2.text.is_equal("")
 	end
 
+	--Allow to check if network_status is empy
 	is_network_status_empty:BOOLEAN
 	do
 
@@ -69,11 +80,13 @@ feature --Methods
 --		label_port_player2_not_void: not label_port_player2.text.is_equal("")
 	end
 
+	--Allow to check if board is empy
 	is_board_empty:BOOLEAN
 	do
 
 	end
 
+	--Allow to check if timer is empy
 	is_timer_empty:BOOLEAN
 	do
 
@@ -81,28 +94,33 @@ feature --Methods
 --		label_seconds_is_in_default_state: not label_seconds.text.is_equal("--")
 	end
 
+	--Allow to check if chat is empy
 	is_chat_empty:BOOLEAN
 	do
 
 	end
 
+	--Allow to check if chat is displayed
 	is_chat_displayed:BOOLEAN
 	do
 
 	end
-	
+
+	--Allow to check if menu_panel is switched with game_panel
 	is_switched_panel_menu_to_game:BOOLEAN
 	do
 --		game_panel_not_visible: game_panel.is_displayed=TRUE
 --		menu_panel_visible: menu_panel.is_displayed=FALSE	
 	end
 
+	--Allow to check if game_panel is switched with menu_panel
 	is_switched_panel_game_to_menu:BOOLEAN
 	do
 --		game_panel_not_visible: game_panel.is_displayed=FALSE
 --		menu_panel_visible: menu_panel.is_displayed=TRUE
 	end
 
+	--Allow to check if network_manager is setted
 	is_net_manager_setted(a_net_manager: XX_NET):BOOLEAN
 	do
 --		net_manager=a_net_manager	

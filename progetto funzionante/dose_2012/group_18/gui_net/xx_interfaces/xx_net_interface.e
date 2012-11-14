@@ -1,11 +1,12 @@
 note
-	description: "Summary description for {XX_NET_INTERFACE}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Interface of the net"
+	author: "Team Milano2"
+	date: "14-11-2012"
+	revision: "0.2"
 
 deferred class
 	XX_NET_INTERFACE
+
 feature -- Deferred methods to use hexxagon through the net
 
 	-- This method sends the command that takes the game at the initial condition
@@ -74,8 +75,8 @@ feature -- Deferred methods to use hexxagon through the net
 	--This method permits to open a connection to a host
 	init_connection(a_ip: STRING a_port: INTEGER)
 	require
-		ip_not_void: a_ip/=Void
-		port_not_void: a_port/=Void
+		ip_not_void: a_ip/=Void and is_ip_valid(a_ip)=TRUE
+		port_not_void: a_port/=Void and a_port>1024 and a_port<65536
 	deferred
 	end
 
@@ -83,6 +84,20 @@ feature -- Deferred methods to use hexxagon through the net
 	init_listener(a_port: INTEGER)
 	require
 		port_not_void: a_port/=Void
+	deferred
+	ensure
+		listener_is_initialized: is_listener_initialized=TRUE
+	end
+
+feature{NONE} --Private Method
+
+	--Checks if an ip is valid
+	is_ip_valid(a_ip: STRING):BOOLEAN
+	deferred
+	end
+
+	--Checks if the listener is initialized
+	is_listener_initialized:BOOLEAN
 	deferred
 	end
 end

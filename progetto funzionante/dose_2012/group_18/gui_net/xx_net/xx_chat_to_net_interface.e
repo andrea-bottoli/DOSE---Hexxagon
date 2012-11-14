@@ -1,14 +1,11 @@
 note
 	description: "Interface for communication between chat and net"
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	author: "Team Milano2"
+	date: "14-11-2012"
+	revision: "0.2"
 
 deferred class
 	XX_CHAT_TO_NET_INTERFACE
-
-feature{NONE}	--Attribute
-	chat_manager: XX_CHAT
 
 feature --Deferred Metods
 
@@ -19,7 +16,7 @@ feature --Deferred Metods
 			chat_message_not_empty: a_chat_message.is_empty=FALSE
 		deferred
 		ensure
-			chat_message_is_visible: not a_chat_message.is_equal ("")
+			chat_message_is_visible: is_chat_message_visible=TRUE
 		end
 
 	--Allow to set the chat manager
@@ -28,6 +25,19 @@ feature --Deferred Metods
 			a_chat_manager_not_void: a_chat_manager/=Void
 		deferred
 		ensure
-			chat_manager_not_null: chat_manager=a_chat_manager
+			chat_manager_not_null: is_chat_manager_setted=TRUE
 		end
+
+feature{NONE} --Private Method
+
+	--Checks if the chat message is visible
+	is_chat_message_visible:BOOLEAN
+	deferred
+	end
+
+	--Checks if the chat manager is setted
+	is_chat_manager_setted:BOOLEAN
+	deferred
+	end
+
 end

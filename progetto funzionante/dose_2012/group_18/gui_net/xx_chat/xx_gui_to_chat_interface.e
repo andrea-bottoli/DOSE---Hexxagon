@@ -1,15 +1,11 @@
 note
 	description: "Interface between gui and chat"
 	author: "Team Milano2"
-	date: "13-11-12"
+	date: "13-11-2012"
 	revision: "0.2"
 
 deferred class
 	XX_GUI_TO_CHAT_INTERFACE
-
-
-feature{NONE}	--Attribute
-	net_manager: XX_NET
 
 feature --Deferred method implemented in XX_CHAT
 

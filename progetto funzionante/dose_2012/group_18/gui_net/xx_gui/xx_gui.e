@@ -1,7 +1,7 @@
 note
 	description: "Class that implements the gui"
 	author: "Team Milano2"
-	date: "13-11-12"
+	date: "13-11-2012"
 	revision: "0.2"
 
 class
@@ -50,8 +50,8 @@ feature {NONE} -- Initialization
 			--TODO
 		end
 
- --Private Methods
-feature{NONE}
+
+feature{NONE} --Private Methods inherited from xx_gui_interface
 
 	--Allow to check if game panel is empy
 	is_game_panel_empty:BOOLEAN
@@ -137,5 +137,14 @@ feature{NONE}
 	do
 		--TODO
 --		net_manager=a_net_manager	
+	end
+
+
+feature{NONE} --Private Method iherited from xx_chat_to_gui_interface
+
+	--Check if the message is visible
+	is_chat_message_visible:BOOLEAN
+	do
+		--TODO
 	end
 end

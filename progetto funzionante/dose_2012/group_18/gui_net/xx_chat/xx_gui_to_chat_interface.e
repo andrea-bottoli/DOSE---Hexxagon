@@ -6,12 +6,14 @@ note
 
 deferred class
 	XX_GUI_TO_CHAT_INTERFACE
+
+
 feature{NONE}	--Attribute
 	net_manager: XX_NET
 
 feature --Deferred method implemented in XX_CHAT
 
- 	--Sended message to chat
+ 	--Sends a message to chat
  	send_chat_message(a_chat_message: STRING)
 	require
 		chat_message_not_void: a_chat_message/=Void
@@ -25,6 +27,14 @@ feature --Deferred method implemented in XX_CHAT
 		net_manager_not_void: a_net/=Void
 	deferred
 	ensure
-		net_manager_exists: net_manager=a_net
+		net_manager_is_setted: is_net_manager_setted=TRUE
+	end
+
+-- Private methods
+feature{NONE}
+
+	--Verifies if net manager is setted
+	is_net_manager_setted: BOOLEAN
+	deferred
 	end
 end

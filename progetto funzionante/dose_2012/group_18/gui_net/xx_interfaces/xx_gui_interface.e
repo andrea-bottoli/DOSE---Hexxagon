@@ -6,7 +6,9 @@ note
 
 deferred class
 	XX_GUI_INTERFACE
-feature --Deferred Methods for change the gui view
+
+ --Deferred Methods for change the gui view
+feature
 
 	--Allow to set the game status in the express field
 	set_game_status(a_player1, a_player2: XX_PLAYER)
@@ -121,12 +123,18 @@ feature --Deferred Methods for change the gui view
 		net_manager_is_setted: is_net_manager_setted(a_net_manager)=TRUE
 	end
 
-feature{NONE} --Private Methods
+ --Private Methods
+feature{NONE}
+
 	--Allow to check if game panel is empy
-	is_game_panel_empty:BOOLEAN deferred end
+	is_game_panel_empty:BOOLEAN
+	deferred
+	end
 
 	--Allow to check if menu panel is empy
-	is_menu_panel_empty:BOOLEAN deferred end
+	is_menu_panel_empty:BOOLEAN
+	deferred
+	end
 
 	--Allow to check if game_status is empy
 	is_game_status_empty:BOOLEAN

@@ -71,4 +71,18 @@ feature -- Deferred methods to use hexxagon through the net
 	deferred
 	end
 
+	--This method permits to open a connection to a host
+	init_connection(a_ip: STRING a_port: INTEGER)
+	require
+		ip_not_void: a_ip/=Void
+		port_not_void: a_port/=Void
+	deferred
+	end
+
+	--This method permits to open a listener connection
+	init_listener(a_port: INTEGER)
+	require
+		port_not_void: a_port/=Void
+	deferred
+	end
 end

@@ -2,7 +2,7 @@ note
 	description: "Interface of the net"
 	author: "Team Milano2"
 	date: "14-11-2012"
-	revision: "0.2"
+	revision: "0.3"
 
 deferred class
 	XX_NET_INTERFACE
@@ -65,18 +65,10 @@ feature -- Deferred methods to use hexxagon through the net
 	deferred
 	end
 
-	-- This method permits to send a chat message
-	send_chat_message(a_chat_message: STRING)
-	require
-		chat_message_not_void: a_chat_message/=Void
-	deferred
-	end
-
 	--This method permits to open a connection to a host
 	init_connection(a_ip: STRING a_port: INTEGER)
 	require
-		ip_not_void: a_ip/=Void and is_ip_valid(a_ip)=TRUE
-		port_not_void: a_port/=Void and a_port>1024 and a_port<65536
+		ip_address_valid: is_address_valid(a_ip, a_port)=TRUE
 	deferred
 	end
 
@@ -91,8 +83,8 @@ feature -- Deferred methods to use hexxagon through the net
 
 feature{NONE} --Private Method
 
-	--Checks if an ip is valid
-	is_ip_valid(a_ip: STRING):BOOLEAN
+	--Checks if an address is valid
+	is_address_valid(a_ip: STRING a_port:INTEGER):BOOLEAN
 	deferred
 	end
 

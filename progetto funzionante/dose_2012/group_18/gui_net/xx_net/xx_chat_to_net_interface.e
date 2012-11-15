@@ -2,7 +2,7 @@ note
 	description: "Interface for communication between chat and net"
 	author: "Team Milano2"
 	date: "14-11-2012"
-	revision: "0.2"
+	revision: "0.3"
 
 deferred class
 	XX_CHAT_TO_NET_INTERFACE

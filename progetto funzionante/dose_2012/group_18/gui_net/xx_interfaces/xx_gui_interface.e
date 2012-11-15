@@ -2,13 +2,12 @@ note
 	description: "Interface of the gui"
 	author: "Team Milano2"
 	date: "13-11-2012"
-	revision: "0.2"
+	revision: "0.3"
 
 deferred class
 	XX_GUI_INTERFACE
 
- --Deferred Methods for change the gui view
-feature
+feature	--Deferred Methods for change the gui view
 
 	--Allow to set the game status in the express field
 	set_game_status(a_player1, a_player2: XX_PLAYER)
@@ -123,8 +122,7 @@ feature
 		net_manager_is_setted: is_net_manager_setted(a_net_manager)=TRUE
 	end
 
- --Private Methods
-feature{NONE}
+feature{NONE}	--Private Methods
 
 	--Allow to check if game panel is empy
 	is_game_panel_empty:BOOLEAN

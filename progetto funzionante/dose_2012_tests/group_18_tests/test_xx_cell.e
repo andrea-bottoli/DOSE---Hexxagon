@@ -18,6 +18,7 @@ feature -- Test routines
 			--Test method make_cell
 		note
 			testing:  "covers/{XX_CELL}.make_cell"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -27,6 +28,7 @@ feature -- Test routines
 			--Test method get_cell_id
 		note
 			testing:  "covers/{XX_CELL}.get_cell_id"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -36,6 +38,7 @@ feature -- Test routines
 			--Test method set_cell_player1
 		note
 			testing:  "covers/{XX_CELL}.set_cell_player1"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -45,6 +48,7 @@ feature -- Test routines
 			--Test method set_cell_player2
 		note
 			testing:  "covers/{XX_CELL}.set_cell_player2"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -54,6 +58,7 @@ feature -- Test routines
 			--Test method set_is_blank
 		note
 			testing:  "covers/{XX_CELL}.set_is_blank"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -63,6 +68,7 @@ feature -- Test routines
 			--Test method get_cell_player1
 		note
 			testing:  "covers/{XX_CELL}.get_cell_player1"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -72,6 +78,7 @@ feature -- Test routines
 			--Test method get_cell_player2
 		note
 			testing:  "covers/{XX_CELL}.get_cell_player2"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -81,6 +88,7 @@ feature -- Test routines
 			--Test method get_is_blank
 		note
 			testing:  "covers/{XX_CELL}.get_is_blank"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end

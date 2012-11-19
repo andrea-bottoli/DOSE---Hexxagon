@@ -18,6 +18,7 @@ feature -- Test routines
 			--Test method make_timer
 		note
 			testing:  "covers/{XX_TIMER}.make_timer"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -27,6 +28,7 @@ feature -- Test routines
 			--Test method start_timer
 		note
 			testing:  "covers/{XX_TIMER}.start_timer"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -36,6 +38,7 @@ feature -- Test routines
 			--Test method stop_timer
 		note
 			testing:  "covers/{XX_TIMER}.stop_timer"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -45,6 +48,7 @@ feature -- Test routines
 			--Test method reset_timer
 		note
 			testing:  "covers/{XX_TIMER}.reset_timer"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end
@@ -54,6 +58,7 @@ feature -- Test routines
 			--Test method timer_expired
 		note
 			testing:  "covers/{XX_TIMER}.timer_expired"
+			testing:  "user/XX" -- this is tag with the class-prefix
 		do
 			assert ("not_implemented", False)
 		end

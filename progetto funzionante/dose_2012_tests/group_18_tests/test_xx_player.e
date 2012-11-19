@@ -131,5 +131,3 @@ feature -- Test routines
 			assert ("not_implemented", False)
 		end
 end
-
-

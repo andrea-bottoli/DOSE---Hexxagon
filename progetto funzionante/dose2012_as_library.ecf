@@ -22,27 +22,7 @@
 				<exclude>/CVS$</exclude>
 				<exclude>/.svn$</exclude>
 			</file_rule>
-			<cluster name="group_1" location=".\dose_2012\group_1\" recursive="true"/>
-			<cluster name="group_2" location=".\dose_2012\group_2\" recursive="true"/>
-			<cluster name="group_3" location=".\dose_2012\group_3\" recursive="true"/>
-			<cluster name="group_4" location=".\dose_2012\group_4\" recursive="true"/>
-			<cluster name="group_5" location=".\dose_2012\group_5\" recursive="true"/>
-			<cluster name="group_6" location=".\dose_2012\group_6\" recursive="true"/>
-			<cluster name="group_7" location=".\dose_2012\group_7\" recursive="true"/>
-			<cluster name="group_8" location=".\dose_2012\group_8\" recursive="true"/>
-			<cluster name="group_9" location=".\dose_2012\group_9\" recursive="true"/>
-			<cluster name="group_10" location=".\dose_2012\group_10\" recursive="true"/>
-			<cluster name="group_11" location=".\dose_2012\group_11\" recursive="true"/>
-			<cluster name="group_12" location=".\dose_2012\group_12\" recursive="true"/>
-			<cluster name="group_13" location=".\dose_2012\group_13\" recursive="true"/>
-			<cluster name="group_14" location=".\dose_2012\group_14\" recursive="true"/>
-			<cluster name="group_15" location=".\dose_2012\group_15\" recursive="true"/>
-			<cluster name="group_16" location=".\dose_2012\group_16\" recursive="true"/>
-			<cluster name="group_17" location=".\dose_2012\group_17\" recursive="true"/>
 			<cluster name="group_18" location=".\dose_2012\group_18\" recursive="true"/>
-			<cluster name="group_19" location=".\dose_2012\group_19\" recursive="true"/>
-			<cluster name="group_20" location=".\dose_2012\group_20\" recursive="true"/>
-			<cluster name="group_21" location=".\dose_2012\group_21\" recursive="true"/>
 			<cluster name="main_ui" location=".\dose_2012\main_ui\" recursive="true"/>
 			<cluster name="tictactoe" location=".\dose_2012\tictactoe\" recursive="true"/>
 		</cluster>

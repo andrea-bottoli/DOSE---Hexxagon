@@ -280,5 +280,3 @@ feature -- Test routines
 			end
 		end
 end
-
-

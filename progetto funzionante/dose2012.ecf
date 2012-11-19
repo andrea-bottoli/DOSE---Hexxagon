@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-10-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-10-0 http://www.eiffel.com/developers/xml/configuration-1-10-0.xsd" name="dose2012" uuid="B648E7A4-0C71-47F5-9F98-BED8B157ADC6" library_target="dose2012">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-10-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-10-0 http://www.eiffel.com/developers/xml/configuration-1-10-0.xsd" name="dose2012" uuid="B648E7A4-0C71-47F5-9F98-BED8B157ADC6">
 	<target name="dose2012">
 		<root cluster="main_ui" class="APPLICATION" feature="make_and_launch"/>
 		<option warning="true" is_attached_by_default="false" syntax="provisional">
@@ -30,21 +30,77 @@
 			<cluster name="group_6" location=".\dose_2012\group_6\" recursive="true"/>
 			<cluster name="group_7" location=".\dose_2012\group_7\" recursive="true"/>
 			<cluster name="group_8" location=".\dose_2012\group_8\" recursive="true"/>
-			<cluster name="group_9" location=".\dose_2012\group_9\" recursive="true"/>
+			<cluster name="group_9" location=".\dose_2012\group_9\" recursive="true">
+				<file_rule>
+					<exclude>^/ri_gui$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/ri$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/gui$</exclude>
+				</file_rule>
+			</cluster>
 			<cluster name="group_10" location=".\dose_2012\group_10\" recursive="true"/>
 			<cluster name="group_11" location=".\dose_2012\group_11\" recursive="true"/>
 			<cluster name="group_12" location=".\dose_2012\group_12\" recursive="true"/>
-			<cluster name="group_13" location=".\dose_2012\group_13\" recursive="true"/>
+			<cluster name="group_13" location=".\dose_2012\group_13\">
+				<cluster name="g13_logic" location=".\dose_2012\group_13\g13_logic\">
+					<cluster name="model" location=".\dose_2012\group_13\g13_logic\model\" recursive="true"/>
+					<cluster name="controller" location=".\dose_2012\group_13\g13_logic\controller\" recursive="true"/>
+				</cluster>
+				<cluster name="g13_gui" location=".\dose_2012\group_13\g13_gui\" recursive="true"/>
+				<cluster name="g13_net" location=".\dose_2012\group_13\g13_net\" recursive="true"/>
+			</cluster>
 			<cluster name="group_14" location=".\dose_2012\group_14\" recursive="true"/>
 			<cluster name="group_15" location=".\dose_2012\group_15\" recursive="true"/>
-			<cluster name="group_16" location=".\dose_2012\group_16\" recursive="true"/>
+			<cluster name="group_16" location=".\dose_2012\group_16\">
+				<cluster name="ig_ai" location=".\dose_2012\group_16\ig_ai\" recursive="true"/>
+				<cluster name="ig_gui" location=".\dose_2012\group_16\ig_gui\" recursive="true"/>
+				<cluster name="ig_logic" location=".\dose_2012\group_16\ig_logic\" recursive="true"/>
+				<cluster name="ig_net" location=".\dose_2012\group_16\ig_net\" recursive="true"/>
+			</cluster>
 			<cluster name="group_17" location=".\dose_2012\group_17\" recursive="true"/>
 			<cluster name="group_18" location=".\dose_2012\group_18\" recursive="true"/>
 			<cluster name="group_19" location=".\dose_2012\group_19\" recursive="true"/>
 			<cluster name="group_20" location=".\dose_2012\group_20\" recursive="true"/>
-			<cluster name="group_21" location=".\dose_2012\group_21\" recursive="true"/>
+			<cluster name="group_21" location=".\dose_2012\group_21\" recursive="true">
+				<cluster name="gui_listener_implementors" location=".\dose_2012\group_21\g21_logic\gui_listener_implementors\"/>
+			</cluster>
 			<cluster name="main_ui" location=".\dose_2012\main_ui\" recursive="true"/>
 			<cluster name="tictactoe" location=".\dose_2012\tictactoe\" recursive="true"/>
 		</cluster>
+		<tests name="dose_2012_tests" location=".\dose_2012_tests\">
+			<tests name="group01_tests" location=".\dose_2012_tests\group01_tests\"/>
+			<tests name="group02_tests" location=".\dose_2012_tests\group02_tests\"/>
+			<tests name="group03_tests" location=".\dose_2012_tests\group03_tests\"/>
+			<tests name="group04_tests" location=".\dose_2012_tests\group04_tests\"/>
+			<tests name="group05_tests" location=".\dose_2012_tests\group05_tests\"/>
+			<tests name="group06_tests" location=".\dose_2012_tests\group06_tests\"/>
+			<tests name="group07_tests" location=".\dose_2012_tests\group07_tests\"/>
+			<tests name="group08_tests" location=".\dose_2012_tests\group08_tests\"/>
+			<tests name="group09_tests" location=".\dose_2012_tests\group09_tests\"/>
+			<tests name="group10_tests" location=".\dose_2012_tests\group10_tests\"/>
+			<tests name="group11_tests" location=".\dose_2012_tests\group11_tests\"/>
+			<tests name="group12_tests" location=".\dose_2012_tests\group12_tests\"/>
+			<tests name="group13_tests" location=".\dose_2012_tests\group13_tests\"/>
+			<tests name="group14_tests" location=".\dose_2012_tests\group14_tests\"/>
+			<tests name="group15_tests" location=".\dose_2012_tests\group15_tests\"/>
+			<tests name="group16_tests" location=".\dose_2012_tests\group16_tests\"/>
+			<tests name="group17_tests" location=".\dose_2012_tests\group17_tests\"/>
+			<tests name="group18_tests" location=".\dose_2012_tests\group18_tests\">
+				<tests name="tests_logic" location=".\dose_2012_tests\group_18_tests\"/>
+			</tests>
+			<tests name="group19_tests" location=".\dose_2012_tests\group19_tests\"/>
+			<tests name="group20_tests" location=".\dose_2012_tests\group20_tests\"/>
+			<tests name="group21_tests" location=".\dose_2012_tests\group21_tests\"/>
+			<tests name="tictactoe_tests" location=".\dose_2012_tests\tictactoe_tests\"/>
+		</tests>
+		<override name="vision_ov" location=".\dose_2012\libs\vision_ov\" recursive="true"/>
+		<override name="wel_ov" location=".\dose_2012\libs\wel_ov\" recursive="true">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</override>
 	</target>
 </system>

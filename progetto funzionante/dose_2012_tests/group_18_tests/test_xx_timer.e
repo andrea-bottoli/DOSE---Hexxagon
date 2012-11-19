@@ -2,7 +2,7 @@ note
 	description: "Test on XX_TIMER class"
 	author: "Team Milano2"
 	date: "19-11-2012"
-	revision: "0.1"
+	revision: "0.2"
 	testing: "type/manual"
 
 class

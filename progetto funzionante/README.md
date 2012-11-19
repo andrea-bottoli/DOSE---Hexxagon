@@ -1,4 +1,4 @@
-Welcome to the src  
+Welcome to the src
 ==================
 
 This folder contains the source code of all games, as well as the main UI.

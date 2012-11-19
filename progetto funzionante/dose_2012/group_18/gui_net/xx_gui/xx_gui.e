@@ -1,14 +1,14 @@
 note
 	description: "Class that implements the gui"
 	author: "Team Milano2"
-	date: "13-11-2012"
-	revision: "0.3"
+	date: "18-11-2012"
+	revision: "0.4"
 
 class
 	XX_GUI
 
 inherit
-	XX_GUI_INTERFACE
+	XX_IGUI
  	XX_CHAT_TO_GUI_INTERFACE
 
 create
@@ -52,10 +52,10 @@ feature {NONE} -- Initialization
 	end
 
 --######################################################################################
-feature	--PUBLIC Methods inherited from XX_GUI_INTERFACE
+feature	--PUBLIC Methods inherited from XX_IGUI
 
 	--Allow to set the game status in the express field
-	set_game_status(a_player1, a_player2: XX_PLAYER)
+	set_game_status(a_player1, a_player2: XX_PLAYER; is_active: BOOLEAN)
 	do
 		--TODO
 	end
@@ -73,7 +73,7 @@ feature	--PUBLIC Methods inherited from XX_GUI_INTERFACE
 	end
 
 	--Allow to set the view of the board in the gui
-	set_board(a_board: XX_BOARD)
+	set_board(a_board: XX_GUI_BOARD)
 	do
 		--TODO
 	end
@@ -144,8 +144,20 @@ feature	--PUBLIC Methods inherited from XX_GUI_INTERFACE
 		--TODO
 	end
 
+	--Allow to inform the player about his victory
+	victory
+	do
+		--TODO
+	end
+
+	--Allow to inform the player about his defeat
+	defeat
+	do
+		--TODO
+	end
+
 --######################################################################################
-feature{NONE} --PRIVATE Methods inherited from XX_GUI_INTERFACE
+feature{NONE} --PRIVATE Methods inherited from XX_IGUI
 
 	--Allow to check if game panel is empy
 	is_game_panel_empty:BOOLEAN
@@ -231,6 +243,18 @@ feature{NONE} --PRIVATE Methods inherited from XX_GUI_INTERFACE
 	do
 		--TODO
 --		net_manager=a_net_manager	
+	end
+
+	--Allow to check if victory message is displayed
+	is_victory_message_displayed:BOOLEAN
+	do
+		--TODO
+	end
+
+	--Allow to check if defeat message is displayed
+	is_defeat_message_displayed:BOOLEAN
+	do
+		--TODO
 	end
 
 --######################################################################################

@@ -11,27 +11,37 @@ feature --Deferred Metods
 
 	--Allow to send a new chat message throught the net to the other host
 	send_chat_message(a_chat_message: STRING)
-		require
-			chat_message_not_void: a_chat_message/=Void
-			chat_message_not_empty: a_chat_message.is_empty=FALSE
-		deferred
-		ensure
-			chat_message_is_visible: is_chat_message_visible=TRUE
-		end
+	require
+		chat_message_not_void: is_chat_message_void(a_chat_message)=FALSE
+		chat_message_not_empty: is_chat_message_empty(a_chat_message)=FALSE
+	deferred
+	ensure
+		chat_message_is_visible: is_chat_message_visible(a_chat_message)=TRUE
+	end
 
 	--Allow to set the chat manager
 	set_chat_manager(a_chat_manager: XX_CHAT)
-		require
-			a_chat_manager_not_void: a_chat_manager/=Void
-		deferred
-		ensure
-			chat_manager_not_null: is_chat_manager_setted=TRUE
-		end
+	require
+		a_chat_manager_not_void: a_chat_manager/=Void
+	deferred
+	ensure
+		chat_manager_not_null: is_chat_manager_setted=TRUE
+	end
 
 feature{NONE} --Private Method
 
 	--Checks if the chat message is visible
-	is_chat_message_visible:BOOLEAN
+	is_chat_message_visible(a_chat_message: STRING):BOOLEAN
+	deferred
+	end
+
+	--Checks if the message is Void
+	is_chat_message_void(a_chat_message: STRING):BOOLEAN
+	deferred
+	end
+
+	--Checks if the message is empty
+	is_chat_message_empty(a_chat_message: STRING):BOOLEAN
 	deferred
 	end
 

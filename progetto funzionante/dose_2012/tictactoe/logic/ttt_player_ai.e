@@ -73,8 +73,8 @@ feature {NONE} -- Implemenation
 			end
 		end
 
-	decide_a_move: TUPLE[ INTEGER, INTEGER]
-			-- makes an AI move (at the moment just picks a fixed tile)
+	decide_a_move: TUPLE[INTEGER, INTEGER]
+			-- makes an AI move (at the moment just picks a random tile)
 		local
 			i, j: INTEGER
 			l_random: RANDOM

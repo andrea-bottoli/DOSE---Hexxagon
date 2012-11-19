@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-10-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-10-0 http://www.eiffel.com/developers/xml/configuration-1-10-0.xsd" name="dose2012" uuid="B648E7A4-0C71-47F5-9F98-BED8B157ADC6" library_target="dose2012">
+	<target name="dose2012">
+		<root all_classes="true"/>
+		<option warning="true" is_attached_by_default="false" syntax="provisional">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="check_vape" value="false"/>
+		<setting name="concurrency" value="thread"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="gobo_kernel" location="$ISE_LIBRARY\library\gobo\gobo_kernel.ecf"/>
+		<library name="gobo_regexp" location="$ISE_LIBRARY\library\gobo\gobo_regexp.ecf"/>
+		<library name="net" location="$ISE_LIBRARY\library\net\net.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf" readonly="true"/>
+		<library name="wel" location="$ISE_LIBRARY\library\wel\wel.ecf" readonly="true" use_application_options="true"/>
+		<cluster name="dose_2012" location=".\dose_2012\">
+			<file_rule>
+				<exclude>/EIFGENs$</exclude>
+				<exclude>/CVS$</exclude>
+				<exclude>/.svn$</exclude>
+			</file_rule>
+			<cluster name="group_1" location=".\dose_2012\group_1\" recursive="true"/>
+			<cluster name="group_2" location=".\dose_2012\group_2\" recursive="true"/>
+			<cluster name="group_3" location=".\dose_2012\group_3\" recursive="true"/>
+			<cluster name="group_4" location=".\dose_2012\group_4\" recursive="true"/>
+			<cluster name="group_5" location=".\dose_2012\group_5\" recursive="true"/>
+			<cluster name="group_6" location=".\dose_2012\group_6\" recursive="true"/>
+			<cluster name="group_7" location=".\dose_2012\group_7\" recursive="true"/>
+			<cluster name="group_8" location=".\dose_2012\group_8\" recursive="true"/>
+			<cluster name="group_9" location=".\dose_2012\group_9\" recursive="true"/>
+			<cluster name="group_10" location=".\dose_2012\group_10\" recursive="true"/>
+			<cluster name="group_11" location=".\dose_2012\group_11\" recursive="true"/>
+			<cluster name="group_12" location=".\dose_2012\group_12\" recursive="true"/>
+			<cluster name="group_13" location=".\dose_2012\group_13\" recursive="true"/>
+			<cluster name="group_14" location=".\dose_2012\group_14\" recursive="true"/>
+			<cluster name="group_15" location=".\dose_2012\group_15\" recursive="true"/>
+			<cluster name="group_16" location=".\dose_2012\group_16\" recursive="true"/>
+			<cluster name="group_17" location=".\dose_2012\group_17\" recursive="true"/>
+			<cluster name="group_18" location=".\dose_2012\group_18\" recursive="true"/>
+			<cluster name="group_19" location=".\dose_2012\group_19\" recursive="true"/>
+			<cluster name="group_20" location=".\dose_2012\group_20\" recursive="true"/>
+			<cluster name="group_21" location=".\dose_2012\group_21\" recursive="true"/>
+			<cluster name="main_ui" location=".\dose_2012\main_ui\" recursive="true"/>
+			<cluster name="tictactoe" location=".\dose_2012\tictactoe\" recursive="true"/>
+		</cluster>
+	</target>
+</system>

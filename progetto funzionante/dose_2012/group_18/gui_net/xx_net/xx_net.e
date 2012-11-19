@@ -8,7 +8,7 @@ class
 	XX_NET
 
 inherit
-	XX_NET_INTERFACE
+	XX_INET
 	XX_CHAT_TO_NET_INTERFACE
 
 create
@@ -26,10 +26,10 @@ feature {NONE} -- Initialization
 	end
 
 --######################################################################################
-feature	-- PUBLIC Methods inherited from XX_NET_INTERFACE. Do methods to use hexxagon through the net
+feature	-- PUBLIC Methods inherited from XX_INET
 
 	-- This method sends the command that takes the game at the initial condition
-	send_command_clear_all
+	send_command_clean_game_window
 	do
 		--TODO
 	end
@@ -70,12 +70,6 @@ feature	-- PUBLIC Methods inherited from XX_NET_INTERFACE. Do methods to use hex
 		--TODO
 	end
 
-	-- This method permits to send the net status
-	send_net_status(a_net1, a_net2: STORABLE)
-	do
-		--TODO
-	end
-
 	-- This method permits to send the timer
 	send_timer(a_timer: XX_TIMER)
 	do
@@ -94,13 +88,47 @@ feature	-- PUBLIC Methods inherited from XX_NET_INTERFACE. Do methods to use hex
 		--TODO
 	end
 
+	--This method permits to close an open connection
+	close_connection
+	do
+		--TODO
+	end
+
+	--This method permits to send the victory status
+	send_victory
+	do
+		--TODO
+	end
+
+	--This method permits to send the victory status
+	send_defeated
+	do
+		--TODO
+	end
+
+	--USELESS METHOD
+	other_move
+	do
+		--TODO
+	end
+
 --######################################################################################
-feature{NONE} --Private Method Inherited from XX_NET_INTERFACE
+feature{NONE} --Private Method Inherited from XX_INET
 
 	--Check if an address is valid
 	is_address_valid(a_ip: STRING a_port: INTEGER):BOOLEAN
 	do
 		if(is_ip_valid(a_ip) and is_port_valid(a_port))then
+			Result:=TRUE
+		else
+			Result:=FALSE
+		end
+	end
+
+	--Checks if a port is valid
+	is_port_valid(a_port: INTEGER):BOOLEAN
+	do
+		if(a_port>1024 and a_port<65536)then
 			Result:=TRUE
 		else
 			Result:=FALSE
@@ -113,7 +141,7 @@ feature{NONE} --Private Method Inherited from XX_NET_INTERFACE
 		--TODO
 	end
 --######################################################################################
-feature --PUBLIC Methods inherited from XX_CHAT_TO_NET_INTERFACE. do Metods
+feature --PUBLIC Methods inherited from XX_CHAT_TO_NET_INTERFACE
 
 	--Allow to send a new chat message throught the net to the other host
 	send_chat_message(a_chat_message: STRING)
@@ -131,9 +159,29 @@ feature --PUBLIC Methods inherited from XX_CHAT_TO_NET_INTERFACE. do Metods
 feature{NONE} --Private Method Inherited from XX_CHAT_TO_NET_INTERFACE
 
 	--Checks if the chat message is visible
-	is_chat_message_visible:BOOLEAN
+	is_chat_message_visible(a_chat_message: STRING):BOOLEAN
 	do
 		--TODO
+	end
+
+	--Checks if the message is Void
+	is_chat_message_void(a_chat_message: STRING):BOOLEAN
+	do
+		if(a_chat_message=Void)then
+			Result:=TRUE
+		else
+			Result:=FALSE
+		end
+	end
+
+	--Checks if the message is empty
+	is_chat_message_empty(a_chat_message: STRING):BOOLEAN
+	do
+		if(a_chat_message.is_empty)then
+			Result:=TRUE
+		else
+			Result:=FALSE
+		end
 	end
 
 	--Checks if the chat manager is setted
@@ -141,8 +189,9 @@ feature{NONE} --Private Method Inherited from XX_CHAT_TO_NET_INTERFACE
 	do
 		--TODO
 	end
+
 --######################################################################################
-feature{NONE}	--Private Methods
+feature{NONE}	--Private Methods of XX_NET
 
 	--Checks if an ip is valid
 	is_ip_valid(a_ip: STRING):BOOLEAN
@@ -150,13 +199,4 @@ feature{NONE}	--Private Methods
 		--TODO
 	end
 
-	--Checks if a port is valid
-	is_port_valid(a_port: INTEGER):BOOLEAN
-	do
-		if(a_port>1024 and a_port<65536)then
-			Result:=TRUE
-		else
-			Result:=FALSE
-		end
-	end
 end

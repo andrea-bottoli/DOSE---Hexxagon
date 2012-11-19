@@ -1,7 +1,7 @@
 note
 	description: "Interface between gui and chat"
 	author: "Team Milano2"
-	date: "13-11-2012"
+	date: "15-11-2012"
 	revision: "0.3"
 
 deferred class

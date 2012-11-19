@@ -9,7 +9,7 @@ class
 
 create calculate_best_move
 
-feature{NONE}
+feature {NONE}
 	AI_Calculation_Move: ARRAY[INTEGER]
 
 	alfa_beta_Algo()
@@ -24,12 +24,16 @@ feature {ANY} --Implementation
 		do
 			 io.put_string ("Test")
 		end
-	set_Best_Move():INTEGER
+
+	get_Best_Move():INTEGER
 		do
 			Result:= AI_Calculation_Move.at(1)
+			ensure Result >=0 and Result< 58
 		end
-	set_Previos_Move():INTEGER
+
+	get_Previos_Move():INTEGER
 		do
 			Result:= AI_Calculation_Move.at(0)
+			ensure Result>=0 and Result< 58
 		end
 end-- class XX_AI_SELECT_MOVE

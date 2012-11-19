@@ -23,7 +23,7 @@ feature	-- Implementation
 			window.show
 
 				-- we inform the Main-UI about the game window; otherwise, the game window might get garbage collected
-			main_ui_window.add_reference_to_game_window (window)
+			main_ui_window.add_reference_to_game (window)
 		end
 
 end

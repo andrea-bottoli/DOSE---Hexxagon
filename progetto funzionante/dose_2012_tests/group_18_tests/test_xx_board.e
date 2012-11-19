@@ -108,5 +108,3 @@ feature -- Test routines
 		end
 
 end
-
-

@@ -54,7 +54,7 @@ feature --Test Routines
 
 		-- It tests the get_array method
 			test_get_array
-			
+
 			note
 				testing:  "covers/{XX_GUI_BOARD}/get_array"
 				testing:  "user/XX"
@@ -65,5 +65,3 @@ feature --Test Routines
 				--TODO
 			end
 end
-
-

@@ -64,13 +64,14 @@ feature -- Test routines
 			num_cells: INTEGER
 
 		do
+			create l_board.make_board
 			from
 				num_cells:= 0
 			until
 				num_cells >= 57
 			loop
-				assert ("Check num_cells >=0",l_board.get_num_cells().is_greater_equal (0))
-				assert("Check num_cells >=0",l_board.get_num_cells().is_less_equal (57))
+				assert ("Check num_cells >=0",l_board.get_num_cells.is_greater_equal (0))
+				assert("Check num_cells >=0",l_board.get_num_cells.is_less_equal (57))
 				num_cells:= num_cells+1
 			end
 

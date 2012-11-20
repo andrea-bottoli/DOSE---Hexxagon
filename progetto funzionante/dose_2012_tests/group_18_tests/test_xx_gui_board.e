@@ -17,7 +17,7 @@ feature --Test Routines
 		test_make
 
 		note
-			testing:  "covers/{XX_GUI_BOARD}/make"
+			testing:  "covers/{XX_GUI_BOARD}.make"
 			testing:  "user/XX"
 
 		local
@@ -30,7 +30,7 @@ feature --Test Routines
 		test_get_cell
 
 		note
-			testing:  "covers/{XX_GUI_BOARD}/get_cell"
+			testing:  "covers/{XX_GUI_BOARD}.get_cell"
 			testing:  "user/XX"
 
 		local
@@ -43,7 +43,7 @@ feature --Test Routines
 		test_set_cell
 
 		note
-			testing:  "covers/{XX_GUI_BOARD}/set_cell"
+			testing:  "covers/{XX_GUI_BOARD}.set_cell"
 			testing:  "user/XX"
 
 		local
@@ -56,7 +56,7 @@ feature --Test Routines
 			test_get_array
 
 			note
-				testing:  "covers/{XX_GUI_BOARD}/get_array"
+				testing:  "covers/{XX_GUI_BOARD}.get_array"
 				testing:  "user/XX"
 
 			local

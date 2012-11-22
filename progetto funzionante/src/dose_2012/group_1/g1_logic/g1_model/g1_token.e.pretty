@@ -1,0 +1,37 @@
+note
+	description: "Class representing a Token in the game."
+	author: "Group 1 - Rio Cuarto 7 - Milano 7"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	G1_TOKEN
+
+create
+	make
+
+feature -- Initialization
+
+	make -- with name?
+		do
+		ensure
+		end
+
+feature -- Status report
+
+	l_name: STRING
+			-- name of the current Token.
+
+	l_position: INTEGER
+			-- current position of Token in the board.
+
+	l_player: G1_PLAYER
+			-- owner of current Token in the game.
+
+feature --Basic operations
+
+	change_position (a_position: INTEGER)
+		do
+		end
+
+end

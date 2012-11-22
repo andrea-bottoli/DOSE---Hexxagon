@@ -1,0 +1,19 @@
+!SESSION 2012-11-02 21:53:07.627 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.7.0_07
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=it_IT
+Framework arguments:  C:\Users\Leobirillo\Dropbox\dose\Polimi1UML\workspace\Polimi1UML.ofpx
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\Leobirillo\Dropbox\dose\Polimi1UML\workspace\Polimi1UML.ofpx
+
+!ENTRY org.modelio.core 1 0 2012-11-02 21:53:08.580
+!MESSAGE Loading LibModelio.
+
+!ENTRY org.modelio.core 1 0 2012-11-02 21:53:08.580
+!MESSAGE LibModelio loaded successfully.
+
+!ENTRY org.modelio.core 1 0 2012-11-02 21:53:08.673
+!MESSAGE Modelio core successfully started.
+
+!ENTRY org.eclipse.ui 4 4 2012-11-02 21:53:08.783
+!MESSAGE Unable to create menu item "com.modeliosoft.modelio.app.OpenStoreID", command "com.modeliosoft.modelio.app.enterprise.OpenStoreID" not defined

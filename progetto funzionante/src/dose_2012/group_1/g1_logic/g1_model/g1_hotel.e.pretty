@@ -1,0 +1,69 @@
+note
+	description: "Class that represents a hotel in the game."
+	author: "Group 1 - Rio Cuarto 7 - Milano 7"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	G1_HOTEL
+
+create
+	make_hotel
+
+feature -- Attributes
+
+	id_hotel: INTEGER
+
+	price_hotel: INTEGER
+
+feature -- Initialization
+
+	make_hotel
+			-- Initialize the hotel
+		do
+		ensure
+			valid_id: id_hotel > 0
+			valid_price: price_hotel > 0
+		end
+
+feature -- Procedures
+
+		-- procedures to set the values of the hotel.
+
+	set_id_hotel (id_h: INTEGER)
+			-- Set the id of the hotel.
+		require
+			valid_id: id_h > 0
+		do
+		ensure
+			valid_id: id_hotel > 0 and id_hotel = id_h
+		end
+
+	set_price_hotel (price_h: INTEGER)
+			-- Set the price of the hotel.
+		require
+			valid_price: price_h > 0
+		do
+		ensure
+			valid_price: price_hotel > 0 and price_hotel = price_h
+		end
+
+		-- procedures to get the values of the hotel.
+
+	get_id_hotel (): INTEGER
+		do
+		ensure
+			valid_id: id_hotel > 0
+		end
+
+	get_price_hotel (): INTEGER
+		do
+		ensure
+			valid_price: price_hotel > 0
+		end
+
+invariant
+	valid_id: id_hotel > 0
+	valid_price: price_hotel > 0
+
+end

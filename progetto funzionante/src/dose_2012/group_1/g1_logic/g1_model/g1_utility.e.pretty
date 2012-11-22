@@ -1,0 +1,55 @@
+note
+	description: "Class representing a Utility space in the game."
+	author: "Group 1 - Rio Cuarto 7 - Milano 7"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	G1_UTILITY
+
+inherit
+
+	G1_DEED
+
+create
+	make
+
+feature -- Initialization
+
+	make -- with name?
+		do
+		ensure
+		end
+
+feature -- Status report
+
+	rent_value: INTEGER -- How many utilities have de player?
+			-- rent value of the utility.
+
+feature --Basic operations
+
+	buy (a_ownerId: INTEGER)
+			--a_ownerId is the new owner of the current street.
+		do
+		end
+
+	sell_utility (a_ownerId: INTEGER)
+			-- The current street is traded to another player.
+		do
+		end
+
+	mortgage
+			--Mortgage the current service.
+		do
+		end
+
+	unmortgage
+			--Mortgage the current service.
+		require -- not mortgage
+		do
+		ensure -- mortgage true
+		end
+
+invariant
+
+end

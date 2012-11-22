@@ -1,0 +1,40 @@
+note
+	description: "Class representing the bank in the game."
+	author: "Group 1 - Rio Cuarto 7 - Milano 7"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	G1_BANK
+
+feature {NONE}
+
+	money_available: INTEGER
+
+feature -- Initialization
+
+	make
+		do
+		end
+
+feature -- Status Settings
+
+	withdraw_money (amount: INTEGER)
+			--withdraw the amount of money spent as a parameter
+		require
+			valid_amount: amount > 0 and amount < money_available
+		do
+		ensure
+			valid_whitdraw: money_available = (money_available - amount)
+		end
+
+	deposit_money (amount: INTEGER)
+			--deposit the amount of money spent as a parameter
+		require
+			valid_amount: amount > 0 and amount < money_available
+		do
+		ensure
+			valid_whitdraw: money_available = (money_available - amount)
+		end
+
+end

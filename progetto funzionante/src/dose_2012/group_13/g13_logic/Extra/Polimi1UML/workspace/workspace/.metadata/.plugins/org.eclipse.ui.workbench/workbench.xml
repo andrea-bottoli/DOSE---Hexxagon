@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workbench version="2.0">
+<workbenchAdvisor/>
+<window height="768" width="1024" x="26" y="26">
+<fastViewData fastViewLocation="1024"/>
+<intro standby="false"/>
+<perspectiveBar>
+<itemSize x="160"/>
+</perspectiveBar>
+<coolbarLayout>
+<coolItem id="com.modeliosoft.modelio.app.toolbarID" itemType="typeToolBarContribution" x="303" y="22"/>
+<coolItem id="com.modeliosoft.modelio.diagram.editor.diagram.Toolbar" itemType="typeToolBarContribution" x="38" y="22"/>
+<coolItem id="com.modeliosoft.modelio.mda.infra.diagram_contribution_toolbar" itemType="typeToolBarContribution" x="-1" y="-1"/>
+<coolItem itemType="typeToolBarContribution" x="61" y="22"/>
+</coolbarLayout>
+<page focus="true" label="&lt;Unknown Label&gt; - Workspace">
+<editors>
+<editorArea activeWorkbook="DefaultEditorWorkbook">
+<info part="DefaultEditorWorkbook">
+<folder appearance="1" expanded="2">
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
+</folder>
+</info>
+</editorArea>
+</editors>
+<views>
+<view id="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID" partName="Workspace">
+<viewState CommonNavigator.LINKING_ENABLED="0"/>
+</view>
+<view id="org.eclipse.ui.internal.introview" partName="Welcome">
+<viewState>
+<presentation currentPage="root" restore="true"/>
+<standbyPart/>
+</viewState>
+</view>
+</views>
+<perspectives activePart="org.eclipse.ui.internal.introview" activePerspective="com.modeliosoft.modelio.app.workspacePerspectiveID">
+<perspective editorAreaTrimState="2" editorAreaVisible="1" fixed="0" version="0.016">
+<descriptor class="com.modeliosoft.modelio.internal.app.impl.workspace.WorkspacePerspective" id="com.modeliosoft.modelio.app.workspacePerspectiveID" label="Workspace"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.annotationNavigation"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.navigation"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.convertLineDelimitersTo"/>
+<alwaysOnActionSet id="org.eclipse.ui.actionSet.keyBindings"/>
+<alwaysOnActionSet id="org.eclipse.ui.actionSet.openFiles"/>
+<hide_toolbar_item_id id="org.eclipse.ui.edit.text.toggleShowSelectedElementOnly"/>
+<view id="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID"/>
+<view id="org.eclipse.ui.internal.introview"/>
+<fastViewBars/>
+<viewLayoutRec closeable="false" id="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID"/>
+<layout>
+<mainWindow>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@4b60fd99">
+<folder activePageID="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID" label="Workspace"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@2fbdc5dd" ratio="0.75" ratioLeft="750" ratioRight="250" relationship="2" relative="org.eclipse.ui.internal.ViewStack@4b60fd99">
+<folder activePageID="org.eclipse.ui.internal.introview" appearance="2" expanded="1">
+<page content="org.eclipse.ui.internal.introview" label="Welcome"/>
+<page content="org.eclipse.help.ui.HelpView" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info part="org.eclipse.ui.editorss" ratio="0.3" ratioLeft="300" ratioRight="700" relationship="2" relative="org.eclipse.ui.internal.ViewStack@4b60fd99"/>
+<info part="com.modeliosoft.modelio.script.ScriptViewID" ratio="0.5" ratioLeft="323" ratioRight="323" relationship="4" relative="org.eclipse.ui.editorss"/>
+</mainWindow>
+</layout>
+</perspective>
+</perspectives>
+<workingSets/>
+<navigationHistory/>
+</page>
+<workbenchWindowAdvisor/>
+<actionBarAdvisor/>
+<trimLayout>
+<trimArea IMemento.internal.id="1024">
+<trimItem IMemento.internal.id="org.eclipse.jface.action.StatusLineManager"/>
+</trimArea>
+</trimLayout>
+</window>
+<mruList/>
+</workbench>

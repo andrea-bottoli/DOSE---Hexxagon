@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workbench version="2.0">
+<workbenchAdvisor/>
+<window height="768" maximized="true" width="1024" x="182" y="92">
+<fastViewData fastViewLocation="1024"/>
+<perspectiveBar>
+<itemSize x="160"/>
+</perspectiveBar>
+<coolbarLayout>
+<coolItem id="com.modeliosoft.modelio.app.toolbarID" itemType="typeToolBarContribution" x="303" y="22"/>
+<coolItem id="com.modeliosoft.modelio.diagram.editor.diagram.Toolbar" itemType="typeToolBarContribution" x="38" y="22"/>
+<coolItem id="com.modeliosoft.modelio.mda.infra.diagram_contribution_toolbar" itemType="typeToolBarContribution" x="-1" y="-1"/>
+<coolItem itemType="typeToolBarContribution" x="61" y="22"/>
+</coolbarLayout>
+<page focus="true" label="&lt;Unknown Label&gt; - Workspace">
+<editors>
+<editorArea activeWorkbook="DefaultEditorWorkbook">
+<info part="DefaultEditorWorkbook">
+<folder appearance="1" expanded="2">
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
+</folder>
+</info>
+</editorArea>
+</editors>
+<views>
+<view id="com.modeliosoft.modelio.explorer.UmlNavigatorContentID" partName="Model">
+<viewState CommonNavigator.LINKING_ENABLED="0"/>
+</view>
+<view id="com.modeliosoft.modelio.edition.notes.NotesViewID" partName="">
+<viewState/>
+</view>
+<view id="com.modeliosoft.modelio.audit.AuditViewID" partName="Audit">
+<viewState/>
+</view>
+<view id="com.modeliosoft.modelio.edition.ModelPropertyViewID" partName="Element">
+<viewState/>
+</view>
+<view id="com.modeliosoft.modelio.diagram.browser.BrowserViewID" partName="Diagrams">
+<viewState CommonNavigator.LINKING_ENABLED="0"/>
+</view>
+<view id="org.modelio.linkeditor.view.LinkEditorViewID" partName="Links Editor"/>
+<view id="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID" partName="Workspace">
+<viewState CommonNavigator.LINKING_ENABLED="0"/>
+</view>
+<view id="com.modeliosoft.modelio.diagram.symbol.SymbolViewID" partName="Symbol">
+<viewState/>
+</view>
+<view id="org.eclipse.ui.views.ContentOutline" partName="Outline">
+<viewState/>
+</view>
+</views>
+<perspectives activePerspective="com.modeliosoft.modelio.app.workspacePerspectiveID">
+<perspective editorAreaTrimState="2" editorAreaVisible="1" fixed="0" version="0.016">
+<descriptor class="com.modeliosoft.modelio.internal.app.impl.workspace.WorkspacePerspective" id="com.modeliosoft.modelio.app.workspacePerspectiveID" label="Workspace"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.annotationNavigation"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.navigation"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.convertLineDelimitersTo"/>
+<alwaysOnActionSet id="org.eclipse.ui.actionSet.keyBindings"/>
+<alwaysOnActionSet id="org.eclipse.ui.actionSet.openFiles"/>
+<hide_toolbar_item_id id="org.eclipse.ui.edit.text.toggleShowSelectedElementOnly"/>
+<view id="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID"/>
+<fastViewBars/>
+<viewLayoutRec closeable="false" id="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID"/>
+<layout>
+<mainWindow>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@70edab58">
+<folder activePageID="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.app.WorkspaceNavigatorViewID" label="Workspace"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@6ddb0a83" ratio="0.75" ratioLeft="750" ratioRight="250" relationship="2" relative="org.eclipse.ui.internal.ViewStack@70edab58">
+<folder appearance="2" expanded="2">
+<page content="org.eclipse.help.ui.HelpView" label="LabelNotFound"/>
+<page content="org.eclipse.ui.internal.introview" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
+</folder>
+</info>
+<info part="org.eclipse.ui.editorss" ratio="0.3" ratioLeft="300" ratioRight="700" relationship="2" relative="org.eclipse.ui.internal.ViewStack@70edab58"/>
+<info part="com.modeliosoft.modelio.script.ScriptViewID" ratio="0.5" ratioLeft="323" ratioRight="323" relationship="4" relative="org.eclipse.ui.editorss"/>
+</mainWindow>
+</layout>
+</perspective>
+<perspective editorAreaTrimState="2" editorAreaVisible="1" fixed="0" version="0.016">
+<descriptor class="com.modeliosoft.modelio.internal.app.impl.perspectives.AllViewsPerspective" id="com.modeliosoft.modelio.app.allViewsPerspectiveID" label="Full"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.annotationNavigation"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.navigation"/>
+<alwaysOnActionSet id="org.eclipse.ui.edit.text.actionSet.convertLineDelimitersTo"/>
+<alwaysOnActionSet id="org.eclipse.ui.actionSet.keyBindings"/>
+<alwaysOnActionSet id="org.eclipse.ui.actionSet.openFiles"/>
+<hide_toolbar_item_id id="org.eclipse.ui.edit.text.toggleShowSelectedElementOnly"/>
+<view id="com.modeliosoft.modelio.audit.AuditViewID"/>
+<view id="com.modeliosoft.modelio.diagram.browser.BrowserViewID"/>
+<view id="org.eclipse.ui.views.ContentOutline"/>
+<view id="com.modeliosoft.modelio.diagram.symbol.SymbolViewID"/>
+<view id="com.modeliosoft.modelio.edition.ModelPropertyViewID"/>
+<view id="org.modelio.linkeditor.view.LinkEditorViewID"/>
+<view id="com.modeliosoft.modelio.edition.notes.NotesViewID"/>
+<view id="com.modeliosoft.modelio.explorer.UmlNavigatorContentID"/>
+<fastViewBars/>
+<viewLayoutRec closeable="false" id="com.modeliosoft.modelio.edition.MdacPropertyViewID:*"/>
+<viewLayoutRec closeable="false" id="com.modeliosoft.modelio.edition.WizardViewID"/>
+<viewLayoutRec closeable="false" id="org.eclipse.ui.views.ContentOutline"/>
+<layout>
+<mainWindow>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@4e21c782">
+<folder activePageID="com.modeliosoft.modelio.diagram.browser.BrowserViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.diagram.browser.BrowserViewID" label="Diagrams"/>
+<page content="DefaultPerspective.1" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info folder="true" part="stickyFolderRight" ratio="0.75" ratioLeft="750" ratioRight="250" relationship="2" relative="org.eclipse.ui.internal.ViewStack@4e21c782">
+<folder appearance="2" expanded="2">
+<page content="org.eclipse.help.ui.HelpView" label="LabelNotFound"/>
+<page content="org.eclipse.ui.internal.introview" label="LabelNotFound"/>
+</folder>
+</info>
+<info folder="true" part="DefaultPerspective.2" ratio="0.25" ratioLeft="250" ratioRight="750" relationship="2" relative="org.eclipse.ui.internal.ViewStack@4e21c782">
+<folder appearance="2" expanded="2"/>
+</info>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@25f342c6" ratio="0.75" ratioLeft="750" ratioRight="250" relationship="2" relative="DefaultPerspective.2">
+<folder activePageID="com.modeliosoft.modelio.diagram.symbol.SymbolViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.diagram.symbol.SymbolViewID" label="Symbol"/>
+<page content="DefaultPerspective.3" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@bb14fe1" ratio="0.5" ratioLeft="323" ratioRight="323" relationship="4" relative="org.eclipse.ui.internal.ViewStack@25f342c6">
+<folder activePageID="org.eclipse.ui.views.ContentOutline" appearance="2" expanded="2">
+<page content="org.eclipse.ui.views.ContentOutline" label="Outline"/>
+<page content="DefaultPerspective.4" label="LabelNotFound"/>
+<page content="com.modeliosoft.modelio.mda.MdaExplorerContentID" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@63dd2ea6" ratio="0.5" ratioLeft="323" ratioRight="323" relationship="4" relative="org.eclipse.ui.internal.ViewStack@bb14fe1">
+<folder activePageID="com.modeliosoft.modelio.audit.AuditViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.audit.AuditViewID" label="Audit"/>
+<page content="DefaultPerspective.5" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info part="org.eclipse.ui.editorss" ratio="0.249226" ratioLeft="161" ratioRight="485" relationship="4" relative="DefaultPerspective.2"/>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@5a4e8a1" ratio="0.74922603" ratioLeft="484" ratioRight="162" relationship="4" relative="org.eclipse.ui.editorss">
+<folder activePageID="com.modeliosoft.modelio.edition.ModelPropertyViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.edition.ModelPropertyViewID" label="Element"/>
+<page content="org.modelio.linkeditor.view.LinkEditorViewID" label="Links Editor"/>
+<page content="DefaultPerspective.6" label="LabelNotFound"/>
+<page content="com.modeliosoft.modelio.edition.WizardViewID" label="LabelNotFound"/>
+<page content="com.modeliosoft.modelio.edition.MdacPropertyViewID:*" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+<part id="1"/>
+</presentation>
+</folder>
+</info>
+<info part="com.modeliosoft.modelio.script.ScriptViewID" ratio="0.5" ratioLeft="242" ratioRight="242" relationship="4" relative="org.eclipse.ui.editorss"/>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@344788f3" ratio="0.33281735" ratioLeft="215" ratioRight="431" relationship="4" relative="org.eclipse.ui.internal.ViewStack@4e21c782">
+<folder activePageID="com.modeliosoft.modelio.explorer.UmlNavigatorContentID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.explorer.UmlNavigatorContentID" label="Model"/>
+<page content="DefaultPerspective.8" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@da4a4ec" ratio="0.623839" ratioLeft="403" ratioRight="243" relationship="4" relative="org.eclipse.ui.internal.ViewStack@344788f3">
+<folder activePageID="com.modeliosoft.modelio.edition.notes.NotesViewID" appearance="2" expanded="2">
+<page content="com.modeliosoft.modelio.edition.notes.NotesViewID" label=""/>
+<page content="DefaultPerspective.7" label="LabelNotFound"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+</presentation>
+</folder>
+</info>
+</mainWindow>
+</layout>
+</perspective>
+</perspectives>
+<workingSets/>
+<navigationHistory/>
+</page>
+<workbenchWindowAdvisor/>
+<actionBarAdvisor/>
+<trimLayout>
+<trimArea IMemento.internal.id="128">
+<trimItem IMemento.internal.id="org.eclipse.ui.internal.WorkbenchWindow.topBar"/>
+</trimArea>
+<trimArea IMemento.internal.id="1024">
+<trimItem IMemento.internal.id="org.eclipse.jface.action.StatusLineManager"/>
+</trimArea>
+</trimLayout>
+</window>
+<mruList/>
+</workbench>

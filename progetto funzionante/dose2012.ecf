@@ -27,9 +27,12 @@
 			<cluster name="tictactoe" location=".\dose_2012\tictactoe\" recursive="true"/>
 		</cluster>
 		<tests name="dose_2012_tests" location=".\dose_2012_tests\">
-			<tests name="group18_tests" location=".\dose_2012_tests\group18_tests\">
-				<tests name="tests_logic" location=".\dose_2012_tests\group_18_tests\"/>
+			<tests name="group_18_tests" location=".\dose_2012_tests\group_18_tests\">
+				<tests name="test_logic" location=".\dose_2012_tests\group_18_tests\test_logic\"/>
+				<tests name="tests_gui_net" location=".\dose_2012_tests\group_18_tests\tests_gui_net\"/>
+				<tests name="test_ai" location=".\dose_2012_tests\group_18_tests\test_ai\"/>
 			</tests>
+			<tests name="tictactoe_tests" location=".\dose_2012_tests\tictactoe_tests\"/>
 		</tests>
 		<override name="vision_ov" location=".\dose_2012\libs\vision_ov\" recursive="true"/>
 		<override name="wel_ov" location=".\dose_2012\libs\wel_ov\" recursive="true">

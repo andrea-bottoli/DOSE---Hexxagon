@@ -25,7 +25,7 @@ feature	--Deferred Methods for change the gui view
 		game_status_is_not_empty: is_game_status_empty=FALSE
 	end
 
-	--Allow to clean the set enable the interaction with the player
+	--Allow to clean the field of the chat
 	chat_enable(a_condition: BOOLEAN)
 	deferred
 	ensure
@@ -53,13 +53,6 @@ feature	--Deferred Methods for change the gui view
 	deferred
 	ensure
 		game_status_is_empty: is_game_status_empty=TRUE
-	end
-
-	--Allow to clean the view of the net status in the gui, bringing it back to the default status
-	clean_network_status
-	deferred
-	ensure
-		network_status: is_network_status_empty=TRUE
 	end
 
 	--Allow to clean the view of the chat in the gui, bringing it back to the default status
@@ -129,37 +122,37 @@ feature	--Deferred Methods for change the gui view
 
 feature{NONE}	--Private Methods
 
-	--Allow to check if game panel is empy
+	--Allow to check if game panel is empty
 	is_game_panel_empty:BOOLEAN
 	deferred
 	end
 
-	--Allow to check if menu panel is empy
+	--Allow to check if menu panel is empty
 	is_menu_panel_empty:BOOLEAN
 	deferred
 	end
 
-	--Allow to check if game_status is empy
+	--Allow to check if game_status is empty
 	is_game_status_empty:BOOLEAN
 	deferred
 	end
 
-	--Allow to check if network_status is empy
+	--Allow to check if network_status is empty
 	is_network_status_empty:BOOLEAN
 	deferred
 	end
 
-	--Allow to check if board is empy
+	--Allow to check if board is empty
 	is_board_empty:BOOLEAN
 	deferred
 	end
 
-	--Allow to check if timer is empy
+	--Allow to check if timer is empty
 	is_timer_empty:BOOLEAN
 	deferred
 	end
 
-	--Allow to check if chat is empy
+	--Allow to check if chat is empty
 	is_chat_empty:BOOLEAN
 	deferred
 	end

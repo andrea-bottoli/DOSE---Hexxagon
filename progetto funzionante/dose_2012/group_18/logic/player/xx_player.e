@@ -77,7 +77,7 @@ feature {ANY}
 
 	set_port_number(port: INTEGER)	-- Set the port number of NET connection of the player
 	require
-		valid_port: (port >0) and (port <= port.item.max_value)
+		valid_port: (port >0) and (port <= 65535)
 	do
 
 	ensure

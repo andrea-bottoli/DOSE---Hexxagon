@@ -31,6 +31,8 @@ feature {ANY}
 	make_hexxagon()  -- Cunstructor of object hexxagon
 	do
 
+	ensure
+		valid_board: board /= Void
 	end
 
 
@@ -40,7 +42,6 @@ feature {XX_LAUNCHER}
 	do
 
 	ensure
-		valid_board: board /= Void
 		valid_player1: player1 /= Void
 		valid_player2: player2 /= Void
 		valid_timer: timer /= Void
@@ -110,7 +111,9 @@ feature {NONE}  -- Methods visible only from XX_HEXXAGON class at initialization
 	end
 
 
-feature {ANY}		-- Implementation of inherited methods from deferred classes
+
+
+feature {ANY}		-- Implementation of interface methods
 
 	associated_move(move: XX_POSSIBLE_MOVES)  -- Associated move of the player himself/herself
 	require else
@@ -192,7 +195,7 @@ feature {ANY}		-- Implementation of inherited methods from deferred classes
 		check_name: (name /= Void) and (name.is_equal ("") = False)
 		check_colour: (colour /= Void) and (colour.is_equal ("") = False )
 		check_ip: (IP /= Void) and (IP.is_equal ("") = False )
-		check_port: (port >0 and port <= port.item.max_value)
+		check_port: (port >0 and port <= 65535)
 	do
 
 	ensure then

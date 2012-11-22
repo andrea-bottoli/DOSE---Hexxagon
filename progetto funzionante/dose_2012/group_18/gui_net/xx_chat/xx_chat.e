@@ -11,6 +11,9 @@ inherit
 	XX_GUI_TO_CHAT_INTERFACE
 	XX_NET_TO_CHAT_INTERFACE
 
+create
+	default_create
+
 feature{NONE}	--Attribute
 	net_manager: XX_NET
 

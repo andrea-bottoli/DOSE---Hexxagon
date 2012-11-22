@@ -11,56 +11,46 @@ create make_possible_moves
 
 feature {NONE}
 
-	possible_moves: TUPLE	-- tuple with possible moves
 	piece:INTEGER 	--which piece is going to be moved
 	to_position:INTEGER 	--where that piece is going to be moved
-	case:INTEGER 	--1 if only piece is sent, 2 if only move is sent, 3 if both sent
+	type:INTEGER 	--1 if only piece is sent, 2 if only move is sent, 3 if both sent
 
 feature {ANY}
 
 	make_possible_moves()
 	do
 
-	ensure
-		valid_possible_moves: possible_moves /= Void
 	end
 
 feature {ANY}
 
-	check_possible_moves(pos_moves: TUPLE)
-	require else pos_moves /= Void
-	do
-
-	ensure possible_moves /= Void and possible_moves = pos_moves
-	end
-
-	receive_board(board: XX_BOARD)
-	require
-		valid_board: board /= Void
-	do
-
-	end
-
-	get_possible_moves(): TUPLE
+	get_piece():INTEGER
 	do
 
 	ensure
-		valid_possible_moves: (Result /= Void) and (Result = possible_moves)
+		valid_possible_moves: (Result = piece)
 	end
 
-	message_possible_moves(which:INTEGER; where_to:INTEGER)
-	require
-		valid_indexes: (which>=0 and which<=57) and (where_to>=0 and where_to<=57)
+	get_position():INTEGER
 	do
 
-	ensure then piece = which and to_position = where_to
+	ensure
+		valid_possible_moves: (Result = to_position)
 	end
 
-	read_message(msg: STRING)	-- Reads message
-	require
-		valid_msg: (msg /= Void and msg.is_equal("") = False)
+	get_type():INTEGER
 	do
 
+	ensure
+		valid_possible_moves: (Result = type)
+	end
+
+	set_move(which:INTEGER; where_to:INTEGER; case:INTEGER)
+	require
+		valid_indexes: (which>=0 and which<=57) and (where_to>=0 and where_to<=57) and (case>0 and case <=2)
+	do
+
+	ensure then piece = which and to_position = where_to and type = case
 	end
 
 end

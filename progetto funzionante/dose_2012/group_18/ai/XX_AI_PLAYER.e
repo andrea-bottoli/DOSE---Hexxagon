@@ -6,6 +6,8 @@ note
 
 class
 	XX_AI_PLAYER
+inherit
+	XX_IAI
 
 create
 	Ensure_Move
@@ -29,14 +31,46 @@ feature {NONE} -- Initialization
 
 feature {ANY} --Implementation
 	Best_move()
-		do
-			Set_Best_move()
-		end
+	do
+		Set_Best_move()
+	end
+
+	get_AI_Solver(): XX_AI_SELECT_MOVE
+    do
+
+    ensure Result /= Void
+    end
+
+	set_board(a_board: XX_BOARD)
+  	require else 	board_not_void: a_board/=Void
+  	do
+  		Board:= a_board
+
+  	ensure then
+  		Board_not_void: Board/=Void
+  	end
+
+
+	set_game_status(player1,player2: XX_PLAYER; is_active: BOOLEAN)
+	require else   players_not_void: player1/=Void and player2/=Void
+   	do
+
+   	end
+
+    send_confirm(value: BOOLEAN)
+  	require else  players_not_void: value = True xor value = False
+  	do
+
+  	ensure then
+   		massage_send: value= TRUE
+  	end
+
 
 feature {NONE}
 	Set_Best_move()
-		do
-			AI_Solver.calculate_best_move()
-			Message_To_LOGIC.message_possible_moves ( AI_Solver.get_previos_move ,AI_Solver.get_best_move)
-		end
+	do
+		AI_Solver.calculate_best_move()
+		Message_To_LOGIC.set_move ( AI_Solver.get_previos_move ,AI_Solver.get_best_move,1)
+	end
+
 end --end class

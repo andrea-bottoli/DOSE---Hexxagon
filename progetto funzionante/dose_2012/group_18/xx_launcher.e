@@ -12,8 +12,6 @@ inherit
 
 feature -- Implementation
 
-	test: XX_HEXXAGON
-
 	launch (main_ui_window: MAIN_WINDOW)
 			-- shows a dummy output
 		do

@@ -36,4 +36,5 @@ feature {ANY} --Implementation
 			Result:= AI_Calculation_Move.at(0)
 			ensure Result>=0 and Result< 58
 		end
+
 end-- class XX_AI_SELECT_MOVE

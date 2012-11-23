@@ -10,7 +10,7 @@ class
 create
 	make
 
-feature{G21_MOVE, G21_AI, G21_FAKE_BOARD} --Attributes
+feature{G21_MOVE, G21_AI, G21_FAKE_BOARD, G21_POINT} --Attributes
 
 	x: INTEGER -- the first value of the coordinate
 	y: INTEGER -- the second value of the coordinate
@@ -36,7 +36,7 @@ feature{NONE} --Creation
 
 		end
 
-feature{G21_AI, G21_MOVE, G21_FAKE_BOARD} --Procedures
+feature{G21_AI, G21_MOVE, G21_FAKE_BOARD, G21_POINT} --Procedures
 
 	set_x (new_x: INTEGER) -- it sets the value of variable "x" to the parameter "new_x" value
 
@@ -68,6 +68,40 @@ feature{G21_AI, G21_MOVE, G21_FAKE_BOARD} --Procedures
 		ensure
 
 			y_set: y=new_y
+
+		end
+
+	equals_position (position_to_check: G21_POINT): BOOLEAN -- It checks if the parameter is equals to my position
+
+		require
+
+			position_valid: position_to_check/=void and then position_to_check.x>=1 and then position_to_check.x<=3 and then position_to_check.y>=1 and then position_to_check.y<=3
+
+		do
+
+			result:= position_to_check.x=x and then position_to_check.y=y
+
+		ensure
+
+			position_not_changed: position_to_check/=void and then position_to_check.x=old position_to_check.x and then position_to_check.y=old position_to_check.y
+			my_values_not_changed: x=old x and then y=old y
+
+		end
+
+	around_the_point (position_to_check: G21_POINT): BOOLEAN -- It checks if the parameter is in a position around mine
+
+		require
+
+			position_valid: position_to_check/=void and then position_to_check.x>=1 and then position_to_check.x<=3 and then position_to_check.y>=1 and then position_to_check.y<=3
+
+		do
+
+			result:=((position_to_check.x-1=x and then position_to_check.y=y) or else (position_to_check.x+1=x and then position_to_check.y=y) or else (position_to_check.x=x and then position_to_check.y-1=y) or else  (position_to_check.x=x and then position_to_check.y+1=y))
+
+		ensure
+
+			position_not_changed: position_to_check.equals_position(old position_to_check)
+			my_values_not_changed: x=old x and then y=old y
 
 		end
 

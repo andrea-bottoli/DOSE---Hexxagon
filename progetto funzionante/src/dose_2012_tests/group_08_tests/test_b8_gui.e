@@ -185,8 +185,8 @@ feature -- Test routines
 feature{NONE} --feature for ask question to the tester
 
 	ask(a_question:STRING):BOOLEAN
-		local
-			l_answer : CHARACTER
+	--	local
+	--		l_answer : CHARACTER
 		do
 			--print(a_question+"(answer y or n)%N")
 			--io.read_character

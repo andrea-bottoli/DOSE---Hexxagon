@@ -28,9 +28,9 @@ feature{NONE} -- Creation
 		game_board_not_modified: game_board/=void and then game_board = old game_board
 			ai_cards_not_modified: ai_cards/=void and then ai_cards = old ai_cards and then ai_cards.count=old ai_cards.count
 			game_board_assigned: game_board = board
-			board_assigned_first_row: board.item(1).item(1) = game_board.item(1).item(1) and then board.item(1).item(2) = game_board.item(1).item(2) and then board.item(1).item(3) = game_board.item(1).item(3)
-			board_assigned_second_row: board.item(2).item(1) = game_board.item(2).item(1) and then board.item(2).item(2) = game_board.item(2).item(2) and then board.item(2).item(3) = game_board.item(2).item(3)
-			board_assigned_third_row: board.item(3).item(1) = game_board.item(3).item(1) and then board.item(3).item(2) = game_board.item(3).item(2) and then board.item(3).item(3) = game_board.item(3).item(3)
+			board_assigned_first_row: board.item(1, 1) = game_board.item(1).item(1) and then board.item(1, 2) = game_board.item(1).item(2) and then board.item(1, 3) = game_board.item(1).item(3)
+			board_assigned_second_row: board.item(2, 1) = game_board.item(2).item(1) and then board.item(2, 2) = game_board.item(2).item(2) and then board.item(2, 3) = game_board.item(2).item(3)
+			board_assigned_third_row: board.item(3, 1) = game_board.item(3).item(1) and then board.item(3, 2) = game_board.item(3).item(2) and then board.item(3, 3) = game_board.item(3).item(3)
 			ai_cards_assigned: ai_cards = cards and then ai_cards.count=cards.count
 		end
 

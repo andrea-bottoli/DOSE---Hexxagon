@@ -36,10 +36,10 @@ feature{NONE} -- Creation
 			--game_board_assigned: board\=void and then game_board = board
 			--ai_cards_assigned: cards\=void and then ai_cards = cards and then ai_cards.count=cards.count
 			--game_rules_assigned: rules\=void and then game_rules = rules
-			--board_assigned_first_row: board.item(1).item(1) = game_board.item(1).item(1) and then board.item(1).item(2) = game_board.item(1).item(2) and then board.item(1).item(3) = game_board.item(1).item(3)
-			--board_assigned_second_row: board.item(2).item(1) = game_board.item(2).item(1) and then board.item(2).item(2) = game_board.item(2).item(2) and then board.item(2).item(3) = game_board.item(2).item(3)
-			--board_assigned_third_row: board.item(3).item(1) = game_board.item(3).item(1) and then board.item(3).item(2) = game_board.item(3).item(2) and then board.item(3).item(3) = game_board.item(3).item(3)
-		end
+			--board_assigned_first_row: board.item(1, 1) = game_board.item(1).item(1) and then board.item(1, 2) = game_board.item(1).item(2) and then board.item(1, 3) = game_board.item(1).item(3)
+			--board_assigned_second_row: board.item(2, 1) = game_board.item(2).item(1) and then board.item(2, 2) = game_board.item(2).item(2) and then board.item(2, 3) = game_board.item(2).item(3)
+			--board_assigned_third_row: board.item(3, 1) = game_board.item(3).item(1) and then board.item(3, 2) = game_board.item(3).item(2) and then board.item(3, 3) = game_board.item(3).item(3)
+			end
 
 feature{G21_BOARD} -- Interface Procedure	
 

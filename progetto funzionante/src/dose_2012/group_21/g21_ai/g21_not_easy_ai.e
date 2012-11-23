@@ -90,7 +90,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 			until
 
-				i<=3
+				i>3
 
 			loop
 
@@ -100,7 +100,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 				until
 
-					j<=3
+					j>3
 
 				loop
 
@@ -148,7 +148,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 			until
 
-				i>=1
+				i<1
 
 			loop
 
@@ -173,8 +173,50 @@ feature{G21_NOT_EASY_AI} -- Procedures
 	remove_position_and_update (position_to_remove: G21_POINT; update: BOOLEAN) -- It removes any element of valuated_moves that contains the position passed as parameter and, if update is true, it update the value of the valuated moves around the passed position
 
 		require
+
+			position_valid: position_to_remove/=void and then position_to_remove.x>=1 and then position_to_remove.x<=3 and then position_to_remove.y>=1 and then position_to_remove.y<=3
+			valuated_moves_size_valid: valuated_moves.count>=1
+
+		local
+
+			i: INTEGER_32
+
 		do
+
+			from
+
+				i:= valuated_moves.count
+
+			until
+
+				i<1
+
+			loop
+
+				if(position_to_remove.equals_position(valuated_moves[i].position)) then
+
+					valuated_moves.prune (valuated_moves[i])
+
+				else
+
+					if(update and then position_to_remove.around_the_point(valuated_moves[i].position)) then
+
+						calculate_move_value(valuated_moves[i])
+
+					end
+
+				end
+
+				i:=i-1
+
+			end
+
 		ensure
+
+			position_not_changed: position_to_remove.equals_position(old position_to_remove)
+			valuated_moves_resized: valuated_moves.count<= old valuated_moves.count
+			-- the other elements has not been changed
+
 		end
 
 end

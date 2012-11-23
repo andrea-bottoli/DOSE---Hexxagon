@@ -15,7 +15,7 @@ feature {NONE} -- Initialization
 	make
 			-- Initialization for `Current'.
 		do
-
+			my_id:=-1
 		ensure
 			my_id_initalization: my_id=-1
 		end
@@ -45,7 +45,7 @@ feature -- State
 	get_turn:INTEGER
 			-- returns the current turn
 		do
-
+			Result:=current_turn
 		ensure
 			correct_result: Result=current_turn
 		end
@@ -53,7 +53,7 @@ feature -- State
 	get_color:INTEGER
 			-- returns the current color
 		do
-
+			Result:=current_color
 		ensure
 			correct_result: Result=current_color
 		end
@@ -61,7 +61,7 @@ feature -- State
 	get_players:ARRAY[B8_PLAYER]
 			-- returns the players
 		do
-
+			 Result:=players
 		ensure
 			correct_result: Result=players
 		end
@@ -69,7 +69,7 @@ feature -- State
 	get_board:B8_BOARD
 			-- returns the game board
 		do
-
+			Result:=board
 		ensure
 			correct_result: Result=board
 		end
@@ -129,7 +129,7 @@ feature -- Access
 			-- sets the player id of the specific logic unit
 			-- id: the player id
 		do
-
+			my_id:=id
 		end
 
 	undo_last_move(id:INTEGER)
@@ -151,7 +151,7 @@ feature -- Access
 	next_turn
 			-- abort current turn and skip to the next turn
 		do
-
+			
 		end
 
 	game_is_started:BOOLEAN
@@ -163,7 +163,7 @@ feature -- Game mode
 			-- sets the current turn
 			-- turn: the setted turn
 		do
-
+			current_turn:=turn
 		ensure
 			turn_set: current_turn = turn
 		end
@@ -172,7 +172,7 @@ feature -- Game mode
 			-- sets the current color
 			-- color: the setted color
 		do
-
+			current_color:=color
 		ensure
 			color_set: current_color = color
 		end

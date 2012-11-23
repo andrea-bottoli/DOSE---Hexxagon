@@ -9,64 +9,88 @@ class
 					--The G21_HARD_AI uses it to see if an AI possible move can be used by the human player to make "PLUS", "SAME", or "SAME-WALL".
 
 create
+
 	make
 
 feature{G21_HARD_AI} -- Attributes
 
-	fake_board: ARRAY[ARRAY[G21_CELL]] -- the copy of the real board used by the Logic component
+	fake_board: ARRAY2[G21_CELL] -- the copy of the real board used by the Logic component
 
 feature{NONE} -- Creation
 
 	make (logic_board: ARRAY[ARRAY[G21_CELL]]) -- it creates the object G21_FAKE_BOARD by copying the elements of Logic board into the fake_board
 		require
+
 			logic_board_valid: logic_board/=void
+
 		local
+
 			row: INTEGER
 			column: INTEGER
 			cell: G21_CELL
+			default_cell: G21_CELL
+
 		do
-			--make fake_board
+			
+			create default_cell.make
+			create fake_board.make_filled(default_cell, 3, 3)
+
 			from
+
 				row:=1
+
 			until
-				row<=3
+
+				row>3
+
 			loop
+
 				from
+
 					column:=1
+
 				until
-					column<=3
+
+					column>3
+
 				loop
-					create cell.make
-					fake_board.item(1).item (1):=cell
+
+					--create cell.make  It will be used when the egyptian team will implement the method cell.make
+					fake_board.item(row, column):=cell
+
 				end
+
 			end
 
-			--insert values into fake_board
-			from
-				row:=1
-			until
-				row<=3
-			loop
-				from
-					column:=1
-				until
-					column<=3
-				loop
-					if logic_board.item(row)/=void and then logic_board.item(row).item(column)/=void and then logic_board.item(row).item(column)/=void
-						then
-						-- create cell.make() ??????????????????????
-						fake_board.item(row).put( cell,column)
-					end
-				end
-			end
+
+--I can have only one cycle where I create any element of fake_board by copying the elements of logic_board
+
+--			--insert values into fake_board
+--			from
+--				row:=1
+--			until
+--				row>3
+--			loop
+--				from
+--					column:=1
+--				until
+--					column>3
+--				loop
+--					if logic_board.item(row)/=void and then logic_board.item(row).item(column)/=void and then logic_board.item(row).item(column)/=void
+--						then
+--						-- create cell.make() ??????????????????????
+--						fake_board.item(row).put( cell,column)
+--					end
+--				end
+--			end
 
 		ensure
 			logic_board_valid: logic_board/=void
 			logic_board_as_before: logic_board = old logic_board
 			fake_board_valid: fake_board/=void
-			fake_board_equal_to_logic_board_first_row: equals_cell(fake_board.item(1).item(1), logic_board.item(1).item(1))=TRUE and then equals_cell(fake_board.item(1).item(2), logic_board.item(1).item(2))=TRUE and then equals_cell(fake_board.item(1).item(3), logic_board.item(1).item(3))=TRUE
-			fake_board_equal_to_logic_board_second_row: equals_cell(fake_board.item(2).item(1), logic_board.item(2).item(1))=TRUE and then equals_cell(fake_board.item(2).item(2), logic_board.item(2).item(2))=TRUE and then equals_cell(fake_board.item(2).item(3), logic_board.item(2).item(3))=TRUE
-			fake_board_equal_to_logic_board_third_row: equals_cell(fake_board.item(3).item(1), logic_board.item(3).item(1))=TRUE and then equals_cell(fake_board.item(3).item(2), logic_board.item(3).item(2))=TRUE and then equals_cell(fake_board.item(3).item(3), logic_board.item(3).item(3))=TRUE
+			fake_board_equal_to_logic_board_first_row: equals_cell(fake_board.item(1, 1), logic_board.item(1).item(1))=TRUE and then equals_cell(fake_board.item(1, 2), logic_board.item(1).item(2))=TRUE and then equals_cell(fake_board.item(1, 3), logic_board.item(1).item(3))=TRUE
+			fake_board_equal_to_logic_board_second_row: equals_cell(fake_board.item(2, 1), logic_board.item(2).item(1))=TRUE and then equals_cell(fake_board.item(2, 2), logic_board.item(2).item(2))=TRUE and then equals_cell(fake_board.item(2, 3), logic_board.item(2).item(3))=TRUE
+			fake_board_equal_to_logic_board_third_row: equals_cell(fake_board.item(3, 1), logic_board.item(3).item(1))=TRUE and then equals_cell(fake_board.item(3, 2), logic_board.item(3).item(2))=TRUE and then equals_cell(fake_board.item(3, 3), logic_board.item(3).item(3))=TRUE
 		end
 
 feature{NONE} -- Procedure
@@ -111,9 +135,9 @@ feature{G21_HARD_AI} -- Procedures
 			logic_board_valid: logic_board/=void
 			logic_board_as_before: logic_board = old logic_board
 			fake_board_valid: fake_board/=void
-			fake_board_equal_to_logic_board_first_row: equals_cell(fake_board.item(1).item(1), logic_board.item(1).item(1))=TRUE and then equals_cell(fake_board.item(1).item(2), logic_board.item(1).item(2))=TRUE and then equals_cell(fake_board.item(1).item(3), logic_board.item(1).item(3))=TRUE
-			fake_board_equal_to_logic_board_second_row: equals_cell(fake_board.item(2).item(1), logic_board.item(2).item(1))=TRUE and then equals_cell(fake_board.item(2).item(2), logic_board.item(2).item(2))=TRUE and then equals_cell(fake_board.item(2).item(3), logic_board.item(2).item(3))=TRUE
-			fake_board_equal_to_logic_board_third_row: equals_cell(fake_board.item(3).item(1), logic_board.item(3).item(1))=TRUE and then equals_cell(fake_board.item(3).item(2), logic_board.item(3).item(2))=TRUE and then equals_cell(fake_board.item(3).item(3), logic_board.item(3).item(3))=TRUE
+			fake_board_equal_to_logic_board_first_row: equals_cell(fake_board.item(1, 1), logic_board.item(1).item(1))=TRUE and then equals_cell(fake_board.item(1, 2), logic_board.item(1).item(2))=TRUE and then equals_cell(fake_board.item(1, 3), logic_board.item(1).item(3))=TRUE
+			fake_board_equal_to_logic_board_second_row: equals_cell(fake_board.item(2, 1), logic_board.item(2).item(1))=TRUE and then equals_cell(fake_board.item(2, 2), logic_board.item(2).item(2))=TRUE and then equals_cell(fake_board.item(2, 3), logic_board.item(2).item(3))=TRUE
+			fake_board_equal_to_logic_board_third_row: equals_cell(fake_board.item(3, 1), logic_board.item(3).item(1))=TRUE and then equals_cell(fake_board.item(3, 2), logic_board.item(3).item(2))=TRUE and then equals_cell(fake_board.item(3, 3), logic_board.item(3).item(3))=TRUE
 		end
 
 	make_fake_move (fake_move: G21_MOVE) -- it makes a fake move and set the parameter fake_move.card into the fake_board at the received fake_move.position
@@ -124,7 +148,7 @@ feature{G21_HARD_AI} -- Procedures
 		ensure
 			fake_board_valid: fake_board/=void
 			card_as_before: equals_card(fake_move.card, old fake_move.card)=true --otherwise card_set might be true if the card has been modified during the function
-			card_set: equals_card(fake_board.item(fake_move.position.x).item(fake_move.position.y).card, fake_move.card)=TRUE
+			card_set: equals_card(fake_board.item(fake_move.position.x, fake_move.position.y).card, fake_move.card)=TRUE
 			position_not_changed: fake_move.position=old fake_move.position and then fake_move.position.x=old fake_move.position.x and then fake_move.position.y=old fake_move.position.y
 		end
 

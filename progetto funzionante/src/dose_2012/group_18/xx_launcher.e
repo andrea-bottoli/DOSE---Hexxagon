@@ -14,8 +14,13 @@ feature -- Implementation
 
 	launch (main_ui_window: MAIN_WINDOW)
 			-- shows a dummy output
+		local
+			gui: XX_GUI
 		do
 		 	io.put_string("Hexxagon coming soon")
+		 	create gui.make
+		 	gui.show
+
 		end
 
 end

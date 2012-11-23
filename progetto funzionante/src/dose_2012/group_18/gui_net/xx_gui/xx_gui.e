@@ -8,13 +8,50 @@ class
 XX_GUI
 
 inherit
-XX_IGUI
-  XX_CHAT_TO_GUI_INTERFACE
+	EV_TITLED_WINDOW
+		redefine
+			initialize,
+			is_in_default_state
+		end
+
+	XX_IGUI
+		undefine
+			default_create,
+			copy
+		end
+
+ 	XX_CHAT_TO_GUI_INTERFACE
+		undefine
+			default_create,
+			copy
+		end
+
+	INTERFACE_NAMES
+		export
+			{NONE} all
+		undefine
+			default_create,
+			copy
+		end
 
 create
-make
+	make
+
+feature {NONE} -- Constructor
+	-- Initialization for "Current".
+	make
+	do
+		default_create
+	end
+
 
 feature{NONE} --Attributes of the gui
+
+	--Attribute for the position of the window
+	window_width: INTEGER 		-- Initial width for this window.
+	window_height: INTEGER		-- Initial height for this window.
+	screen: EV_SCREEN			-- Menager of the screen
+
 	--There are the EV component that compose the "Game Status"
 	label_name_player1: EV_LABEL
 	label_name_player2: EV_LABEL
@@ -44,12 +81,182 @@ feature{NONE} --Attributes of the gui
 	game_window: XX_GUI
 	menu_window: XX_GUI
 
-feature {NONE} -- Initialization
-	-- Initialization for "Current".
-	make
+
+feature {NONE} --Initialisation
+	--Initialize the window
+	initialize
 	do
-		--TODO
+		Precursor {EV_TITLED_WINDOW}
+
+		--Attached agent to the button X of the window
+		close_request_actions.extend (agent close_window)
+
+		window_width:= 800
+		window_height:= 400
+
+		create screen
+
+		--Set position in the middle of the screen
+		set_window_position
+		set_title (window_title)
+		set_size (window_width, window_height)
+
+		disable_user_resize
+
+		-- Create and add the main container.
+		build_main_container
 	end
+
+	--Is the window in its default state
+	-- (as stated in `initialize')
+	is_in_default_state: BOOLEAN
+	do
+		Result := (current.width = Window_width) and then
+				  (current.height = Window_height) and then
+				  (current.title.is_equal (Window_title))
+	end
+
+
+feature {NONE}	--Set the window position and the size of the window
+
+	--Set position the window in the middle of the screen
+	set_window_position
+		local
+			x_pos: REAL
+			y_pos: REAL
+		do
+			x_pos:= screen.width.to_real/2 - window_width.to_real/2
+			y_pos:= screen.height.to_real/3 - window_height.to_real/2
+			current.set_position (x_pos.truncated_to_integer, y_pos.truncated_to_integer)
+		end
+
+	--Set the size of the screen
+	set_window_size(a_width, a_height: INTEGER)
+		require
+			width_is_valid: a_width>0
+			height_is_valid: a_height>0
+		do
+			current.set_size (a_width, a_height)
+		ensure
+			size_is_setted: current.width=a_width and current.height=a_height
+		end
+
+feature {NONE}	--Implementation of main container of the window
+	main_container: EV_HORIZONTAL_BOX	--Main container of the window for the widgets
+	second_container: EV_VERTICAL_BOX	--Second container of the window for the widgets
+	notepad: EV_NOTEBOOK
+
+
+	--Create and add the Main Container
+	build_main_container
+		require
+			main_container_not_exist: main_container=Void
+			second_container_not_exist: second_container=Void
+		local
+			l_color: EV_COLOR
+			l_label: EV_LABEL
+			l_button: EV_BUTTON
+			l_font: EV_FONT
+			l_s: STRING
+			l_tx: EV_TEXT
+			l_i: INTEGER
+		do
+				--create main container
+			create main_container
+			create notepad.default_create
+
+				--set background color of the container
+			create l_color.make_with_8_bit_rgb (100, 250, 75)
+			main_container.set_background_color (l_color)
+
+				--Insert the second container in the firs position of main container
+			create second_container
+			main_container.extend (second_container)
+
+				--create a label, set font/color and add it to the condainer
+			create l_label.make_with_text ("HEXXAGON DOSE PROJECT 2012")
+			create l_font.make_with_values (5, 8, 11, 40)
+			create l_color.make_with_8_bit_rgb (255,20,147)
+			l_label.set_font (l_font)
+			l_label.set_foreground_color (l_color)
+			second_container.extend (l_label)
+
+				--Insert the other button in the main gui
+			create l_button.make_with_text ("zio badile")
+			create l_tx.make_with_text ("PPPPPPPP")
+
+			from
+				l_i := 1
+			until
+				l_i >= 20
+			loop
+				l_tx.append_text ("%N")
+				l_tx.append_text ("[00:")
+				l_s:=""
+				l_s.append_integer (l_i)
+				l_tx.append_text (l_s)
+				l_tx.append_text ("]- XXXX")
+				l_i := l_i + 1
+			end
+
+			--sc.extend (tx)
+			second_container.extend (l_tx)
+
+				--create a button, set it and add it to the container
+			create l_button.make_with_text ("cacca")
+			main_container.extend (l_button)
+
+			main_container.extend (notepad)
+
+			create l_button.make_with_text ("PLUTO")
+			notepad.extend (l_button)
+			notepad.set_item_text (l_button,"PLUTO")
+
+			create l_button.make_with_text ("PIPPO")
+			notepad.extend (l_button)
+			notepad.set_item_text (l_button,"PIPPO")
+
+
+
+			--add the container to the main_window
+			current.extend (main_container)
+			--current.disable_user_resize
+		ensure
+			main_container_created: main_container/=Void and then (not main_container.is_empty)
+		end
+
+
+
+feature {NONE}	--Implementation window close
+	close_window
+		local
+			question_close_box: EV_CONFIRMATION_DIALOG
+		do
+			create question_close_box.make_with_text (label_confirm_close_window)
+			question_close_box.show_modal_to_window (Current)
+
+			if(question_close_box.selected_button.is_equal((create{EV_DIALOG_CONSTANTS}).ev_ok)) then
+					--Destroy the confirmation dialog window
+				destroy;
+
+					--Destroy the application
+				(create{EV_ENVIRONMENT}).application.destroy
+			end
+		end
+
+feature{NONE} --Implementation dialog box for information event
+	show_about_dialog
+		local
+			about_info_box: EV_INFORMATION_DIALOG
+		do
+			create about_info_box.make_with_text (label_about)
+			about_info_box.set_title (label_about_title)
+			about_info_box.show_modal_to_window (Current)
+		end
+
+
+
+
 
 --######################################################################################
 feature --PUBLIC Methods inherited from XX_IGUI

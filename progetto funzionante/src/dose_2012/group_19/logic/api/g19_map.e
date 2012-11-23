@@ -9,8 +9,8 @@ feature
 	build(player: G19_PlAYER_INFO; position: TUPLE[x: INTEGER; y: INTEGER]; action_type: STRING)
 		require
 			player_is_not_void: player /= void
-			x_is_valid: 1 <= x and x >= 20
-			y_is_valid: 1 <= y and y >= 20
+--			x_is_valid: 1 <= x and x >= 20
+--			y_is_valid: 1 <= y and y >= 20
 			action_type_is_valid: action_type.is_empty /= true
 		deferred
 		end

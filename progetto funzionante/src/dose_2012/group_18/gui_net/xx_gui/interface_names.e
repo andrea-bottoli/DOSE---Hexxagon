@@ -15,11 +15,12 @@ feature -- Access
 	button_ok_item: STRING = "OK"
 
 	-- String for the confirmation dialog box that appears when the user try to close the first window.
-	label_confirm_close_window: STRING = "You are about to close this application.%NClick OK to close."
+	label_confirm_close_window: STRING = "You are about to close the Hexxagon game. Are you sure ?%NClick OK to close."
 
-	-- String for the about dialog information message.
-	label_about: STRING = "EiffelVision2 - test prova 01.%NBy sopra tua sorella"
-			
-	label_about_title: STRING = "EiffelVision2 - prova 01"
+	--Label for the Victory dialog
+	--TODO
+
+	--Lavel for the Defeated dialog
+	--TODO
 
 end

@@ -2,7 +2,7 @@ note
 description: "Class that implements the gui"
 author: "Team Milano2"
 date: "18-11-2012"
-revision: "0.4"
+revision: "0.5"
 
 class
 XX_GUI
@@ -35,7 +35,8 @@ inherit
 		end
 
 create
-	make
+	make,
+	make_with_logic
 
 feature {NONE} -- Constructor
 	-- Initialization for "Current".
@@ -44,8 +45,18 @@ feature {NONE} -- Constructor
 		default_create
 	end
 
+	make_with_logic(a_logic: XX_HEXXAGON)
+	do
+		set_interface_logic(a_logic)
+		default_create
+	end
+
 
 feature{NONE} --Attributes of the gui
+
+	--There are the references to the objects relative to net, chat and logic
+	interface_net: XX_INET
+	interface_logic: XX_ILOGIC
 
 	--Attribute for the position of the window
 	window_width: INTEGER 		-- Initial width for this window.
@@ -77,10 +88,9 @@ feature{NONE} --Attributes of the gui
 	--There are some components of the gui
 	board: EV_ANY
 	chat: EV_SCROLLABLE_AREA
-	net_manager: XX_NET
+
 	game_window: XX_GUI
 	menu_window: XX_GUI
-
 
 feature {NONE} --Initialisation
 	--Initialize the window
@@ -117,7 +127,7 @@ feature {NONE} --Initialisation
 	end
 
 
-feature {NONE}	--Set the window position and the size of the window
+feature {NONE}	--Set Methods
 
 	--Set position the window in the middle of the screen
 	set_window_position
@@ -140,6 +150,14 @@ feature {NONE}	--Set the window position and the size of the window
 		ensure
 			size_is_setted: current.width=a_width and current.height=a_height
 		end
+
+	--Set the interface to the logic
+	set_interface_logic(a_logic: XX_HEXXAGON)
+	require
+		logic_not_void: a_logic/=Void
+	do
+		interface_logic:=a_logic
+	end
 
 feature {NONE}	--Implementation of main container of the window
 	main_container: EV_HORIZONTAL_BOX	--Main container of the window for the widgets
@@ -247,11 +265,11 @@ feature {NONE}	--Implementation window close
 feature{NONE} --Implementation dialog box for information event
 	show_about_dialog
 		local
-			about_info_box: EV_INFORMATION_DIALOG
+--			about_info_box: EV_INFORMATION_DIALOG
 		do
-			create about_info_box.make_with_text (label_about)
-			about_info_box.set_title (label_about_title)
-			about_info_box.show_modal_to_window (Current)
+--			create about_info_box.make_with_text (label_about)
+--			about_info_box.set_title (label_about_title)
+--			about_info_box.show_modal_to_window (Current)
 		end
 
 

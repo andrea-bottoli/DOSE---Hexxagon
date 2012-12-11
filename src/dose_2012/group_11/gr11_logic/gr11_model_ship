@@ -1,0 +1,48 @@
+note
+	description: "Represents the normal ship of the game"
+	author: "Milano4"
+	date: "24/11/2012"
+	revision: "0.1"
+
+class
+	GR11_MODEL_SHIP
+
+inherit 
+	GR11_BASE_SHIP
+
+create
+	make
+
+
+feature {NONE} -- Initialization
+
+	make(new_player_id:STRING)
+			-- initializes the normal ship with one point of life, normal fire, normal movement
+			-- new_player_id: name of the player who owns the ship
+		local
+			l_one_point_life : GR11_LIFE
+			l_normal_fire : GR11_FIRE
+			l_normal_movement : GR11_MOVEMENT
+		require
+			id_player_not_empty : player_id /= Void
+		do
+			create l_one_point_life.make(1);
+			create l_normal_fire
+			create l_normal_movement
+			player_id := new_player_id
+			life := l_one_point_life
+			fire := l_normal_fire
+			movement : = l_normal_movement
+		ensure
+			player_id_is_correct: id_player = new_id_player	
+			life_is_correct : life.points = 1
+			movement_is_correct : movement.is_normal_ship_movement
+			fire_is_correct : fire.is_normal_ship_fire
+				
+		end
+
+
+
+
+
+

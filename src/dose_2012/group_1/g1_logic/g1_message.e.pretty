@@ -1,0 +1,27 @@
+note
+	description: "Class that represents a message for net."
+	author: "Group 1:  Rio Cuarto 7 - Milano 7"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	G1_MESSAGE
+
+create
+	make_text
+
+feature
+
+	message: STRING
+
+	make_text (text: STRING)
+		do
+			message := text
+		end
+
+	get_message: STRING
+		do
+			Result := message
+		end
+
+end

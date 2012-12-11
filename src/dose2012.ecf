@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-10-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-10-0 http://www.eiffel.com/developers/xml/configuration-1-10-0.xsd" name="dose2012" uuid="B648E7A4-0C71-47F5-9F98-BED8B157ADC6">
+	<target name="dose2012">
+		<root cluster="main_ui" class="APPLICATION" feature="make_and_launch"/>
+		<option warning="true" is_attached_by_default="false" syntax="provisional">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="check_vape" value="false"/>
+		<setting name="concurrency" value="thread"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="gobo_kernel" location="$ISE_LIBRARY\library\gobo\gobo_kernel.ecf"/>
+		<library name="gobo_regexp" location="$ISE_LIBRARY\library\gobo\gobo_regexp.ecf"/>
+		<library name="net" location="$ISE_LIBRARY\library\net\net.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf" readonly="true"/>
+		<library name="wel" location="$ISE_LIBRARY\library\wel\wel.ecf" readonly="true" use_application_options="true"/>
+		<cluster name="dose_2012" location=".\dose_2012\">
+			<file_rule>
+				<exclude>/EIFGENs$</exclude>
+				<exclude>/CVS$</exclude>
+				<exclude>/.svn$</exclude>
+			</file_rule>
+			<cluster name="group_1" location=".\dose_2012\group_1\" recursive="true"/>
+			<cluster name="group_2" location=".\dose_2012\group_2\" recursive="true"/>
+			<cluster name="group_3" location=".\dose_2012\group_3\" recursive="true"/>
+			<cluster name="group_4" location=".\dose_2012\group_4\" recursive="true"/>
+			<cluster name="group_5" location=".\dose_2012\group_5\" recursive="true"/>
+			<cluster name="group_6" location=".\dose_2012\group_6\" recursive="true"/>
+			<cluster name="group_7" location=".\dose_2012\group_7\" recursive="true"/>
+			<cluster name="group_8" location=".\dose_2012\group_8\" recursive="true"/>
+			<cluster name="group_9" location=".\dose_2012\group_9\" recursive="true">
+				<file_rule>
+					<exclude>^/ri_gui$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/ri$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/gui$</exclude>
+				</file_rule>
+			</cluster>
+			<cluster name="group_10" location=".\dose_2012\group_10\" recursive="true">
+				<file_rule>
+					<exclude>^/carcassonne_LOBBY/lobby_GUI/lobby_entrance$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/carcassonne_LOBBY/lobby_GUI/lobby_entrance$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/carcassonne_LOBBY/lobby_GUI/lobby_main$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/crsn_lobby$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/carcassonne_LOBBY/lobby_GUI$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/carcassonne_LOBBY/lobby_LOGIC$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/carcassonne_LOBBY$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/lobby$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/crsn_gui$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/crsn_logic$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/crsn_net$</exclude>
+				</file_rule>
+				<cluster name="crsn_lobby" location=".\dose_2012\group_10\crsn_lobby\">
+					<cluster name="crsn_lobby_gui" location=".\dose_2012\group_10\crsn_lobby\crsn_lobby_gui\">
+						<cluster name="crsn_lobby_gui_entrance" location=".\dose_2012\group_10\crsn_lobby\crsn_lobby_gui\crsn_lobby_gui_entrance\"/>
+						<cluster name="crsn_lobby_gui_main" location=".\dose_2012\group_10\crsn_lobby\crsn_lobby_gui\crsn_lobby_gui_main\"/>
+					</cluster>
+					<cluster name="crsn_lobby_logic" location=".\dose_2012\group_10\crsn_lobby\crsn_lobby_logic\"/>
+				</cluster>
+				<cluster name="crsn_logic" location=".\dose_2012\group_10\crsn_logic\"/>
+				<cluster name="crsn_gui" location=".\dose_2012\group_10\crsn_gui\"/>
+				<cluster name="crsn_net" location=".\dose_2012\group_10\crsn_net\">
+					<cluster name="crsn_net_messages" location=".\dose_2012\group_10\crsn_net\crsn_net_messages\"/>
+					<cluster name="crsn_net_model" location=".\dose_2012\group_10\crsn_net\crsn_net_model\"/>
+				</cluster>
+			</cluster>
+			<cluster name="group_11" location=".\dose_2012\group_11\" recursive="true"/>
+			<cluster name="group_12" location=".\dose_2012\group_12\" recursive="true"/>
+			<cluster name="group_13" location=".\dose_2012\group_13\">
+				<cluster name="g13_logic" location=".\dose_2012\group_13\g13_logic\">
+					<cluster name="model" location=".\dose_2012\group_13\g13_logic\model\" recursive="true"/>
+					<cluster name="controller" location=".\dose_2012\group_13\g13_logic\controller\" recursive="true"/>
+				</cluster>
+				<cluster name="g13_gui" location=".\dose_2012\group_13\g13_gui\" recursive="true"/>
+				<cluster name="g13_net" location=".\dose_2012\group_13\g13_net\" recursive="true"/>
+			</cluster>
+			<cluster name="group_14" location=".\dose_2012\group_14\" recursive="true"/>
+			<cluster name="group_15" location=".\dose_2012\group_15\" recursive="true">
+				<option void_safety="none">
+				</option>
+			</cluster>
+			<cluster name="group_16" location=".\dose_2012\group_16\">
+				<cluster name="ig_ai" location=".\dose_2012\group_16\ig_ai\" recursive="true"/>
+				<cluster name="ig_gui" location=".\dose_2012\group_16\ig_gui\" recursive="true"/>
+				<cluster name="ig_logic" location=".\dose_2012\group_16\ig_logic\" recursive="true"/>
+				<cluster name="ig_net" location=".\dose_2012\group_16\ig_net\" recursive="true"/>
+			</cluster>
+			<cluster name="group_17" location=".\dose_2012\group_17\" recursive="true"/>
+			<cluster name="group_18" location=".\dose_2012\group_18\" recursive="true"/>
+			<cluster name="group_19" location=".\dose_2012\group_19\" recursive="true">
+				<option full_class_checking="true">
+				</option>
+			</cluster>
+			<cluster name="group_20" location=".\dose_2012\group_20\" recursive="true"/>
+			<cluster name="group_21" location=".\dose_2012\group_21\" recursive="true"/>
+			<cluster name="main_ui" location=".\dose_2012\main_ui\" recursive="true"/>
+			<cluster name="tictactoe" location=".\dose_2012\tictactoe\" recursive="true"/>
+		</cluster>
+		<tests name="dose_2012_tests" location=".\dose_2012_tests\">
+			<tests name="group_01_tests" location=".\dose_2012_tests\group_01_tests\">
+				<tests name="g1_tests_logic" location=".\dose_2012_tests\group_01_tests\g1_tests_logic\" recursive="true"/>
+				<tests name="g1_tests_net" location=".\dose_2012_tests\group_01_tests\g1_tests_net\" recursive="true"/>
+				<tests name="g1_tests_gui" location=".\dose_2012_tests\group_01_tests\g1_tests_gui\" recursive="true"/>
+			</tests>
+			<tests name="group_02_tests" location=".\dose_2012_tests\group_02_tests\">
+				<tests name="g2_tests_logic" location=".\dose_2012_tests\group_02_tests\g2_tests_logic\">
+					<tests name="g2_logic_logic_tests" location=".\dose_2012_tests\group_02_tests\g2_tests_logic\g2_logic_logic_tests\"/>
+					<tests name="g2_logic_card_tests" location=".\dose_2012_tests\group_02_tests\g2_tests_logic\g2_logic_card_tests\"/>
+					<tests name="g2_logic_matrix_tests" location=".\dose_2012_tests\group_02_tests\g2_tests_logic\g2_logic_matrix_tests\"/>
+					<tests name="g2_logic_state_tests" location=".\dose_2012_tests\group_02_tests\g2_tests_logic\g2_logic_state_tests\"/>
+				</tests>
+				<tests name="g2_tests_net" location=".\dose_2012_tests\group_02_tests\g2_tests_net\"/>
+			</tests>
+			<tests name="group_03_tests" location=".\dose_2012_tests\group_03_tests\">
+				<tests name="g3_test_net" location=".\dose_2012_tests\group_03_tests\g3_test_net\"/>
+				<tests name="g3_test_logic" location=".\dose_2012_tests\group_03_tests\g3_test_logic\"/>
+				<tests name="g3_test_gui" location=".\dose_2012_tests\group_03_tests\g3_test_gui\"/>
+			</tests>
+			<tests name="group_04_tests" location=".\dose_2012_tests\group_04_tests\">
+				<tests name="g4_test_logic" location=".\dose_2012_tests\group_04_tests\g4_test_logic\"/>
+			</tests>
+			<tests name="group_05_tests" location=".\dose_2012_tests\group_05_tests\">
+				<tests name="g5_gui_tests" location=".\dose_2012_tests\group_05_tests\g5_gui_tests\"/>
+				<tests name="g5_message_tests" location=".\dose_2012_tests\group_05_tests\g5_message_tests\"/>
+				<tests name="g5_model_tests" location=".\dose_2012_tests\group_05_tests\g5_model_tests\"/>
+				<tests name="g5_net_tests" location=".\dose_2012_tests\group_05_tests\g5_net_tests\"/>
+			</tests>
+			<tests name="group_06_tests" location=".\dose_2012_tests\group_06_tests\"/>
+			<tests name="group_07_tests" location=".\dose_2012_tests\group_07_tests\"/>
+			<tests name="group_08_tests" location=".\dose_2012_tests\group_08_tests\"/>
+			<tests name="group_09_tests" location=".\dose_2012_tests\group_09_tests\"/>
+			<tests name="group_10_tests" location=".\dose_2012_tests\group_10_tests\"/>
+			<tests name="group_11_tests" location=".\dose_2012_tests\group_11_tests\"/>
+			<tests name="group_12_tests" location=".\dose_2012_tests\group_12_tests\"/>
+			<tests name="group_13_tests" location=".\dose_2012_tests\group_13_tests\">
+				<tests name="cu_logic_tests" location=".\dose_2012_tests\group_13_tests\cu_logic_tests\">
+					<tests name="cu_controller_tests" location=".\dose_2012_tests\group_13_tests\cu_logic_tests\cu_controller_tests\"/>
+					<tests name="cu_model_tests" location=".\dose_2012_tests\group_13_tests\cu_logic_tests\cu_model_tests\"/>
+				</tests>
+			</tests>
+			<tests name="group_14_tests" location=".\dose_2012_tests\group_14_tests\">
+				<tests name="hx_ai_tests" location=".\dose_2012_tests\group_14_tests\ai\"/>
+				<tests name="hx_net_tests" location=".\dose_2012_tests\group_14_tests\net\"/>
+				<tests name="hx_logic_tests" location=".\dose_2012_tests\group_14_tests\group14_logic_tests\"/>
+			</tests>
+			<tests name="group_15_tests" location=".\dose_2012_tests\group_15_tests\" recursive="true"/>
+			<tests name="group_16_tests" location=".\dose_2012_tests\group_16_tests\"/>
+			<tests name="group_17_tests" location=".\dose_2012_tests\group_17_tests\">
+				<tests name="do_tests_logic" location=".\dose_2012_tests\group_17_tests\do_tests_logic\"/>
+				<tests name="tests_ai" location=".\dose_2012_tests\group_17_tests\tests_ai\"/>
+				<tests name="do_tests_gui_net" location="c:\users\marios\documents\github\dose2012\src\dose_2012_tests\group_17_tests\do_tests_gui_net\"/>
+			</tests>
+			<tests name="group_18_tests" location=".\dose_2012_tests\group_18_tests\">
+				<tests name="test_logic" location=".\dose_2012_tests\group_18_tests\test_logic\"/>
+				<tests name="tests_gui_net" location=".\dose_2012_tests\group_18_tests\tests_gui_net\"/>
+				<tests name="test_ai" location=".\dose_2012_tests\group_18_tests\test_ai\"/>
+			</tests>
+			<tests name="group_19_tests" location=".\dose_2012_tests\group_19_tests\"/>
+			<tests name="group_20_tests" location=".\dose_2012_tests\group_20_tests\">
+				<tests name="group_20_net_test" location=".\group_20_tests\group_20_net_test\"/>
+				<tests name="group_20_ai_test" location=".\group_20_tests\group_20_ai_test\"/>
+			</tests>
+			<tests name="group_21_tests" location=".\dose_2012_tests\group_21_tests\">
+				<tests name="g21_logic_test" location=".\dose_2012_tests\group_21_tests\g21_logic_test\"/>
+				<tests name="g21_ai_test" location=".\dose_2012_tests\group_21_tests\g21_ai_test\"/>
+			</tests>
+			<tests name="tictactoe_tests" location=".\dose_2012_tests\tictactoe_tests\"/>
+		</tests>
+		<override name="vision_ov" location=".\dose_2012\libs\vision_ov\" recursive="true"/>
+		<override name="wel_ov" location=".\dose_2012\libs\wel_ov\" recursive="true">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</override>
+	</target>
+</system>

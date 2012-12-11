@@ -1,0 +1,46 @@
+<game_tiles>
+	<game_tile id='0'>
+		<cell>
+			<x>0</x>
+			<y>0</y>
+		</cell>
+	</game_tile>
+	<game_tile id='1'>
+		<cell>
+			<x>0</x>
+			<y>0</y>
+		</cell>
+		<cell>
+			<x>1</x>
+			<y>0</y>
+		</cell>
+	</game_tile>
+	<game_tile id='2'>
+		<cell>
+			<x>0</x>
+			<y>0</y>
+		</cell>
+		<cell>
+			<x>1</x>
+			<y>0</y>
+		</cell>
+		<cell>
+			<x>1</x>
+			<y>1</y>
+		</cell>
+	</game_tile>
+	<game_tile id='3'>
+		<cell>
+			<x>0</x>
+			<y>0</y>
+		</cell>
+		<cell>
+			<x>1</x>
+			<y>0</y>
+		</cell>
+		<cell>
+			<x>2</x>
+			<y>0</y>
+		</cell>
+	</game_tile>
+</game_tiles>

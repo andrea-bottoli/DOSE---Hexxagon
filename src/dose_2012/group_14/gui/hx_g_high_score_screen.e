@@ -52,11 +52,11 @@ feature
 			highscore.disable_edit
 
 		-- Waiting to fix HX_L_HIGHSCORE
-			--Get_High_Score()
-			--high_score_string := high_score_int.to_hex_string
-			--highscore.disable_capture
+			Get_High_Score()
+			high_score_string := high_score_int.to_hex_string
+			highscore.disable_capture
 			highscore.append_text ("HIGH SCORE! %N %N")
-			--highscore.append_text (high_score_string)
+			highscore.append_text (high_score_string)
 
 			-- Connect events.
 			go_back_button.select_actions.extend (agent go_back_button_action)

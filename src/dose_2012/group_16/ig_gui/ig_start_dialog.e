@@ -146,6 +146,19 @@ feature -- Status Setting
 			Precursor
 		end
 
+	show_game_cancelled_dialog
+			-- Inform the user player that the game was cancelled and
+			-- return to the main window.
+		local
+			l_dialog: EV_INFORMATION_DIALOG
+		do
+			create l_dialog.make_with_text ("The game was cancelled.")
+			l_dialog.default_push_button.select_actions.extend (agent destroy)
+			l_dialog.set_title ("Ingenious - Game Cancelled")
+			l_dialog.show_modal_to_window (Current)
+		end
+
+
 feature -- Event Handling
 
 	host_game_actions: ACTION_SEQUENCE[TUPLE[IG_GAME_SETTINGS]]

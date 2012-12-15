@@ -22,8 +22,13 @@ feature
 	require
 		move_not_void: a_tile /= void and a_position /= void
 	do
-		create tile.make (a_tile.get_state, a_tile.get_color)
-		create position.make (a_position.x, a_position.y)
+		tile := a_tile.twin()
+		position := a_position.twin()
+
+--		Paolo: please review what I did with the twin() call above. Is this ok?
+--		create tile.make (a_tile.get_state, a_tile.get_color)
+--		create position.make (a_position.x, a_position.y)
+
 		action := action_move
 	end
 
@@ -34,8 +39,11 @@ feature
 	do
 		action := a_action
 		if action = action_move then
-			create tile.make (a_tile.get_state, a_tile.get_color)
-			create position.make (a_position.x, a_position.y)
+			tile := a_tile.twin()
+			position := a_position.twin()
+--			Paolo: Same as above
+--			create tile.make (a_tile.get_state, a_tile.get_color)
+--			create position.make (a_position.x, a_position.y)
 		end
 	end
 

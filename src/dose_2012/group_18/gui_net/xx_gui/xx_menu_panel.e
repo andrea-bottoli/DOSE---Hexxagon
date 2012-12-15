@@ -170,6 +170,12 @@ feature{XX_GUI} --Method used by xx_gui
 		clean_ip_net_text_field
 	end
 
+	--Checks if menu panel is in defaul state
+	is_menu_panel_empty: BOOLEAN
+	do
+		Result:= name_text_field.text.is_empty and ip_text_field.text.is_empty and port_text_field.text.is_empty
+	end
+
 feature{NONE}
 	--Clean name text field
 	clean_name_text_field
@@ -203,10 +209,11 @@ feature{NONE}
 	--Switch text filed to multiplayer client
 	switch_text_field_to_multiplayer_client
 	do
-		clean_ip_net_text_field
 		ip_text_field.show
+		clean_ip_net_text_field
 		port_text_field.show
 	end
+
 
 	--Sets the position of the graphical elements
 	set_position_graphical_elements
@@ -568,6 +575,8 @@ feature{NONE}
 
 	--Method that executes an action on pointer release action
 	exe_release_action(a_id_name: STRING)
+	local
+		retrieval_local_ip: XX_LOCAL_IP_RETRIEVAL
 	do
 		if(a_id_name.is_equal ("single_player"))then
 			if(single_player.is_pressed)then
@@ -635,8 +644,8 @@ feature{NONE}
 				server_button.set_pressed (FALSE)
 				server_button.draw_element_clicked (background_menu)
 				client_button.draw_element_normal (background_menu)
-				form_multiplayer.draw_form_multiplayer_server (background_menu)
 				switch_text_field_to_multiplayer_server
+				form_multiplayer.draw_form_multiplayer_server (background_menu)
 			else
 				exe_reset_pressed_element
 			end
@@ -648,8 +657,8 @@ feature{NONE}
 				client_button.set_pressed (FALSE)
 				client_button.draw_element_clicked (background_menu)
 				server_button.draw_element_normal (background_menu)
-				form_multiplayer.draw_form_multiplayer_client (background_menu)
 				switch_text_field_to_multiplayer_client
+				form_multiplayer.draw_form_multiplayer_client (background_menu)
 			else
 				exe_reset_pressed_element
 			end
@@ -680,7 +689,8 @@ feature{NONE}
 					end
 				elseif(mp_bool)then
 					if(server_button.is_selected)then
-						gui.start_game (sp_bool, mp_bool, server_button.is_selected, name_text_field.text, string_color_ruby, "111.222.111.222", port_text_field.text)
+						create retrieval_local_ip
+						gui.start_game (sp_bool, mp_bool, server_button.is_selected, name_text_field.text, string_color_ruby, retrieval_local_ip.get_local_ip, port_text_field.text)
 					else
 						gui.start_game (sp_bool, mp_bool, server_button.is_selected, name_text_field.text, string_color_pearl, ip_text_field.text, port_text_field.text)
 					end

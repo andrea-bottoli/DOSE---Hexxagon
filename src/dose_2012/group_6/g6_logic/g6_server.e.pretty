@@ -1,0 +1,163 @@
+note
+	description: "Describes the current state of the game"
+	author: "TEAM Rio Cuarto5"
+	date: "$Date$ 09/11/2012"
+	revision: "$Revision$ see github repository"
+
+class
+	G6_SERVER
+
+create
+	make
+
+feature -- Measurement
+
+	players: LINKED_LIST [G6_PLAYER]
+			--List of players, max 8, if a player leaves the game, won't be deleted from the array
+
+	current_player: INTEGER
+			--Id of the current player (position in the list "players"), 0 is gloval turn
+
+	board: G6_BOARD
+			--Gameboard
+
+	available_houses: INTEGER
+			--Numeber of available houses for sell
+
+	available_hotels: INTEGER
+			--Numeber of available hotels for sell
+
+	comunity_chest: G6_DECK_OF_CARDS
+			--Comunity chest deck
+
+	chance: G6_DECK_OF_CARDS
+			--Chance deck
+
+feature -- Initialization
+
+	make
+			-- Create a state with the initial state
+		do
+			create board.make
+			create players.make
+			available_houses := 32
+			available_hotels := 12
+		ensure
+			numb_players: players.count () = 0
+			board_created: board /= Void
+			available_houses = 32
+			available_hotels = 12
+		end
+
+feature --Basic Operations
+
+	add_player (p: G6_PLAYER)
+			--Add the player "p" to the list of players
+		require
+			valid_old_elements: players.count >= 0 and players.count <= 7 and not players.has (p)
+		do
+			players.put (p)
+		ensure
+			valid_new_elements: players.count >= 1 and players.count <= 8 and players.has (p)
+		end
+
+	roll_dice
+		do
+				--			if(player.in_jail) then
+				--si salen 3 seguidos iguales entonces: player.in_jail := false ¿y mover?
+				--			else
+				-- mover el numero que salio al player en el tablero
+				--			end
+		end
+
+	buy_a_cell
+		do
+				--			if(cell.comprable y dueño = null) then
+				--decrementar dinero, asignar olayer a celda
+				--			end
+		end
+
+	finish_turn
+		do
+				--pasar al turno al siguiente jugador
+		end
+
+	mortgage_property (cell: INTEGER)
+		require
+			valid_cell: cell > 0 and cell < 41 and cell /= 1 and cell /= 3 and cell /= 5 and cell /= 8 and cell /= 11 and cell /= 18 and cell /= 21 and cell /= 23 and cell /= 31 and cell /= 34 and cell /= 37 and cell /= 39
+			valid_player_cell: players.at (current_player).properties.has (cell)
+		do
+			if (attached {G6_PROPERTY} board.cells [cell] as p) then
+				p.is_mortgaged := True
+			end
+				-- manejar money y potential money
+		end
+
+	unmortgage_property (cell: INTEGER)
+		require
+			valid_cell: cell > 0 and cell < 41 and cell /= 1 and cell /= 3 and cell /= 5 and cell /= 8 and cell /= 11 and cell /= 18 and cell /= 21 and cell /= 23 and cell /= 31 and cell /= 34 and cell /= 37 and cell /= 39
+			valid_player_cell: players.at (current_player).properties.has (cell)
+		do
+			if (attached {G6_PROPERTY} board.cells [cell] as p) then
+				p.is_mortgaged := False
+			end
+				-- manejar money y potential money
+		end
+
+	use_jail_card
+		require
+			jail_card_present: players.at (current_player).jail_cards = 1 or players.at (current_player).jail_cards = -1
+		do
+			players.at (current_player).in_jail := False
+			if (players.at (current_player).jail_cards = 1) then
+				comunity_chest.borrow_jail_card
+			else
+				chance.borrow_jail_card
+			end
+			players.at (current_player).decrement_jail_cards
+		ensure
+			players.at (current_player).in_jail = False
+		end
+
+	how_to_pay (t: INTEGER) --1: cash, 2: percentage
+		require
+			t = 1 or t = 2
+		do
+			if (t = 1) then
+				players.at (current_player).money := players.at (current_player).money - 200
+			else
+			end
+		end
+
+	tender (mount: INTEGER)
+		do
+		end
+
+	buy_property (p: G6_PLAYER)
+		do
+		end
+
+	buy_house (cell: INTEGER)
+		do
+				--			if(available_houses > 0 y celda tiene menos de 5 casas) then
+				--poner casa en cell
+				--			else
+				--error
+				--			end
+		end
+
+	sell_house (cell: INTEGER)
+		do
+		end
+
+	transfer (player: G6_PLAYER; cell: INTEGER)
+		do
+		end
+
+invariant
+	numb_players: players.count () >= 0 and players.count () <= 8
+	board_created: board /= Void
+	available_houses <= 32 and available_houses >= 0
+	available_hotels <= 12 and available_hotels >= 0
+
+end

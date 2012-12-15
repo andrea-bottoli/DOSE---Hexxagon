@@ -34,10 +34,15 @@ feature {NONE} -- Access
 			-- Path to main view background image
 		do
 			Result := img_path
-			Result.append_name ("pop_up_background_reveal.png")
+			Result.append_name ("pop_up_background.png")
 		end
 
-
+	img_pop_up_end_background: KL_PATHNAME
+			-- Path to main view background image
+		do
+			Result := img_path
+			Result.append_name ("pop_up_end_background.png")
+		end
 
 
 end

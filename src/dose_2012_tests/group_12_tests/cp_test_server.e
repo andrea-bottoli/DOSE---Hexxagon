@@ -34,8 +34,7 @@ feature -- Test routines
 			l_server: CP_SERVER
 			l_player: CP_PLAYER
 		do
-			l_server.send_message (l_player, "MESSAGE TEST")
-			print ("tested server send message tested")
+			-- Feature moved to chat_sender_receiver
 		end
 
 	test_send_move
@@ -60,8 +59,7 @@ feature -- Test routines
 			l_server: CP_SERVER
 			l_message:CP_MESSAGE
 		do
-			l_server.post_message (l_message)
-			print ("server post message tested")
+			-- Feature moved to chat_sender_receiver
 		end
 
 	test_apply_move

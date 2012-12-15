@@ -34,20 +34,18 @@ feature -- Preparation of Tests
 		-- Initializes the necessary elements
 		do
 			create gui.make_test
-			class_test := gui
-			create a_net_client.make (class_test)
 		end
 
 feature -- Test positive
 
-	add_gui_controller0
-		-- add_gui_controller('one_client')
-		note
-			testing: "G5_IGUI_TO_NET/.add_gui_controller"
-		do
-			a_net_component := a_net_client
-			class_test.add_gui_controller (a_net_component)
-			assert ("add_gui_controller was successful", class_test.net_component = a_net_component)
-		end
+--	add_gui_controller0
+--		-- add_gui_controller('one_client')
+--		note
+--			testing: "G5_IGUI_TO_NET/.add_gui_controller"
+--		do
+--			create a_net_client.make (gui)
+--			gui.add_gui_controller (a_net_client)
+--			assert ("add_gui_controller was successful", gui.net_component = a_net_client)
+--		end
 
 end

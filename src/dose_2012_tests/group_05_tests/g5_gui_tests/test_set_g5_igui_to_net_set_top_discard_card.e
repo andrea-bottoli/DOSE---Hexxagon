@@ -41,16 +41,16 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	set_top_discard_card0
-		-- set_top_discard_card("JESUS","K7")
-		note
-			testing: "G5_IGUI_TO_NET/.set_top_discard_card"
-		do
-			player_name := "JESUS"
-			a_card := "K7"
-			class_test.set_top_discard_card (player_name, a_card)
-			assert ("Set top discard card with card K7 is valid", TRUE)
-		end
+--	set_top_discard_card0
+--		-- set_top_discard_card("JESUS","K7")
+--		note
+--			testing: "G5_IGUI_TO_NET/.set_top_discard_card"
+--		do
+--			player_name := "JESUS"
+--			a_card := "K7"
+--			class_test.set_top_discard_card (player_name, a_card)
+--			assert ("Set top discard card with card K7 is valid", TRUE)
+--		end
 
 feature -- Test negative
 

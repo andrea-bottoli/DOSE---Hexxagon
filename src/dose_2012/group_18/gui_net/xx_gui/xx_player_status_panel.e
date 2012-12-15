@@ -55,7 +55,8 @@ feature{NONE} --Implementation
 		color_player:=""
 		create content_panel
 		create pixmap_color_player.make_with_size (80, 70)
-		create score_player.make_with_text ("Score: 0")
+		create score_player.make_with_text ("Score: ")
+		score_value:=0
 		create ip_player
 		create port_player
 	end
@@ -185,9 +186,11 @@ feature{XX_GAME_PANEL} --Clean Method
 	do
 		name_player:=""
 		color_player:=""
-		pixmap_color_player:=pixmap_color_blank
-		score_player.set_text ("Score: 0")
+		pixmap_color_player.draw_pixmap (0, 0, pixmap_color_blank)
+		score_player.set_text ("Score: ")
+		score_value:=0
 		ip_player.remove_text
+		port_player.remove_text
 	end
 
 
@@ -255,7 +258,7 @@ feature{NONE}
 	--Checks if the score is setted
 	is_score_empty: BOOLEAN
 	do
-		Result:=score_player.text.is_empty
+		Result:=score_value.is_equal (0)
 	end
 
 	--Checks if the ip is setted

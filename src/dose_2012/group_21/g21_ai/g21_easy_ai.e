@@ -35,7 +35,7 @@ feature{G21_BOARD} -- Creation
 			ai_cards_valid: ai_cards/=void
 
 		do
-
+			create free_positions.make (3*3)
 			board:=game_board
 			cards:=ai_cards
 
@@ -53,7 +53,7 @@ feature{G21_BOARD} -- Creation
 
 feature{G21_BOARD, TEST_G21_EASY_AI_MAKE_A_MOVE} -- Procedures
 
-	make_a_move (card_position: G21_POINT; player_card: G21_CARD): G21_MOVE -- It redefines G21_AI feature. It makes an easy difficult level move
+	make_a_move (card_position: G21_POINT): G21_MOVE -- It redefines G21_AI feature. It makes an easy difficult level move
 
 		--require
 
@@ -85,6 +85,7 @@ feature{NONE} -- Procedures
       		random_sequence: RANDOM
       		l_time: TIME
       		l_seed: INTEGER
+      		temp:INTEGER
 
     	do
 
@@ -95,7 +96,8 @@ feature{NONE} -- Procedures
       		l_seed := l_seed * 1000 + l_time.milli_second
       		create random_sequence.set_seed (l_seed)
       		random_sequence.forth
-			result:= cards.at (random_sequence.item\\cards.count)
+      		temp:=random_sequence.item\\cards.count
+			result:= cards.at (temp)
 			cards.start
 
 

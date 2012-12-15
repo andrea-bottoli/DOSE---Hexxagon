@@ -8,6 +8,14 @@ class
 	G4_DISCARD_PILE
 	inherit G4_CARD_PILES
 
+create
+	make
+
+feature
+	make
+	do
+		create Card_Pile.make
+	end
 feature --Attributes
 	Can_Draw: BOOLEAN --Checks if a player can draw a card from discard pile using special ability
 

@@ -12,24 +12,23 @@ inherit
 	G1_MESSAGE
 
 create
-	make, make_position
+	make_move
 
 feature -- Initialization
 
-	make
-			-- Initialize the message whit default values
-		do
-			position := 0
-		end
-
-	make_position (a_position: INTEGER)
+	make_move (a_id_player: INTEGER; a_position: INTEGER)
 		require
 			valid_position: a_position >= 0 and a_position < 40
+			valid_id: a_id_player > 0
 		do
+			id_player := a_id_player
 			position := a_position
 		end
 
 feature --Measurent
+
+	id_player: INTEGER
+			-- Id player
 
 	position: INTEGER
 			-- Position where the player will move

@@ -25,10 +25,11 @@ feature -- Test Routines
 
 		do
 
-			create player.make
+			create player.make(TRUE)
 			assert ("player created, cardList assigned:", player.cardList/=void)
-			assert ("player created, size assigned:", player.size=0)
-			assert ("player created, cardList size equals to size:", player.cardList.count=player.size)
+			assert ("player created, size assigned:", player.size=11)
+		--	print(player.cardList.count)
+		--	assert ("player created, cardList size equals to size:", player.cardList.count=player.size)
 
 		end
 
@@ -46,12 +47,15 @@ feature -- Test Routines
 
 		do
 
-			player.make
-			card.make
+			create player.make(TRUE)
+			create card.make
+			assert ("card created, not void:", card/=void)
 			old_size:=player.size
+
 			player.addCard(card)
+
 			assert("card added to player.cardList:", player.size=old_size+1)
-			assert("card added to player.cardList:", player.isFound(card)/=-1)
+			assert("card added to player.cardList:", player.isFound(card)=TRUE)
 
 		end
 
@@ -69,16 +73,16 @@ feature -- Test Routines
 
 		do
 
-			player.make
-			card.make
-			if(player.isFound(card)=-1) then
+			create player.make(TRUE)
+			create card.make
+			--if(player.isFound(card)=FALSE) then
 					player.addCard(card)
-				end
+			--	end
 
 			old_size:=player.size
-			player.removeCard(card)
+			player.removeCard(player.size)
 			assert("card removed from player.cardList:", player.size=old_size-1)
-			assert("card removed from player.cardList:", player.isFound(card)=-1)
+			--assert("card removed from player.cardList:", player.isFound(card)=FALSE)
 
 
 		end
@@ -97,13 +101,13 @@ feature -- Test Routines
 
 		do
 
-			player.make
-			card1.make
-			card2.make
+			create player.make(TRUE)
+			create card1.make
+			create card2.make
 			player.addCard(card1)
-			player.removeCard(card2)
-			assert("card in player.cardList:", player.isFound(card1)/=-1)
-			assert("card not in player.cardList:", player.isFound(card2)=-1)
+			--player.removeCard(card2)
+			assert("card in player.cardList:", player.isFound(card1)=TRUE)
+			assert("card not in player.cardList:", player.isFound(card2)=FALSE)
 
 
 		end

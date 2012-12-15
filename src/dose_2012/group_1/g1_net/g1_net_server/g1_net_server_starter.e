@@ -12,13 +12,14 @@ inherit
 create
 	make_server
 
-feature
+feature {NONE}
 	server_game: G1_NET_SERVER_SINGLE
-
-	make_server
+	
+feature {ANY}
+	make_server(match_name:STRING)
 	do
 		make
-		create server_game.make
+		create server_game.make(match_name)
 	end
 
 	execute

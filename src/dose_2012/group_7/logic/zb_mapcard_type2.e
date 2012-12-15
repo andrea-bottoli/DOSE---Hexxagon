@@ -41,5 +41,6 @@ class
 				connectSegments(0,1,0,0)
 				connectSegments(0,0,0,-1)
 				type:=2
+				zombieToPlace:=2
 		 end
 end

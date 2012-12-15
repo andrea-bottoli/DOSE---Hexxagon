@@ -159,6 +159,7 @@ feature -- Status Settings
 			set_size (800, 630)
 			Precursor
 			set_position (width // 2, 100)
+			refresh_turns
 		end
 
 feature -- Status Update
@@ -176,12 +177,19 @@ feature -- Status Update
 			end
 				-- Refresh the drawing area
 			gameboard_projector.project
-				-- Update the turns
+			refresh_turns
+		end
+
+	refresh_turns
+			-- Update the turns labels.
+		do
 			if attached game_logic.current_player as l_player then
 				current_turn_label.set_text (l_player.name)
+				current_turn_label.refresh_now
 			end
 			if attached game_logic.next_player as l_player then
 				next_turn_label.set_text (l_player.name)
+				next_turn_label.refresh_now
 			end
 		end
 

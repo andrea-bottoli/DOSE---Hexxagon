@@ -73,9 +73,9 @@ feature -- Init
 			con_main.set_item_x_position (box_buttons, 0120)
 			con_main.set_item_y_position (box_buttons, 0100) --50
  			con_main.set_item_width (box_buttons, 0340)--384
- 			con_main.set_item_height(box_buttons, 0340)--405
+ 			con_main.set_item_height(box_buttons, 0355)--405
 
- 			box_buttons.set_padding (2)
+ 		--	box_buttons.set_padding (5)
  			box_buttons.set_background_pixmap (pix_background)
 
 			box_buttons.enable_homogeneous
@@ -123,7 +123,9 @@ feature -- Init
 		  	quit_button.set_pixmap(internal_pixmap)
 
 			disable_user_resize
-		--	set_maximum_width (600)
+			set_minimum_width(600)
+			set_minimum_height(600)
+		 	set_maximum_width (600)
 			set_maximum_height (600)
 			set_title ("Hexxagon")
 
@@ -135,8 +137,8 @@ feature -- Init
 			about_button.select_actions.extend (agent about_action)
 			quit_button.select_actions.extend(agent quit_action)
 
---set_pointer_style (default_pixmaps.hyperlink_cursor)
---new_game_button.pointer_enter_actions.extend (agent pointer_enter_area)
+			--set_pointer_style (default_pixmaps.hyperlink_cursor)
+			--new_game_button.pointer_enter_actions.extend (agent pointer_enter_area)
 			-- Close the application when an interface close
 			-- request is recieved on `Current'. i.e. the cross is clicked.
 			close_request_actions.extend (agent destroy_and_exit_if_last)

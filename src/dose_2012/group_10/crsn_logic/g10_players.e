@@ -8,7 +8,7 @@ class
 	G10_PLAYERS
 
 create
-	make
+	make, make_players
 feature
 	Players:ARRAYED_LIST[G10_PLAYER]
 feature
@@ -37,6 +37,17 @@ feature
 feature
 	make
 	do
-		create Players.make (0)
+		create Players.make (1)
 	end
+
+	make_players(a_player_name: STRING player_num: INTEGER)
+	local
+		first_player: G10_PLAYER
+	do
+		create first_player.make_with_name(a_player_name)--create the first player
+
+		create Players.make (player_num)--create players array and add the first player
+		Add_Player(first_player)
+	end
+
 end

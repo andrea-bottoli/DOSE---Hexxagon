@@ -13,7 +13,7 @@ inherit
 	end
 
 create
-	make_drawed_tile , make_ev_fixed
+	make_drawed_tile , make_ev_fixed , make_drawed_tile_with_id
 
 -- attributes.
 feature{NONE}
@@ -31,6 +31,28 @@ feature{ANY}
 		set_minimum_width (drawed_tile_width)
 		set_minimum_height (drawed_tile_height)
 		set_img_src_id_and_degrees("15" , "90")
+		draw_background_pixmap()
+
+		make_clickable_points
+		--make_follower
+
+		--Edw mallon 8a 8eloume na valoume tous agents sxetikous me tous followers
+	end
+
+	make_drawed_tile_with_id(game: G10_GUI_GAME_MAIN tile_id : INTEGER) -- creates a new reference to an drawed tile the one that appears on the current players action panel
+	local
+		tile_id_str : STRING
+	do
+		make_ev_fixed
+		set_img_src(game_drawed_tiles_img_path)
+		set_minimum_width (drawed_tile_width)
+		set_minimum_height (drawed_tile_height)
+
+		tile_id_str := tile_id.to_hex_string
+		io.put_string ("mesa stin make_drawed_tile_with_id / tile_id:" + tile_id_str)
+		io.put_new_line
+
+		set_img_src_id_and_degrees(tile_id_str , "0")
 		draw_background_pixmap()
 
 		make_clickable_points

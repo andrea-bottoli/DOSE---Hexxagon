@@ -11,7 +11,7 @@ inherit
 	BS_PLAYER
 	rename make as make_noooooo
 	redefine
-		do_move
+		do_move, warn_bad_move
 	end
 
 inherit {NONE}
@@ -30,7 +30,7 @@ feature -- Constructor
 		valid_id: is_valid_player_range (player_number)
 		valid_color: is_valid_color (color)
 	do
-		make_with_name (player_number, color, a_name)
+		make_with_name (player_number, color, a_name, player_type_human)
 		machine := pmt_machine
 	ensure
 		machine_assigned: machine = pmt_machine
@@ -43,13 +43,13 @@ feature -- Redefined functions
 		result := machine.get_move (player_color)
 	end
 
-	warn_bad_move( tile_played: BS_TILE )
+	warn_bad_move
 	local
 	do
 		machine.warn_bad_move (player_id, player_color)
 	end
 
-	get_machine() : BS_NET_MACHINE
+	get_machine() : BS_NET_REMOTE_MACHINE
 	do
 		result := machine
 	ensure

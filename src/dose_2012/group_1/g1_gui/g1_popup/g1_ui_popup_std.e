@@ -51,7 +51,8 @@ feature {NONE}	-- Attributes
 	label_hotel : EV_LABEL
 	label_hotel_number : EV_LABEL
 
-
+	deed : G1_DEED
+	street: G1_STREET
 
 feature {NONE} -- Initialization
 
@@ -88,6 +89,7 @@ feature {NONE} -- Initialization
 			set_dimension
 			set_button
 			set_house_hotel
+			deed := a_street
 		end
 
 	make_deed(a_controller : G1_UI_CONTROLLER; a_deed : G1_DEED )   -- da usare quando dopo ROLL DICE viene visualizzata una casella di arrivo che è una stazione o una società
@@ -96,15 +98,19 @@ feature {NONE} -- Initialization
 		    make_title(a_deed.id_cell)
 			set_dimension
 			set_button
+			deed := a_deed
 		end
 
 	make_street(a_controller : G1_UI_CONTROLLER; a_street : G1_STREET )   -- da usare quando si apre il popup di una strada da MANAGE-HOUSE-HOTEL
+	local
+		l_player : G1_PLAYER
 	do
 		controller := a_controller
 		make_title(a_street.id_cell)
 		set_dimension
-		set_house_hotel
+		deed := a_street
 
+		set_house_hotel
 		set_button_manage
 
 		create btn_buy_house.make_with_text ("Buy House")
@@ -130,6 +136,7 @@ feature {NONE} -- Initialization
 			controller := a_controller
 			make_title(a_deed.id_cell)
 			set_dimension
+			deed := a_deed
 			set_button_manage
 		end
 
@@ -173,62 +180,116 @@ feature {NONE} -- Implementation creation
 		do
 			if id = 1 then
 			make_with_title ("Mediteranean Avenue")
-			card_area := set_background(mp_img_load("Mediterranean Avenue.png"),160,160);
+			card_area := set_background(mp_img_load("deed_mediterranean_avenue.png"),160,160);
 			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 3 then
 			make_with_title ("Baltic Avenue")
+			card_area := set_background(mp_img_load("deed_baltic_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 6 then
 			make_with_title ("Oriental Avenue")
+			card_area := set_background(mp_img_load("deed_oriental_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 8 then
 			make_with_title ("Vermont Avenue")
+			card_area := set_background(mp_img_load("deed_vermont_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 9 then
 			make_with_title ("Connecticut Avenue")
+			card_area := set_background(mp_img_load("deed_connecticut_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 11 then
 			make_with_title ("St. Charles Place")
+			card_area := set_background(mp_img_load("deed_st_charles_place.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 13 then
 			make_with_title ("States Avenue")
+			card_area := set_background(mp_img_load("deed_states_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 14 then
 			make_with_title ("Virginia Avenue")
+			card_area := set_background(mp_img_load("deed_virginia_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 16 then
 			make_with_title ("St. James Place")
+			card_area := set_background(mp_img_load("deed_st_james_place.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 18 then
 			make_with_title ("Tennessee Avenue")
+			card_area := set_background(mp_img_load("deed_tennessee_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 19 then
 			make_with_title ("New York Avenue")
+			card_area := set_background(mp_img_load("deed_new_york_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 21 then
 			make_with_title ("Kentucky Avenue")
+			card_area := set_background(mp_img_load("deed_kentucky_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 23 then
 			make_with_title ("Indiana Avenue")
+			card_area := set_background(mp_img_load("deed_indiana_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 24 then
 			make_with_title ("Illinois Avenue")
+			card_area := set_background(mp_img_load("deed_illinois_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 26 then
 			make_with_title ("Atlantic Avenue")
+			card_area := set_background(mp_img_load("deed_atlantic_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 27 then
 			make_with_title ("Ventnor Avenue")
+			card_area := set_background(mp_img_load("deed_ventnor_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 29 then
 			make_with_title ("Marvin Gardens")
+			card_area := set_background(mp_img_load("deed_marvin_gardens.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 31 then
 			make_with_title ("Pacific Avenue")
+			card_area := set_background(mp_img_load("deed_pacific_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 32 then
 			make_with_title ("North Carolina Avenue")
+			card_area := set_background(mp_img_load("deed_north_carolina_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 34 then
 			make_with_title ("Pennsylvania Avenue")
+			card_area := set_background(mp_img_load("deed_pennsylvania_avenue.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 37 then
 			make_with_title ("Park Place")
+			card_area := set_background(mp_img_load("deed_park_place.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 39 then
 			make_with_title ("Boardwalk")
+			card_area := set_background(mp_img_load("deed_boardwalk.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 12 then
 			make_with_title ("Electric Company")
+			card_area := set_background(mp_img_load("deed_electric_company.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 28 then
 			make_with_title ("Water Works")
+			card_area := set_background(mp_img_load("deed_water_works.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 5 then
 			make_with_title ("Reading Railroad")
+			card_area := set_background(mp_img_load("deed_reading_railroad.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 15 then
-			make_with_title ("Pensylvania Railroad")
+			make_with_title ("Pennsylvania Railroad")
+			card_area := set_background(mp_img_load("deed_pennsylvania_railroad.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 25 then
 			make_with_title ("B.O. Railroad")
+			card_area := set_background(mp_img_load("deed_b_o_railroad.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			elseif id = 35 then
 			make_with_title ("Short Line Railroad")
+			card_area := set_background(mp_img_load("deed_short_line_railroad.png"),160,160);
+			popup_area.extend_with_position_and_size (card_area, 5, 5, 160, 160)
 			end
 	    end
 
@@ -304,52 +365,58 @@ feature {NONE} -- Implementation creation
 feature {NONE} -- Implementation features buttons
 
 	auction
+		-- open the popup_auction
+		local
+			auction_popup : G1_UI_POPUP_AUCTION
 		do
-
+		    create auction_popup.make(controller)
+			auction_popup.show
 		end
 
 	buy_property
 		do
-
+			controller.buy_property (deed)
 		end
 
 	buy_house
 		do
-
+			controller.build(street)
 		end
 
 	buy_hotel
 		do
-
+			controller.build(street)
 		end
 
 	sell_property
 		do
-
+			controller.sell_property(deed)
 		end
 
 	sell_house
 		do
-
+			controller.sell_hotel_house(street)
 		end
 
 	sell_hotel
 		do
-
+			controller.sell_hotel_house(street)
 		end
 
 	pay_rent
 		do
-
+			controller.pay_rent
 		end
 
 	mortgage
 		do
-
+			controller.mortgage (deed)
+			-- update immagine
 		end
 
 	unmortgage
 		do
-
+			controller.unmortgage (deed)
+			-- update immagine
 		end
 end

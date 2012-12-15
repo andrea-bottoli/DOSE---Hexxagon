@@ -105,4 +105,43 @@ feature -- Access
 
 	-- Values Cost Victory cards
 	curse_cost:INTEGER=0
+
+
+
+	-- Type of Kingdom cards
+	adventurer_type:STRING="kingdom action"
+	bureaucrat_type:STRING= "kingdom action attack"
+	cellar_type:STRING="kingdom action"
+	chancellor_type:STRING="kingdom action"
+	chapel_type:STRING="kingdom action"
+	council_room_type:STRING="kingdom action"
+	feast_type:STRING="kingdom action"
+	festival_type:STRING="kingdom action"
+	garden_type:STRING="victory"
+	laboratory_type:STRING="kingdom action"
+	library_type:STRING="kingdom action"
+	market_type:STRING="kingdom action"
+	militia_type:STRING="kingdom action attack"
+	mine_type:STRING="kingdom action"
+	moat_type:STRING="kingdom action reaction"
+	moneylender_type:STRING="kingdom action"
+	remodel_type:STRING="kingdom action"
+	smithy_type:STRING="kingdom action"
+	spy_type:STRING="kingdom action attack"
+	thief_type:STRING="kingdom action attack"
+	throne_room_type:STRING="kingdom action"
+	village_type:STRING="kingdom action"
+	witch_type:STRING="kingdom action attack"
+	woodcutter_type:STRING="kingdom action"
+	workshop_type:STRING="kingdom action"
+	-- Type of Treasure cards
+	copper_type:STRING="treasure"
+	silver_type:STRING="treasure"
+	gold_type:STRING="treasure"
+	-- Type of Victory cards
+	estate_type:STRING="treasure"
+	duchy_type:STRING="treasure"
+	province_type:STRING="treasure"
+	-- Values Cost curse
+	curse_type:STRING="curse"
 end

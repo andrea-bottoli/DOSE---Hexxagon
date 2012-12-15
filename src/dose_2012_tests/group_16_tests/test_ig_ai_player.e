@@ -27,9 +27,18 @@ feature -- Test routines
 			l_player: IG_AI_PLAYER
 			l_logic: IG_LOGIC
 			l_move: IG_MOVE
+			l_game_settings: IG_GAME_SETTINGS
 		do
-			--create l_logic
+			create l_game_settings
+			l_game_settings.set_computer_level (1)
+			l_game_settings.set_total_players (2)
+			l_game_settings.set_computer_players (1)
+			l_game_settings.set_user_name ("Host")
+
+			create l_logic.make_with_host_settings(l_game_settings, agent do_nothing, agent do_nothing, agent do_nothing_with_player)
+
 			create l_player.make_ai_player (l_logic, 1)
+
 			l_move := l_player.next_move
 			assert ("AI move is valid", l_logic.gameboard.is_move_valid (l_move))
 		end
@@ -44,8 +53,15 @@ feature -- Test routines
 			l_logic: IG_LOGIC
 			l_move: IG_MOVE
 			i: INTEGER
+			l_settings: IG_GAME_SETTINGS
 		do
-			--create l_logic
+			create l_settings
+			l_settings.set_computer_level (1)
+			l_settings.set_total_players (2)
+			l_settings.set_computer_players (1)
+			l_settings.set_host_address ("127.0.0.1")
+			l_settings.set_user_name ("Eve")
+			create l_logic.make_with_host_settings (l_settings, Void, Void, Void)
 			create l_player.make_ai_player (l_logic, 1)
 
 			from
@@ -66,13 +82,19 @@ feature -- Test routines
 			testing:  "user/IG"
 		local
 			l_player: IG_AI_PLAYER
+			l_logic: IG_LOGIC
 		do
-			--create l_player.make_ai_player (create {IG_LOGIC}, 3)
+			--TODO: Must create LOGIC
+			create l_player.make_ai_player (l_logic, 2)
 			assert ("AI name not set yet", l_player.name.is_empty)
 			l_player.set_name ("Wall-e")
 			assert ("AI name player set", l_player.name.is_equal ("Wall-e"))
 		end
 
+	do_nothing_with_player (a_player : IG_PLAYER)
+		do
+
+		end
 end
 
 

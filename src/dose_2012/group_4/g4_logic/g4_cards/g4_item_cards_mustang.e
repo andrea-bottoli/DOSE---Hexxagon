@@ -16,15 +16,12 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Mustang")
  	ensure
   		Name.is_equal("Mustang")
-  		(CardNum >= 8) and (CardNum<=9)
-  		CardSymbol.is_equal ("Spades")
-  		CardSymbol.is_equal ("Hearts")
-
  	end
 
- 	action(a_Player_array : ARRAY[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE)
+ 	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE)
  	do
  		--Implemented in get_distance in Item_Board
  	end

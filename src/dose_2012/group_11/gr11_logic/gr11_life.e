@@ -46,7 +46,7 @@ feature --modifiers
 		points_of_life_limits : new_points_of_life > 0 and then new_points_of_life < 3
 		ship_not_destroyed : not destroyed
 	do
-		points := new_points_of_life -- assumption : if demaged, the ships restore all his point
+		points := new_points_of_life -- assumption : if damaged, the ships restore all his point
 
 	ensure
 		points_of_life_equal_to_parameter: points = new_points_of_life

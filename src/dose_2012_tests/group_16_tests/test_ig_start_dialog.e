@@ -24,6 +24,8 @@ feature -- Test routines
 			l_ig_start_dialog: IG_START_DIALOG
 				-- a local variable for the window
 		do
+			--Fbesser
+			l_title := "Test title"
 			create l_ig_start_dialog.make_with_title (l_title)
 			l_ig_start_dialog.show
 			assert ("the Start Dialog seems to be right ", l_ig_start_dialog.is_displayed=True)

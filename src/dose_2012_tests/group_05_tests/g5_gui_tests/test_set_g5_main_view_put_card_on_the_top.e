@@ -52,24 +52,24 @@ feature -- test routines
 --			assert ("the card of the player was successfully put into your discard pile", main_view.me.top_card_discard_pile = "K10" and main_view.me.player_name = "jaime")
 --		end
 
-	test_put_card_on_the_top_1
-			--test negative, values the card and player name incorrect
-		note
-			testing: "G5_MAIN_VIEW/put_card_on_the_top"
-		local
-			rescued: BOOLEAN
-		do
-			if not rescued then
-				card := "K"
-				player_name := "luca"
-				main_view.update_top_discard_pile (player_name, card)
-			end
-			assert ("arguments raised problem", rescued)
-		rescue
-			if not rescued then
-				rescued := True
-				retry
-			end
-		end
+--	test_put_card_on_the_top_1
+--			--test negative, values the card and player name incorrect
+--		note
+--			testing: "G5_MAIN_VIEW/put_card_on_the_top"
+--		local
+--			rescued: BOOLEAN
+--		do
+--			if not rescued then
+--				card := "K"
+--				player_name := "luca"
+--				main_view.update_top_discard_pile (player_name, card)
+--			end
+--			assert ("arguments raised problem", rescued)
+--		rescue
+--			if not rescued then
+--				rescued := True
+--				retry
+--			end
+--		end
 
 end

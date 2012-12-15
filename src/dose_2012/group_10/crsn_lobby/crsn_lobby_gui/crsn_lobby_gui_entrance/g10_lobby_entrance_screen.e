@@ -21,7 +21,7 @@ create
 
 feature{NONE} --attributes
 	--the components that interact with the lobby entrance component
-	player : G10_JOINED_PLAYER
+	player : G10_LOBBY_USER
 	game_window: EV_WINDOW-- the game window that is currently opened
 
 	--parts of the lobby entrance graphic component
@@ -30,7 +30,7 @@ feature{NONE} --attributes
 	input_bar: EV_TEXT_FIELD
 
 feature{ANY}
-	make (a_player: G10_JOINED_PLAYER)
+	make (a_player: G10_LOBBY_USER)
 	require
 		player_not_null: a_player /= void
 		window_title_not_null: crsn_lobby_title /= void
@@ -94,11 +94,11 @@ feature{G10_LOBBY_ENTRANCE_ALL_BUTTONS}
 	require
 	do
 		print("usr: "+get_username+"%N")
-		print("ip: "+get_ip+"%N")
+		print("ip: "+get_internal_ip+"%N")
 		print("port: "+get_port+"%N")
 		-- destroy this window and launch the main lobby
 		destroy
-		player.launch_crsn_lobby(get_username, get_ip, get_port)
+		player.launch_crsn_lobby(get_username, get_internal_ip, get_port)
 	end
 	----------------------------------
 	quit_entrance_lobby
@@ -128,9 +128,14 @@ feature {ANY} -- mutators
 		player.get_player_info.set_id(a_username)
 	end
 	----------------------------------
-	set_ip(an_ip: STRING)
+	set_internal_ip(an_ip: STRING)
 	do
-		player.get_player_info.set_ip(an_ip)
+		player.get_player_info.set_internal_ip(an_ip)
+	end
+	----------------------------------	
+	set_external_ip(an_ip: STRING)
+	do
+		player.get_player_info.set_external_ip(an_ip)
 	end
 	----------------------------------
 	set_port(a_port: STRING)
@@ -172,9 +177,14 @@ feature {ANY} -- accessors
 		Result := player.get_player_info.get_id
 	end
 	----------------------------------
-	get_ip: STRING
+	get_internal_ip: STRING
 	do
-		Result := player.get_player_info.get_ip
+		Result := player.get_player_info.get_internal_ip
+	end
+	----------------------------------
+	get_external_ip: STRING
+	do
+		Result := player.get_player_info.get_external_ip
 	end
 	----------------------------------
 	get_port: STRING

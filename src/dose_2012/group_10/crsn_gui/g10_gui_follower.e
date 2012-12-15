@@ -7,14 +7,14 @@ note
 class
 	G10_GUI_FOLLOWER
 inherit
-	EV_FIXED
+	EV_LABEL
 
 create
 	make
 
 -- attributes
 feature {NONE}
-	follower_number_display : INTEGER
+	follower_number_display : STRING
 	img_src : STRING
 
 -- constructors
@@ -22,11 +22,11 @@ feature {ANY}
 	make()
 	do
 		default_create()
-		set_follower_number(10)
+		set_follower_number("0")
 		set_img_src("test img src")
 		update_background_color()
-		set_minimum_height (30)
-		set_minimum_width (100)
+		set_minimum_height (25)
+		set_minimum_width (50)
 	end
 
 -- accesor methods.
@@ -62,13 +62,16 @@ feature {G10_GUI_PLAYER_INFO}
 
 -- mutator methods.
 feature {NONE}
-	set_follower_number(num : INTEGER) -- routine sets the number of the followers of this object to num.
+	set_follower_number(num : STRING) -- routine sets the number of the followers of this object to num.
 	require
-		followers_number_is_valid : num >= 0
+		followers_number_is_valid : num /= void
 	do
 		follower_number_display := num
-		ensure
-			valid_mutation : old num = follower_number_display
+		set_text(num)
+	ensure
+		text_not_void : text /= void
+		follower_number_display_not_void : follower_number_display /= void
+		valid_mutation : follower_number_display.is_equal (text)
 	end
 
 	set_img_src(src : STRING) -- routine sets this object's image source to src
@@ -101,6 +104,6 @@ feature {NONE}
 --class invariants
 invariant
 	valid_img_src : img_src /= void
-	valid_follower_number : follower_number_display >= 0
+	valid_follower_number : follower_number_display /= void
 
 end

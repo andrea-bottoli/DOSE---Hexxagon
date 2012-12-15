@@ -39,7 +39,7 @@ feature -- Test routines
 			bank_t : G1_BANK
 		do
 			create bank_t.make
-			assert ("The money available is 20000 ", bank_t.money_available.is_equal(20000))
+			assert ("The money available is 50000 ", bank_t.money_available.is_equal(50000))
 		end
 
 	test_withdraw_money
@@ -51,7 +51,7 @@ feature -- Test routines
 		do
 			create bank_t.make
 			bank_t.withdraw_money (5000)
-			assert ("The money available is 15000 ", bank_t.money_available.is_equal(15000))
+			assert ("The money available is 45000 ", bank_t.money_available.is_equal(45000))
 		end
 
 	test_deposit_money
@@ -64,7 +64,7 @@ feature -- Test routines
 			create bank_t.make
 			bank_t.withdraw_money (5000)
 			bank_t.deposit_money (2000)
-			assert ("The money available is 17000 ", bank_t.money_available.is_equal(17000))
+			assert ("The money available is 47000 ", bank_t.money_available.is_equal(47000))
 		end
 end
 

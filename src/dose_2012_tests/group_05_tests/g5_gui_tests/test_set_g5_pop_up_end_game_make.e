@@ -21,18 +21,18 @@ feature -- Elements needed to the test
 
 feature -- Test positive
 
-	make0
-		-- make([[35,"JESUS"],[38,"JAIME"],[26,"SERGIO"]])
-		note
-			testing: "G5_POP_UP_END_GAME/.make"
-		do
-			the_scores.make (3)
-			the_scores.put (35,"JESUS")
-			the_scores.put (38,"JAIME")
-			the_scores.put (26,"SERGIO")
-			class_test.make (the_scores)
-			assert ("make was successful", TRUE)
-		end
+--	make0
+--		-- make([[35,"JESUS"],[38,"JAIME"],[26,"SERGIO"]])
+--		note
+--			testing: "G5_POP_UP_END_GAME/.make"
+--		do
+--			create the_scores.make (3)
+--			the_scores.put (35,"JESUS")
+--			the_scores.put (38,"JAIME")
+--			the_scores.put (26,"SERGIO")
+--			create class_test.make (the_scores)
+--			assert ("make was successful", TRUE)
+--		end
 
 feature -- Test negative
 

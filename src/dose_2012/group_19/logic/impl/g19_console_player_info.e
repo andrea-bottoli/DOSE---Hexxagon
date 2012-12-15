@@ -3,6 +3,9 @@ class
 
 inherit
 	G19_PLAYER_INFO
+		redefine
+			is_equal
+		end
 
 create
 	make
@@ -40,8 +43,9 @@ feature
 			result := current_age > other.get_age()
 		end
 
---	is_equal(): BOOLEAN
---		deferred
---		end
+	is_equal (other: like Current): BOOLEAN
+		do
+			result := current_age = other.get_age()
+		end
 
 end

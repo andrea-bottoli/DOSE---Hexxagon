@@ -10,50 +10,53 @@ class
 inherit HX_L_IPLACE
 
 create
-	make
+	make_non_existent,
+	make_empty,
+	make_owned
 
 feature -- initializer
 
-	make(a_exists: BOOLEAN; a_is_empty: BOOLEAN; a_player: HX_L_IPLAYER)
-		require
-			player_set_if_exists_and_not_empty: (a_exists AND NOT a_is_empty) implies a_player /= void
+	make_non_existent()
 		do
-			place_player := a_player
-			place_is_empty := a_is_empty
-			exists := a_exists
+			exists := False
+			is_empty := False
+			player_id := 0
+		ensure
+			not_exists: not exists
 		end
 
-feature -- Internal stuff
+	make_empty()
+		do
+			exists := True
+			is_empty := True
+			player_id := 0
+		ensure
+			exists: exists
+			empty: is_empty
+		end
 
-	place_player: HX_L_IPLAYER
-	place_is_empty: BOOLEAN
+	make_owned(a_player_id: INTEGER)
+		require
+			valid_id: a_player_id = 1 or a_player_id = 2
+		do
+			exists := True
+			is_empty := False
+			player_id := a_player_id
+		ensure
+			exists: exists
+			empty: not is_empty
+			player_set: player_id = a_player_id
+		end
 
 feature
 
+	exists: BOOLEAN
+		-- Does this place exists on the board?
+
 	is_empty: BOOLEAN
 		-- Is this place empty?
-		do
-			Result := place_is_empty
-		end
 
-	set_is_empty(a_empty: BOOLEAN)
-		-- Is this place empty?
-		do
-			place_is_empty := a_empty
-			if a_empty then
-				place_player := Void
-			end
-		end
-
-	player: HX_L_IPLAYER
+	player_id: INTEGER
 		-- Player, to who belongs a stone placed in this place.
-		do
-			Result := place_player
-		end
 
-	set_player (a_player: HX_L_IPLAYER)
-		-- Player, to who belongs a stone placed in this place.
-		do
-			place_player := a_player
-		end
 end

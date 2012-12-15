@@ -39,6 +39,11 @@ feature -- Protocol strings
 			result := "#CLOSING"
 		end
 
+	master_key: STRING
+		once
+			result := "#MASTERKEY"
+		end
+
 	rematch: STRING
 		once
 			result := "#REMATCH"
@@ -48,7 +53,6 @@ feature -- Protocol strings
 		once
 			result := "#REMOVEPLAYER"
 		end
-
 
 	sending_command: STRING
 		once
@@ -60,9 +64,14 @@ feature -- Protocol strings
 			result := "#MOVE"
 		end
 
-	send_it: STRING
+--	send_it: STRING
+--		once
+--			result := "#SENDIT"
+--		end
+
+	start_game: STRING
 		once
-			result := "#SENDIT"
+			result := "#STARTGAME"
 		end
 
 	size: STRING

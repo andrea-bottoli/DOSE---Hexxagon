@@ -8,7 +8,9 @@ class
 	CU_ROOM
 
 inherit
-	CU_SQUARE
+	CU_SQUARE undefine is_equal end
+	ANY redefine is_equal end
+
 create
 	make
 
@@ -165,5 +167,11 @@ feature --Removal
 			room_not_change: room_id =old room_id
 			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
 			doors_not_change: doors.is_equal(old doors)
+		end
+
+feature --Comparison
+	is_equal(other: like Current):BOOLEAN
+		do
+			result:=current.room_id=other.room_id
 		end
 end

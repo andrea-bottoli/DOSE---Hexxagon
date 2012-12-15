@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {G2_GUI_ELEMENT}."
+	description: "Summary description for {G2_GUI_ELEMENT}. Represents the elements of the card."
 	author: "Grupo 2 , Rio Cuarto 8"
-	date: "Date 13/11/2012"
-	revision: "Revision  0.1"
+	ddate: " 2012/12/12  "
+	revision: "1.0.1"
 
 class
 	G2_GUI_ELEMENT
@@ -50,7 +50,13 @@ feature --miscellanies
 			create elements.make
 			elements.put ("basic")
 			elements.put ("fire")
-			elements.put ("agua")
+			elements.put ("earth")
+			elements.put ("holy")
+			elements.put ("ice")
+			elements.put ("lightning")
+			elements.put ("poison")
+			elements.put ("water")
+			elements.put ("wind")
 
 		ensure
 			list_not_void: elements /= void
@@ -68,7 +74,6 @@ feature --miscellanies
 feature
 
 	elements: LINKED_LIST [STRING]
-
 	element: STRING
 
 end

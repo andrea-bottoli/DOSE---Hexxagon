@@ -148,6 +148,14 @@ feature {ANY} --GUI
 		ensure
 		end
 
+	keep_or_not_card_response(cards: ARRAY[STRING])
+	 	require
+	 		valid_arg: cards /= void
+	 	deferred
+	 	ensure
+	 	end
+
+
 --	look_in_trash_pile()
 		-- this feature is invoked when the player asks to see which cards are in the trash pile
 --		require

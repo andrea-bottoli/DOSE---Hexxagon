@@ -50,13 +50,6 @@ feature {NONE} -- Access
 		Result.append_name("2nd_layer_server_back.png")
 	end
 
--- Path of 3rd layer left tile area background
-	img_3rd_layer_left: KL_PATHNAME
-	do
-		Result := img_path
-		Result.append_name("3rd_layer_left_back.png")
-	end
-
 -- Path name of 3rd layer bot tile area background
 	img_3rd_layer_bot: KL_PATHNAME
 	do
@@ -71,7 +64,7 @@ feature {NONE} -- Access
 		Result.append_name("4rth_layer_back.png")
 	end
 
--- Path fo connection error background
+-- Path of connection error background
 	img_connection_error: KL_PATHNAME
 	do
 		Result := img_path
@@ -90,13 +83,6 @@ feature {NONE} -- Access
 	do
 		Result := img_path
 		Result.append_name("blokus_board.png")
-	end
-
--- Path of edit area
-	img_edit_area: KL_PATHNAME
-	do
-		Result := img_path
-		Result.append_name("edit_area.png")
 	end
 
 -- Path of Join image

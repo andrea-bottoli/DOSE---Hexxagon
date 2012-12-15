@@ -25,6 +25,7 @@ feature {CU_BOARD} --constructor
 			e:=a_e
 			s:=a_s
 			w:=a_w
+			pawn:=-1
 		ensure
 			corridor_initialized: n=a_n and e=a_e s=a_s and w=a_w
 		end
@@ -71,7 +72,7 @@ feature {CU_GAME}--Actions
 
 	pawn_moves_in(a_pawn: INTEGER)
 		require
-			not_already_occupied: pawn = void
+			not_already_occupied: pawn = -1
 			valid_player: a_pawn>=0 and a_pawn<=5
 		do
 			pawn:= a_pawn
@@ -93,7 +94,7 @@ feature {CU_GAME}--Actions
 
 	pawn_moves_out
 		require
-			occupied_corridor: pawn /= void
+			occupied_corridor: pawn/=-1
 		do
 			pawn:=-1
 		ensure

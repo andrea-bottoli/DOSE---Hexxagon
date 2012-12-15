@@ -36,34 +36,36 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	keep_or_not_card0
-		-- keep_or_not_card0("K20")
-		note
-			testing: "G5_IGUI_TO_NET/.keep_or_not_card"
-		do
-			card := "K20"
-			assert ("keep_or_not_card successfully completed", class_test.keep_or_not_card (card))
-		end
+--	keep_or_not_card0
+--		-- keep_or_not_card0("K20")
+--		note
+--			testing: "G5_IGUI_TO_NET/.keep_or_not_card"
+--		do
+--			create gui.make_test
+--			card := "K20"
+--			assert ("keep_or_not_card successfully completed", class_test.keep_or_not_card (card, gui))
+--		end
 
 feature -- Test negative
 
-	keep_or_not_card1
-		-- keep_or_not_card0("   ")
-		note
-			testing: "G5_IGUI_TO_NET/.keep_or_not_card"
-		local
-			rescued: BOOLEAN
-		do
-			if not rescued then
-				card := "    "
-				rescued := class_test.keep_or_not_card (card)
-			end
-			assert ("Put VOID cards in HAND raised problem", rescued)
-			rescue
-				if not rescued then
-					rescued := TRUE
-					retry
-				end
-		end
+--	keep_or_not_card1
+--		-- keep_or_not_card0("   ")
+--		note
+--			testing: "G5_IGUI_TO_NET/.keep_or_not_card"
+--		local
+--			rescued: BOOLEAN
+--		do
+--			create gui.make_test
+--			if not rescued then
+--				card := "    "
+--				rescued := class_test.keep_or_not_card (card, gui)
+--			end
+--			assert ("Put VOID cards in HAND raised problem", rescued)
+--			rescue
+--				if not rescued then
+--					rescued := TRUE
+--					retry
+--				end
+--		end
 
 end

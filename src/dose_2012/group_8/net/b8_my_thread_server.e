@@ -16,40 +16,66 @@ create
 	make
 
 feature
-	sockets:ARRAY[NETWORK_STREAM_SOCKET] --Array containing all the threads of the server
-	my_mutex:MUTEX
-	make(a_id:INTEGER;a_soc:  NETWORK_STREAM_SOCKET)
+
+
+	make(a_id,a_players:INTEGER;a_soc:  NETWORK_STREAM_SOCKET)
 	do
-		create my_mutex.make
-		my_mutex.lock
+		players:=a_players
 		thread_make
 		soc1:=a_soc
 		id:=a_id
-		create my_mutex.make
-		if(sockets=Void) then
-			create sockets.make(1,3)
-		end
 
-		sockets.put(soc1,id)
-		my_mutex.unlock
+
+
 	end
 	execute --feature called when thread is launched
+	local
+		l_i:INTEGER
         do
 
 
-            if attached{STRING} soc1.retrieved as l_msg then --incoming message from client
-            --	io.put_string (l_msg+" Thread "+id.out+" reporting%N")
+--            if attached{STRING} soc1.retrieved as l_msg then --incoming message from client
+--            --	io.put_string (l_msg+" Thread "+id.out+" reporting%N")
+--            end
+--			message:=""
+--			message.append_integer (id)
+--			message:=message+" "
+--			message.append_integer (players)
+--            soc1.independent_store (message) --message sent to the client
+
+            from
+            	l_i:=0
+            until
+            	l_i=1
+            loop
+				sleep(1000)
+--            	if attached{STRING} soc1.retrieved as l_msg then --incoming message from client
+--            		message:=l_msg
+--            	end
+
+--            		info:=message.split(' ')
+--					last_played:=info.at (1).to_integer
+--					x:=info.at (2).to_integer
+--					y:=info.at (3).to_integer
+--					rotate_position:=info.at (4).to_integer
+--					color:=info.at (5).to_integer
+--					type:=info.at (6).to_integer
+--					--create game_tile.make(color,type) Stefano: you don't have to create a new instance of the tile, the logic already has it
+--					game_tile:=logic.get_game_tile (color,type)
+--					in:=logic.make_a_move (last_played, x, y, game_tile)
+--					message:=logic.confirm_last_move
+--					message:=Void
+--					info:=Void
             end
-
-
-		--	sleep(1000000000)
-            soc1.independent_store ("Got it!") --message sent to the client
-
-           -- soc1.close
-            --end
         end
 
 feature{NONE}
 	id:INTEGER --id of the thread
 	soc1:  NETWORK_STREAM_SOCKET --socket which the thread manipulates
+	message:STRING
+	players,first_time,x,y,rotate_position,player,color,last_played,type:INTEGER
+	info:LIST[STRING]
+	logic:B8_LOGIC
+	game_tile:B8_GAME_TILE
+	in:BOOLEAN
 end

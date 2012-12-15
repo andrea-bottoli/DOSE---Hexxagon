@@ -17,17 +17,12 @@ feature --Constructor
  	make
  	do
  		set_Name("Bang!")
+ 		CardNum:=0
  	ensure
   		Name.is_equal("Bang!")
-  		(CardNum >= 2) and (CardNum<=13)
-  		CardSymbol.is_equal ("Spades")
-  		CardSymbol.is_equal ("Clubs")
-  		CardSymbol.is_equal ("Hearts")
-  		CardSymbol.is_equal ("Diamnonds")
-
  	end
 
- 	action(a_Player_array : ARRAY[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
+ 	action(a_Player_array : ARRAYED_LIST[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
 	do
 		if(a_Player_array[a_player_target].reaction (a_Player_array,a_player_id,current,Draw_Pile)/=true) then --?? not sure
 			a_Player_array[a_player_target].get_item_board.discard_life (1)

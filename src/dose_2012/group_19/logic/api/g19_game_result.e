@@ -2,7 +2,17 @@ deferred class
 	G19_GAME_RESULT
 
 feature
-
+-- kingdom builders cards:
+-- a - Fishermen !
+-- b - Merchants
+-- c - Discoverers !
+-- d - Hermits
+-- e - Citizens
+-- f - Miners !
+-- g - Workers
+-- h - Knights !
+-- i - Lords
+-- j - Farmers !
 	get_winners(): SET[G19_PLAYER_INFO]
 		deferred
 		ensure

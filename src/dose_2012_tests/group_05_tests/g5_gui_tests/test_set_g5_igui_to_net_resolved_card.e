@@ -36,15 +36,15 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	resolved_card0
-		-- resolved_card("K13")
-		note
-			testing: "G5_IGUI_TO_NET/.resolved_card"
-		do
-			card := "K13"
-			class_test.resolved_card (card)
-			assert ("resolved_card ", class_test.main_view.last_played_card.is_equal(card))
-		end
+--	resolved_card0
+--		-- resolved_card("K13")
+--		note
+--			testing: "G5_IGUI_TO_NET/.resolved_card"
+--		do
+--			card := "K13"
+--			class_test.resolved_card (card)
+--			assert ("resolved_card ", class_test.main_view.last_played_card.is_equal(card))
+--		end
 
 feature -- Test negative
 

@@ -8,10 +8,13 @@ class
 	BS_LAUNCHER
 
 inherit
-
 	LAUNCHER
+inherit {NONE}
+	MEMORY
+	export {NONE} all
+	end
 
-feature -- Implemenation
+feature -- Implementation
 
 	launch (main_ui_window: MAIN_WINDOW)
 			-- shows a dummy output
@@ -19,6 +22,7 @@ feature -- Implemenation
 			lobby: BS_LOBBY_WINDOW
 			test: BS_NET_TEST_CLASS -- This will be removed later, but during development please leave this.
 		do
+			collection_off()
 			if false then
 				create test
 				test.main_method()

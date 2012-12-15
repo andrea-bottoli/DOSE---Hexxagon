@@ -22,12 +22,6 @@ feature -- Elements needed to the test
 	net_server: G5_NET_SERVER
 		-- Auxiliary to instantiate of G5_INET_TO_LOGIC
 
-	gui_to_net: G5_IGUI_TO_NET
-		-- Auxiliary to instantiate of G5_NET_CLIENT
-
-	gui: G5_GUI
-		-- Auxiliary to instantiate of G5_IGUI_TO_NET
-
 	received_message: G5_MESSAGE
 		-- Parameter of the command to test
 
@@ -39,8 +33,6 @@ feature -- Preparation of Test
 	on_prepare
 		-- Initializes the necessary elements
 		do
-			create gui.make_test
-			gui_to_net := gui
 			create net_server.make (1025, 2)
 			class_test := net_server
 		end
@@ -48,7 +40,7 @@ feature -- Preparation of Test
 feature -- Test positive
 
 	update0
-		-- update("SERVER", <<"CLIENT">>, "answer_of_keeping",["K5","K9"],1,3,False)
+		-- update("SERVER", <<"CLIENT">>, "put_in_hand",<<"K5","K9">>,2,2,False)
 		note
 			testing: "G5_INET_TO_LOGIC_UPDATE/.update"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
@@ -56,7 +48,7 @@ feature -- Test positive
 			messages_list: LINKED_LIST[G5_MESSAGE]
 		do
 			create messages_list.make
-			create message_action.make ("SERVER", <<"CLIENT">>, "answer_of_keeping",<<"K5","K9">>,1,3,False)
+			create message_action.make ("SERVER", <<"CLIENT">>, "put_in_hand",<<"K5","K9">>,2,2,False)
 			messages_list.force (message_action)
 			class_test.update (messages_list)
 			assert ("update was successful", True)
@@ -65,7 +57,7 @@ feature -- Test positive
 feature -- Test negative
 
 	update1
-		-- update("SERVER", <<"JESUS">>, "pass_turn", "TURN OF RUTH")
+		-- update("SERVER", <<"CLIENT">>, "put_in_hand",<<"K5","K9">>,2,2,False)
 		note
 			testing: "G5_INET_TO_LOGIC_UPDATE/.update"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
@@ -75,7 +67,7 @@ feature -- Test negative
 		do
 			if not rescued then
 				create messages_list.make
-				create message_action.make ("SERVER", <<"JESUS">>, "answer_of_keeping",<<"K5","K9">>,1,3,False)
+				create message_action.make ("SERVER", <<"CLIENT">>, "put_in_hand",<<"K5","K9">>,2,2,False)
 				-- Here the list of messages is empty so a rescue procedure must be raised
 				class_test.update (messages_list)
 				assert ("update was successful but it should not", False)
@@ -87,4 +79,59 @@ feature -- Test negative
 					retry
 				end
 		end
+
+		update2
+			-- update("SERVER", <<"CLIENT">>, "put_in_hand",<<"K5","K9">>,2,2,False)
+			-- update("CLIENT", <<"CLIENT1", "CLIENT2">>, "selected_from_hand",<<"K5","K9">>,2,2,False)
+			note
+				testing: "G5_INET_TO_LOGIC_UPDATE/.update"
+				testing: "user/G5" -- this is the tag based on the group-prefix for our tests
+			local
+				rescued: BOOLEAN
+				messages_list: LINKED_LIST[G5_MESSAGE]
+			do
+				if not rescued then
+					create messages_list.make
+					create message_action.make ("SERVER", <<"CLIENT">>, "put_in_hand",<<"K5","K9">>,2,2,False)
+					messages_list.force (message_action)
+					messages_list.force (void)
+					create message_action.make ("CLIENT", <<"CLIENT1", "CLIENT2">>, "selected_from_hand",<<"K5","K9">>,2,2,False)
+					messages_list.force (message_action)
+					-- Here in the list of the messages an empty one is present so a rescue procedure must be raised
+					class_test.update (messages_list)
+					assert ("update was successful but it should not", False)
+				end
+				assert ("notify raised problem", rescued)
+				rescue
+					if not rescued then
+						rescued := True
+						retry
+					end
+			end
+
+		update3
+			-- update("CLIENT", <<"SERVER">>, "play",<<"K9">>,1,1,False)
+			note
+				testing: "G5_INET_TO_LOGIC_UPDATE/.update"
+				testing: "user/G5" -- this is the tag based on the group-prefix for our tests
+			local
+				rescued: BOOLEAN
+				messages_list: LINKED_LIST[G5_MESSAGE]
+			do
+				if not rescued then
+					create messages_list.make
+					create message_action.make ("CLIENT", <<"SERVER">>, "play",<<"K9">>,1,1,False)
+					messages_list.force (message_action)
+					-- Here the list of messages ontins a message with an erroneous target
+					-- so a rescue procedure must be raised.
+					class_test.update (messages_list)
+					assert ("update was successful but it should not", False)
+				end
+				assert ("notify raised problem", rescued)
+				rescue
+					if not rescued then
+						rescued := True
+						retry
+					end
+			end
 end

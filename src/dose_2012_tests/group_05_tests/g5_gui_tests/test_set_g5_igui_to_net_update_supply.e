@@ -36,17 +36,17 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	update_supply0
-		-- update_supply([[3,"K6"],[7,"T3"]])
-		note
-			testing: "G5_IGUI_TO_NET/.update_supply"
-		do
-			supply_state.make (2)
-			supply_state.put (3, "K6")
-			supply_state.put (7, "T3")
-			class_test.update_supply (supply_state)
-			assert ("update_supply Supply updated correctly", class_test.main_view.supply_state.is_equal(supply_state))
-		end
+--	update_supply0
+--		-- update_supply([[3,"K6"],[7,"T3"]])
+--		note
+--			testing: "G5_IGUI_TO_NET/.update_supply"
+--		do
+--			supply_state.make (2)
+--			supply_state.put (3, "K6")
+--			supply_state.put (7, "T3")
+--			class_test.update_supply (supply_state)
+--			assert ("update_supply Supply updated correctly", class_test.main_view.supply_state.is_equal(supply_state))
+--		end
 
 feature -- Test negative
 

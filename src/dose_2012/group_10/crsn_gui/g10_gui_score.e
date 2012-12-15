@@ -14,17 +14,17 @@ create
 
 -- attributes
 feature {NONE}
-	score_number_display : INTEGER
+	score_number_display : STRING
 
 -- costructors.
 feature {ANY}
 	make()
 	do
 		default_create()
-		update_score(5)
+		update_score("0")
 		update_background_color()
-		set_minimum_height (30)
-		set_minimum_width (100)
+		set_minimum_height (25)
+		set_minimum_width (50)
 	end
 
 -- accesor methods.
@@ -36,7 +36,7 @@ feature {G10_GUI_PLAYER_INFO , G10_GUI_GAME_MAIN}
 			background_color_not_mutated : background_color = old background_color
 	end
 
-	get_score_number_display() : INTEGER -- routine returns the score attribute of this object
+	get_score_number_display() : STRING -- routine returns the score attribute of this object
 	do
 		result := score_number_display
 		ensure
@@ -45,14 +45,18 @@ feature {G10_GUI_PLAYER_INFO , G10_GUI_GAME_MAIN}
 
 -- mutator methods.
 feature {G10_GUI_PLAYER_INFO}
-	update_score(num : INTEGER) -- routine ipdates the score attribute of this object to num
+	update_score(num : STRING) -- routine ipdates the score attribute of this object to num
 	require
-		valid_arg : num >= 0
+		valid_arg : num /= void
 	do
 		score_number_display := num
+		set_text(num)
+
 		ensure
+			score_number_not_void : score_number_display /= void
+			text_not_void : text /= void
 			valid_mutation : old num = score_number_display
-			valid_attribute :  score_number_display >= 0
+			valid_text_mutation : text.is_equal (num) = true
 	end
 
 	update_background_color_c(c : EV_COLOR) -- routine sets the background color of this object to c
@@ -74,6 +78,6 @@ feature {G10_GUI_PLAYER_INFO}
 
 -- class invariants.
 invariant
-	valid_attributes : score_number_display >= 0
+	valid_attributes : score_number_display /= void
 
 end

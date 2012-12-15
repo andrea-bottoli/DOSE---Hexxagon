@@ -11,7 +11,7 @@ inherit
 	SED_STORABLE_FACILITIES
 
 create
-	make
+	make, make_client
 
 feature
 

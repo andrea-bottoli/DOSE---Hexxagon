@@ -40,9 +40,11 @@ feature -- Test routines
 			testing: "covers/{G1_MESSAGE_MORTGAGE}.make_mortgage"
 		local
 			msg_mortgage: G1_MESSAGE_MORTGAGE
+			player: G1_PLAYER
 		do
-			create msg_mortgage.make_mortgage (10,12)
-			assert ("Message Mortgage: Mortgage_Deed:10, Unmortgage_Deed:12", msg_mortgage.mortgage_id_deed.is_equal (10) and msg_mortgage.unmortgage_id_deed.is_equal (12))
+			create player.make (1, "Player 1")
+			create msg_mortgage.make_mortgage (player.id_player, 10, True)
+			assert ("Message Mortgage: Mortgage_Deed:10, Unmortgage_Deed:12", msg_mortgage.id_deed.is_equal (10))
 		end
 
 end

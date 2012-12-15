@@ -47,8 +47,7 @@ feature --Setters and Getters of Number
 
 	set_Number (n: INTEGER) --Set number of the card
 		require
-			(n>=2)
-			(n<=13)
+			(n>=2) and (n<=14)
 		do
 			CardNum := n
 		ensure
@@ -64,14 +63,14 @@ feature --Setters and Getters of Symbol
 
 	set_Symbol(s:STRING) --Set symbol of the card
 		require
-			(s.same_string ("Spades"))
-			(s.same_string ("Clubs"))
-			(s.same_string ("Diamonds"))
-			(s.same_string ("Hearts"))
+			(s.is_equal ("Spades")) or
+			(s.is_equal ("Clubs")) or
+			(s.is_equal ("Diamonds")) or
+			(s.is_equal ("Hearts"))
 		do
 			CardSymbol := s
 		ensure
-			CardSymbol.same_string(s)
+			CardSymbol.is_equal(s)
 		end
 
 	get_Symbol:STRING--Get symbol of the card
@@ -85,4 +84,13 @@ feature
 	do
 		Result := (a_card.get_symbol.is_equal (a_card.get_symbol) )and (a_card.get_number = a_card.get_number)
 	end
+
+	get_instance : STRING
+	do
+		Result := "Simple"
+	end
+
+feature
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
+	do end
 end

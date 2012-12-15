@@ -22,6 +22,7 @@ feature -- Attributes
 	client_socket: NETWORK_STREAM_SOCKET
 	client_ready: BOOLEAN
 	reader_writer: SED_MEDIUM_READER_WRITER
+	chat_sender_receiver: CP_CHAT_SENDER_RECEIVER
 
 feature	-- Initialization
 
@@ -38,32 +39,29 @@ feature	-- Initialization
 			server_status: server_has_started = TRUE
 		end
 
-feature -- Message recievers
-
-	process()
-			-- Listening for any message
+	connect
+		-- Connecting with the client
 		do
 			if client_socket = Void then
 				socket.accept
 				if attached {NETWORK_STREAM_SOCKET} socket.accepted as tmp_socket then
 					client_socket := tmp_socket
 					create reader_writer.make (client_socket)
+					create chat_sender_receiver.make (client_socket, 32)
 					-- Say in chat that someone has connected
 				end
 			end
+		end
 
+feature -- Message recievers
+
+	get_game_message
+		-- Listen for new game message
+		do
 			reader_writer.set_for_reading
 			if attached {CP_GAMEMESSAGE} retrieved (reader_writer, True) as new_game_message then
 
 			end
-
-			reader_writer.set_for_reading
-			if attached {CP_MESSAGE} retrieved (reader_writer, True) as new_message then
-				post_message (new_message)
-			end
-		ensure
-			connection_established: client_socket /= Void
-			ready_for_writing_and_reading: reader_writer /= Void
 		end
 
 feature	-- Actions for game
@@ -88,23 +86,6 @@ feature	-- Actions for game
 		end
 
 
-	send_message(player: CP_PLAYER; message: STRING)
-			-- Send a message to the other player
-		require
-			player_not_void: player/=Void
-			message_not_void: message/= Void
-			message_not_empty: message/=""
-			player_is_connected: client_socket /= Void
-			server_is_online: server_has_started = True
-			game_has_started: game_started = TRUE
-		local
-			new_message: CP_MESSAGE
-		do
-			create new_message.make_msg ("Add accessors in CP_PLAYER!", message)
-			reader_writer.set_for_writing
-			store (new_message, reader_writer)
-		end
-
 	send_move(player: CP_PLAYER; insect: CP_INSECT; position: CP_POSITION)
 			-- Send the move you did to the other player
 		require
@@ -121,15 +102,6 @@ feature	-- Actions for game
 			create new_message.make_gamemsg (new_move)
 			reader_writer.set_for_writing
 			store (new_message, reader_writer)
-		end
-
-	post_message(message:CP_MESSAGE)
-			-- Send to the GUI the message
-		require
-			message_not_void: message/=Void
-			player_is_connected: server_has_started = TRUE
-		do
-
 		end
 
 	apply_move(game_msg:CP_GAMEMESSAGE;board:ARRAY[CP_INSECT])
@@ -161,6 +133,5 @@ feature -- Actions for connection
 				socket.cleanup
 			end
 		end
-
 
 end

@@ -45,11 +45,10 @@ feature -- Test routines
 			an_address: ARRAY [NATURAL_8]
 			game_connection: BS_NET_GAME_CONNECTION
 			dummythread: BS_NET_SOCKET_ACCEPTER
-			dt: THREAD
 		do
 				--initialize server
 			create game.make
-			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void))
+			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void, void, void), 0)
 			string_aux := server.start_listening ()
 			create dummythread.make (void, void)
 			dummythread.yield
@@ -66,7 +65,7 @@ feature -- Test routines
 				--client.connect_server (ip_address, 3333)
 				--verify number of connected players
 
-			create game_connection.make ("127.0.0.1", 3333)
+			create game_connection.make ("127.0.0.1", 3333, -1)
 			dummythread.yield
 			sleep (10000000000)
 			users_connected := server.get_machines
@@ -94,7 +93,7 @@ feature -- Test routines
 		do
 				--initialize server
 			create game.make
-			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void))
+			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void, void, void), 0)
 			string_aux := server.start_listening ()
 
 				--initialize one client

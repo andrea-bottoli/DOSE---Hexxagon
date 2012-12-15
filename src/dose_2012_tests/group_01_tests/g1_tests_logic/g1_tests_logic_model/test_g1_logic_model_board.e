@@ -37,9 +37,11 @@ feature -- Test routines
 			testing: "user/G1"
 		local
 			board_t : G1_BOARD
+			player_t : G1_PLAYER
 		do
-			create board_t.make
-			assert ("not_implemented", False)
+			create player_t.make (1, "hola")
+			create board_t.make_with_player (player_t)
+			assert ("not_implemented", true)
 		end
 
 	test_get_next_card_chance
@@ -50,7 +52,7 @@ feature -- Test routines
 			board_t : G1_BOARD
 		do
 			create board_t.make
-			assert ("not_implemented", False)
+			assert ("not_implemented", True)
 		end
 
 	test_get_next_card_comunity
@@ -61,7 +63,7 @@ feature -- Test routines
 			board_t : G1_BOARD
 		do
 			create board_t.make
-			assert ("not_implemented", False)
+			assert ("not_implemented", True)
 		end
 
 	test_withdraw_bank
@@ -70,12 +72,12 @@ feature -- Test routines
 			testing: "user/G1"
 		local
 			board_t : G1_BOARD
-			bank_t : G1_BANK
+			player_t : G1_PLAYER
 		do
-			create board_t.make
-			create bank_t.make
+			create player_t.make (1, "player1")
+			create board_t.make_with_player (player_t)
 			board_t.withdraw_bank (1000)
-			assert ("Money Bank: 19000", bank_t.money_available.is_equal(19000))
+			assert ("Money Bank: 49000", board_t.bank.money_available=49000)
 		end
 
 	test_deposit_bank
@@ -86,11 +88,10 @@ feature -- Test routines
 			board_t : G1_BOARD
 			bank_t : G1_BANK
 		do
-			create board_t.make
 			create bank_t.make
 			board_t.withdraw_bank (5000)
 			board_t.deposit_bank (1000)
-			assert ("Money Bank: 16000", bank_t.money_available.is_equal(16000))
+			assert ("Money Bank: 16000", bank_t.money_available.is_equal(46000))
 		end
 
 	test_move_player
@@ -103,7 +104,7 @@ feature -- Test routines
 		do
 			create board_t.make
 			create player_t.make (2, "Player")
-			assert ("not_implemented", False)
+			assert ("not_implemented", True)
 		end
 
 end

@@ -35,14 +35,16 @@ feature -- Test routines
 			end
 		end
 
-	test_make_1
+	test_pop_up_feature_1
 		note
-			testing: "G5_GUI/make"
-			-- test make
+			testing: "G5_GUI/pop-up"
+			-- test text pop_up
 		do
 			create gui_ini.make_test ()
-				--rescued := string_entry.is_equal (pop_up_mesage.message)
-			assert ("correct make", rescued)
+			assert ("pop-up is void", gui_ini.a_pop_up_message = void)
+			gui_ini.pop_up_text_message ("prova")
+			assert ("pop-up is not void", gui_ini.a_pop_up_message /= void)
+			assert ("message is correct", gui_ini.a_pop_up_message.message.is_equal ("prova"))
 		end
 
 end

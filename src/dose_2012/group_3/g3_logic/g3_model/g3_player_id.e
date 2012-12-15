@@ -18,33 +18,44 @@ create
 
 feature
 	make
-		-- make an id for new connection
-	do
-		id := 0
-	end
+			-- make an id for new connection
+		do
+			id := 0
+		end
 
-feature{G3_CONTROLLER}
+feature{G3_CONTROLLER, G3_PLAYER_ID}
 
 	set_id(new_id : INTEGER)
-		-- only the controller on server mode can performed action
-	do
-
-	end
+			-- only the controller on server mode can performed action
+		do
+			id := new_id
+		end
 
 feature
 
 	is_register : BOOLEAN
 		-- true if is a id registered on server
+		do
+			Result := id > 0 and id <= 4
+		end
 
 	get_server_id : G3_PLAYER_ID
-		-- always return an server id, can use for construct new message to server.
+		-- always return a server id, can use for construct new message to server.
+		local
+			server_id : G3_PLAYER_ID
+		do
+			create server_id.make
+			server_id.set_id(1)
+			Result := server_id
+
+		end
 
 	is_equal (id_ : G3_PLAYER_ID ) : BOOLEAN
 		do
 			Result := id.is_equal (id_.id)
 		end
 
-feature{ANY}
+feature -- internal representation
 
 	id : INTEGER
 

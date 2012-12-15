@@ -33,6 +33,7 @@ feature {ANY}
 		valid_num_cells: (num_cells = 58)
 	end
 
+
 feature {NONE}
 
 
@@ -290,6 +291,7 @@ feature {ANY}
 		loop
 			newcopy.get_cell (i).set_contents (cells.at (i).get_contents)
 			newcopy.get_gui_board.set_cell (i, gui.get_cell (i))
+			i:=i+1
 		end
 		Result:=newcopy
 		ensure Result /=Void

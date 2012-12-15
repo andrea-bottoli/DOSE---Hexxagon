@@ -22,7 +22,7 @@ feature -- Elements needed to the test
 	gui: G5_GUI
 		-- Auxiliary to instantiate of G5_IGUI_TO_NET
 
-	name_new_player: STRING
+	name_new_player: ARRAY[STRING]
 		--  Parameter of the command to test
 
 feature -- Preparation of Tests
@@ -36,14 +36,14 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	player_join_waiting_room0
-		-- player_join_waiting_room("JESUS")
-		note
-			testing: "G5_IGUI_TO_NET/.player_join_waiting_room"
-		do
-			name_new_player := "JESUS"
-			class_test.player_join_waiting_room(name_new_player)
-			assert ("player_join_waiting_room was successful", TRUE)
-		end
+--	player_join_waiting_room0
+--		-- player_join_waiting_room("JESUS")
+--		note
+--			testing: "G5_IGUI_TO_NET/.player_join_waiting_room"
+--		do
+--			name_new_player := <<"JESUS">>
+--			class_test.player_join_waiting_room(name_new_player)
+--			assert ("player_join_waiting_room was successful", TRUE)
+--		end
 
 end

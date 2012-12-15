@@ -110,12 +110,6 @@ feature{NONE}	--PRIVATE Methods inherited from XX_NET_TO_CHAT_INTERFACE
 		end
 	end
 
-	--Check if the message is visible
-	is_chat_message_visible(a_chat_message: STRING):BOOLEAN
-	do
-		--TODO
-	end
-
 
 feature --Sets the gui references
 

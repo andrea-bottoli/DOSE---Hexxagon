@@ -31,20 +31,9 @@ feature
 	require
 		non_void: board /= Void
 	local
-		time: TIME
-		delay: INTEGER
 		answer: HX_L_IMOVE
 	do
-		--create time.make_now_utc
-		--delay := time.compact_time + 2
-		answer := engine.compute_successor (board).last_move
-		--from
-		--until
-		--	time.compact_time > delay
-		--loop
-		--  create time.make_now_utc
-		--end
-		Result := answer
+		Result := engine.compute_successor (board).last_move
 	ensure
 		non_void: Result /= Void
 	end

@@ -15,15 +15,12 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Cat Balou")
  	ensure
   		Name.is_equal("Cat Balou")
-  		(CardNum >= 9) and (CardNum<=12) or (CardNum=3)
-  		CardSymbol.is_equal ("Hearts")
-  		CardSymbol.is_equal ("Diamnonds")
-
  	end
 
- 	action(a_Player_array : ARRAY[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
+ 	action(a_Player_array : ARRAYED_LIST[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
 	do
 		--Reaction?
 	end

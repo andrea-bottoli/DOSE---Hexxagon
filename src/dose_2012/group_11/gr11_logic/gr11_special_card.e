@@ -7,24 +7,41 @@ note
 class
 	GR11_SPECIAL_CARD
 
-
-feature--modifiers
-
-update(board:GR11_BOARD;list_of_coordinates:LIST[GR11_COORDINATES];player:GR11_PLAYER):BOOLEAN
---update component in position x,y in the board different for each special_card
-do
-	Result:=true
-end
+feature{NONE}
+	action_special_card:GR11_ACTION
+	--specific action
+	is_activated:BOOLEAN
+	--card is already actived
+	name_id:STRING
+	--name to identify specific special card
+	always:BOOLEAN
+	--player can activate always in the turn
+	end_of_turn:BOOLEAN
+	--effect to this card are at the end of the turn
 
 feature --query
 
-control(board:GR11_BOARD;x:INTEGER;y:INTEGER;player:GR11_PLAYER):BOOLEAN
---control turn,position,.. different for each special_card
-do
-	Result:=true
-end
+	get_action:GR11_ACTION
+	--return specific action to this special card
+	do
+		is_activated:=TRUE
+		Result:=action_special_card
+	end
 
-feature{NONE}--implementation
-is_activated:BOOLEAN
---when is true the player can't use this special card again
+	can_activate_card:BOOLEAN
+	--control if player can use this special card
+	--if is already activated return false
+		do
+			if is_activated=TRUE then
+			Result:=FALSE
+			else
+				Result:=TRUE
+			end
+		end
+
+	get_name_id:STRING
+	do
+		Result:=name_id
+	end
+
 end

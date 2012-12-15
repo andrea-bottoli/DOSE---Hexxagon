@@ -36,15 +36,20 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	new_phase0
-		-- new_phase("CLEAN-UP")
-		note
-			testing: "G5_IGUI_TO_NET/.new_phase"
-		do
-			new_phase_name := "CLEAN-UP"
-			class_test.new_phase (new_phase_name)
-			assert ("new_phase makes the phase change ", class_test.main_view.board.current_phase.is_equal (new_phase_name))
-		end
+--	new_phase0
+--		-- new_phase("CLEAN-UP")
+--		note
+--			testing: "G5_IGUI_TO_NET/.new_phase"
+--		local
+--			main_view: G5_MAIN_VIEW
+--		do
+--			create main_view.make (<<"one","two","three">>, "one", gui, void)
+
+--			new_phase_name := "Buy"
+--			class_test.set_main_view (main_view)
+--			class_test.new_phase (new_phase_name)
+--			assert ("new_phase makes the phase change ", class_test.main_view.board.current_phase.is_equal (new_phase_name))
+--		end
 
 feature -- Test negative
 

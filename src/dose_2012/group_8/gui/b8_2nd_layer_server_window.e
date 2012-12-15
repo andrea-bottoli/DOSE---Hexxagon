@@ -30,9 +30,10 @@ inherit
 create
 	make
 
-feature {NONE}	-- Initialization
-	make
+feature 	-- Initialization
+	make(a_logic:B8_LOGIC)
 		do
+			logic:=a_logic
 			players:=2
 			make_with_title("Create a game")
 		end
@@ -72,7 +73,7 @@ create_container_2nd_layer_server
 			three_radio_button.set_text("3")
 			three_radio_button.set_background_color (create {EV_COLOR}.make_with_8_bit_rgb (255, 128, 0))
 			con_2nd_layer_server.extend_with_position_and_size(three_radio_button, 180, 70, 32, 25)
-three_radio_button.pointer_button_press_actions.extend (agent on_button_three_press(?, ?, ?, ?, ?, ?, ?, ?))
+			three_radio_button.pointer_button_press_actions.extend (agent on_button_three_press(?, ?, ?, ?, ?, ?, ?, ?))
 			-- add four_radio_button
 			create four_radio_button
 			four_radio_button.set_text("4")
@@ -165,8 +166,8 @@ pointer_leave (a_area: EV_FIXED)
 
 next_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
 		-- User klicked Next button
-		local
-			i:INTEGER
+--		local
+--			i:INTEGER   --Stefano: this local variable is not used
 	do
 		server_message_board.set_text ("Please wait for other players to connect...")
 
@@ -176,9 +177,9 @@ next_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INT
 			--io.putint (players)
 		--	io.putstring (port_number_text_box.text)
 			port_number := port_number_text_box.text.to_integer
-			create server.make(Void,port_number,0,players)
+			create server.make(Void,port_number,0,players,logic)
 			destroy
-			create l_3rd_layer.make(server)
+			create l_3rd_layer.make(server,logic)
 			l_3rd_layer.show
 		else
 			io.putstring ("You haven't given correct input")
@@ -191,7 +192,7 @@ back_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INT
 	do
 
 		destroy
-		create l_1st_layer.make(main_ui)
+		create l_1st_layer.make(main_ui,logic)
 		l_1st_layer.show
 	end
 
@@ -259,4 +260,5 @@ feature
 	players:INTEGER
 	port_number:INTEGER
 	server:B8_GAME_MODE
+	logic:B8_LOGIC
 end

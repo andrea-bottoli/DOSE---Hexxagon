@@ -6,8 +6,15 @@ note
 
 class
 	GR11_MSG
+create
+	make
 
 feature
+	message: STRING_8
+	make(msg: STRING_8)
+	do
+		message := msg
+	end
 
 
 invariant

@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {G2_GUI_CARD}."
+	description: "Summary description for {G2_GUI_CARD}. Represents  the card of game. capture  of  the  game original"
 	author: "Grupo 2 , Rio Cuarto 8"
-	date: "Date 13/11/2012"
-	revision: "Revision  0.1"
+	date: " 2012/12/12  "
+	revision: "1.0.1"
 
 class
 	G2_GUI_CARD
@@ -27,7 +27,7 @@ feature --initialize
 			valid_south: 0 <= south1 and south1 <= 11
 			valid_east: 0 <= east1 and east1 <= 11
 			valid_west: 0 <= west1 and west1 <= 11
-			valid_id: id1 > 0
+			valid_id: id1 >= 0
 		do
 			default_create
 			create image
@@ -45,7 +45,7 @@ feature --initialize
 			valid_south1: 0 <= south and south <= 11
 			valid_east1: 0 <= east and east <= 11
 			valid_west1: 0 <= west and west <= 11
-			valid_id1: id > 0
+			valid_id1: id >= 0
 		end
 
 	make_default
@@ -55,6 +55,11 @@ feature --initialize
 			create image
 			image.set_with_named_file ({INTERFACE_NAMES}.path_background_card)
 			set_pixmap (image)
+			id := 0
+			north := 0
+			south := 0
+			east := 0
+			west := 0
 		end
 
 feature
@@ -129,11 +134,11 @@ feature
 	set_id (id1: INTEGER)
 			--settea the id of card.
 		require
-			valid_id: id1 > 0
+			valid_id: id1 >= 0
 		do
 			id := id1
 		ensure
-			valid_id1: id > 0
+			valid_id1: id >=0
 		end
 
 feature --miscellanies
@@ -161,5 +166,12 @@ feature
 	north, south, east, west: INTEGER
 
 	element: G2_GUI_ELEMENT
+
+invariant
+	 valid_north1: 0 <= north and north <= 11
+	 valid_south1: 0 <= south and south <= 11
+	 valid_east1: 0 <= east and east <= 11
+	 valid_west1: 0 <= west and west <= 11
+	 valid_id : id >= 0
 
 end

@@ -15,7 +15,7 @@ create
 
 feature
 
-	make(player_number: INTEGER; color: INTEGER)
+	make(player_number: INTEGER; color: INTEGER; type: INTEGER)
 	require
 		valid_number: player_number > 0 and player_number <= 4
 		valid_color: color > 0 and color <= 4
@@ -23,18 +23,19 @@ feature
 		add_tile_set( color )
 		player_id := player_number
 		player_color := color
-		create name.make_empty
+		name := "Default name"
 		still_playing := true
+		player_type := type
 	ensure
 		tiles.count = 21
 	end
 
-	make_with_name(player_number: INTEGER; color: INTEGER; a_name: STRING)
+	make_with_name(player_number: INTEGER; color: INTEGER; a_name: STRING; type: INTEGER)
 	require
 		valid_name: a_name /= Void and not a_name.is_empty
 	do
+		make(player_number, color, type)
 		name := a_name
-		make(player_number, color)
 	end
 
 	do_move(board: BS_BOARD): BS_MOVE
@@ -57,9 +58,10 @@ feature
 		end
 	end
 
-	get_number: INTEGER
+	reset_set
 	do
-		Result:= player_id
+		tiles := void
+		add_tile_set(player_color)
 	end
 
 	get_remaining_tiles: LINKED_LIST[BS_TILE]
@@ -67,16 +69,24 @@ feature
 		Result := tiles
 	end
 
+	get_number: INTEGER
+	do
+		Result:= player_id
+	end
+
 	get_name: STRING
 	do
 		Result := name
 	end
 
-	set_name(a_name: STRING)
-	require
-		valid_name: a_name /= Void and not a_name.is_empty
+	get_color: INTEGER
 	do
-		name := a_name
+		Result := player_color
+	end
+
+	get_type: INTEGER
+	do
+		Result := player_type
 	end
 
 	is_still_playing: BOOLEAN
@@ -89,18 +99,49 @@ feature
 		still_playing := false
 	end
 
-	type: INTEGER = 0
-
-	get_color: INTEGER
+	warn_bad_move
 	do
-		Result := player_color
+
 	end
 
--- Paolo: changed this from private to protected, as BS_NET_PLAYER needs to now his color and id.
-feature {BS_PLAYER}
-	name: STRING
+feature {BS_GAME}
+
+	set_name(a_name: STRING)
+	require
+		valid_name: a_name /= Void and not a_name.is_empty
+	do
+		name := a_name
+	ensure
+		name = a_name
+	end
+
+	set_number(new_number: INTEGER)
+	require
+		valid_number: new_number > 0 and new_number <= 4
+	do
+		player_id := new_number
+	ensure
+		player_id = new_number
+	end
+
+	set_color(new_color: INTEGER)
+	require
+		valid_color: new_color > 0 and new_color <= 4
+	do
+		player_color := new_color
+	ensure
+		player_color = new_color
+	end
+
+
+
+
+feature {NONE} -- {BS_PLAYER, BS_GAME}
 	player_id: INTEGER
+	name: STRING
 	player_color: INTEGER
+	player_type: INTEGER
+
 	still_playing: BOOLEAN
 
 end

@@ -21,6 +21,9 @@ feature -- Status Setting
 		require
 			--Fbesser
 			a_game_settings_not_void: a_game_settings /= Void
+			a_callback /= Void
+			a_abort_callback /= Void
+			a_game_over /= Void
 		local
 			l_network_players: INTEGER
 			l_ai_players: INTEGER
@@ -40,8 +43,9 @@ feature -- Status Setting
 			create tiles.make (120)
 			initialize_tiles
 
-				-- Initialize the updat action sequence.
+				-- Initialize the update action sequences.
 			create game_update_actions
+			create turn_update_actions
 
 			is_master := True
 
@@ -51,8 +55,6 @@ feature -- Status Setting
 			players.extend (l_gui_player)
 
 			current_player := l_gui_player
-
-			io.put_string ("GUI player created%N")
 
 			l_network_players := a_game_settings.total_players - a_game_settings.computer_players - 1
 			l_ai_players := a_game_settings.computer_players
@@ -80,8 +82,6 @@ feature -- Status Setting
 				i := i+1
 			end
 
-			io.put_string ("Network Players created%N")
-
 			from
 				i := 0
 			until
@@ -98,8 +98,6 @@ feature -- Status Setting
 
 				i := i+1
 			end
-
-			io.put_string ("AI Players created%N")
 
 			create gameboard.make (a_game_settings.total_players)
 			across players as l_cursor loop
@@ -149,30 +147,23 @@ feature -- Status Setting
 			create l_gui_player.make_with_name (a_game_settings.user_name)
 			players.extend (l_gui_player)
 
-			create game_update_actions.default_create
+			create game_update_actions
+			create turn_update_actions
 		ensure
 			current_player /= Void
 		end
 
-	abort_host
-		require
-			TODO: false
-		do
-			--TODO: The user has decided to host, and then changed his mind and aborted the hosting (i.e. before a game was created)
-
-			abort_callback.call ([])
-		end
-
 	abort_game
-		require
-			TODO: false
 		do
-			--TODO: The user has decided to play a game, and then changed his mind and aborted the game (i.e. after a game was created)
-
+			across players as l_cursor loop
+				if attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player and then l_net_player.is_connected then
+					l_net_player.send_abort
+				elseif attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player then
+					l_net_player.set_abort
+				end
+			end
 			abort_callback.call ([])
 		end
-
---	is_initialized: BOOLEAN
 
 	check_if_full_house
 		local
@@ -203,7 +194,6 @@ feature -- Status Setting
 					players.forth
 				end
 
---				is_initialized := True
 				host_join_callback.call ([])
 
 			end
@@ -212,67 +202,41 @@ feature -- Status Setting
 
 feature --During game
 
---	--Fbesser
---	request_move (a_network_player: IG_NETWORK_PLAYER)
---		--Request move from a_network_player
---		do
---			a_network_player.request_move
---		end
---		
---	move_was_requested (a_network_player: IG_NETWORK_PLAYER)
---		--Move was requested from a_network_player. Inform GUI and wait for answer
---		require
---			not is_master
---		do
---			
---		end
-
 	process_move (a_move: IG_MOVE)
 			-- The current player has sent a move, process it.
 		require
 			move_not_void: a_move /= Void
 		local
 			l_points: like gameboard.points_for_move
-
-			max_points: INTEGER
-			max_player: IG_PLAYER
+			i1, i2: INTEGER
 		do
-
-			io.put_string ("Processing move of " + current_player.name + ".%N")
-
 			if is_game_over then
-				print ("Game Over!%N")
-
-
-				from
-					players.start
-				until
-					players.after
-				loop
-					if players.item.scoreboard.total_points > max_points then
-						max_points := players.item.scoreboard.total_points
-						max_player := players.item
-					end
-				end
-
-				game_over_callback.call ([max_player])
-
+				end_game
 			elseif gameboard.is_move_valid (a_move) then
 				l_points := gameboard.points_for_move (a_move)
 
 				gameboard.set_tile_on_board (a_move, current_player)
+
+				i1 := current_player.scoreboard.points_for_color (a_move.tile.first_hex.color)
+				i2 := current_player.scoreboard.points_for_color (a_move.tile.second_hex.color)
+
 				current_player.scoreboard.add_color_score (a_move.tile.first_hex.color, l_points.first_color)
 				current_player.scoreboard.add_color_score (a_move.tile.second_hex.color, l_points.second_color)
+
+				if i1 < 18 and current_player.scoreboard.points_for_color (a_move.tile.first_hex.color) >= 18 then
+					current_player_moves_left := current_player_moves_left + 1
+				end
+				if i2 < 18 and current_player.scoreboard.points_for_color (a_move.tile.second_hex.color) >= 18 then
+					current_player_moves_left := current_player_moves_left + 1
+				end
 
 				if is_master then
 					--Send move to every Network player
 
 					across players as l_cursor loop
 						if l_cursor.item /= current_player and attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player then
-							io.put_string ("Sending move to " + l_net_player.name + "%N")
 							l_net_player.send_move (a_move)
 						elseif attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player then
-							io.put_string ("Sending tile to " + l_net_player.name + "%N")
 							l_net_player.send_tile (tiles[1])
 						end
 					end
@@ -291,32 +255,42 @@ feature --During game
 				enable_move
 				-- After move has been done, e.v. notify the next player that it's his turn.
 			else
-				io.put_string ("Move NOT valid!%N")
+				if current_player = user_player then
+					(create {EV_BEEP}).exclamation
+				end
 			end
 		end
 
 	enable_move
 		do
-			--The current player has made a move, now make sure the next player can make one
-			io.put_string ("In IG_LOGIC.enable_move. Iterating over the players list... %N")
-
-			current_player := next_player
-
-			if players.index_of (next_player, 1) < players.count then
-				next_player := players[players.index_of (next_player, 1) + 1]
+			if current_player_moves_left > 1 then
+				current_player_moves_left := current_player_moves_left - 1
 			else
-				next_player := players.first
+				--The current player has made a move, now make sure the next player can make one
+				current_player := next_player
+
+				if players.index_of (next_player, 1) < players.count then
+					next_player := players[players.index_of (next_player, 1) + 1]
+				else
+					next_player := players.first
+				end
+
+				turn_update_actions.call ([])
+
+				print ("Current player: " + current_player.name + "%T%TNext up: " + next_player.name + ".%N")
+
+				current_player_moves_left := 1
 			end
 
-			io.put_string ("Current player: " + current_player.name + ".%N")
-			io.put_string ("Next up: " + next_player.name + ".%N")
-
-			if attached {IG_USER_PLAYER} current_player as l_player then
-				--l_player.enable_move
-			elseif attached {IG_AI_PLAYER} current_player as l_player then
-				process_move(l_player.next_move)
+			if is_game_over then
+				end_game
+			else
+				if attached {IG_USER_PLAYER} current_player as l_player then
+					--l_player.enable_move
+				elseif attached {IG_AI_PLAYER} current_player as l_player then
+					process_move(l_player.next_move)
+				end
 			end
-
 		end
 
 	receive_game_over (a_name: STRING)
@@ -341,8 +315,17 @@ feature --During game
 			end
 		end
 
-	receive_abort
+	receive_abort (a_player: IG_NETWORK_PLAYER)
 		do
+			across players as l_cursor loop
+				if l_cursor.item /= a_player and attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player and then l_net_player.is_connected then
+					l_net_player.send_abort
+				elseif attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player then
+					l_net_player.set_abort
+				end
+
+			end
+
 			abort_callback.call ([])
 		end
 
@@ -367,17 +350,13 @@ feature --During game
 		require
 			not is_master
 		do
-			io.put_string ("In IG_LOGIC.receive_starting_game_state. Replacing all " + a_tiles_list.count.out + " tiles of " + players.at (2).name + ".%N")
-
 			players.at (2).replace_tiles (a_tiles_list)
 
 			--Received the answer to request entire game state, now set things right
 			create gameboard.make (num_players)
 		ensure
-			--Fbesser
 			game_board_not_void: gameboard /= Void
 			score_board_not_void: scoreboards /= Void
---			tiles_rack_not_void: tiles /= Void
 		end
 
 	receive_all_names (args: LIST[STRING])
@@ -429,7 +408,6 @@ feature --During game
 				l_cursor.item.set_scoreboard (l_scoreboard)
 			end
 
---			is_initialized := True
 			host_join_callback.call ([])
 		ensure
 			next_player /= Void
@@ -455,6 +433,7 @@ feature --During game
 				a_player.tiles.extend (tiles.item)
 				tiles.remove
 			end
+			game_update_actions.call ([])
 		end
 
 feature -- Game Status
@@ -527,6 +506,7 @@ feature -- Access
 			result_not_void: Result /= Void
 		end
 
+	current_player_moves_left: INTEGER
 	current_player: IG_PLAYER
 		-- Returns the current player
 	next_player: IG_PLAYER
@@ -536,6 +516,9 @@ feature -- Access
 
 	game_update_actions: ACTION_SEQUENCE[TUPLE[]]
 		-- The list of subscribers notified when the logic updated the game state.
+
+	turn_update_actions: ACTION_SEQUENCE[TUPLE[]]
+		-- The list of subscribers notified when the logic updated the turns.
 
 feature {NONE} -- Implementation
 
@@ -547,6 +530,24 @@ feature {NONE} -- Implementation
  	abort_callback: PROCEDURE[ANY, TUPLE[]]
 
 	game_over_callback: PROCEDURE[ANY, TUPLE[IG_PLAYER]]
+
+	end_game
+			-- Inform players that the game ended and show the winner's name.
+		local
+			l_max_points: INTEGER
+			l_winner: IG_PLAYER
+		do
+			l_max_points := 0
+
+			across players as l_cursor loop
+				if l_cursor.item.scoreboard.total_points > l_max_points then
+					l_max_points := l_cursor.item.scoreboard.total_points
+					l_winner := l_cursor.item
+				end
+			end
+
+			game_over_callback.call ([l_winner])
+		end
 
 	initialize_tiles
 		local

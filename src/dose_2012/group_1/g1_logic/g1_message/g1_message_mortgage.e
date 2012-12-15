@@ -12,34 +12,29 @@ inherit
 	G1_MESSAGE
 
 create
-	make, make_mortgage
+	make_mortgage
 
 feature -- Initialization
 
-	make
-			-- Initialize the message whit default values
-		do
-			mortgage_id_deed := 0
-			unmortgage_id_deed := 0
-		end
-
-	make_mortgage (a_mortgage_id_deed: INTEGER; a_unmortgage_id_deed: INTEGER)
+	make_mortgage (a_id_player: INTEGER; a_id_deed: INTEGER; a_mortgage: BOOLEAN)
 		require
-			valid_mortgage: a_mortgage_id_deed >= 0 and a_mortgage_id_deed < 29
-			valid_unmortgage: a_unmortgage_id_deed >= 0 and a_unmortgage_id_deed < 29
+			valid_player_id: a_id_player > 0
+			valid_deed_id: a_id_deed >= 0 and a_id_deed < 29
 		do
-			mortgage_id_deed := a_mortgage_id_deed
-			unmortgage_id_deed := a_unmortgage_id_deed
+			id_player := a_id_player
+			id_deed := a_id_deed
+			mortgage := a_mortgage
 		end
 
 feature --Measurent
 
-	mortgage_id_deed: INTEGER
-			-- Id representing the property mortgage
-			-- If the value is zero, it does not mortgage
+	id_player: INTEGER
+			-- Id of the player
 
-	unmortgage_id_deed: INTEGER
-			-- Id representing the property unmortgage
-			-- If the value is zero, it does not unmortgage
+	id_deed: INTEGER
+			-- Id representing the property mortgage or unmortgage
+
+	mortgage: BOOLEAN
+			-- If true the property will mortgage, else the property will be unmortgage
 
 end

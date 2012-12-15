@@ -42,16 +42,16 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	pop_up_revel0
-		-- pop_up_revel ("JESUS",["K5,K7,T3"])
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_revel"
-		do
-			player_that_reveal := "JESUS"
-			cards := <<"K5","K7","T3">>
-			class_test.pop_up_reveal (player_that_reveal, cards)
-			assert ("pop_up_revel revealed correct cards at the correct player", class_test.a_pop_up_reveal.list_of_cards.is_equal(cards) and class_test.a_pop_up_reveal.player.is_equal(player_that_reveal))
-		end
+--	pop_up_revel0
+--		-- pop_up_revel ("JESUS",["K5,K7,T3"])
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_revel"
+--		do
+--			player_that_reveal := "JESUS"
+--			cards := <<"K5","K7","T3">>
+--			class_test.pop_up_reveal (player_that_reveal, cards)
+--			assert ("pop_up_revel revealed correct cards at the correct player", class_test.a_pop_up_reveal.list_of_cards.is_equal(cards) and class_test.a_pop_up_reveal.player.is_equal(player_that_reveal))
+--		end
 
 feature -- Test negative
 

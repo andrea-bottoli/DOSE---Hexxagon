@@ -7,7 +7,8 @@ note
 class
 	G20_TILE
 		create
-		make
+		make,
+		make_random
 
 		feature{NONE}
 			color1 : G20_COLOR
@@ -18,6 +19,12 @@ class
 			do
 				color1 := argColor1.twin
 				color2 := argColor2.twin
+			end
+
+		make_random
+			do
+				create color1.make_random
+				create color2.make_random
 			end
 
 		GetColor1: G20_COLOR

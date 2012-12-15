@@ -35,28 +35,11 @@ inherit
 		end
 
 create
-	make,
-	make_with_logic,
-	make_with_main_ui
+	make_with_logic
 
 feature {NONE} --Constructor
 
-	--Initialization for "Current".
-	make
-	do
-		default_create
-		set_window_size (width-16, height-16)
-		create_chat
-	end
-
-	make_with_main_ui(a_main_ui: MAIN_WINDOW)
-	do
-		default_create
-		main_ui:=a_main_ui
-		set_window_size (width-16, height-16)
-		create_chat
-	end
-
+	--Initialization for "Current"
 	make_with_logic(a_logic: XX_ILOGIC; a_main_ui: MAIN_WINDOW)
 	do
 		default_create
@@ -100,7 +83,7 @@ feature{NONE} --Attributes of the gui
 	--Gui Board
 	gui_board: ARRAY[INTEGER]
 	id_cell_clicked: INTEGER
-	higlighting: BOOLEAN
+	highlighting: BOOLEAN
 
 feature {NONE} --Initialization
 
@@ -258,40 +241,36 @@ feature {XX_MENU_PANEL}	--Methods used by XX_MENU_PANEL
 	do
 		if (a_single_player and not a_multi_player) then
 			if (check_name(a_name) and check_colour(a_colour)) then
-				game_panel.set_chat_enable_button(FALSE)
+
 				--Sets the name of owner player
 				set_own_player_name (a_name)
 
+				--Sets the game to multiplayer_server game
 				interface_logic.set_single_player (a_name, a_colour)
+
+				--Start the game
 				interface_logic.receive_game_start
-				switch_panel_menu_to_game
 			else
 				clean_main_window
 			end
 		elseif (a_multi_player and not a_single_player) then
 			if (check_name (a_name) and check_port (a_port)) then
-				game_panel.set_chat_enable_button(TRUE)
 				if(not a_server)then
 					if(check_ip (a_ip))then
 						--Sets the name of owner player
 						set_own_player_name (a_name)
 
+						--Sets the game to multiplayer_client game
 						interface_logic.set_client_setup (a_name, a_ip, a_port.to_integer)
---						interface_logic.set_multi_player (a_server, a_name, string_color_ruby, a_ip, a_port.to_integer)
-						interface_logic.receive_game_start
---						clean_game_window			--############# TEMP
---						switch_panel_menu_to_game	--############# TEMP
 					else
 						clean_main_window
 					end
 				else
 					--Sets the name of owner player
 					set_own_player_name (a_name)
-					interface_logic.set_server_setup (a_name, a_port.to_integer)
---					interface_logic.set_multi_player (a_server, a_name, string_color_ruby, a_ip, a_port.to_integer)
-					interface_logic.receive_game_start
---					clean_game_window				--############# TEMP
---					switch_panel_menu_to_game		--############# TEMP
+
+					--Sets the game to multiplayer_server game
+					interface_logic.set_server_setup (a_name, a_ip, a_port.to_integer)
 				end
 			else
 				clean_main_window
@@ -316,9 +295,9 @@ feature{XX_GAME_PANEL} --Method used by XX_GAME_PANEL
 		l_possible_move.set_move (a_id_cell, a_id_cell, 1)
 		if(check_highlight_cell(a_id_cell))then
 			id_cell_clicked:=a_id_cell
-			higlighting:=TRUE
+			highlighting:=TRUE
 		else
-			higlighting:=FALSE
+			highlighting:=FALSE
 		end
 		interface_logic.associated_move (l_possible_move)
 	end
@@ -335,7 +314,7 @@ feature{XX_GAME_PANEL} --Method used by XX_GAME_PANEL
 
 		game_panel.set_chat_text (l_message)
 
---		chat.send_chat_message (l_message)
+		chat.send_chat_message (l_message)
 	end
 
 	--Implementetion of the abort game
@@ -350,8 +329,6 @@ feature{XX_GAME_PANEL} --Method used by XX_GAME_PANEL
 
 		if(l_question_close_box.selected_button.is_equal((create{EV_DIALOG_CONSTANTS}).ev_ok)) then
 			interface_logic.abort_game
---			clean_main_window			--############# TEMP
---			switch_panel_game_to_menu 	--############# TEMP
 		end
 	end
 
@@ -493,13 +470,13 @@ feature {NONE} --Checks for the inputs from menu panel
 	--Check Highlights a cell
 	check_highlight_cell(a_id_cell: INTEGER): BOOLEAN
 	do
-		if(gui_board.at (a_id_cell+1)=1)then
+		if(gui_board.at (a_id_cell)=1)then
 			if(player1.get_player_id.is_equal (own_name_player))then
 				Result:= TRUE
 			else
 				Result:=FALSE
 			end
-		elseif (gui_board.at (a_id_cell+1)=2) then
+		elseif (gui_board.at (a_id_cell)=2) then
 			if(player2.get_player_id.is_equal (own_name_player))then
 				Result:=TRUE
 			else
@@ -519,12 +496,14 @@ feature --Public Methods inherited from XX_IGUI
 		player2:= a_player2
 
 		game_panel.set_name_player1 (player1.get_player_id)
+		game_panel.set_color_player1 (player1.get_colour_piece)
 		game_panel.set_score_player1 (player1.get_total_pieces)
 		if(not player1.get_ip_net.is_equal (""))then
 			game_panel.set_ip_player1 (player1.get_ip_net, player1.get_port_number)
 		end
 
 		game_panel.set_name_player2 (player2.get_player_id)
+		game_panel.set_color_player2 (player2.get_colour_piece)
 		game_panel.set_score_player2 (player2.get_total_pieces)
 		if(not player2.get_ip_net.is_equal (""))then
 			game_panel.set_ip_player2 (player2.get_ip_net, player2.get_port_number)
@@ -543,7 +522,7 @@ feature --Public Methods inherited from XX_IGUI
 		l_board: ARRAY[INTEGER]
 		l_i: INTEGER
 	do
-		create l_board.make_filled (0, 1, a_board.get_array.count)
+		create l_board.make_filled (0, 0, a_board.get_array.count-1)
 
 		gui_board:=a_board.get_array
 
@@ -552,33 +531,41 @@ feature --Public Methods inherited from XX_IGUI
 		until
 			l_i>= a_board.get_array.count
 		loop
-			if(a_board.get_array.at (l_i+1)=0)then
-				l_board.put (a_board.get_array.at (l_i+1), l_i+1)
-			elseif(a_board.get_array.at (l_i+1)=1)then
+			if(a_board.get_array.at (l_i)=0)then
+				l_board.put (a_board.get_array.at (l_i), l_i)
+			elseif(a_board.get_array.at (l_i)=1)then
 				if(player1.get_colour_piece.is_equal (string_color_ruby))then
-					l_board.put (1, l_i+1)
+					l_board.put (1, l_i)
 				else
-					l_board.put (3, l_i+1)
+					l_board.put (3, l_i)
 				end
-			elseif(a_board.get_array.at (l_i+1)=2)then
+			elseif(a_board.get_array.at (l_i)=2)then
 				if(player2.get_colour_piece.is_equal (string_color_ruby))then
-					l_board.put (1, l_i+1)
+					l_board.put (1, l_i)
 				else
-					l_board.put (3, l_i+1)
+					l_board.put (3, l_i)
 				end
-			elseif(a_board.get_array.at (l_i+1)=3)then
-				l_board.put (5, l_i+1)
-			elseif(a_board.get_array.at (l_i+1)=4)then
-				l_board.put (6, l_i+1)
+			elseif(a_board.get_array.at (l_i)=3)then
+				l_board.put (5, l_i)
+			elseif(a_board.get_array.at (l_i)=4)then
+				l_board.put (6, l_i)
 			end
 			l_i:=l_i+1
 		end
 
-		if(higlighting)then
-			if(a_board.get_array.at (id_cell_clicked+1)=1)then
-				l_board.put (2, id_cell_clicked+1)
-			elseif(a_board.get_array.at (id_cell_clicked+1)=2)then
-				l_board.put (4, id_cell_clicked+1)
+		if(highlighting)then
+			if(a_board.get_array.at (id_cell_clicked)=1)then
+				if(player1.get_colour_piece.is_equal (string_color_ruby))then
+					l_board.put (2, id_cell_clicked)
+				else
+					l_board.put (4, id_cell_clicked)
+				end
+			elseif(a_board.get_array.at (id_cell_clicked)=2)then
+				if(player2.get_colour_piece.is_equal (string_color_ruby))then
+					l_board.put (2, id_cell_clicked)
+				else
+					l_board.put (4, id_cell_clicked)
+				end
 			end
 		end
 
@@ -606,6 +593,7 @@ feature --Public Methods inherited from XX_IGUI
 	--Allow to clean the view of the board in the gui, bringing it back to the default status
 	clean_board
 	do
+		highlighting:=FALSE
 		game_panel.clean_board
 	end
 
@@ -628,6 +616,7 @@ feature --Public Methods inherited from XX_IGUI
 	chat_enable(a_condition: BOOLEAN)
 	do
 		game_panel.chat_enable (a_condition)
+		game_panel.set_chat_enable_button (a_condition)
 	end
 
 	--Allow to switch the panel from game panel to menu panel
@@ -659,6 +648,7 @@ feature --Public Methods inherited from XX_IGUI
 	--Allow to set the net manager (for the chat)
 	set_net_to_chat(a_net_manager: XX_CHAT_TO_NET_INTERFACE)
 	do
+		interface_net:=a_net_manager
 		chat.set_net_manager (a_net_manager)
 	end
 
@@ -666,24 +656,18 @@ feature --Public Methods inherited from XX_IGUI
 	victory
 	do
 		victory_dialog
-		clean_main_window
-		switch_panel_game_to_menu
 	end
 
 	--Allow to inform the player about his defeat
 	defeat
 	do
 		defeat_dialog
-		clean_main_window
-		switch_panel_game_to_menu
 	end
 
 	--Allow to inform the player about a draw status
 	draw_status
 	do
 		draw_dialog
-		clean_main_window
-		switch_panel_game_to_menu
 	end
 
 feature{NONE} --Private Methods inherited from XX_IGUI
@@ -691,13 +675,13 @@ feature{NONE} --Private Methods inherited from XX_IGUI
 	--Allow to check if game panel is empty
 	is_game_panel_empty:BOOLEAN
 	do
-		Result:=game_panel.is_empty
+		Result:=game_panel.is_game_panel_in_default_state
 	end
 
 	--Allow to check if menu panel is empty
 	is_menu_panel_empty:BOOLEAN
 	do
-		Result:=menu_panel.is_empty
+		Result:=menu_panel.is_menu_panel_empty
 	end
 
 	--Allow to check if game_status is empty
@@ -751,7 +735,7 @@ feature{NONE} --Private Methods inherited from XX_IGUI
 	--Allow to check if network_manager is setted
 	is_net_manager_setted(a_net_manager: XX_CHAT_TO_NET_INTERFACE):BOOLEAN
 	do
-		if(interface_net=a_net_manager) then
+		if(interface_net.is_equal(a_net_manager)) then
 			Result:=TRUE
 		else
 			Result:=FALSE

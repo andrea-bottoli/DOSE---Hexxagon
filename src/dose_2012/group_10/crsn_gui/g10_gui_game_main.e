@@ -18,12 +18,12 @@ inherit
 		end
 
 create
-	make
+	make , make_2
 
 -- attributes
 feature {NONE}
 	--the components that interact with the game component
-	player				: G10_JOINED_PLAYER
+	player				: G10_LOBBY_USER
 
 	--parts of the game graphic component
 	background			: EV_FIXED
@@ -33,20 +33,37 @@ feature {NONE}
 
 -- constructors
 feature {NONE}
-	make (a_player: G10_JOINED_PLAYER) -- constructs a titled window
-		require
-			player_not_null: a_player /= void
-			window_title_not_null: crsn_game_title /= void
-		do
-			player := a_player
-				-- Create the Lobby window.			
-			make_with_title (crsn_game_title)
-			set_position ((screen_width // 2) - (game_window_width // 2), (screen_height // 2) - (game_window_height // 2))
+	make (a_player: G10_LOBBY_USER) -- constructs a titled window
+	require
+		player_not_null: a_player /= void
+		window_title_not_null: crsn_game_title /= void
+	do
+		player := a_player
+			-- Create the Lobby window.			
+		make_with_title (crsn_game_title)
+		set_position ((screen_width // 2) - (game_window_width // 2), (screen_height // 2) - (game_window_height // 2))
 
-			disable_user_resize()
-		ensure
+		disable_user_resize()
+	end
 
-		end
+	make_2(a_player: G10_LOBBY_USER first_player_name : STRING players_num : INTEGER ) -- Build the interface for this window i test here connection with logic things.
+	require
+		player_not_null: a_player /= void
+		window_title_not_null: crsn_game_title /= void
+	local
+		drawed_tile_id : INTEGER -- na to balo orisma!
+	do
+		player := a_player
+			-- Create the Lobby window.			
+		make_with_title (crsn_game_title)
+		set_position ((screen_width // 2) - (game_window_width // 2), (screen_height // 2) - (game_window_height // 2))
+		init_background()
+		init_terrain_panel()
+		init_player_action_panel_tileid(drawed_tile_id)
+		init_scoreboard_panel_name_num(first_player_name , players_num)
+
+		disable_user_resize()
+	end
 
 -- mutator methods.
 feature {NONE} -- Initialization
@@ -58,7 +75,7 @@ feature {NONE} -- Initialization
 		init_background()
 		init_terrain_panel()
 		init_player_action_panel()
-		init_scoreboard_panel()
+		--init_scoreboard_panel()
 	end
 
 	init_background() -- routine initializes the background.
@@ -83,6 +100,18 @@ feature {NONE} -- Initialization
 		player_action_panel_initialized : player_action_panel /= void
 	end
 
+	init_player_action_panel_tileid(tile_id : INTEGER) -- routine initializes the player action panel.
+	do
+		create player_action_panel.make_with_id(Current , tile_id)
+
+		background.extend_with_position_and_size (  player_action_panel,
+														action_area_start_width, action_area_start_height,
+														action_panel_width, action_panel_height)
+		--player_action_panel.get_rotate_button.select_actions.extend (agent action_performed_rotate_button)
+	ensure
+		player_action_panel_initialized : player_action_panel /= void
+	end
+
 	init_scoreboard_panel() -- routine initializes the scoreboard panel.
 	do
 		create scoreboard_panel.make(current)
@@ -90,15 +119,18 @@ feature {NONE} -- Initialization
 		scoreboard_panel_initialized : scoreboard_panel /= void
 	end
 
-	init_terrain_panel() -- routine initializes the terrain panel.
-	local scrolled_area: EV_SCROLLABLE_AREA  -- Edw prepei na doume ti 8a kanoume !!! To scrollable area mporei na ginei kai EV_VIEWPORT kai prepei na doume an 8a to valoume sth klash tou terrain
-	do										-- gia kapoio logo ka8e fora pou vazoume ena neo tile sto terrain paizei problhma...pros to paron proexei auto !!
-		create terrain_panel.make(current)
-		create scrolled_area
-		scrolled_area.set_minimum_size (820, 640)
-		scrolled_area.extend (terrain_panel)
+	init_scoreboard_panel_name_num(first_player_name : STRING players_num : INTEGER) -- routine initializes the scoreboard panel with the first player and the number of the players that will join
+	do
+		create scoreboard_panel.make_first_player (current, first_player_name, players_num)
+	ensure
+		scoreboard_panel_initialized : scoreboard_panel /= void
+	end
 
-		background.extend (scrolled_area)
+	init_terrain_panel() -- routine initializes the terrain panel.
+	do
+		create terrain_panel.make(current)
+
+		background.extend (terrain_panel)
 	ensure
 		terrain_panel_initialized : terrain_panel /= void
 	end
@@ -125,13 +157,22 @@ feature {NONE} -- Initialization
 		end
 	end
 
+feature {ANY} -- events
+
+	notify(an_event: STRING)
+	do
+		player.fire_event (an_event)
+	end
+
+-- Lefaaaaaaaaaaaaaaaaaaaaaa... ola ta parakatw 8a einai events pou 8a ulopoiountai sthn fire_event (auth vrisketai sthn lobby_user<practice>, host<create game>, joined_player<join game>)
 	rotate_current_player_tile() -- routine rotates the current players tile
 	require
 		 valid_player_actions_panel : player_action_panel /= void
 	do
-		ensure
-			valid_player_actions_panel : player_action_panel /= void
-			player_action_panel.get_current_player_tile /= old player_action_panel.get_current_player_tile
+		player_action_panel.rotate_current_player_tile
+	ensure
+		valid_player_actions_panel : player_action_panel /= void
+		--player_action_panel.get_current_player_tile /= old player_action_panel.get_current_player_tile
 	end
 
 	update_current_player_tile(src : STRING) -- routine updates the source of current players tile to src
@@ -177,6 +218,11 @@ feature {NONE} -- Initialization
 -- accesor methods.
 feature {ANY}
 
+	get_game_logic: G10_GAME
+	do
+		Result := player.get_crsn_game_logic
+	end
+
 	get_background : EV_FIXED
 	require
 		valid_background :  background/= void
@@ -205,9 +251,10 @@ feature {ANY}
 		valid_scoreboard : scoreboard_panel /= void
 		player_contained : scoreboard_panel.contains_player (n) = true
 	do
-		ensure
-			valid_scoreboard : scoreboard_panel /= void
-			score_unmutated : scoreboard_panel.get_player (n).get_score = old scoreboard_panel.get_player (n).get_score
+		--player.get_crsn_game_logic.get_players_score (n)
+	ensure
+		valid_scoreboard : scoreboard_panel /= void
+		score_unmutated : scoreboard_panel.get_player (n).get_score = old scoreboard_panel.get_player (n).get_score
 	end
 
 	get_followers_number(n : STRING) : INTEGER -- routine returns the number of followers of the player with name n
@@ -215,36 +262,26 @@ feature {ANY}
 		valid_scoreboard : scoreboard_panel /= void
 		player_contained : scoreboard_panel.contains_player (n) = true
 	do
-		ensure
-			valid_scoreboard : scoreboard_panel /= void
-			score_unmutated : scoreboard_panel.get_player(n).get_follower_number = old scoreboard_panel.get_player (n).get_follower_number
+	ensure
+		valid_scoreboard : scoreboard_panel /= void
+		score_unmutated : scoreboard_panel.get_player(n).get_follower_number = old scoreboard_panel.get_player (n).get_follower_number
 	end
 
 	get_players() : ARRAYED_LIST [G10_GUI_PLAYER_INFO] -- routine returns the list of players in the game
 	require
 		valid_scoreboard : scoreboard_panel.get_players /= void and scoreboard_panel /= void
 	do
-		ensure
-			attr_unmutated : scoreboard_panel = old scoreboard_panel
+	ensure
+		attr_unmutated : scoreboard_panel = old scoreboard_panel
 	end
 
 	get_player(i : INTEGER ) : G10_GUI_PLAYER_INFO -- routine returns the player in i index of the players array list
 	require
 		scoreboard_panel /= void
 	do
-		ensure
-			player_list_unmutated : scoreboard_panel.get_players = old scoreboard_panel.get_players
+	ensure
+		player_list_unmutated : scoreboard_panel.get_players = old scoreboard_panel.get_players
 	end
-
--- tests
---	action_performed_rotate_button() -- routine is called when the rotate button is presed and shows a dialog to confirm the press of the button.
---	local
---		question_dialog: EV_CONFIRMATION_DIALOG
---	do
---		create question_dialog.make_with_text ("mprabo maalaka patises rotate")
---		question_dialog.show_modal_to_window (Current)
-
---	end
 
 
 -- class invariants.

@@ -22,11 +22,6 @@ inherit
 			copy,
 			default_create
 		end
-	BS_TILE_SET
-		undefine
-			copy,
-			default_create
-		end
 	BS_GUI_COLORS
 	BS_NET_COMMAND_LIST
 		undefine
@@ -36,26 +31,19 @@ inherit
 
 create
 	make
---	make_and_close_previous
 
 feature {NONE} -- Initialization
 
-	make(a_lobby : BS_LOBBY_WINDOW; a_game_connection: BS_NET_GAME_CONNECTION)
+	make(a_lobby : BS_LOBBY_WINDOW; a_game_connection: BS_NET_GAME_CONNECTION; a_game_connection_listener: BS_GAME_CONNECTION_LISTENER; a_player_list: ARRAY[TUPLE [id: INTEGER; name: STRING; type: INTEGER]])
 		do
 			lobby := a_lobby
 			game_connection := a_game_connection
-			-- Set last command read time to 1970 since we have not read a command yet.
-			create last_command_read.make_from_epoch (1)
+			game_connection_listener := a_game_connection_listener
+			player_list := a_player_list
 			make_with_title("Blokus")
 
-			key_press_actions.extend (agent key_pressed)
+			create command_executed_semaphore.make(0)
 		end
-
---	make_and_close_previous(a_previous: BS_LOBBY_WINDOW; a_main_ui: MAIN_WINDOW)
---		do
---			make_with_title("Blokus")
---			main_ui := a_main_ui
---		end
 
 	initialize
 		local
@@ -68,65 +56,64 @@ feature {NONE} -- Initialization
 			set_size(800, 600)
 
 			create con_main
+			--con_main.set_background_color (col_light_blue)
 
-			-- ! TODO: get n players from lobby or game connection !
-			n_players := 2
-			current_player := 1
-			active_turn := True
+			current_color := 0
 
 			init_field
 			init_log
 
-			create con_color_info.make_filled (Void, 1, 2)
-			create lbl_player_name.make_filled (Void, 1, 2)
-			create lbl_score.make_filled (Void, 1, 2)
-			create lbl_remaining_time.make_filled (Void, 1, 2)
+			create pix_logo
+			pix_logo.set_with_named_file (get_gfx_file_name ("logo"))
+			con_main.extend (pix_logo)
+			con_main.set_item_position (pix_logo, 520, 5)
+			create lbl_help.make_with_text ("Just drag the tiles onto the field! To rotate a tile, left click on it; to flip it, right click on it.")
+			lbl_help.align_text_left
+			con_main.extend_with_position_and_size (lbl_help, 370, 250, 470, 30)
+
+			create con_color_info.make_filled (Void, 1, n_colors)
+			create lbl_player_name.make_filled (Void, 1, n_colors)
+			create lbl_score.make_filled (Void, 1, n_colors)
+			create lbl_remaining_time.make_filled (Void, 1, n_colors)
 			from
 				i := 1
 			until
-				i > n_players
+				i > n_colors
 			loop
 				create con
-				create lbl
+				create lbl.make_with_text (get_player_name (get_player_of_color(i)))
+				lbl.align_text_left
 				lbl.font.set_height_in_points (12)
 				con.extend_with_position_and_size (lbl, 0, 0, 60, 20)
 				lbl_player_name.put (lbl, i)
-				create lbl
+				create lbl.make_with_text ("0")
+				lbl.align_text_right
 				lbl.font.set_height_in_points (12)
 				con.extend_with_position_and_size (lbl, 70, 0, 60, 20)
 				lbl_score.put (lbl, i)
 				create lbl
+				lbl.align_text_left
 				lbl.font.set_height_in_points (10)
 				con.extend_with_position_and_size (lbl, 130, 0, 150, 20)
 				lbl_remaining_time.put (lbl, i)
-				con_main.extend_with_position_and_size (con, 380, -20 + 40*i, 480, 40)
+				con_main.extend_with_position_and_size (con, 400, 90 + 30*i, 480, 40)
 				con_color_info.put (con, i)
 				i := i + 1
 			end
 
-			--con_color_info.at (1).set_background_color (col_reddish)
 			lbl_player_name.at (1).set_foreground_color (col_blue)
-			lbl_player_name.at (1).set_text ("Player 1")
-			lbl_player_name.at (1).font.set_weight (Weight_bold)
-			lbl_score.at (1).set_text ("0")
-			lbl_score.at (1).font.set_weight (Weight_bold)
-			lbl_remaining_time.at (1).set_text ("60 seconds remaining")
-			lbl_remaining_time.at (1).font.set_weight (Weight_bold)
 			lbl_player_name.at (2).set_foreground_color (col_yellow)
-			lbl_player_name.at (2).set_text ("Player 2")
-			lbl_score.at (2).set_text ("0")
+			lbl_player_name.at (3).set_foreground_color (col_red)
+			lbl_player_name.at (4).set_foreground_color (col_green)
 
-			create btn_confirm_pass.make_with_text_and_action ("Pass Move", agent confirm_or_pass)
-			con_main.extend_with_position_and_size (btn_confirm_pass, 600, 260, 80, 20)
+			create btn_pass.make_with_text_and_action ("Pass Move", agent confirm_or_pass)
+			con_main.extend_with_position_and_size (btn_pass, 400, 300, 80, 20)
 			create btn_surrender.make_with_text_and_action ("Surrender", agent surrender)
-			con_main.extend_with_position_and_size (btn_surrender, 600, 295, 80, 20)
+			con_main.extend_with_position_and_size (btn_surrender, 500, 300, 80, 20)
+			btn_pass.disable_sensitive
+			btn_surrender.disable_sensitive
 
 			put (con_main)
-
-			-- To be replaced by a timer or similar:
-			-- maybe also: (?)
-			--enable_capture
-			pointer_motion_actions.extend (agent read_command)
 
 			close_request_actions.extend (agent ask_for_quitting)
 		end
@@ -135,7 +122,6 @@ feature {NONE} -- Initialization
 		local
 			l_atom : BS_TILE_ATOM
 			l_row, l_column : INTEGER
-			l_projector : EV_MODEL_DRAWING_AREA_PROJECTOR
 			l_pixmap : EV_PIXMAP
 			l_bg : EV_MODEL_PICTURE
 		do
@@ -171,9 +157,9 @@ feature {NONE} -- Initialization
 			init_unplayed_pieces
 
 			create game_area
-			create l_projector.make (game_world, game_area)
+			create projector.make (game_world, game_area)
 			con_main.extend_with_position_and_size (game_area, 0, 0, 360, 600)
-			l_projector.project
+			projector.project
 		end
 
 	init_unplayed_pieces
@@ -181,71 +167,18 @@ feature {NONE} -- Initialization
 			j : INTEGER
 			k : INTEGER
 			l_hidden : BOOLEAN
-			l_tile_array : ARRAY[BS_DRAGGABLE_TILE]
+			l_tile_set: BS_GUI_TILE_SET
+			l_tile_array : LINKED_LIST[BS_DRAGGABLE_TILE]
 		do
-			create draggable_tiles.make_filled (Void, 1, n_players)
+			create abstract_tiles.make_filled(Void, 1, n_colors)
 
 			from
 				j := 1
 			until
-				j > n_players
+				j > n_colors
 			loop
-				add_tile_set (j)
-				create l_tile_array.make_filled (Void, 1, 21)
-				draggable_tiles.put (l_tile_array, j)
-
-				l_hidden := not (j = 1)
-
---				from
---					k := 1
---				until
---					k > 21
---				loop
---					draw_unplayed_tile(j, k, draggable_tiles_initial_position.at (k).at (1), draggable_tiles_initial_position.at (k).at (2), l_hidden)
---				end
-
-				-- 1
-				draw_unplayed_tile (j, 1, 10, 10, l_hidden)
-				-- 2
-				draw_unplayed_tile (j, 2, 50, 10, l_hidden)
-				-- 3
-				draw_unplayed_tile (j, 3, 100, 10, l_hidden)
-				-- 4
-				draw_unplayed_tile (j, 4, 150, 10, l_hidden)
-				-- 5
-				draw_unplayed_tile (j, 5, 220, 10, l_hidden)
-				-- 6
-				draw_unplayed_tile (j, 6, 270, 10, l_hidden)
-				-- 7
-				draw_unplayed_tile (j, 7, 10, 70, l_hidden)
-				-- 8
-				draw_unplayed_tile (j, 8, 80, 70, l_hidden)
-				-- 9
-				draw_unplayed_tile (j, 9, 150, 70, l_hidden)
-				--10
-				draw_unplayed_tile (j, 10, 220, 70, l_hidden)
-				--11
-				draw_unplayed_tile (j, 11, 295, 70, l_hidden)
-				--12
-				draw_unplayed_tile (j, 12, 10, 130, l_hidden)
-				--13
-				draw_unplayed_tile (j, 13, 80, 130, l_hidden)
-				--14
-				draw_unplayed_tile (j, 14, 150, 130, l_hidden)
-				--15
-				draw_unplayed_tile (j, 15, 250, 130, l_hidden)
-				--16
-				draw_unplayed_tile (j, 16, 300, 130, l_hidden)
-				--17
-				draw_unplayed_tile (j, 17, 10, 200, l_hidden)
-				--18
-				draw_unplayed_tile (j, 18, 70, 200, l_hidden)
-				--19
-				draw_unplayed_tile (j, 19, 130, 200, l_hidden)
-				--20
-				draw_unplayed_tile (j, 20, 190, 200, l_hidden)
-				--21
-				draw_unplayed_tile (j, 21, 270, 200, l_hidden)
+				create l_tile_set.make_with_color(j)
+				abstract_tiles.put (l_tile_set.get_tiles, j)
 
 				j := j + 1
 			end
@@ -255,78 +188,195 @@ feature {NONE} -- Initialization
 		do
 			create con_log
 			create lbl_log.make_with_text ("Log")
+			lbl_log.align_text_left
+			lbl_log.font.set_height_in_points (12)
 			con_log.extend_with_position_and_size (lbl_log, 5, 5, 50, 30)
 			create lst_log
-			add_log_entry ("Test Log Entry.")
-			con_log.extend_with_position_and_size (lst_log, 5, 35, 380, 230)
+			con_log.extend_with_position_and_size (lst_log, 5, 35, 360, 230)
 			con_main.extend_with_position_and_size (con_log, 420, 320, 380, 280)
 		end
 
-feature {NONE} -- Game connection
+feature {BS_LOBBY_WINDOW} -- Game connection. Needs to be available to the lobby for setting it as a target for the game connection listener.
 
-	read_command(a_a, a_b : INTEGER; a_c, a_d, a_e : DOUBLE; a_f, a_g : INTEGER)
+	game_connection_read_command_handler(a_command: BS_NET_COMMAND)
+	local
+		x: EV_SHARED_APPLICATION
+	do
+		create x
+		x.ev_application.do_once_on_idle (agent process_command (a_command)) -- This will later, asynchronously, return the token to the semaphore.
+		command_executed_semaphore.wait() -- Not returning until it has been executed.
+	end
+
+	process_command(a_command: BS_NET_COMMAND)
 		local
-			l_now : DATE_TIME
-			l_1_second : TIME_DURATION
 			l_command : BS_NET_COMMAND
 			l_command_type : BS_NET_COMMAND
+			l_win_dialog: EV_MESSAGE_DIALOG
 		do
-			create l_1_second.make_by_seconds (1)
-			create l_now.make_now
+			l_command := a_command
 
-			if l_now.minus(last_command_read).duration >= l_1_second then
-
-				l_command := game_connection.read_command
-				if l_command /= Void then
-					inspect l_command.command
-						when command_getmove then
-							switch_to_next_player
-
-						-- only for lobby:
-
-						--when command_updateplayerlist then
-
-						--when command_startgame then
-
-						when command_playermakesmove then
+			if l_command /= Void then
+				inspect l_command.command
+					when command_getmove then
+						enable_draggable_tiles
+						add_log_entry ("You may play now!")
+					when command_playermakesmove then
+						if l_command.move.get_action = 1 then
 							draw_move(l_command.move)
-						when command_removetilefromplayer then
-
-						when command_badmove then
-							tile_of_last_move.reset_position_to_initial
-							tile_of_last_move.set_draggable
-						when command_updatescores then
-
-						when command_printlogmessage then
-							add_log_entry(l_command.message)
-						when command_setturn then
-
-						when command_announcevictory then
-
-						when command_closing then
-
-					end
+						elseif l_command.move.get_action = 2 then
+							passing(l_command.player_id)
+						elseif l_command.move.get_action = 3 then
+							surrendering(l_command.player_id)
+						end
+					when command_removetilefromplayer then
+						remove_tile(l_command.color_id, l_command.tile)
+					when command_badmove then
+						add_log_entry ("This move is not allowed! Please try again.")
+						tile_of_last_move.reset_position_to_initial
+						tile_of_last_move.set_draggable
+						enable_draggable_tiles
+					when command_updatescores then
+						update_scores(l_command.score_list)
+					when command_printlogmessage then
+						add_log_entry(l_command.message)
+					when command_setturn then
+						set_turn_to_player(l_command.color_id, l_command.player_id)
+					when command_announcevictory then
+						announce_victory(l_command.player_id)
+					when command_startgame then
+						start_new_game()
+					when command_closing then
+						closing_command_received
 				end
 			end
+			command_executed_semaphore.post()
+		rescue
+			command_executed_semaphore.post()
 		end
 
 feature -- Graphics and drawing
 
-	-- TO BE REMOVED:
---	test_draw_move
---		local
---			tile : BS_TILE
---			state : ARRAY2[INTEGER]
---			position : BS_POSITION
---			move: BS_MOVE
---		do
---			create state.make_filled (1, 2, 2)
---			create tile.make (state, 2)
---			create position.make (1, 1)
---			create move.make (tile, position)
+	enable_draggable_tiles
+		local
+			j : INTEGER
+		do
+			from
+				j := 1
+			until
+				j > unplayed_tiles.count
+			loop
+				-- do not disable tiles that have already been played
+				if unplayed_tiles.at(j).draggable then
+					unplayed_tiles.at (j).enable_moving
+				end
 
---			draw_move(move)
---		end
+				j := j + 1
+			end
+
+			btn_pass.enable_sensitive
+			btn_surrender.enable_sensitive
+
+			projector.project
+
+			active_turn := True
+		end
+
+	disable_draggable_tiles
+		local
+			j : INTEGER
+		do
+			active_turn := False
+
+			from
+				j := 1
+			until
+				j > unplayed_tiles.count
+			loop
+				-- do not disable tiles that have already been played
+				if unplayed_tiles.at(j).draggable then
+					unplayed_tiles.at (j).disable_moving
+				end
+
+				j := j + 1
+			end
+
+			btn_pass.disable_sensitive
+			btn_surrender.disable_sensitive
+
+			projector.project
+		end
+
+	show_draggable_tiles(a_color: INTEGER)
+		local
+			j : INTEGER
+		do
+			create unplayed_tiles.make
+
+				-- 1
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (1), 10, 10)
+				-- 2
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (2), 50, 10)
+				-- 3
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (3), 100, 10)
+				-- 4
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (4), 150, 10)
+				-- 5
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (5), 220, 10)
+				-- 6
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (6), 270, 10)
+				-- 7
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (7), 10, 70)
+				-- 8
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (8), 80, 70)
+				-- 9
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (9), 150, 70)
+				--10
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (10), 220, 70)
+				--11
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (11), 295, 70)
+				--12
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (12), 10, 130)
+				--13
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (13), 80, 130)
+				--14
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (14), 150, 130)
+				--15
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (15), 230, 130)
+				--16
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (16), 310, 130)
+				--17
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (17), 10, 200)
+				--18
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (18), 70, 200)
+				--19
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (19), 130, 200)
+				--20
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (20), 190, 200)
+				--21
+				draw_unplayed_tile (abstract_tiles.at (a_color).at (21), 270, 200)
+
+			projector.project
+		end
+
+	hide_draggable_tiles
+		local
+			j: INTEGER
+			k: INTEGER
+		do
+			from
+				j := 1
+			until
+				j > unplayed_tiles.count
+			loop
+				k := game_world.index_of (unplayed_tiles.at (j), 1)
+				game_world.go_i_th (k)
+				game_world.remove
+
+				j := j + 1
+			end
+
+			projector.project
+		end
 
 	draw_move(a_move : BS_MOVE)
 		local
@@ -336,6 +386,8 @@ feature -- Graphics and drawing
 			l_pos := a_move.get_position
 			create l_tile.make_fixed (a_move.get_tile, 16*l_pos.x, 16*l_pos.y)
 			game_world.extend (l_tile)
+
+			projector.project
 		end
 
 	find_nearest_field_position (a_window_x, a_window_y : INTEGER) : BS_POSITION
@@ -372,47 +424,56 @@ feature {NONE} -- User actions
 				create l_move_to_send.make (a_tile.get_tile, l_pos)
 				-- In case of a bad move we will put the tile back to the stock:
 				tile_of_last_move := a_tile
+				disable_draggable_tiles
 				game_connection.send_move (l_move_to_send)
-				hide_draggable_tiles
 			end
 		end
 
-	-- not yet working properly
-	key_pressed(a_key : EV_KEY)
-		local
---			i : INTEGER
+	tile_action(a_tile: BS_TILE; a_action: INTEGER)
 		do
---			if a_key.code = {EV_KEY_CONSTANTS}.Key_space then
---				from
---					i := 1
---				until
---					i > unplayed_tiles2.count
---				loop
---					unplayed_tiles2.at (i).rotate_tile
---				end
---			end
+			disable_draggable_tiles
+			hide_draggable_tiles
+
+			if a_action = 1 then
+				a_tile.rotate_left
+			elseif a_action = 2 then
+				a_tile.flip_horizontally
+			elseif a_action = 3 then
+				a_tile.flip_vertically
+			end
+
+			show_draggable_tiles (current_color)
+			enable_draggable_tiles
 		end
 
 	confirm_or_pass
+		local
+			l_pass_move: BS_MOVE
 		do
-
+			disable_draggable_tiles
+			create l_pass_move.make_with_action (2, Void, Void) -- 2 = pass
+			game_connection.send_move (l_pass_move)
 		end
 
 	surrender
+		local
+			l_surrender_move: BS_MOVE
 		do
-
+			create l_surrender_move.make_with_action (3, Void, Void) -- 3 = surrender
+			game_connection.send_move (l_surrender_move)
+			disable_draggable_tiles
 		end
 
 feature {NONE} -- General Implementation
 
 	ask_for_quitting
 		local
-			l_dlg_confirm: EV_CONFIRMATION_DIALOG
+			l_dlg_confirm: EV_QUESTION_DIALOG
 		do
 			create l_dlg_confirm.make_with_text ("Are you sure you want to abort the game and return to the game lobby?")
 			l_dlg_confirm.show_modal_to_window (Current)
 
-			if l_dlg_confirm.selected_button.is_equal((create {EV_DIALOG_CONSTANTS}).ev_ok) then
+			if l_dlg_confirm.selected_button.is_equal((create {EV_DIALOG_CONSTANTS}).ev_yes) then
 				quit_to_lobby
 			end
 		end
@@ -420,22 +481,22 @@ feature {NONE} -- General Implementation
 	quit_to_lobby
 		do
 			-- show lobby again, which had been hidden
+			--game_connection.disconnect
 			lobby.show
 			destroy
 			lobby.set_up_game
 		end
 
-	draw_unplayed_tile(a_player_index, a_tile_index, a_top_left_x, a_top_left_y : INTEGER; hidden : BOOLEAN)
+	draw_unplayed_tile(a_tile: BS_TILE; a_top_left_x, a_top_left_y : INTEGER)
 		local
 			l_tile : BS_DRAGGABLE_TILE
 			l_tile_atom : BS_TILE_ATOM
 		do
-			create l_tile.make_draggable (tiles.at (a_tile_index), a_top_left_x, a_top_left_y + 340, agent tile_dropped)
-			game_world.extend (l_tile)
-			draggable_tiles.at (a_player_index).put (l_tile, a_tile_index)
-			if hidden then
-				l_tile.disable_sensitive
-				l_tile.hide
+			if a_tile /= Void then
+				create l_tile.make_draggable (a_tile, a_top_left_x, a_top_left_y + 340, agent tile_dropped, agent tile_action)
+				game_world.extend (l_tile)
+				unplayed_tiles.extend (l_tile)
+				l_tile.disable_moving
 			end
 		end
 
@@ -452,78 +513,204 @@ feature {NONE} -- General Implementation
 			Result := l_now.formatted_out ("hh:[0]mi:[0]ss")
 		end
 
-	switch_to_next_player
+	set_turn_to_player(a_color, a_player_id : INTEGER)
 		local
 			j : INTEGER
 		do
-			current_player := current_player + 1
-			if current_player > n_players then
-				current_player := 1
+			-- first hide the previous player's tiles:
+			if current_color /= 0 then
+				hide_draggable_tiles
 			end
+
+			-- TODO: this is a temporary workaround due to unexpected received commands.
+			-- To be removed later on.
+			current_color := a_color
+			show_draggable_tiles(a_color)
+--			current_color := current_color + 1
+--			if current_color = 4 then
+--				current_color := 1
+--			end
+
+
+			add_log_entry ("It's " + get_player_name(current_color) + "'s turn now.")
 
 			-- reset all the other player's marks:
 			from
 				j := 1
 			until
-				j > n_players
+				j > n_colors
 			loop
-				lbl_player_name.at (j).font.set_weight (weight_regular)
-				lbl_score.at (j).font.set_weight (Weight_regular)
-				lbl_remaining_time.at (j).font.set_weight (Weight_regular)
+--				lbl_player_name.at (j).font.set_weight (weight_regular)
+--				lbl_score.at (j).font.set_weight (Weight_regular)
+--				lbl_remaining_time.at (j).font.set_weight (Weight_regular)
+				lbl_remaining_time.at (j).set_text ("")
 
 				j := j + 1
 			end
 
-			lbl_player_name.at (j).font.set_weight (Weight_bold)
-			lbl_score.at (j).font.set_weight (Weight_bold)
-			lbl_remaining_time.at (j).font.set_weight (Weight_bold)
-
-			active_turn := True
-			show_and_enable_tiles(current_player)
+--			lbl_player_name.at (current_color).font.set_weight (Weight_bold)
+--			lbl_score.at (current_color).font.set_weight (Weight_bold)
+--			lbl_remaining_time.at (current_color).font.set_weight (Weight_bold)
 		end
 
-	hide_draggable_tiles
+	remove_tile(a_color_id : INTEGER; a_tile : BS_TILE)
 		local
 			j : INTEGER
+			l_found : BOOLEAN
 		do
-			from
-				j := 1
+			hide_draggable_tiles
+			from j := 1
+			l_found := False
 			until
-				j > 21
+				(j > abstract_tiles.at (a_color_id).count) Or l_found
 			loop
-				draggable_tiles.at (current_player).at (j).disable_sensitive
-				draggable_tiles.at (current_player).at (j).hide
+				if abstract_tiles.at (a_color_id).at (j) ~ a_tile then
+					abstract_tiles.at (a_color_id).at (j) := Void
+					l_found := True
+				end
+
+				j := j + 1
+			end
+
+			show_draggable_tiles (current_color)
+		end
+
+	update_scores(a_scores : ARRAY [TUPLE [id: INTEGER; name: STRING; score: INTEGER]])
+		local
+			j: INTEGER
+		do
+			if player_list.count = 4 then
+				from j := 1	until j > a_scores.count
+				loop
+					lbl_score.at (j).set_text (a_scores.at (j).score.out)
+					j := j + 1
+				end
+			elseif player_list.count = 2 then
+				lbl_score.at (1).set_text (a_scores.at (1).out)
+				lbl_score.at (3).set_text (a_scores.at (1).out)
+				lbl_score.at (2).set_text (a_scores.at (2).out)
+				lbl_score.at (4).set_text (a_scores.at (2).out)
+			end
+		end
+
+	passing(a_player_id: INTEGER)
+		do
+			add_log_entry (get_player_name(a_player_id) + " has passed his move.")
+		end
+
+	surrendering(a_player_id: INTEGER)
+		do
+			add_log_entry (get_player_name(a_player_id) + " has surrendered the game.")
+		end
+
+	announce_victory(a_player_id: INTEGER)
+
+		local
+			l_dlg_confirm: EV_QUESTION_DIALOG
+		do
+			add_log_entry (get_player_name(a_player_id) + " has won the game! Congratulations!")
+
+			create l_dlg_confirm.make_with_text (get_player_name(a_player_id) + " has won the game! Do you want a rematch?")
+			l_dlg_confirm.show_modal_to_window (Current)
+
+			if l_dlg_confirm.selected_button.is_equal((create {EV_DIALOG_CONSTANTS}).ev_yes) then
+				game_connection.send_rematch
+			else
+				quit_to_lobby
+			end
+		end
+
+	-- only for rematch !
+	start_new_game
+		local
+			j: INTEGER
+		do
+			add_log_entry ("A new game has started!")
+			-- remove game area:
+			j := con_main.index_of (game_area, 1)
+			con_main.go_i_th (j)
+			con_main.remove
+
+			init_field
+
+			from j := 1	until j > n_colors
+			loop
+				lbl_score.at (j).set_text ("0")
+				j := j + 1
+			end
+		end
+
+	closing_command_received
+		local
+			l_dlg: EV_INFORMATION_DIALOG
+		do
+			add_log_entry ("The server has closed the game.")
+			create l_dlg.make_with_text ("The server has closed the game. You will return to the main menu.")
+			l_dlg.show_modal_to_window (Current)
+			quit_to_lobby
+		end
+
+	get_player_name(a_player_id: INTEGER): STRING
+		local
+			j: INTEGER
+		do
+			-- in case we cannot find the player in the list:
+			create Result.make_from_string ("Player " + a_player_id.out)
+			from j := 1 until j > player_list.count
+			loop
+				if player_list.at (j).id = a_player_id then
+					Result := player_list.at (j).name
+				end
 
 				j := j + 1
 			end
 		end
 
-	show_and_enable_tiles(a_player: INTEGER)
+	get_player_of_color(a_color_id: INTEGER): INTEGER
 		local
-			j : INTEGER
+			j: INTEGER
 		do
-			from
-				j := 1
-			until
-				j > 21
-			loop
-				draggable_tiles.at (current_player).at (j).show
-				draggable_tiles.at (current_player).at (j).enable_sensitive
+			if player_list.count = 4 then
+				Result := a_color_id
+			elseif player_list.count = 2 then
+				Result := (a_color_id + 1) \\ 2 + 1
 			end
 		end
+
+	timer_thread_action
+		local
+			l_now: DATE_TIME
+			l_seconds: INTEGER_64
+		do
+			if active_turn then
+				create l_now.make_now
+				l_seconds := l_now.relative_duration (time_of_set_turn).seconds_count
+				lbl_remaining_time.at (current_color).set_text (l_seconds.out + " seconds remaining.")
+				if l_seconds < 0 then
+					add_log_entry ("Your time is up!")
+					confirm_or_pass
+				end
+			end
+		end
+
+feature -- Fields
 
 	-- interface to logic (via network)
 	game_connection : BS_NET_GAME_CONNECTION
-	last_command_read : DATE_TIME
+	game_connection_listener : BS_GAME_CONNECTION_LISTENER
+	command_executed_semaphore : SEMAPHORE
+
 	-- game intrinsic (game logical) properties:
-	n_players : INTEGER
+	player_list: ARRAY[TUPLE [id: INTEGER; name: STRING; type: INTEGER]]
+	n_colors : INTEGER = 4
 	-- Is there a player whose turn it is and who can drag pieces?
 	-- E. g. between sending a move and receiving accept/reject this is equal
 	-- to false.
 	active_turn : BOOLEAN
-	current_player : INTEGER
+	current_color : INTEGER
 	  -- might be a bad move:
 	tile_of_last_move : BS_DRAGGABLE_TILE
+	time_of_set_turn: DATE_TIME
 
 	-- other windows
 	lobby : BS_LOBBY_WINDOW
@@ -537,18 +724,23 @@ feature {NONE} -- General Implementation
 	lst_log : EV_LIST
 	lbl_remaining_pieces : EV_LABEL
 	lbl_log : EV_LABEL
-	btn_confirm_pass : EV_BUTTON
+	btn_pass : EV_BUTTON
 	btn_surrender : EV_BUTTON
 	field_atoms : ARRAY2[BS_TILE_ATOM]
 
-	draggable_tiles : ARRAY[ARRAY[BS_DRAGGABLE_TILE]]
+	abstract_tiles: ARRAY[LINKED_LIST[BS_TILE]]
+	unplayed_tiles : LINKED_LIST[BS_DRAGGABLE_TILE]
 
 	lbl_player_name : ARRAY[EV_LABEL]
 	lbl_score : ARRAY[EV_LABEL]
 	lbl_remaining_time : ARRAY[EV_LABEL]
 
+	pix_logo: EV_PIXMAP
+	lbl_help: EV_LABEL
+
 	-- drawing
 	game_area : EV_DRAWING_AREA
 	game_world : EV_MODEL_WORLD
+	projector: EV_MODEL_DRAWING_AREA_PROJECTOR
 
 end

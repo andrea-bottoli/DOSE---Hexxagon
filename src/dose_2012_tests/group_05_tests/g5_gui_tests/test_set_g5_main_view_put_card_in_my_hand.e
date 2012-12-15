@@ -53,23 +53,23 @@ feature -- test routines
 --			assert ("put cards in the hand was successfully", main_view.me.cards_in_the_hand = ["T3", "T1", "K12", "K7", "V3"])
 --		end
 
-	test_put_card_in_my_hand_1
-			--test negative, array the cards assigned is empty
-		note
-			testing: "G5_MAIN_VIEW/put_card_in_my_hand"
-		local
-			rescued: BOOLEAN
-		do
-			if not rescued then
-				cards.make_empty
-				main_view.create_and_assign_card ("HAND", cards)
-			end
-			assert ("putting cards in the hand raised problem", rescued)
-		rescue
-			if not rescued then
-				rescued := True
-				retry
-			end
-		end
+--	test_put_card_in_my_hand_1
+--			--test negative, array the cards assigned is empty
+--		note
+--			testing: "G5_MAIN_VIEW/put_card_in_my_hand"
+--		local
+--			rescued: BOOLEAN
+--		do
+--			if not rescued then
+--				cards.make_empty
+--				main_view.create_and_assign_card ("HAND", cards)
+--			end
+--			assert ("putting cards in the hand raised problem", rescued)
+--		rescue
+--			if not rescued then
+--				rescued := True
+--				retry
+--			end
+--		end
 
 end

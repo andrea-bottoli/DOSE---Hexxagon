@@ -39,19 +39,19 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	update_state0
-		-- update_state("JESUS",[[5,"HAND"],[15,"DECK"],[2,"BUY"]])
-		note
-			testing: "G5_IGUI_TO_NET/.update_state"
-		do
-			target_player := "JESUS"
-			update_info.make (3)
-			update_info.put (5,"HAND")
-			update_info.put (15,"DECK")
-			update_info.put (2,"BUY")
-			class_test.update_state (target_player, update_info)
-			assert ("update_state was successful", TRUE)
-		end
+--	update_state0
+--		-- update_state("JESUS",[[5,"HAND"],[15,"DECK"],[2,"BUY"]])
+--		note
+--			testing: "G5_IGUI_TO_NET/.update_state"
+--		do
+--			target_player := "JESUS"
+--			update_info.make (3)
+--			update_info.put (5,"HAND")
+--			update_info.put (15,"DECK")
+--			update_info.put (2,"BUY")
+--			class_test.update_state (target_player, update_info)
+--			assert ("update_state was successful", TRUE)
+--		end
 
 feature -- Test negative
 

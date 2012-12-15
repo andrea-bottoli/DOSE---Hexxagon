@@ -15,6 +15,7 @@ create
 feature --Constructor
 	make
 	do
+		set_role_name("Deputy")
 	ensure
 		Role_Name.is_equal("Deputy")
 	end

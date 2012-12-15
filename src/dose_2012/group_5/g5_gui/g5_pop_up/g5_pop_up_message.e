@@ -6,6 +6,8 @@ note
 
 class
 	G5_POP_UP_MESSAGE
+inherit
+	 EV_INFORMATION_DIALOG
 
 create
 	make
@@ -17,6 +19,11 @@ feature
 			valid_arg: a_message /= void
 		do
 			message:= a_message
+
+			-- create the window
+			default_create
+			current.set_text (message)
+			set_title ("pop-up Message")
 		end
 
 feature -- Variable

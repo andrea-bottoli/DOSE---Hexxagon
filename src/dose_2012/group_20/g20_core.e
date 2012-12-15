@@ -17,14 +17,17 @@ feature
 
 	score_board : G20_SCOREBOARD
 
-	players_satchels: TABLE[G20_SATCHEL, ANY]
+	players_satchels: ARRAY[G20_SATCHEL]
 
 	game_fsm: LIST[INTEGER]
 
 feature
 	start_game
+		local satchel: G20_SATCHEL
 		do
-
+			create players_satchels.make(1,1)
+			create satchel.make_random
+			players_satchels.put(satchel, 1)
 		end
 
 	pause_game

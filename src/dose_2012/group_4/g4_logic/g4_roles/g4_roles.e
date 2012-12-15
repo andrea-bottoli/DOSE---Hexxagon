@@ -19,6 +19,7 @@ feature --Setters and Getters
 		a_role_name.is_equal("Bandit")	or
 		a_role_name.is_equal("Fugitive")
 	do
+		Role_Name := a_role_name
 	ensure
 		Role_Name.is_equal(a_role_name)
 	end
@@ -32,6 +33,6 @@ feature --Special Function
 
 	victory_conditions(a_palyer_array: ARRAY[G4_PLAYER]): BOOLEAN
 	do
-		
+
 	end
 end

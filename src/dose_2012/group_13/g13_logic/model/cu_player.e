@@ -42,6 +42,8 @@ feature  -- Access
 			Result_not_negative: Result >= 0
 		end
 
+	last_sugg_room: CU_ROOM
+
 feature {CU_GAME} --Constructor
 	make(a_name: STRING; a_pawn: INTEGER)
 		require
@@ -52,6 +54,7 @@ feature {CU_GAME} --Constructor
 			pawn:=a_pawn
 			create hand.make
 			position:=void
+			last_sugg_room:= void
 		ensure
 			valid_hand: hand/= void
 		end
@@ -143,5 +146,10 @@ feature {CU_GAME, CU_LOGIC, EQA_TEST_SET} --Operations
 			available_moves:=0
 		ensure
 			zero_moves: available_moves = 0
+		end
+
+	set_suggestion_room(a_room: CU_ROOM)
+		do
+			last_sugg_room:=a_room
 		end
 end

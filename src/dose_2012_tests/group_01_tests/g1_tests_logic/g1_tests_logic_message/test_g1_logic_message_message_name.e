@@ -39,9 +39,9 @@ feature -- Test routines
 			testing:  "user/G1"
 			testing: "covers/{G1_MESSAGE_NAME}.make_name"
 		local
-			msg_name: G1_MESSAGE_NAME
+			msg_name: G1_MESSAGE_ADD_PLAYER
 		do
-			create msg_name.make_name ("Pippo")
+			create msg_name.make_add_player (1,"Pippo")
 			assert ("Message Name: Name:Pippo ", msg_name.name.is_equal ("Pippo"))
 		end
 

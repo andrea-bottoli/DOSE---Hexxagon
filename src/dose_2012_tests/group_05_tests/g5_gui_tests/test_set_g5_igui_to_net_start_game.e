@@ -40,16 +40,16 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	test_start_game0
-		-- start_game(["PEDRO","SANDRA","DIEGO"],"DIEGO")
-		note
-			testing: "G5_IGUI_TO_NET/.start_game"
-		do
-			players_name := <<"PEDRO","SANDRA","DIEGO">>
-			my_name := "DIEGO"
-			class_test.start_game (players_name, my_name)
-			assert ("start game with 3 players?", class_test.main_view.amount_of_players = 3)
-		end
+--	test_start_game0
+--		-- start_game(["PEDRO","SANDRA","DIEGO"],"DIEGO")
+--		note
+--			testing: "G5_IGUI_TO_NET/.start_game"
+--		do
+--			players_name := <<"PEDRO","SANDRA","DIEGO">>
+--			my_name := "DIEGO"
+--			class_test.start_game (players_name, my_name)
+--			assert ("start game with 3 players?", class_test.main_view.amount_of_players = 3)
+--		end
 
 feature -- Test negative
 

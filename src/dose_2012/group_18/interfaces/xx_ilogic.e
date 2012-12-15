@@ -41,7 +41,7 @@ feature
 
 	-- New methods about init seetings of multiplayer game
 
-	set_server_setup(name: STRING; port: INTEGER) deferred end   -- Set the appropriate multi player settings at server
+	set_server_setup(name: STRING; ip: STRING; port: INTEGER) deferred end   -- Set the appropriate multi player settings at server
 
 	set_client_setup(name: STRING; IP: STRING; port: INTEGER) deferred end   -- Set the appropriate multi player settings at client
 
@@ -50,6 +50,8 @@ feature
 	receive_game_start() deferred end  -- Receive game start signal client mode only
 
 	other_player(name: STRING; IP: STRING) deferred end   -- Receive other's player information server only
+
+	client_connected(name: STRING; ip: STRING) deferred end
 
 	receive_command_clean_game_window() deferred end --receive a command to clear the game window from net client mode only
 

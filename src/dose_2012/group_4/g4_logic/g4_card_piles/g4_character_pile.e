@@ -7,6 +7,7 @@ note
 class
 	G4_CHARACTER_PILE
 	Inherit G4_CARD_PILES
+
 create
 	make
 
@@ -20,44 +21,72 @@ feature --Constructor
 		  regret: G4_CHARACTERS_PAUL_REGRET; ramirez: G4_CHARACTERS_PEDRO_RAMIREZ; dollan: G4_CHARACTERS_ROSE_DOLLAN; ketchum: G4_CHARACTERS_SID_KETCHUM;
 		  slab: G4_CHARACTERS_SLAB_THE_KILLER; lafayette: G4_CHARACTERS_SUZY_LAFAYETTE; vulture: G4_CHARACTERS_VULTURE_SAM; thekid: G4_CHARACTERS_WILLY_THE_KID;
 	do
-		bart.make
-		Character_Pile.put (bart)
-		blackjack.make
-		Character_Pile.put (blackjack)
-		calamity.make
-		Character_Pile.put (calamity)
-		gringo.make
-		Character_Pile.put (gringo)
-		jesse.make
-		Character_Pile.put (jesse)
-		jurdonnais.make
-		Character_Pile.put (jurdonnais)
-		carlson.make
-		Character_Pile.put (carlson)
-		lucky.make
-		Character_Pile.put (lucky)
-		regret.make
-		Character_Pile.put (regret)
-		ramirez.make
-		Character_Pile.put (ramirez)
-		dollan.make
-		Character_Pile.put (dollan)
-		ketchum.make
-		Character_Pile.put (ketchum)
-		slab.make
-		Character_Pile.put (slab)
-		lafayette.make
-		Character_Pile.put (lafayette)
-		vulture.make
-		Character_Pile.put (vulture)
-		thekid.make
-		Character_Pile.put (thekid)
+		create Character_Pile.make
+
+		create bart.make
+		Character_Pile.force (bart)
+		create blackjack.make
+		Character_Pile.force (blackjack)
+		create calamity.make
+		Character_Pile.force (calamity)
+		create gringo.make
+		Character_Pile.force (gringo)
+		create jesse.make
+		Character_Pile.force (jesse)
+		create jurdonnais.make
+		Character_Pile.force (jurdonnais)
+		create carlson.make
+		Character_Pile.force (carlson)
+		create lucky.make
+		Character_Pile.force (lucky)
+		create regret.make
+		Character_Pile.force (regret)
+		create ramirez.make
+		Character_Pile.force (ramirez)
+		create dollan.make
+		Character_Pile.force (dollan)
+		create ketchum.make
+		Character_Pile.force (ketchum)
+		create slab.make
+		Character_Pile.force (slab)
+		create lafayette.make
+		Character_Pile.force (lafayette)
+		create vulture.make
+		Character_Pile.force (vulture)
+		create thekid.make
+		Character_Pile.force (thekid)
 	end
 
 feature --Rest functions
 
-	player_pick():G4_CARDS --Each Player picks a card
+	player_pick(a_card_id : INTEGER):G4_CHARACTERS --Each Player picks a card
 	do
+		--Implemented for terminal
+		if(a_card_id < Character_Pile.count) then
+			Character_Pile.go_i_th (a_card_id)
+			Result := Character_Pile.item
+			Character_Pile.remove
+		else
+			print("Invalid choice")
+		end
+	end
 
+
+feature
+
+	display_character_list
+	local
+		i : INTEGER
+	do
+		i := 1
+		from Character_Pile.start until Character_Pile.item = Character_Pile.last
+			loop
+				io.new_line
+				io.put_string (Character_Pile.item.get_character_name + " ")
+				io.put_string (" Code: ")
+				print(i)
+				i := i+1
+				Character_Pile.forth
+			end
 	end
 end

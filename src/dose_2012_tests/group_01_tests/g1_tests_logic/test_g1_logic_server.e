@@ -35,10 +35,11 @@ feature -- Test routines
 			testing: "user/G1"
 		local
 			game: G1_LOGIC_SERVER
-			player_t : G1_PLAYER
+			player_t : INTEGER
 		do
 			create game.make()
-			create player_t.make (005, "Player")
+			player_t := 5
+			game.add_player (player_t)
 			assert ("Player 5 added on game: ", game.l_client_list.has (player_t))
 		end
 
@@ -48,10 +49,13 @@ feature -- Test routines
 			testing: "user/G1"
 		local
 			game: G1_LOGIC_SERVER
-			player_t : G1_PLAYER
-		do
-			create game.make()
-			create player_t.make (005, "Player")
-			assert ("Player 5 removed: ", game.l_client_list.has (player_t).negated)
+	player_t : INTEGER
+	do
+		create game.make()
+		player_t := 5
+		game.add_player (player_t)
+		assert ("Player 5 added on game: ", game.l_client_list.has (player_t))
+		game.remove_player (player_t)
+		assert ("Player 5 removed: ", game.l_client_list.has (player_t).negated)
 		end
 end

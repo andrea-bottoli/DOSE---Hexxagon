@@ -118,14 +118,15 @@ feature -- Set Connection
 	start_server(port:INTEGER)
 	do
 		create server.make_server (port)
-		server.process
+		server.connect
+		--server.process
 	end
 
 
 	start_client(ip:STRING;port:INTEGER)
 	do
 		create client.make (ip, port)
-		client.process
+		--client.process
 	end
 
 feature -- Attributes

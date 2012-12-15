@@ -379,6 +379,19 @@ feature -- public functions
 				i:=i+1
 			end
 		end
+	set_rotation(a_i:INTEGER)
+		do
+			from
+			until rotation = a_i
+			loop
+				if a_i > 0 then
+					rotate(1,1)
+				elseif a_i <0 then
+					rotate(-1,1)
+				end
+			end
+
+		end
 
 feature {NONE} -- private functions
 
@@ -546,6 +559,11 @@ feature -- public functions
 	get_color:like color
 	do
 		Result:=color
+	end
+
+	get_rotation:like rotation
+	do
+		Result:=rotation
 	end
 
 

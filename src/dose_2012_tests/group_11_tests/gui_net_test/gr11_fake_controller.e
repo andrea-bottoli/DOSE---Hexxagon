@@ -12,21 +12,15 @@ inherit
 
 feature --status
 
-	received_msg:GR11_MSG_TO_LOGIC
+	received_msg:GR11_MSG
 		--status for testing purpose
 
 feature --inherited methods (implemented for testing purposes
 
-	recv_message(m :GR11_MSG_TO_LOGIC)
+	recv_message(m :GR11_MSG)
 
 	do
 		received_msg := m
-	end
-
-	player_is_active:BOOLEAN
-
-	do
-		Result := TRUE
 	end
 
 	get_name:GR11_USER_ID

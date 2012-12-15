@@ -33,13 +33,13 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	host_player_waiting_room0
-		-- host_player_waiting_room()
-		note
-			testing: "G5_IGUI_TO_NET/.host_player_waiting_room"
-		do
-			class_test.host_player_waiting_room()
-			assert ("host_player_waiting_room was successfully performed", TRUE)
-		end
+--	host_player_waiting_room0
+--		-- host_player_waiting_room()
+--		note
+--			testing: "G5_IGUI_TO_NET/.host_player_waiting_room"
+--		do
+--			class_test.host_player_waiting_room()
+--			assert ("host_player_waiting_room was successfully performed", TRUE)
+--		end
 
 end

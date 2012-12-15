@@ -33,7 +33,7 @@ feature -- Initialization
 			set_position_and_set_fixed (a_x, a_y)
 		end
 
-	make_draggable(a_tile : BS_TILE; a_initial_x, a_initial_y : INTEGER; a_drop_action : PROCEDURE [ ANY, TUPLE [INTEGER_32, INTEGER_32, BS_DRAGGABLE_TILE]])
+	make_draggable(a_tile : BS_TILE; a_initial_x, a_initial_y : INTEGER; a_drop_action : PROCEDURE [ ANY, TUPLE [INTEGER_32, INTEGER_32, BS_DRAGGABLE_TILE]]; a_tile_action : PROCEDURE [ ANY, TUPLE [BS_TILE, INTEGER]])
 		local
 			l_x : INTEGER
 			l_y : INTEGER
@@ -53,6 +53,7 @@ feature -- Initialization
 			enable_events_sended_to_group
 
 			drop_action := a_drop_action
+			tile_action := a_tile_action
 
 			draggable := True
 			enable_sensitive
@@ -64,6 +65,8 @@ feature {BS_GAME_WINDOW} -- Interface for Game Window
 		do
 			set_point_position(initial_x, initial_y)
 		end
+
+	draggable : BOOLEAN
 
 	set_draggable
 		do
@@ -83,25 +86,22 @@ feature {BS_GAME_WINDOW} -- Interface for Game Window
 			Result := tile
 		end
 
-	rotate_tile
-		do
-			tile.rotate_left
-
-			update_atoms
-
-			reset_position_to_initial
-		end
-
 feature {NONE} -- Drag N Drop
 
 	mouse_button_pressed (a_x, a_y, a_button: INTEGER; a_x_tilt, a_y_tilt, a_pressure: DOUBLE; a_screen_x, a_screen_y: INTEGER)
 		do
-			if a_button = 1 then
-				if draggable then
+			if draggable And is_moving then
+				if a_button = 1 then
 					enable_capture
+					has_moved := False
+				elseif a_button = 3 And not has_capture then
+					if last_flip_horizontal then
+						tile_action.call ([tile, 3])
+					else
+						tile_action.call ([tile, 2])
+					end
+					last_flip_horizontal := Not last_flip_horizontal
 				end
-			elseif a_button = 3 And not has_capture then
-				rotate_tile
 			end
 		end
 
@@ -112,6 +112,7 @@ feature {NONE} -- Drag N Drop
 		do
 			if has_capture then
 				set_point_position (a_x, a_y)
+				has_moved := True
 			end
 		end
 
@@ -123,7 +124,12 @@ feature {NONE} -- Drag N Drop
 				end
 
 				if draggable then
-					drop_action.call ([a_x, a_y, Current])
+					if has_moved then
+						drop_action.call ([a_x, a_y, Current])
+						has_moved := False
+					else
+						tile_action.call([tile, 1])
+					end
 				end
 			end
 		end
@@ -154,7 +160,7 @@ feature {NONE} -- Implementation
 					l_x > l_width
 				loop
 					if tile.get_state.item (l_y, l_x) = 1 then
-						create l_tile_atom.make (1)
+						create l_tile_atom.make (tile.get_color)
 						extend (l_tile_atom.get_model_picture)
 						l_tile_atom.set_pos (16*(l_x-1), 16*(l_y-1))
 						con_atoms.put (l_tile_atom, l_y, l_x)
@@ -170,6 +176,9 @@ feature {NONE} -- Implementation
 	initial_x : INTEGER
 	initial_y : INTEGER
 	drop_action : PROCEDURE [ ANY, TUPLE [INTEGER_32, INTEGER_32, BS_DRAGGABLE_TILE]]
-	draggable : BOOLEAN
+	tile_action: PROCEDURE [ ANY, TUPLE [BS_TILE, INTEGER]]
+
+	has_moved: BOOLEAN
+	last_flip_horizontal: BOOLEAN
 
 end

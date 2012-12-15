@@ -25,12 +25,20 @@ feature -- Test Routines
 		do
 
 			create card.make
-			assert ("card created, top assigned:", card.top=0)
-			assert ("card created, right assigned:", card.right=0)
-			assert ("card created, left assigned:", card.left=0)
-			assert ("card created, bottom assigned:", card.bottom=0)
-			assert ("card created, element assigned:", card.element=' ')
-			assert ("card created, cardName assigned:", card.cardName=" ")
+			assert ("card created, not void:", card/=void)
+			card.setTop(1)
+			card.setRight(1)
+			card.setLeft(1)
+			card.setBottom(1)
+			card.setElement('a')
+			card.setCardName("b")
+
+			assert ("card created, top assigned:", card.top=1)
+			assert ("card created, right assigned:", card.right=1)
+			assert ("card created, left assigned:", card.left=1)
+			assert ("card created, bottom assigned:", card.bottom=1)
+			assert ("card created, element assigned:", card.element='a')
+			assert ("card created, cardName assigned:", card.cardName.is_equal("b")=TRUE)
 
 		end
 

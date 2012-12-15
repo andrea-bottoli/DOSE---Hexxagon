@@ -34,4 +34,16 @@ feature {G3_CONTROLLER}
 		end
 
 
+feature{G3_CONTROLLER}
+
+	set_controller (controller_ : G3_CONTROLLER)
+		do
+			controller := controller_
+		end
+
+
+feature{NONE} -- internal feature
+
+	controller : G3_CONTROLLER
+
 end

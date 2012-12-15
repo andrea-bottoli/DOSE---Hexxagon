@@ -8,9 +8,14 @@ class
 	G4_CHARACTERS_WILLY_THE_KID
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Willy the Kid")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Willy the Kid")
   		Character_Life = 4

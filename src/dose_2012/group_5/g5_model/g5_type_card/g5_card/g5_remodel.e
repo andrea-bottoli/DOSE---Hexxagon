@@ -25,12 +25,13 @@ feature {ANY} -- Intialization
 	require
 		receiver /= void
 	do
-
+		receiver_cards := receiver
 	end
 feature -- Behavior
 	execute()
 		-- This redefines the feature class execute () to add the behavior itself of it.
     do
+    	receiver_cards.action_remodel()
     end
 invariant
 	receiver_cards /= void

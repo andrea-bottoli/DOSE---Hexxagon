@@ -37,7 +37,7 @@ feature{NONE} -- Creation
 
 		ensure
 
-			card_set: card/=void and then card=new_card
+			card_set: card/=void and then card.bottom = new_card.bottom and then card.top = new_card.top and then card.left = new_card.left and then card.right = new_card.right and then card.cardname = new_card.cardname and then card.element = new_card.element
 			card_not_changed: new_card=old new_card
 			position_set: position/=void and then position.x=new_position.x and then position.y=new_position.y
 			new_position_not_changed: new_position=old new_position and then new_position.x=old new_position.x and then new_position.y=old new_position.y

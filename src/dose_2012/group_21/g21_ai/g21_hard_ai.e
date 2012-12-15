@@ -25,14 +25,14 @@ feature{NONE} -- Attributes
 
 	frozen rule_flip_value: INTEGER = 8
 	frozen human_flip_value: INTEGER = 14
-	rules: G21_RULES
+	rules: G21_RULESCONTAINER
 	use_fake_board: BOOLEAN
 	fake: G21_FAKE_BOARD
-	ai_rules: G21_RULES
+	ai_rules: G21_RULESCONTAINER
 
 feature{NONE} -- Creation
 
-	make (game_board: ARRAY2[G21_CELL]; ai_cards: ARRAYED_LIST[G21_CARD]; game_rules: G21_RULES) -- It creates the object G21_HARD_AI by receiving a link to: the game board, the AI cards and the game rules
+	make (game_board: ARRAY2[G21_CELL]; ai_cards: ARRAYED_LIST[G21_CARD]; game_rules: G21_RULESCONTAINER) -- It creates the object G21_HARD_AI by receiving a link to: the game board, the AI cards and the game rules
 
 		require
 
@@ -47,12 +47,29 @@ feature{NONE} -- Creation
 			rules:=game_rules
 			create_possible_moves
 
-			if rules.getisopen=TRUE and then (rules.plus.getison or else rules.same.getison or else rules.samewall.getison) then
+			if rules.openrule.getison and then (rules.plusRule.getison or else rules.sameRule.getison or else rules.samewallRule.getison) then
 
 				use_fake_board:=TRUE
 				fake.make(game_board)
-				-- we create an object ai_rules by copying the values in rules or game_rules, but we have to pass the fake.fake_board
+				create ai_rules.make
 
+				if game_rules.plusrule.getison then
+
+					ai_rules.activeplus (fake.fake_board)
+
+				end
+
+				if game_rules.samerule.getison then
+
+					ai_rules.activesame (fake.fake_board)
+
+				end
+
+				if game_rules.plusrule.getison then
+
+					ai_rules.activesamewall (fake.fake_board)
+
+				end
 
 			else
 
@@ -77,7 +94,7 @@ feature{NONE} -- Creation
 
 feature{G21_BOARD, TEST_G21_HARD_AI_MAKE_A_MOVE} -- Interface Procedure	
 
-	make_a_move (card_position: G21_POINT; player_card: G21_CARD): G21_MOVE -- It redefines G21_AI feature. It makes an hard difficult level move by using several features of G21_NOT_EASY_AI
+	make_a_move (card_position: G21_POINT): G21_MOVE -- It redefines G21_AI feature. It makes an hard difficult level move by using several features of G21_NOT_EASY_AI
 
 		--require
 
@@ -87,7 +104,7 @@ feature{G21_BOARD, TEST_G21_HARD_AI_MAKE_A_MOVE} -- Interface Procedure
 
 		do
 
-			if card_position/=void and then player_card/= void then
+			if card_position/=void then
 
 				remove_position_and_update(card_position, TRUE)
 
@@ -124,8 +141,7 @@ feature{NONE} -- Procedure
 			actual_move.set_value(0)
 			card_to_use:=actual_move.card.twin
 
-			if (rules.plus.getison and then rules.plus.ismakechange) or else (rules.same.getison and then rules.same.ismakechange) or else (rules.samewall.getison and then rules.samewall.ismakechange) then  --here we will have to modify the calls of ismakechange since the egyptian team
-																																																				--should add parameters such as card and position
+			if (rules.plusRule.getison and then rules.plusRule.ismakechange(actual_move.position.x, actual_move.position.y, card_to_use)) or else (rules.sameRule.getison and then rules.sameRule.ismakechange(actual_move.position.x, actual_move.position.y, card_to_use)) or else (rules.samewallRule.getison and then rules.samewallRule.ismakechange(actual_move.position.x, actual_move.position.y, card_to_use)) then
 
 				actual_move.set_value (actual_move.value+rule_flip_value)
 
@@ -137,15 +153,21 @@ feature{NONE} -- Procedure
 
 			end
 
-			if rules.getiselemental then
+			if rules.elementalRule.getison then
 
 				if board.item (actual_move.position.x, actual_move.position.y).element = actual_move.card.element then
 
-					--we have to add a +1 to each value, or use a method implemented by the egyptian (if they will implement it)
+					card_to_use.settop (card_to_use.top+1)
+					card_to_use.setbottom (card_to_use.bottom+1)
+					card_to_use.setleft (card_to_use.left+1)
+					card_to_use.setright (card_to_use.right+1)
 
 				else
 
-					--we have to add a -1 to each value, or use a method implemented by the egyptian (if they will implement it)
+					card_to_use.settop (card_to_use.top-1)
+					card_to_use.setbottom (card_to_use.bottom-1)
+					card_to_use.setleft (card_to_use.left-1)
+					card_to_use.setright (card_to_use.right-1)
 
 				end
 
@@ -209,24 +231,23 @@ feature{NONE} -- Procedure
 
 					if positions[i].x>=1 and then positions[i].x<=3 and then positions[i].y>=1 and then positions[i].y<=3 and then fake.fake_board.item(positions[i].x, positions[i].y).isoccupied=FALSE  then
 
-						if ai_rules.plus.getison and then ai_rules.plus.ismakechange then
+						if ai_rules.plusRule.getison and then ai_rules.plusRule.ismakechange(positions[i].x, positions[i].y, human_cards.item) then
 
 							result:=TRUE
 
 						end
 
-						if ai_rules.same.getison and then ai_rules.same.ismakechange then
+						if ai_rules.sameRule.getison and then ai_rules.sameRule.ismakechange(positions[i].x, positions[i].y, human_cards.item) then
 
 							result:=TRUE
 
 						end
 
-						if ai_rules.plus.getison and then ai_rules.samewall.ismakechange then
+						if ai_rules.samewallRule.getison and then ai_rules.samewallRule.ismakechange(positions[i].x, positions[i].y, human_cards.item) then
 
 							result:=TRUE
 
 						end
-						--here we will have to modify the calls of ismakechange since the egyptian team should add parameters such as card and position
 
 					end
 

@@ -39,9 +39,13 @@ feature --Access
 			game_is_started: logic.game_is_started
 		deferred
 		end
-	get_score(a_player:INTEGER):INTEGER
+	get_score(a_turn:INTEGER):INTEGER
 		require
 			is_game_over: is_game_over
+			valid_turn: a_turn>0 or a_turn <=get_num_players
+		deferred
+		end
+	get_num_players:INTEGER
 		deferred
 		end
 end

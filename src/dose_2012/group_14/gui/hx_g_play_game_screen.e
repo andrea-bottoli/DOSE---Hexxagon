@@ -86,7 +86,7 @@ feature --Init
 		go_back_button.set_pixmap(internal_pixmap)
 
 		set_minimum_width (600)
-		set_minimum_height (580)
+		set_minimum_height (600)
 		set_title ("Choose How To Play The New Game")
 
 		-- Connect events.

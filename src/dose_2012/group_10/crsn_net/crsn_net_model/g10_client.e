@@ -16,7 +16,7 @@ inherit
 create
 	connect
 
-feature
+feature{NONE}
 	client_soc : NETWORK_STREAM_SOCKET
 feature
 
@@ -26,13 +26,7 @@ feature
 					client_soc.connect
 		end
 
-	process (soc: NETWORK_STREAM_SOCKET)
-		do
-			soc.independent_store ("This is a test from client")
-			if attached {STRING} soc.retrieved as l_msg then
-				io.putstring (l_msg + "%N")
-			end
-		end
+
 
 feature --accessors
 	get_socket : NETWORK_STREAM_SOCKET
@@ -40,7 +34,7 @@ feature --accessors
 		Result := client_soc
 	end
 
-	close_socket
+	close_client_socket
 		do
 			client_soc.cleanup
 			rescue

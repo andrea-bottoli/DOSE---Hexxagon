@@ -167,7 +167,7 @@ feature -- Operations
 
 	set_position (a_position: INTEGER)
 		require
-			valid_position: a_position > 0 and a_position < 7
+			valid_position: a_position >= 0 and a_position <= 39
 		do
 			position := a_position
 		ensure

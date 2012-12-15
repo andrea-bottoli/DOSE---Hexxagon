@@ -45,16 +45,76 @@ feature{ANY} --intialize
 			game_con.set_background_pixmap (internal_pixmap)
 			put (main_cont)
 			main_cont.extend_with_position_and_size (game_con, 0, 0, 1000, 600)
-			game_con.extend_with_position_and_size (play_button,80,360,150,90)
-			game_con.extend_with_position_and_size (exit_button,700,360,150,90)
-
+			game_con.extend_with_position_and_size (play_button,80,360,100,97)
+			game_con.extend_with_position_and_size (exit_button,700,360,100,97)
+			show_window_menu
 		end
 
 		show_window
 		do
 			main_window.show
 		end
+		show_window_menu
+		local
+			menu_bara: EV_MENU_BAR
+				--menu bar
+			menu_game: EV_MENU
+				--menu item game
+			menu_Help: EV_MENU
+				--menu item help
+			menu_item_Leave: EV_MENU_ITEM
+				--menu item leave
+			menu_item_new_game: EV_MENU_ITEM
+				--menu item new game
+		do
+			create menu_bara.default_create
+			create menu_game.make_with_text ("Game")
+
+			create menu_help.make_with_text ("Help")
+			create menu_item_leave.make_with_text ("Leave")
+			menu_item_leave.select_actions.extend (agent menu_actions("Leave"))
+			create menu_item_new_game.make_with_text ("New Game")
+			menu_item_new_game.select_actions.extend (agent menu_actions("New Game"))
+			menu_help.select_actions.extend (agent menu_actions("Help"))
+			menu_game.extend(menu_item_new_game)
+			menu_game.extend (menu_item_leave)
+			menu_bara.extend (menu_game)
+			menu_bara.extend (menu_help)
+
+			set_menu_bar (menu_bara)
+
+		end
 feature {NONE} -- Implementation
+
+	menu_actions(text:STRING)
+	local
+		help:EV_DIALOG
+		new_game : G3_START_GAME
+		pix:EV_PIXMAP
+	do
+		if text.is_equal ("Leave") then
+			request_close_window
+		elseif text.is_equal ("New Game") then
+			create new_game
+			new_game.initialize_start_game (main_cont)
+		else
+			create help.make_with_title ("Help")
+			help.set_size (340, 230)
+			create pix.default_create
+			pix.set_with_named_file ("dose_2012/images/group_03/help.png")
+			help.disable_user_resize
+			help.pointer_button_press_actions.extend(agent exit_help(help,?,?,?,?,?,?,?,?))
+			help.set_background_pixmap (pix)
+			help.show
+
+		end
+
+	end
+
+	exit_help(window_help:EV_DIALOG a_a,a_b,a_c:INTEGER_32 b_a,b_b,b_c:REAL_64 c_a,c_b:INTEGER_32)
+	do
+		window_help.destroy
+	end
 
 	create_interface_objects
 			-- Create objects

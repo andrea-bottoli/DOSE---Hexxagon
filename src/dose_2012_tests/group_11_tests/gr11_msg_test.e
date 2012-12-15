@@ -22,9 +22,9 @@ feature -- Test routines
 			testing:  "user/GR11"
 
 		local
-			--l_msg : GR11_MSG_TO_LOGIC --is an example, it could be msg_to_net
+			l_msg : GR11_MSG_TO_LOGIC --is an example, it could be msg_to_net
 			--l_xml_file:STRING   a xml file passed to the costructor of the msg
 		do
-			--create l_msg --(l_xml_file)
+			--create l_msg.make (create {GR11_MSG}.make("<fire />")) --(l_xml_file)
 		end
 end

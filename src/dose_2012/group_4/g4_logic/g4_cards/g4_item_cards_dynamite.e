@@ -12,19 +12,20 @@ class
 create
 	make
 
+feature
+	circle_count : INTEGER
 
 feature --Constructor
  	make
  	do
+ 		set_Name("Dynamite")
+ 		circle_count := 0
  	ensure
   		Name.is_equal("Dynamite")
-  		(CardNum = 2)
-  		CardSymbol.is_equal ("Hearts")
-
- 	end
+	end
 
 feature
-	action(a_Player_array : ARRAY[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
 	local
 		card : G4_CARDS
 	do
@@ -33,7 +34,11 @@ feature
 		if(((card.get_number >= 2)and(card.get_number < 9)) and (card.get_symbol = "Spades")) then
 			a_Player_array[a_player_id].get_item_board.discard_life (3)
 			a_Player_array[a_player_id].get_item_board.discard_item (current)
+		--else if (circle_count < a_Player_array.c) then
+
+		--end
 			a_Player_array[a_player_id + 1].get_item_board.add_item (current)
+			circle_count := circle_count + 1
 			--a_Player_array[a_player_id].discard (card) --discard into discard pile?
 		end
 	end

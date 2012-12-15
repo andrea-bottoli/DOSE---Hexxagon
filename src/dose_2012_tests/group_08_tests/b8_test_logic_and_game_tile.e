@@ -45,9 +45,9 @@ feature -- Test routines
 			new_game.set_player_id(0)
 		 	new_game.set_game_mode ({B8_MODE}.four_player)
 			new_game.start_game
-			if(new_game.make_a_move (0, 0,0, new_game.get_players[1].get_tiles[1]))then
+			if(new_game.make_a_move (0, 0,0, new_game.get_players[1].get_tile ({B8_GAME_TILE}.binomino)))then
 				assert("Player still has the placed tile",new_game.get_players[1].get_tiles.count=20)
-				new_game.confirm_last_move ()
+				assert("The move is not confirmed",new_game.confirm_last_move ().is_equal ("0 0 0 0 0 1"))
 				assert ("Placing the second tile on the board is not valid",new_game.make_a_move(1,0,19,new_game.get_players[2].get_tiles[1]))
 			else
 				assert ("Tile1 was not added", false)
@@ -140,6 +140,31 @@ feature -- Test routines
 			assert("The coordinates 5 are different on place",tile.get_monomini[5].get_x=15 and tile.get_monomini[5].get_y=6)
 		end
 
+	test_set_rotatione
+	note
+			testing:	"covers/{B8_GAME_TILE}.set_rotation"
+			testing:	"covers/{B8_GAME_TILE}.get_rotation"
+			testing:	"user/B8"
+		local
+			tile: B8_GAME_TILE
+		do
+			create tile.make (2, {B8_GAME_TILE}.pentamino1)
+			tile.rotate (1,1)
+			tile.rotate (1,1)
+			assert("bad rotation returned",tile.get_rotation=2)
+			tile.reset_position(1)
+			tile.rotate (-1,1)
+			tile.rotate (-1,1)
+			assert("bad rotation returned",tile.get_rotation=-2)
+			tile.reset_position(1)
+			tile.set_rotation(3)
+			assert("bad rotation returned",tile.get_rotation=3)
+			tile.reset_position(1)
+			tile.set_rotation(-3)
+			assert("bad rotation returned",tile.get_rotation=-3)
+			
+		end
+
 	test_reset_position
 		note
 			testing:	"covers/{B8_GAME_TILE}.reset_position"
@@ -222,11 +247,37 @@ feature -- Test routines
 				assert("Player still has the placed tile",new_game.get_players[1].get_tiles.count=20)
 				assert ("The undo does not work",new_game.get_players[1].get_last_placed/=Void)
 				new_game.undo_last_move
+				assert ("The move is confirmed", new_game.confirm_last_move=Void)
 				assert ("The undo does not work",new_game.get_players[1].get_last_placed=Void)
 				assert("Player has not the undo tile",new_game.get_players[1].get_tiles.count=21)
 			else
 				assert ("Tile1 was not added", false)
 			end
+
+		end
+
+	test_set_rotation
+		note
+			testing:	"covers/{B8_GAME_TILE}.set_rotation"
+			testing:	"covers/{B8_GAME_TILE}.get_rotation"
+			testing:	"user/B8"
+		local
+			tile: B8_GAME_TILE
+		do
+			create tile.make (2, {B8_GAME_TILE}.pentamino1)
+			tile.rotate (1,1)
+			tile.rotate (1,1)
+			assert("bad rotation returned",tile.get_rotation=2)
+			tile.reset_position(1)
+			tile.rotate (-1,1)
+			tile.rotate (-1,1)
+			assert("bad rotation returned",tile.get_rotation=-2)
+			tile.reset_position(1)
+			tile.set_rotation(3)
+			assert("bad rotation returned",tile.get_rotation=3)
+			tile.reset_position(1)
+			tile.set_rotation(-3)
+			assert("bad rotation returned",tile.get_rotation=-3)
 
 		end
 

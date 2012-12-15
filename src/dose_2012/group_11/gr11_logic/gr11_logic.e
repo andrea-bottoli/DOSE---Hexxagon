@@ -48,7 +48,7 @@ feature --operation
 
 	end
 
-	add_player(user_id: GR11_MSG_TO_LOGIC)
+	add_player(user_id: GR11_MSG)
 		--if it is possible, it adds a new player to the game
 		--user_id:identifier of the new player
 

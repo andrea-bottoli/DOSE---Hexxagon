@@ -1,0 +1,2 @@
+IPCONFIG>log.txt
+EXIT

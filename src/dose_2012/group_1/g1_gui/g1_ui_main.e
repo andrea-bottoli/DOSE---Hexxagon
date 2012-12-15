@@ -123,13 +123,15 @@ feature {NONE} -- Initialization
 				monopoly_bk_area.extend_with_position_and_size (label_new_match, 380, 290, 60, 30)
 
 				create txt_new_match
-				monopoly_bk_area.extend_with_position_and_size (txt_new_match, 380, 330, 200, 30)
+				monopoly_bk_area.extend_with_position_and_size (txt_new_match, 450, 290, 200, 30)
 
-				create btn_new_match.make_with_text ("New Match")
-				btn_new_match.select_actions.extend (agent start_new_game)
-				monopoly_bk_area.extend_with_position_and_size (btn_new_match, 590, 330, 80, 30)
+				create btn_new_match.make_with_text ("Create Server")
+				btn_new_match.select_actions.extend (agent create_new_game)
+				monopoly_bk_area.extend_with_position_and_size (btn_new_match, 420, 330, 90, 30)
 
-
+				create btn_new_match.make_with_text ("Join New Game")
+				btn_new_match.select_actions.extend (agent enter_new_game)
+				monopoly_bk_area.extend_with_position_and_size (btn_new_match, 520, 330, 90, 30)
 
 				--- CREDITS ---
 
@@ -192,12 +194,13 @@ feature {NONE} -- Implementation
 				error_dialog("Error... Please insert a name!")
 			else
 				controller.connect_to_server(txt_ip.text,txt_port.text.to_integer)
-				controller.start_gameboard(main_ui)
-				destroy
+				enter_new_game
 			end
 		end
 
-	start_new_game
+	create_new_game
+		local
+			text: STRING
 		do
 			if txt_new_match.text.count <=1 then
 				error_dialog("Error... This match name cannot be used!")
@@ -206,11 +209,28 @@ feature {NONE} -- Implementation
 					error_dialog("Error... Please insert a name!")
 				else
 					controller.set_match_name (txt_new_match.text)
-					controller.start_gameboard(main_ui)
 					controller.start_server
-					--controller.connect_to_server ("127.0.0.1", 9190)
-					destroy
+
+					create text.make_from_string ("Server Started: ")
+					text.append_string (controller.get_match_name)
+					text.append_string ("%NServer Information: ")
+					text.append_string (controller.get_local_ip)
+					text.append_string (":")
+					text.append_integer (controller.get_port)
+					error_dialog(text)
+
+					controller.connect_to_server ("127.0.0.1", controller.get_port)
 				end
+			end
+		end
+
+	enter_new_game
+		do
+			if not controller.is_server_started  then
+				error_dialog("Error... Please start first the server!")
+			else
+				controller.start_gameboard(main_ui)
+				destroy
 			end
 		end
 

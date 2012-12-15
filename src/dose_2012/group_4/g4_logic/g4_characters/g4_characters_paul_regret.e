@@ -9,9 +9,14 @@ class
 	inherit G4_CHARACTERS
 	redefine action end
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Paul Regret")
+ 		set_character_life(3)
  	ensure
   		Character_Name.is_equal("Paul Regret")
   		Character_Life = 3

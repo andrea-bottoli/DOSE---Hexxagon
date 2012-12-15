@@ -33,6 +33,7 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 			my_name:= my_name_in_the_match
 			main_ui:= a_main_ui
 			lock_state:= "LOCK"
+			gui:= gui_manager
 			create players_name_list.make_from_array (players_name)
 
 
@@ -55,7 +56,7 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 			create main_container
 			create players.make (0)
 			create zoom_box.make
-			create board.make
+			create board.make(current)
 			create my_hand.make
 
 			-- a temporary list used to initilize player
@@ -151,20 +152,25 @@ feature {NONE} -- Initialization container and internal object
 		-- the action of click on a card
 		local
 			error_dialog: EV_INFORMATION_DIALOG
-			test_string: STRING
 		do
 			if (a_card_id.at (1) = 'K') then
 				if (lock_state.is_equal ("UNLOCK")) then
 
 					last_played_card:= a_card_id
+
+					current.lock_update
 					my_hand.remove_card_from_hand (a_card_id)
+					current.unlock_update
+
+					gui.clicked_card_notification (a_card_id)
 
 					-- ** NOTA ** call the play card on the net, PARTE SOTTO TOGLIERE!
-					test_string:= "clicked card: "
-					test_string.append (a_card_id)
-					create error_dialog.make_with_text (test_string)
-					error_dialog.set_title ("CLICK!!!!")
-					error_dialog.show_modal_to_window (current)
+--					test_string:= "clicked card: "
+--					test_string.append (a_card_id)
+--					create error_dialog.make_with_text (test_string)
+--					error_dialog.set_title ("CLICK!!!!")
+--					error_dialog.show_modal_to_window (current)
+
 
 				else
 					create error_dialog.make_with_text ("You can't play cards in this moment")
@@ -220,12 +226,14 @@ feature {NONE} -- Initialization container and internal object
 
 			if question_dialog.selected_button.is_equal ((create {EV_DIALOG_CONSTANTS}).ev_ok) then
 				-- Restore the main UI which is currently minimized
+
 				if attached main_ui then
 					main_ui.restore
 					main_ui.remove_reference_to_game (Current)
 				end
 				-- ** NOTA **  chiama il metodo che dice che il giocatore si è disconnesso sulla net
 				-- Destroy the window
+
 				destroy
 			end
 		end
@@ -251,8 +259,28 @@ feature {NONE} -- Initialization container and internal object
 			end
 		end
 
+feature {G5_CURRENT_PLAYER_AND_BOARD} -- feature called by board
 
-feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui interface	** NOTA ** rimuovere launcher
+	show_pop_up_supply(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+		-- open the pop-up that display the supply cards
+		local
+			pop_up_supply: G5_POP_UP_SUPPLY_STATE
+		do
+			create pop_up_supply.make(supply_state)
+			pop_up_supply.show_modal_to_window (current)
+		end
+
+	show_pop_up_trash(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+		-- open the pop-up that display the trash cards
+		local
+			pop_up_trash: G5_POP_UP_TRASH
+		do
+			create pop_up_trash.make(trash_state)
+			pop_up_trash.show_modal_to_window (current)
+		end
+
+
+feature {G5_IGUI_TO_NET, EQA_TEST_SET} -- feature called by the gui interface
 
 	create_and_assign_card(a_place: STRING; cards: ARRAY[STRING])
 		require
@@ -278,7 +306,9 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 						a_card.pointer_button_release_actions.extend (agent clicked_card(a_card.card_id, ?, ?, ?, ?, ?, ?, ?, ?))
 
 						-- add the card to the hand
+						current.lock_update
 						my_hand.set_cards_in_the_hand (a_card)
+						current.unlock_update
 					else
 						create a_card.make_mini (cards[i],"hand")
 
@@ -288,7 +318,9 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 						a_card.pointer_button_release_actions.extend (agent clicked_card(a_card.card_id, ?, ?, ?, ?, ?, ?, ?, ?))
 
 						-- add the card to the hand
+						current.lock_update
 						my_hand.set_cards_in_the_hand (a_card)
+						current.unlock_update
 					end
 				else
 					-- this lock cards and buttons
@@ -304,12 +336,12 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 					a_card.pointer_leave_actions.extend (agent pointer_leave_card)
 
 					-- add the card to the board
+					current.lock_update
 					board.put_card_in_play(a_card)
+					current.lock_update
 				end
 				i:=i+1
 			end
-			--main_container.prune (my_hand)
-			--main_container.extend_with_position_and_size (my_hand, 244, 552, 776, 138)
 		end
 
 	update_state_of_the_game(target_player: STRING; update_info: HASH_TABLE [INTEGER, STRING])
@@ -327,23 +359,15 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 
 				-- update number of cards in the deck
 				an_integer_value:= update_info.at ("DECK")
+				current.lock_update
 				me.set_number_of_cards_deck (an_integer_value)
+				current.unlock_update
 
 				-- update number of cards in the hand
 				an_integer_value:= update_info.at ("HAND")
+				current.lock_update
 				me.set_number_of_cards_hand (an_integer_value)
-
-				-- update coins value
-				an_integer_value:= update_info.at ("COIN")
-				board.set_coins (an_integer_value)
-
-				-- update action points value
-				an_integer_value:= update_info.at ("ACTION")
-				board.set_action_points (an_integer_value)
-
-				-- update buy points value
-				an_integer_value:= update_info.at ("BUY")
-				board.set_buy_points (an_integer_value)
+				current.unlock_update
 
 			else
 				from
@@ -362,39 +386,73 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 
 						-- update number of cards in the deck
 						an_integer_value:= update_info.at ("DECK")
+						current.lock_update
 						players[i].set_number_of_cards_deck (an_integer_value)
+						current.unlock_update
 
 						-- update number of cards in the hand
 						an_integer_value:= update_info.at ("HAND")
+						current.lock_update
 						players[i].set_number_of_cards_hand (an_integer_value)
+						current.unlock_update
 					end
 					i:=i+1
 				end
+			end
+
+			if (board.current_player_name.is_equal (target_player)) then
+				-- update coins value
+				an_integer_value:= update_info.at ("COIN")
+				current.lock_update
+				board.set_coins (an_integer_value)
+				current.unlock_update
+
+				-- update action points value
+				an_integer_value:= update_info.at ("ACTION")
+				current.lock_update
+				board.set_action_points (an_integer_value)
+				current.unlock_update
+
+				-- update buy points value
+				an_integer_value:= update_info.at ("BUY")
+				current.lock_update
+				board.set_buy_points (an_integer_value)
+				current.unlock_update
 			end
 		end
 
 	update_phase (new_phase_name: STRING)
 		do
 			-- set the new phase name
+			current.lock_update
 			board.set_current_phase(new_phase_name)
+			current.unlock_update
 
 			-- lock buttons to evoid problem
-			if (board.current_player_name.is_equal (me.player_name)) then
-				if (new_phase_name.is_equal ("Action")) then
-					lock("UNLOCK")
-					quit_button.enable_sensitive
-					phase_turn_button.enable_sensitive
-					board.set_default
-				elseif (new_phase_name.is_equal ("Buy")) then
-					lock("LOCK")
-				elseif (new_phase_name.is_equal ("Clean-up")) then
-					--quit_button.disable_sensitive
-					phase_turn_button.disable_sensitive
+			if (new_phase_name.is_equal ("Action")) then
 
-					--cleans hand and board
-					board.clean_board
-					my_hand.discard_all_cards
-				end
+				lock("UNLOCK")
+				current.lock_update
+				quit_button.enable_sensitive
+				phase_turn_button.enable_sensitive
+				board.set_default
+				current.unlock_update
+
+			elseif (new_phase_name.is_equal ("Buy")) then
+
+				lock("LOCK")
+
+			elseif (new_phase_name.is_equal ("Clean-up")) then
+
+				current.lock_update
+				--quit_button.disable_sensitive
+				phase_turn_button.disable_sensitive
+
+				--cleans hand and board
+				board.clean_board
+				my_hand.discard_all_cards
+				current.unlock_update
+
 			end
 		end
 
@@ -406,7 +464,9 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 			i: INTEGER
 		do
 			if(me.player_name.is_equal (player_name)) then
+				current.lock_update
 				me.set_top_card_discard_pile (a_card)
+				current.unlock_update
 			else
 				from
 					i:=1
@@ -414,7 +474,9 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 					i > players.count
 				loop
 					if(players[i].player_name.is_equal (player_name)) then
+						current.lock_update
 						players[i].set_top_card_discard_pile (a_card)
+						current.unlock_update
 					end
 					i:=i+1
 				end
@@ -425,19 +487,18 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 		require
 			valid_name: check_players_name (new_current_player)
 		do
+			current.lock_update
 			board.set_current_player_name (new_current_player)
-			--if (new_current_player.is_equal (me.player_name)) then
-				-- enable buttons
-				--quit_button.enable_capture
-			--	phase_turn_button.enable_sensitive
-			--end
+			current.unlock_update
 		end
 
 	update_text_box (text: STRING)
 		require
 			valid_text: text/= void
 		do
+			current.lock_update
 			board.update_text_box (text)
+			current.unlock_update
 		end
 
 	update_state_of_supply (new_supply_state: HASH_TABLE[INTEGER, STRING])
@@ -453,8 +514,10 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 		do
 			-- if i'm the current player all cards and button will be enable
 			if(me.player_name.is_equal (board.current_player_name)) then
+				current.lock_update
 				quit_button.enable_sensitive
 				phase_turn_button.enable_sensitive
+				current.lock_update
 				last_played_card:= "NONE"
 				if(board.action_points>0) then
 					lock("UNLOCK")
@@ -476,15 +539,12 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 				i > (amount_of_players-1)
 			loop
 				if (a_player_name.is_equal (players[i].player_name)) then
-					--main_container.prune (players[i])
+					current.lock_update
 					players[i].player_disconnected
-				--else
-				--	new_players.force (players[i])
+					current.lock_update
 				end
 				i:=i+1
 			end
-			--players:= new_players
-			--amount_of_players:= amount_of_players-1
 		end
 
 	check_players_name(a_name: STRING): BOOLEAN
@@ -508,6 +568,7 @@ feature {G5_IGUI_TO_NET, G5_LAUNCHER, EQA_TEST_SET} -- feature called by the gui
 			end
 		end
 
+
 feature {G5_MAIN_VIEW} -- lock, unlock
 
 	lock (type: STRING)
@@ -516,6 +577,7 @@ feature {G5_MAIN_VIEW} -- lock, unlock
 		do
 			lock_state:= type
 		end
+
 
 feature {NONE} -- Attributes
 
@@ -558,6 +620,7 @@ feature {NONE} -- Attributes
 	trash_button_pixmap: EV_PIXMAP
 -- ### buttons END
 
+
 feature -- Players info variable
 
 	supply_state: HASH_TABLE[INTEGER, STRING]
@@ -598,5 +661,8 @@ feature -- Players info variable
 
 	zoom_box: G5_ZOOMED_CARD_BOX
 		-- the box that contains the zoomed card
+
+	gui: G5_GUI
+		-- the reference to the gui interface used to send interaction of the user
 
 end

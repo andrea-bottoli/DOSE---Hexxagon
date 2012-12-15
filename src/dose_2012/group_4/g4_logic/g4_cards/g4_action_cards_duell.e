@@ -16,16 +16,12 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Duell")
  	ensure
   		Name.is_equal("Duell")
-  		(CardNum = 8) and (CardNum =11) or (CardNum = 12)
-  		CardSymbol.is_equal ("Spades")
-  		CardSymbol.is_equal ("Clubs")
-  		CardSymbol.is_equal ("Diamnonds")
-
  	end
 
- 	action(a_Player_array : ARRAY[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
+ 	action(a_Player_array : ARRAYED_LIST[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
  	local
  		flag_1 : BOOLEAN
  		flag_2 : BOOLEAN

@@ -104,6 +104,23 @@ feature {NONE} -- Sets images
 			set_background_pixmap (card_image)
 		end
 
+feature {G5_POP_UP_WITH_SELECTION, G5_POP_UP_THIEF} -- feature used to display a label in pop-up
+
+	selection_label: EV_LABEL
+		-- the label that indicates if a cards is selected (in a pop-up)
+
+	select_unselect_request
+		-- set the label to select or none
+		do
+			if (selection_label= void) then
+				create selection_label.make_with_text ("SELECTED")
+				extend_with_position_and_size (selection_label, 0, 0, 60, 13)
+			elseif (selection_label.text.is_equal ("SELECTED")) then
+				prune (selection_label)
+				selection_label:= void
+			end
+		end
+
 feature -- ATTRIBUTES
 
 	card_image: EV_PIXMAP

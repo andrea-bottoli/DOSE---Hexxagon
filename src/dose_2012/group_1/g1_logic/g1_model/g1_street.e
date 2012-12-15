@@ -94,6 +94,12 @@ feature --Basic operations
 			valid_sale: (old l_number_of_hotels = 1 implies (l_number_of_hotels = 0 and l_number_of_houses = 4)) and (old l_number_of_hotels = 0 implies l_number_of_houses = old l_number_of_houses - 1)
 		end
 
+	get_rent: INTEGER
+			-- Returns the cost of the rent in the current street
+		do
+			Result := l_rent_values [l_number_of_houses + l_number_of_hotels]
+		end
+
 invariant
 	valid_number_of_hotels: l_number_of_hotels <= 1 and l_number_of_hotels >= 0
 	valid_number_of_houses: l_number_of_houses <= 4 and l_number_of_houses >= 0

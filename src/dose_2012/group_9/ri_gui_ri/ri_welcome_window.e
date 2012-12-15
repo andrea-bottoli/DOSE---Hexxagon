@@ -12,7 +12,7 @@ class
 
 
 		redefine
-			initialize,is_in_default_state
+			initialize--,is_in_default_state
 		end
 
 		RI_GUI_CONSTANTS
@@ -31,11 +31,12 @@ class
 		make(a_main_ui_window: MAIN_WINDOW)
 			-- Creation procedure
 		do
+
 				-- Store the main_ui object. We want to restore it later on (it's currently minimized).
 			main_ui := a_main_ui_window
 				-- Create the Risk window.
 			make_with_title ("Risk 2 - by Group 9")
-			disable_user_resize
+		--	disable_user_resize
 		end
 
 
@@ -44,95 +45,123 @@ class
 		initialize						--Handles the instantiation of the RI_WELCOME_WINDOW Class
 		do
 			Precursor {EV_TITLED_WINDOW}
+
+			set_size(1000, 600)
+			set_pixmaps
 			build_primitives
 			close_request_actions.extend (agent request_close_window)
-			disable_user_resize
+		--	disable_user_resize
 
 		end
 
 
 	feature {NONE} 	--Atributtes
 
+		serv_log :				RI_SERVER_LOG
+		game_lobby :			RI_GAME_LOBBY
 		font_const :			EV_FONT_CONSTANTS
-
 		main_ui: 				MAIN_WINDOW
-
-		btn_Start_Dedicated : 	EV_BUTTON
-
-		btn_Connect_Dedicated : EV_BUTTON
-
+		btn_Quit :				RI_BUTTON
+		btn_Start_Dedicated : 	RI_BUTTON
+		btn_Connect_Dedicated : RI_BUTTON
 		lbl_Binding :			EV_LABEL
-
 		lbl_ServerIP :			EV_LABEL
-
 		txt_BindingPort :		EV_TEXT_FIELD
-
 		txt_ServerIP :			EV_TEXT_FIELD
-
 		txt_ServerPort : 		EV_TEXT_FIELD
-
 		con_main :				EV_FIXED 	--Main Container for Image and widget container
-
 		con_game :				EV_FIXED 	--Container for buttons, labels, text fields
 
 
 		pix_bg_welcome: EV_PIXMAP
-				-- returns the background for the active game
-			once
-				create Result
-				Result.set_with_named_file (file_system.pathname_to_string (img_bg_welcome))
-			end
+		pix_start_d_serv_btn: EV_PIXMAP
+		pix_conn_to_serv_btn: EV_PIXMAP
+		pix_start_d_servp_btn: EV_PIXMAP
+		pix_conn_to_servp_btn: EV_PIXMAP
+		pix_quit_btn		: EV_PIXMAP
+		pix_quitp_btn		: EV_PIXMAP
+
+		set_pixmaps -- create pixmaps
+		do
+			create pix_bg_welcome
+			pix_bg_welcome.set_with_named_file (file_system.pathname_to_string (img_bg_welcome))
+
+			create pix_start_d_serv_btn
+			pix_start_d_serv_btn.set_with_named_file (file_system.pathname_to_string (img_start_d_serv_btn))
+
+			create pix_conn_to_serv_btn
+			pix_conn_to_serv_btn.set_with_named_file (file_system.pathname_to_string (img_conn_to_serv_btn))
+
+			create pix_start_d_servp_btn
+			pix_start_d_servp_btn.set_with_named_file (file_system.pathname_to_string (img_start_d_servp_btn))
+
+			create pix_conn_to_servp_btn
+			pix_conn_to_servp_btn.set_with_named_file (file_system.pathname_to_string (img_conn_to_servp_btn))
+
+			create pix_quit_btn
+			pix_quit_btn.set_with_named_file (file_system.pathname_to_string (img_quit_btn))
+
+			create pix_quitp_btn
+			pix_quitp_btn.set_with_named_file (file_system.pathname_to_string (img_quitp_btn))
+
+
+		end
 
 		build_primitives
 		require
-
-
-
 		do
 
 			create con_main
 			put (con_main)
 
-				-- create the main container for the game itself
-				-- put it on the right side of con_main
-			create con_game
-			con_game.set_background_pixmap (pix_bg_welcome)
-			con_main.extend_with_position_and_size (con_game, 0, 0, 1000, 600)
 
-			create btn_Start_Dedicated.make_with_text ("Start Dedicated Server")
-			btn_Start_Dedicated.align_text_center
-			con_main.extend_with_position_and_size (btn_Start_Dedicated, 780, 10, 150, 50)
+		--	create con_game
 
-			create btn_Connect_Dedicated.make_with_text ("Connect to Server")
-			btn_Connect_Dedicated.align_text_center
-			con_main.extend_with_position_and_size (btn_Connect_Dedicated, 80, 10, 150, 50)
+			con_main.set_background_pixmap (pix_bg_welcome)
+		--	con_main.extend_with_position_and_size (con_game, 0, 0, 1000, 600)
 
-		--	create lbl_Binding.make_with_text ("Binding Port")
-		--	lbl_Binding.align_text_center
-		--	lbl_Binding.set_font (my_font)
-		--	lbl_Binding.set_background_color ((create{EV_STOCK_COLORS}).blue)
---con_main.extend_with_position_and_size (lbl_Binding, 795, 80, 120, 20)
+			create btn_Start_Dedicated.default_create
+			btn_Start_Dedicated.set_pix (pix_start_d_serv_btn,pix_start_d_servp_btn)
+			btn_Start_Dedicated.set_data (true)
+			btn_Start_Dedicated.set_pixmap (pix_start_d_serv_btn)
+			btn_Start_Dedicated.pointer_button_press_actions.extend (agent change_button_view(btn_Start_Dedicated,?,?,?,?,?,?,?,?))
+			btn_Start_Dedicated.pointer_button_release_actions.extend (agent change_button_view(btn_Start_Dedicated,?,?,?,?,?,?,?,?))
+			btn_Start_Dedicated.select_actions.extend (agent create_dServer_Window)
+			con_main.extend_with_position_and_size (btn_Start_Dedicated, 740, 450, 244, 74)
 
-	--		create lbl_ServerIP.make_with_text ("Server Address (IP:PORT)")
-	--		lbl_ServerIP.align_text_center
-		--	lbl_ServerIP.set_font (my_font)
-		--	lbl_ServerIP.set_background_color ((create{EV_STOCK_COLORS}).red)
-		--	con_main.extend_with_position_and_size (lbl_ServerIP, 35, 80, 240, 20)
+			create btn_Connect_Dedicated.default_create
+			btn_Connect_Dedicated.set_pixmap (pix_conn_to_serv_btn)
+			btn_Connect_Dedicated.set_pix (pix_conn_to_serv_btn,pix_conn_to_servp_btn)
+			btn_Start_Dedicated.set_data (true)
+			btn_Connect_Dedicated.pointer_button_press_actions.extend (agent change_button_view(btn_Connect_Dedicated,?,?,?,?,?,?,?,?))
+			btn_Connect_Dedicated.pointer_button_release_actions.extend (agent change_button_view(btn_Connect_Dedicated,?,?,?,?,?,?,?,?))
+			con_main.extend_with_position_and_size (btn_Connect_Dedicated, 25, 450, 244, 74)
+
+			create btn_Quit.default_create
+			btn_Quit.set_pixmap (pix_quit_btn)
+			btn_Quit.set_pix (pix_quit_btn,pix_quitp_btn)
+			btn_Quit.pointer_button_press_actions.extend (agent change_button_view(btn_Quit,?,?,?,?,?,?,?,?))
+			btn_Quit.pointer_button_release_actions.extend (agent change_button_view(btn_Quit,?,?,?,?,?,?,?,?))
+			btn_Quit.select_actions.extend (agent request_close_window)
+			con_main.extend_with_position_and_size (btn_Quit, 390, 450, 244, 74)
 
 			create txt_BindingPort.make_with_text ("> Port")
 			txt_BindingPort.align_text_center
 			txt_BindingPort.set_font (my_font)
-			con_main.extend_with_position_and_size (txt_BindingPort, 800, 190, 120, 30)
+			txt_BindingPort.pointer_button_press_actions.extend (agent rmv_txt(txt_BindingPort,?,?,?,?,?,?,?,?))
+			con_main.extend_with_position_and_size (txt_BindingPort, 800, 555, 120, 30)
 
 			create txt_ServerIP.make_with_text ("> IP Address")
 			txt_ServerIP.align_text_center
 			txt_ServerIP.set_font (my_font)
-			con_main.extend_with_position_and_size (txt_ServerIP, 5, 190, 165, 30)
+			txt_ServerIP.pointer_button_press_actions.extend (agent rmv_txt(txt_ServerIP,?,?,?,?,?,?,?,?))
+			con_main.extend_with_position_and_size (txt_ServerIP, 5, 555, 165, 30)
 
 			create txt_ServerPort.make_with_text ("> Port")
 			txt_ServerPort.align_text_center
 			txt_ServerPort.set_font (my_font)
-			con_main.extend_with_position_and_size (txt_ServerPort, 190, 190, 80, 30)
+			txt_ServerPort.pointer_button_press_actions.extend (agent rmv_txt(txt_ServerPort,?,?,?,?,?,?,?,?))
+			con_main.extend_with_position_and_size (txt_ServerPort, 190, 555, 80, 30)
 
 		ensure
 
@@ -140,8 +169,28 @@ class
 
 	feature {NONE}
 
-		create_dServer_Window (b_port : INTEGER)	--Creates an instance of the Dedicated server window
+		return_to_main_window
 		do
+			build_primitives
+		end
+
+		create_dServer_Window --Creates an instance of the Dedicated server window
+		local
+			b_port: INTEGER_32
+			info_dialog: EV_INFORMATION_DIALOG
+		do
+			b_port := 0
+			if (txt_BindingPort.text_length>0) and ((txt_BindingPort.text).is_integer) then
+				b_port := (txt_BindingPort.text).to_integer_32
+			end
+
+			if b_port>=2 and b_port<=65534 then
+				create serv_log
+				serv_log.show
+			else
+				create info_dialog.make_with_text ("Please enter a valid port!%N(from 2 to 65534)")
+				info_dialog.show_modal_to_window (Current)
+			end
 
 		end
 
@@ -152,14 +201,14 @@ class
 
 
 
-	feature {NONE} -- close window agent
+	feature {NONE} -- close window agent and misc
 
 		request_close_window
 			-- The user wants to close the window
 		local
 			question_dialog: EV_CONFIRMATION_DIALOG
 		do
-			create question_dialog.make_with_text ("Are you sure you want to quit?")
+			create question_dialog.make_with_text ("Are you sure you want to quit RISK?")
 			question_dialog.show_modal_to_window (Current)
 
 			if question_dialog.selected_button.is_equal ((create {EV_DIALOG_CONSTANTS}).ev_ok) then
@@ -174,11 +223,11 @@ class
 		end
 
 
-		is_in_default_state: BOOLEAN
+--		is_in_default_state: BOOLEAN
 			-- Is `Current' in its default state?
-		do
-			Result := True
-		end
+--		do
+--			Result := True
+--		end
 
 
 		my_font: EV_FONT
@@ -193,4 +242,20 @@ class
             Result.preferred_families.extend ("Times New Roman")
         end
 
+        rmv_txt(a_txt: EV_TEXT_FIELD; a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+        do
+			a_txt.remove_text
+        end
+
+		change_button_view(a_btn: RI_BUTTON; a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+		do
+			if a_btn.get_flag then
+				a_btn.set_flag(false)
+				a_btn.set_pixmap (a_btn.get_pressed)
+			else
+				a_btn.set_flag(true)
+				a_btn.set_pixmap (a_btn.get_unpressed)
+
+			end
+		end
 end

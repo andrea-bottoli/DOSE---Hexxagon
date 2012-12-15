@@ -30,7 +30,8 @@ feature {ANY} -- Initializaton
 				an_action.is_equal ("connect_result") xor
 				an_action.is_equal ("accepted_client") xor
 				an_action.is_equal ("start") xor
-				an_action.is_equal ("start_logic")
+				an_action.is_equal ("start_logic") xor
+				an_action.is_equal ("response")
 
 			connect_action_setting:
 				an_action.is_equal ("connect") implies a_textual_message = void
@@ -41,6 +42,9 @@ feature {ANY} -- Initializaton
 
 			accepted_client_action_setting:
 				an_action.is_equal ("accepted_client") implies a_textual_message = void
+
+			response_action_setting:
+				an_action.is_equal ("response") implies a_textual_message = void
 
 		do
 

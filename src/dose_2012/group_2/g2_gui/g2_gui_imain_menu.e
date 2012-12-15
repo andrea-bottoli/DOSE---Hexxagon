@@ -1,8 +1,8 @@
 note
 	description: "Summary description for {G2_GUI_IMAIN_MENU}."
 	author: "Grupo 2 , Rio Cuarto 8"
-	date: "Date 13/11/2012"
-	revision: "Revision  0.1"
+	date: " 2012/12/12  "
+	revision: "1.0.1"
 
 deferred class
 	G2_GUI_IMAIN_MENU

@@ -123,6 +123,7 @@ feature{NONE} -- Actions
 						port := port_field.text.to_integer_32
 						if(port>0 and port<=65535)then
 						 	window.start_client (ip_address_field.text, port)
+						 	window.set_view_to_game
 						else
 							show_error("Wrong port number.","Wrong port number. Please make sure the port number is valid.")
 						end

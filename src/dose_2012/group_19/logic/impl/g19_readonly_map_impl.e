@@ -7,24 +7,74 @@ inherit
 create
     make
 
-feature{NONE}
+feature{G19_READONLY_MAP_IMPL}
 
-	map : ARRAY[TUPLE[type: CHARACTER; owner: G19_PLAYER_INFO]]
-	tc_manager: G19_TERRAIN_CARD_MANAGER
+	current_map : ARRAY[TUPLE[type: INTEGER; owner: G19_PLAYER_INFO]]
+	current_terrain_card_manager: G19_TERRAIN_CARD_MANAGER
 
 feature
 
-	make(name1, name2, name3, name4 : STRING; tc_m: G19_TERRAIN_CARD_MANAGER)
+	make(name1, name2, name3, name4: STRING; terrain_card_manager: G19_TERRAIN_CARD_MANAGER)
 		local
-			i:INTEGER
+			i: INTEGER
 		do
-			create map.make_filled (void, 0, 400)
+			current_terrain_card_manager := terrain_card_manager
 
-			load(00, 00, "normal")
-			load(00, 10, "normal")
-			load(10, 00, "normal")
-			load(10, 10, "normal")
+			create current_map.make_filled([-1, void], 0, 400 - 1)
+
+			load(00, 00, name1)
+			load(10, 00, name2)
+			load(00, 10, name3)
+			load(10, 10, name4)
 		end
+
+
+    get_cell_at(x, y: INTEGER): TUPLE[type: INTEGER; owner: G19_PLAYER_INFO]
+    	local
+    		shift_x, shift_y: INTEGER
+		do
+			shift_x := x - 1
+			shift_y := y - 1
+
+			result := [current_map.at(shift_y * 20 + shift_x).type, current_map.at(shift_y * 20 + shift_x).owner]
+		end
+
+
+	get_avaible_cells(player: G19_PLAYER_INFO; action_type: STRING): SET[TUPLE[x, y: INTEGER]]
+		local
+			terrain_card: INTEGER
+			cells_counter: INTEGER
+			x, y: INTEGER
+			avaible_cells: LINKED_SET[TUPLE[x, y: INTEGER]]
+		do
+			create avaible_cells.make()
+
+			terrain_card := current_terrain_card_manager.get_card(player)
+
+			from
+				cells_counter := 0
+			until
+				cells_counter > 400 - 1
+			loop
+				if current_map.at(cells_counter).type - 96 = terrain_card and current_map.at(cells_counter).owner = void then
+					y := (cells_counter / 20).floor
+					x := cells_counter \\ 20
+
+					avaible_cells.extend([x, y])
+				end
+
+				cells_counter := cells_counter + 1
+			end
+
+			result := avaible_cells
+		end
+
+	get_size(): TUPLE[width, height: INTEGER]
+		do
+			result := [20, 20]
+		end
+
+feature {NONE}
 
 	load(shift_x, shift_y: INTEGER; name: STRING)
 		local
@@ -33,7 +83,7 @@ feature
 			line: STRING
 			file: PLAIN_TEXT_FILE
 		do
-			create file.make_open_read ("Maps\" + name + ".kgm")
+			create file.make_open_read("dose_2012\group_19\resourses\maps\" + name + ".kgm")
 
 			from
 				i := 0
@@ -48,10 +98,10 @@ feature
 				until
 					j = 10
 				loop
-					x := shift_x + i
-					y := shift_y + j
+					x := shift_x + j
+					y := shift_y + i
 
-					map.put([line.at(j + 1), void],  y * 10 + x)
+					current_map.put([line.at(j + 1).code, void],  y * 20 + x)
 
 					j := j + 1
 				end
@@ -60,49 +110,4 @@ feature
 			end
 		end
 
-
-    get_cell_at(x, y: INTEGER): TUPLE[type: CHARACTER; owner: G19_PLAYER_INFO]
-    	local
-    		shift_x, shift_y: INTEGER
-		do
-			shift_x := x - 1
-			shift_y := y - 1
-
-			result := [map.at (shift_y * 10 + shift_x).type, map.at (shift_y * 10 + shift_x).owner]
-		end
-
-
-	get_avaible_cells(player: G19_PLAYER_INFO; action_type: STRING): TABLE[SET[TUPLE[x: INTEGER; y: INTEGER]], STRING]
-		-- i'm not sure about return format, so we should discuss this
-		local
-			i, j, x, y: INTEGER
-			st: LINKED_SET[TUPLE[x: INTEGER; y: INTEGER]]
-			table: HASH_TABLE[SET[TUPLE[x: INTEGER; y: INTEGER]], STRING]
-		do
-			i := tc_manager.get_card(player)
-			create st.make()
-
-			from
-				j := 1
-			until
-				j > 400
-			loop
-				if map.at (j).type = i and map.at (j).owner = void then
-					x ?= j / 20
-					y := j \\ 20
-
-					st.extend ([x, y])
-				end
-			end
-
-			create table.make(10)
-			table.put(st, "NORMAL")
-
-			result := table
-		end
-
-	get_size(): TUPLE[width, height: INTEGER]
-		do
-			result := [20, 20]
-		end
 end

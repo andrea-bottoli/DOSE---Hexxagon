@@ -11,65 +11,63 @@ create
 	dflt_make, make
 
 feature {NONE}--attributes
-	host_player : G10_NET_PLAYER_INFO
-	list_of_joined_players : ARRAYED_LIST[G10_NET_PLAYER_INFO]
-
+	host_player 			: G10_NET_INFO
+	list_of_joined_players	: ARRAYED_LIST[G10_NET_INFO]
+	game_id					: INTEGER
+	game_title				: STRING
 
 feature
 
 	dflt_make
 	do
-
+		host_player := void
+		list_of_joined_players := void
+		game_id	:= -1
+		game_title := void
 	end
 
-	make (player_info : G10_NET_PLAYER_INFO)
+	make (player_info : G10_NET_INFO title : STRING player_num, next_game_id : INTEGER)
 	require
 		player_is : player_info /= void
+		title_is  : title.is_empty = false
 	do
+		create list_of_joined_players.make (player_num)
 		host_player := player_info
-	end
+		game_id := next_game_id
+		game_title := title
 
-feature{ANY}
-
-	get_host_player : G10_NET_PLAYER_INFO
-	do
-		Result := host_player
 	ensure
-		result_is : Result /= void
+		number_of_players : list_of_joined_players.capacity = player_num
+		g_title 		  : game_title = title
+		host_player_is 	  : host_player = player_info
 	end
 
-	get_joined_player(player_id : STRING) : G10_NET_PLAYER_INFO
+feature -- mutators
+	add_a_joined_player (a_player : G10_NET_INFO)
 	require
-		player_id_not_null: player_id /= void
-		player_id_not_empty: not player_id.is_empty
-	local
-		i : INTEGER
+		a_player_not_null: a_player /= void
 	do
-		from
-			i := 1
-		until
-			i > list_of_joined_players.count
-		loop
-			if list_of_joined_players.at (i).get_id.is_equal (player_id) = True
-			then
-				Result := list_of_joined_players.at (i)
-			end
-		 	i := i + 1
+		if player_exists(a_player.get_id) = false
+		then
+			list_of_joined_players.put_front (a_player)
 		end
-	end
-
-	get_all_joined_players : ARRAYED_LIST[G10_NET_PLAYER_INFO]
-	local
-		new_players_list : ARRAYED_LIST[G10_NET_PLAYER_INFO]
-	do
-		new_players_list.copy (list_of_joined_players)
 	ensure
-		result_is : Result /= void  AND Result.is_equal (list_of_joined_players) = True
+		--player_count_raised: list_of_joined_players.count = old list_of_joined_players.count + 1
 	end
 
-feature -- not all classes access
 
-	set_a_host ( a_host : G10_NET_PLAYER_INFO)
+	delete_a_joined_player ( a_player : G10_NET_INFO)
+	require
+		a_player_not_null: a_player /= void
+	do
+		if player_exists(a_player.get_id) = true then
+			list_of_joined_players.prune_all (a_player)
+		end
+	ensure
+		--player_count_decreased: list_of_joined_players.count = old list_of_joined_players.count - 1
+	end
+
+	set_a_host ( a_host : G10_NET_INFO)
 	require
 		a_host_not_null: a_host /= void
 	do
@@ -78,43 +76,73 @@ feature -- not all classes access
 		host_really_changed: host_player /= old host_player
 	end
 
-
-	add_a_joined_player (a_player : G10_NET_PLAYER_INFO)
-	require
-		a_player_not_null: a_player /= void
-	do
-		list_of_joined_players.put (a_player)
-	ensure
-		player_count_raised: list_of_joined_players.count = old list_of_joined_players.count + 1
-	end
-
-
-	delete_a_joined_player ( a_player : G10_NET_PLAYER_INFO)
-	require
-		a_player_not_null: a_player /= void
-	do
-		list_of_joined_players.prune_all (a_player)
-	ensure
-		player_count_decreased: list_of_joined_players.count = old list_of_joined_players.count - 1
-	end
-
+feature --other
 	player_exists (p_id : STRING) : BOOLEAN
 	require
 		pID_is : p_id.is_empty = false
 	local
 		i : INTEGER
-	do
-		from
-			i := 0
-		until
-			i > list_of_joined_players.count AND Result = true
-		loop
-			if list_of_joined_players.at (i).get_id.is_equal (p_id) then
-				Result := true
+		do
+			from  i := 0; Result := false
+			until i > list_of_joined_players.count AND Result = true
+			loop
+				if list_of_joined_players.at (i).get_id.is_equal (p_id) = true
+				then
+					Result := true
+				end
+				i := i + 1
 			end
-			i := i + 1
 		end
 
-		Result := false
+feature -- accessors
+	get_game_title : STRING
+	do
+		Result := game_title
+
+	ensure
+		title : Result = game_title
+	end
+
+	get_max_player_num : INTEGER
+	do
+		Result := list_of_joined_players.capacity
+	ensure
+		max : Result = list_of_joined_players.capacity
+	end
+
+	get_game_id: INTEGER
+	do
+		Result := game_id
+	ensure
+		id: Result = game_id
+	end
+
+	get_host_player : G10_NET_INFO
+	do
+		Result := host_player
+	ensure
+		result_is : Result /= void
+	end
+
+	get_joined_player(player_id : STRING) : G10_NET_INFO
+	require
+		player_id_not_null: player_id /= void
+		player_id_not_empty: not player_id.is_empty
+	local
+		i : INTEGER
+	do
+		from  i := 1
+		until list_of_joined_players.at (i).get_id.is_equal (player_id) = True
+		loop
+			Result := list_of_joined_players.at (i)
+		 	i := i + 1
+		end
+	end
+
+	get_all_joined_players : ARRAYED_LIST[G10_NET_INFO]
+	do
+		Result :=  list_of_joined_players
+	ensure
+		result_is : Result /= void  AND Result = list_of_joined_players
 	end
 end

@@ -13,10 +13,9 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Volcanic")
  	ensure
   		Name.is_equal("Volcanic")
-  		(CardNum >= 11) and (CardNum<=12)
-  		CardSymbol.is_equal ("Clubs")
  	end
 end
 

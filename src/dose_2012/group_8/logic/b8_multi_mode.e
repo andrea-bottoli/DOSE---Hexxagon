@@ -87,6 +87,10 @@ feature {NONE} --Attributes
 
 
 feature --Access
+	get_num_players:INTEGER
+	do
+		Result:=num_players
+	end
 
 	the_player_has_this_color(id,color:INTEGER):BOOLEAN
 			-- says if the player has the color
@@ -116,16 +120,13 @@ feature --Access
 			end
 		end
 
-		get_score(a_player:INTEGER):INTEGER
-			-- todo : incoherent terminology
-		local
-			i:INTEGER
+	get_score(a_turn:INTEGER):INTEGER
 		do
-			Result:=0
-			from i:=1
-			until i>=4
-			loop
-				Result:= Result
+			if (num_players=4) then
+				Result:= logic.get_players[a_turn].get_score
+			elseif (num_players=2) then
+				Result:= logic.get_players[a_turn].get_score
+				Result:=Result+ logic.get_players[a_turn+2].get_score
 			end
 
 		end

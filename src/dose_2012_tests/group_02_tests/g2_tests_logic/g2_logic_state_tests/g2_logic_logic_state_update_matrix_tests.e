@@ -4,7 +4,7 @@ note
 	]"
 	author: "RioCuarto8"
 	date: "21/11/2012"
-	revision: "1.0"
+	revision: "1.1"
 	testing: "type/manual"
 
 class
@@ -25,7 +25,7 @@ feature -- Test routines
 			rescued: BOOLEAN
 		do
 			if not rescued then
-				--create logic_state.make()
+				create logic_state.make()
 				logic_state.update_matrix(e_matrix)
 			end
 			assert ("e_matrix is void", rescued)

@@ -1,8 +1,7 @@
 note
 
-	description:
-		"Class with code for a server"
-
+	description:"Class with code for a server"
+	author: "John Voyatzis"
 	status: "Modifying";
 	date: "11/11/2012 3:08am";
 	revision: "Revision 1.0"
@@ -19,81 +18,29 @@ create
 
 	make
 feature {NONE}
-	list_of_players	:  ARRAYED_LIST[G10_NET_PLAYER_INFO]
+	list_of_players	:  ARRAYED_LIST[G10_NET_INFO]
+	socket_list    :  ARRAYED_LIST[NETWORK_STREAM_SOCKET]
 	server_soc		:  NETWORK_STREAM_SOCKET
 	server_online 	:  BOOLEAN
 	server_port		:  INTEGER
 
 feature {NONE}
 
-
 	make(port : STRING)
 			-- Accept communication with client and exchange messages
 		do
 
 				create list_of_players.make (6)
+				create socket_list.make(6)
 				server_port := port.to_integer
 				create server_soc.make_server_by_port (server_port)
 				server_soc.listen (5)
-				print ("%NG10_server_class! IP : " + server_soc.address.host_address.host_name + "%N%N")
 				server_online := false
 
 		end
 
 
 feature -- accessors
-
-			--get all players that are connected to host
-	get_connected_players	: LINKED_LIST[G10_NET_PLAYER_INFO]
-	local
-		i : INTEGER
-		list_of_connected_players : LINKED_LIST[G10_NET_PLAYER_INFO]
-	do
-			from
-				i := 1
-			until
-				i = list_of_players.count
-			loop
-				list_of_connected_players.put (list_of_players.array_at (i))
-				i := i + 1
-			end
-
-			Result := list_of_connected_players
-	ensure
-		list_not_empty:	list_of_players.is_empty
-	end
-
-
-		-- returns the array's list element of a specific player
-	get_specific_player(player_ip : STRING)	:INTEGER
-	require
-		not_empty : player_ip.is_empty
-	local
-		index : INTEGER
-	do
-			from
-			    index := 1
-			until
-				index > list_of_players.count
-			loop
-
-				if list_of_players.array_at (index).get_ip = player_ip
-				then
-				 	Result := index
-				end
-				index := index + 1
-			end
-	ensure
-		player_return_is : Result > 0 AND Result < list_of_players.count
-
-	end
-
-	get_list_of_players : ARRAYED_LIST[G10_NET_PLAYER_INFO]
-	do
-		Result := list_of_players
-	ensure
-		res_ok : Result /= void
-	end
 
 	get_socket : NETWORK_STREAM_SOCKET
 	do
@@ -107,29 +54,16 @@ feature -- accessors
 
 feature -- mutators
 
-	add_new_player( a_player : G10_NET_PLAYER_INFO)
-	require
-		player_not_null : a_player /= void
-		list_not_full :  list_of_players.full = false
-	do
-		list_of_players.put_front (a_player)
-
-	ensure
-		player_added : list_of_players.has (a_player)
-		count_is_ : list_of_players.count = old list_of_players.count + 1
-	end
-
-
 	kick_player(player_ip : STRING)
 	require
 		 ip_is_empty  : player_ip.is_empty
 	local
 		player_index : INTEGER
-		tmp_player  : G10_NET_PLAYER_INFO
+		tmp_player  : G10_NET_INFO
 	do
-			player_index := get_specific_player(player_ip)
-			tmp_player := list_of_players.array_at (player_index)
-			list_of_players.prune (tmp_player)
+			--player_index := get_specific_player(player_ip)
+		--	tmp_player := list_of_players.array_at (player_index)
+	--		list_of_players.prune (tmp_player)
 
 	ensure
 		item_removed : list_of_players.count = old list_of_players.count - 1
@@ -145,7 +79,7 @@ feature -- mutators
 		new_port_update : server_port = new_port
 	end
 
-	broadcast_msg_to_all (message : G10_CRSN_MESSAGE sock : NETWORK_STREAM_SOCKET)
+	broadcast_msg_to_all (message : ANY)
 			-- notifies all the players about changes
 	require
 	--	msg : message.
@@ -155,11 +89,20 @@ feature -- mutators
 		from
 			i := 1
 		until
-			i > list_of_players.count
+			i > socket_list.count
 		loop
-			-- needed code here
+			print("Broadcast loop %N")
+			if socket_list.at (i) /= void then
+				print ("Not void %N")
+			if  socket_list.at (i).is_closed = false
+				then
+					print ("not closed %N")
+					socket_list.at (i).independent_store (message)
+				end
+			end
 			i := i + 1
 		end
+		print ("Successful end %N")
 	end
 
 	disconnect_all_players
@@ -189,6 +132,25 @@ feature -- mutators
 					server_soc.cleanup
 				end
 		end
+feature --sockets
 
+	get_socket_list  :  ARRAYED_LIST[NETWORK_STREAM_SOCKET]
+	do
+		Result := socket_list
+	end
+	get_socket_list_at (i : INTEGER) : NETWORK_STREAM_SOCKET
+	do
+		Result := socket_list.at (i)
+	end
+
+	add_to_socket_list (sock : NETWORK_STREAM_SOCKET)
+	do
+		socket_list.put_front (sock)
+	end
+
+	remove_from_socket_array (sock : NETWORK_STREAM_SOCKET)
+	do
+		socket_list.prune_all (sock)
+	end
 end
 

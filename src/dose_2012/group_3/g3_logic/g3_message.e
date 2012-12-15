@@ -93,18 +93,18 @@ feature{G3_CONTROLLER,EQA_TEST_SET}
 			is_update_msg
 		end
 
-	set_as_invoque_msg
+	set_as_invoke_msg
 		do
 			type := 2
 		ensure
-			is_invoque_msg
+			is_invoke_msg
 		end
 
-	set_as_notufy_msg
+	set_as_notify_msg
 		do
 			type := 3
 		ensure
-			is_invoque_msg
+			is_invoke_msg
 		end
 
 	is_connection_msg : BOOLEAN
@@ -117,7 +117,7 @@ feature{G3_CONTROLLER,EQA_TEST_SET}
 			Result := (type = 1)
 		end
 
-	is_invoque_msg : BOOLEAN
+	is_invoke_msg : BOOLEAN
 		do
 			Result := (type = 2)
 		end

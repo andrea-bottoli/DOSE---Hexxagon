@@ -16,14 +16,13 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name ("Scope")
  	ensure
   		Name.is_equal("Scope")
-  		(CardNum = 1)
-  		CardSymbol.is_equal ("Spades")
  	end
 
 feature
-	action(a_Player_array : ARRAY[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
 	do
 		a_Player_array[a_player_id].get_item_board.set_player_max_distance (a_Player_array[a_player_id].get_item_board.get_player_life + 1)
 		--stays forever?

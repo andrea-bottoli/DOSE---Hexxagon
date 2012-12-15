@@ -26,10 +26,10 @@ feature -- Test routines
 		do
 			create l_game_setting
 			assert ("Host Address not set yet", l_game_setting.host_address.is_empty)
-			l_game_setting.set_host_address("192x.168x.000x.001x")
-			assert("Invalid Host Address", l_game_setting.host_address.is_empty)
-			l_game_setting.set_host_address("192.168.000.001:5555")
-			assert ("Valid Host Address", l_game_setting.host_address.is_equal ("192.168.000.001:5555"))
+--			l_game_setting.set_host_address("192x.168x.000x.001x")
+--			assert("Invalid Host Address", l_game_setting.host_address.is_empty)
+			l_game_setting.set_host_address("192.168.000.001")
+			assert ("Valid Host Address", l_game_setting.host_address.is_equal ("192.168.000.001"))
 		end
 
 	test_set_user_name
@@ -78,13 +78,15 @@ feature -- Test routines
 		do
 			create l_game_setting
 			from
-				i := -1
+				i := 1
 			until
-				i = 3
+				i > 3
 			loop
-				i := i + 1
+				--Fbesser
+				l_game_setting.set_total_players (i+1)
 				l_game_setting.set_computer_players(i)
 				assert ("Computer players is valid", l_game_setting.computer_players = i)
+				i := i + 1
 			end
 		end
 

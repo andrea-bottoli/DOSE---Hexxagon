@@ -22,25 +22,21 @@ feature -- Elements needed to the test
 	net_server: G5_NET_SERVER
 		-- Auxiliary to instantiate of G5_INET_TO_LOGIC
 
-	gui_to_net: G5_IGUI_TO_NET
-		-- Auxiliary to instantiate of G5_NET_CLIENT
-
-	gui: G5_GUI
-		-- Auxiliary to instantiate of G5_IGUI_TO_NET
-
 	players: ARRAY [STRING]
 		-- Parameter of the command to test
+
+	table: G5_TABLE
+		-- Server Logic for the test class
 
 feature -- Preparation of Test
 
 	on_prepare
 		-- Initializes the necessary elements
 		do
-			create gui.make_test
-			gui_to_net := gui
 			create net_server.make (1025, 2)
 			class_test := net_server
-			players.make_empty
+			create table.make_game_default (3, class_test)
+			create players.make_empty
 		end
 
 feature -- Test positive

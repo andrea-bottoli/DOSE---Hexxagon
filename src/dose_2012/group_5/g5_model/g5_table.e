@@ -31,8 +31,9 @@ feature {G5_PLAYER, G5_RECEIVER_COMMAND_CARD} -- comunication net
 	add_output_message (m: G5_MESSAGE)
 			--add a message in list output_message
 		do
-			output_messages.go_i_th (output_messages.count)
-			output_messages.put (m)
+			--output_messages.go_i_th (output_messages.count)
+			output_messages.extend (m)
+			--output_messages.put (m)
 		end
 
 	emptied_input_messages ()
@@ -131,15 +132,16 @@ feature {ANY} -- Initialization for interface G5_ITABLE
 			village: G5_VILLAGE
 			woodcutter: G5_WOODCUTTER
 			workshop: G5_WORKSHOP
+			player : G5_PLAYER
 		do
 			create macro
 			inet := associated_inet_server
 			amount_player := quantity_player
-			create players.make_empty
 			create array_kingdom.make_empty
+			array_kingdom.grow (10)
 			create receiver.make (Current)
 			create card.make ({G5_MACRO_CARDS}.cellar, {G5_MACRO_CARDS}.cellar_cost, {G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action)
-			create cellar.make(receiver)
+			create cellar.make (receiver)
 			card.set_command1 (cellar)
 			array_kingdom.put (card, 1)
 			create card.make ({G5_MACRO_CARDS}.market, {G5_MACRO_CARDS}.market_cost, {G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action)
@@ -147,12 +149,12 @@ feature {ANY} -- Initialization for interface G5_ITABLE
 			card.set_command1 (market)
 			array_kingdom.put (card, 2)
 			create card.make ({G5_MACRO_CARDS}.militia, {G5_MACRO_CARDS}.militia_cost, {G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action + " " + {G5_MACRO_CARDS}.attack)
-			create militia.make(receiver)
+			create militia.make (receiver)
 			create militia_attack.make (receiver)
 			card.set_command1 (militia)
 			card.set_command2 (militia_attack)
 			array_kingdom.put (card, 3)
-			create card.make ({G5_MACRO_CARDS}.mine,{G5_MACRO_CARDS}.mine_cost, {G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action)
+			create card.make ({G5_MACRO_CARDS}.mine, {G5_MACRO_CARDS}.mine_cost, {G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action)
 			create mine.make (receiver)
 			card.set_command1 (mine)
 			array_kingdom.put (card, 4)
@@ -162,7 +164,7 @@ feature {ANY} -- Initialization for interface G5_ITABLE
 			card.set_command1 (moat)
 			card.set_command2 (moat_reaction)
 			array_kingdom.put (card, 5)
-			create card.make ({G5_MACRO_CARDS}.remodel,{G5_MACRO_CARDS}.remodel_cost,{G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action)
+			create card.make ({G5_MACRO_CARDS}.remodel, {G5_MACRO_CARDS}.remodel_cost, {G5_MACRO_CARDS}.kingdom + " " + {G5_MACRO_CARDS}.action)
 			create remodel.make (receiver)
 			card.set_command1 (remodel)
 			array_kingdom.put (card, 6)
@@ -182,15 +184,17 @@ feature {ANY} -- Initialization for interface G5_ITABLE
 			create workshop.make (receiver)
 			card.set_command1 (workshop)
 			array_kingdom.put (card, 10)
-			if quantity_player.is_equal (2) then
-				create supply.init_supply (array_kingdom, 8, 8, 8, 10)
+			if amount_player.is_equal (2) then
+				create supply.init_supply (Current, array_kingdom, 8, 8, 8, 20)
 			end
-			if quantity_player.is_equal (3) then
-				create supply.init_supply (array_kingdom, 12, 12, 12, 20)
+			if amount_player.is_equal (3) then
+				create supply.init_supply (Current, array_kingdom, 12, 12, 12, 20)
 			end
-			if quantity_player.is_equal (4) then
-				create supply.init_supply (array_kingdom, 12, 12, 12, 30)
+			if amount_player.is_equal (4) then
+				create supply.init_supply (Current, array_kingdom, 12, 12, 12, 30)
 			end
+			create player.make (" ", current)
+			create players.make_filled (player, 1, quantity_player)
 			create pile_trash.make
 			index_current := 1
 			phase_current := {G5_MACRO_CARDS}.phase_action
@@ -211,6 +215,7 @@ feature {ANY} -- Initialization for interface G5_ITABLE
 			create macro
 			amount_player := quantity_player
 			create players.make_empty
+			players.grow (amount_player)
 				--create supply.init_supply_randomize (cards_kingdom: ARRAY [G5_CARD])
 			create pile_trash.make
 			index_current := 1
@@ -233,6 +238,7 @@ feature {ANY} -- Initialization for interface G5_ITABLE
 			amount_player := quantity_player
 			create macro
 			create players.make_empty
+			players.grow (amount_player)
 				--create supply.init_supply_personalized (cards_kingdom: ARRAY [G5_CARD])
 			create pile_trash.make
 			index_current := 1
@@ -248,7 +254,7 @@ feature {G5_ITABLE} -- getting
 	get_player_names: ARRAY [STRING]
 			-- Gets the names of all players in a arra
 		do
-			result := players_as_string ()
+			result := players_as_string
 		end
 
 feature {G5_ITABLE} -- Entries for Net
@@ -256,6 +262,8 @@ feature {G5_ITABLE} -- Entries for Net
 	set_respose (new_resposes: LINKED_LIST [G5_MESSAGE])
 			-- Sets the response when there a new
 		do
+			create output_messages.make
+			create input_messages.make
 			input_messages := new_resposes
 			message_g5 := input_messages.first ()
 			if (not active_game) and (message_g5.action.is_equal ("start_logic")) then
@@ -266,12 +274,12 @@ feature {G5_ITABLE} -- Entries for Net
 				send_new_phase ()
 				inet.update (output_messages)
 			else
-			if (active_game) and (message_g5.action.is_equal ("play")) then
+				if (active_game) and (message_g5.action.is_equal ("play")) then
 				end
 			end
 		end
 
-feature {G5_ITABLE} -- Connection-Disconnection for interface G5_ITABLE
+feature {G5_ITABLE, EQA_TEST_SET} -- Connection-Disconnection for interface G5_ITABLE
 
 	connection (name_player: STRING): BOOLEAN
 			-- this feature is used to inform the LOGIC that a player wants to join
@@ -281,26 +289,25 @@ feature {G5_ITABLE} -- Connection-Disconnection for interface G5_ITABLE
 		local
 			player_new: G5_PLAYER
 		do
-			-- It wasn't possible to connect because the name of the player was not valid
-			if ((exist_player (name_player))) then
+				-- It wasn't possible to connect because the name of the player was not valid
+			if (exist_player (name_player)) then
 				inet.is_valid_name_player (name_player, False)
 				Result := True
-			-- It wasn't possible to connect because the game has enough players
-			elseif (players.count > amount_player) then
-				inet.is_valid_name_player (name_player, True)
-				Result := False
-			-- The player was able to connect
+					-- It wasn't possible to connect because the game has enough players
 			else
-				create player_new.make (name_player,Current)
-				players [index_current] := player_new
-				index_current := index_current + 1
-				if (players.count = amount_player) then
-					index_current := 1
+				if (players.count > amount_player) then
+					inet.is_valid_name_player (name_player, True)
+					Result := False
+						-- The player was able to connect
+				else
+					create player_new.make (name_player, Current)
+					players.put (player_new, index_current)
+					--players [index_current] := player_new
+					index_current := index_current + 1
+					inet.is_valid_name_player (name_player, True)
+					Result := True
 				end
-				inet.is_valid_name_player (name_player, True)
-				Result := True
 			end
-				--ensure
 		end
 
 	disconnect (name_player: STRING)
@@ -357,6 +364,7 @@ feature {G5_RECEIVER_COMMAND_CARD, EQA_TEST_SET} -- Game Management Status
 			index_player_valid: (index_player > 0) and (index_player <= amount_player)
 		do
 			player_current := players.item (index_current)
+			Result := player_current
 		ensure
 		end
 
@@ -396,15 +404,26 @@ feature {G5_RECEIVER_COMMAND_CARD, EQA_TEST_SET} -- Game Management Status
 			ret: ARRAY [STRING]
 			i: INTEGER
 		do
+			create ret.make_filled ("", 1, amount_player)
 			from
 				i := 1
 			until
-				i > players.count()
+				i > players.count ()
 			loop
-				ret.enter (players [i].name, i)
+				if
+					players.item (i)/=Void
+				then
+					ret.put (players.item (i).name, i)
+				end
 				i := i + 1
 			end
+			--print(ret.count)
 			Result := ret
+		ensure
+			valid_name_ret: Result.for_all (agent  (name: STRING): BOOLEAN
+				do
+					Result := (name /= "")
+				end)
 		end
 
 	decode (card_ID: STRING): G5_CARD
@@ -412,6 +431,76 @@ feature {G5_RECEIVER_COMMAND_CARD, EQA_TEST_SET} -- Game Management Status
 		require
 			card_ID_invalid: card_ID /= Void
 		do
+			create macro
+			if (card_id.is_equal (macro.adventurer)) then
+				create card_temp.make (macro.adventurer, macro.adventurer_cost, macro.adventurer_type)
+			elseif (card_id.is_equal (macro.bureaucrat)) then
+				create card_temp.make (macro.bureaucrat, macro.bureaucrat_cost, macro.bureaucrat_type)
+			elseif (card_id.is_equal (macro.cellar)) then
+				create card_temp.make (macro.cellar, macro.cellar_cost, macro.cellar_type)
+			elseif (card_id.is_equal (macro.chancellor)) then
+				create card_temp.make (macro.chancellor, macro.chancellor_cost, macro.chancellor_type)
+			elseif (card_id.is_equal (macro.chapel)) then
+				create card_temp.make (macro.chapel, macro.chapel_cost, macro.chapel_type)
+			elseif (card_id.is_equal (macro.council_room)) then
+				create card_temp.make (macro.council_room, macro.council_room_cost, macro.council_room_type)
+			elseif (card_id.is_equal (macro.feast)) then
+				create card_temp.make (macro.feast, macro.feast_cost, macro.feast_type)
+			elseif (card_id.is_equal (macro.festival)) then
+				create card_temp.make (macro.festival, macro.festival_cost, macro.festival_type)
+			elseif (card_id.is_equal (macro.garden)) then
+				create card_temp.make (macro.garden, macro.garden_cost, macro.garden_type)
+			elseif (card_id.is_equal (macro.laboratory)) then
+				create card_temp.make (macro.laboratory, macro.laboratory_cost, macro.laboratory_type)
+			elseif (card_id.is_equal (macro.library)) then
+				create card_temp.make (macro.library, macro.library_cost, macro.library_type)
+			elseif (card_id.is_equal (macro.market)) then
+				create card_temp.make (macro.market, macro.market_cost, macro.market_type)
+			elseif (card_id.is_equal (macro.militia)) then
+				create card_temp.make (macro.militia, macro.militia_cost, macro.militia_type)
+			elseif (card_id.is_equal (macro.mine)) then
+				create card_temp.make (macro.mine, macro.mine_cost, macro.mine_type)
+			elseif (card_id.is_equal (macro.moat)) then
+				create card_temp.make (macro.moat, macro.moat_cost, macro.moat_type)
+			elseif (card_id.is_equal (macro.moneylender)) then
+				create card_temp.make (macro.moneylender, macro.moneylender_cost, macro.moneylender_type)
+			elseif (card_id.is_equal (macro.remodel)) then
+				create card_temp.make (macro.remodel, macro.remodel_cost, macro.remodel_type)
+			elseif (card_id.is_equal (macro.smithy)) then
+				create card_temp.make (macro.smithy, macro.smithy_cost, macro.smithy_type)
+			elseif (card_id.is_equal (macro.spy)) then
+				create card_temp.make (macro.spy, macro.spy_cost, macro.spy_type)
+			elseif (card_id.is_equal (macro.thief)) then
+				create card_temp.make (macro.thief, macro.thief_cost, macro.thief_type)
+			elseif (card_id.is_equal (macro.throne_room)) then
+				create card_temp.make (macro.throne_room, macro.throne_room_cost, macro.throne_room_type)
+			elseif (card_id.is_equal (macro.village)) then
+				create card_temp.make (macro.village, macro.village_cost, macro.village_type)
+			elseif (card_id.is_equal (macro.witch)) then
+				create card_temp.make (macro.witch, macro.witch_cost, macro.witch_type)
+			elseif (card_id.is_equal (macro.woodcutter)) then
+				create card_temp.make (macro.woodcutter, macro.woodcutter_cost, macro.woodcutter_type)
+			elseif (card_id.is_equal (macro.workshop)) then
+				create card_temp.make (macro.workshop, macro.workshop_cost, macro.workshop_type)
+			-- Type of Treasure cards
+			elseif (card_id.is_equal (macro.copper)) then
+				create card_temp.make (macro.copper, macro.copper_cost, macro.copper_type)
+			elseif (card_id.is_equal (macro.silver)) then
+				create card_temp.make (macro.silver, macro.silver_cost, macro.silver_type)
+			elseif (card_id.is_equal (macro.gold)) then
+				create card_temp.make (macro.gold, macro.gold_cost, macro.gold_type)
+			-- Type of Victory cards
+			elseif (card_id.is_equal (macro.estate)) then
+				create card_temp.make (macro.estate, macro.estate_cost, macro.estate_type)
+			elseif (card_id.is_equal (macro.duchy)) then
+				create card_temp.make (macro.duchy, macro.duchy_cost, macro.duchy_type)
+			elseif (card_id.is_equal (macro.province)) then
+				create card_temp.make (macro.province, macro.province_cost, macro.province_type)
+			-- Type of curse cards
+			elseif (card_id.is_equal (macro.curse)) then
+				create card_temp.make (macro.curse, macro.curse_cost, macro.curse_type)
+			end
+			Result := card_temp
 		ensure
 			Result /= Void
 		end
@@ -422,7 +511,7 @@ feature {G5_RECEIVER_COMMAND_CARD, EQA_TEST_SET} -- Game Management Status
 			i: INTEGER
 		do
 			create macro
-			some_targets.make_empty ()
+			create some_targets.make_filled (void, 1, amount_player)
 			emptied_output_messages ()
 			from
 				i := 1
@@ -430,19 +519,19 @@ feature {G5_RECEIVER_COMMAND_CARD, EQA_TEST_SET} -- Game Management Status
 				i > players.count ()
 			loop
 				player_temp := players.item (i)
-				card_temp.make (macro.moat, macro.moat_cost, macro.kingdom)
+				create card_temp.make (macro.moat, macro.moat_cost, macro.kingdom)
 				if (not player_temp.name.is_equal (player_current.name)) then
 					if (player_temp.hand_current.has (card_temp)) then
 							--if player have the card "moat" in hand, ask the player if he wants
 							-- to defend the attack using "moat"
 						some_targets.put (player_temp.name, 1)
-						message_textual.make (macro.server, some_targets, "moat", "you are being attacked by militia!; you wants to defend the attack using the card: moat?")
+						create message_textual.make (macro.server, some_targets, "moat", "you are being attacked by militia!; you wants to defend the attack using the card: moat?")
 						add_output_message (message_textual)
 					else
 							--if you have more than three cards should be left alone with three.
 						if player_temp.hand_current.count > 3 then
 							some_targets.put (player_temp.name, 1)
-							message_textual.make (macro.server, some_targets, "moat", "you are being attacked by militia! (must be alone with three cards in hand)")
+							create message_textual.make (macro.server, some_targets, "moat", "you are being attacked by militia! (must be alone with three cards in hand)")
 							add_output_message (message_textual)
 						end
 					end
@@ -453,14 +542,14 @@ feature {G5_RECEIVER_COMMAND_CARD, EQA_TEST_SET} -- Game Management Status
 		ensure
 		end
 
-feature {NONE} -- functions private for class G5_TABLE
+feature {EQA_TEST_SET} -- functions private for class G5_TABLE
 
 	send_hand_players ()
 		local
 			j: INTEGER
 		do
 			create macro
-			some_targets.make_empty
+			create some_targets.make_filled (void, 1, 1)
 			from
 				j := 1
 			until
@@ -468,44 +557,41 @@ feature {NONE} -- functions private for class G5_TABLE
 			loop
 				player_temp := players.item (j)
 				some_targets.put (player_temp.name, 1)
-				message_action.make (macro.server, some_targets, "put_in_hand", player_temp.get_all_cards_hand, 0, 0, False)
+				create message_action.make ({G5_MACRO_CARDS}.server, some_targets, "put_in_hand", player_temp.get_all_cards_hand, 0, 1, False)
 				add_output_message (message_action)
 			end
+		ensure
 		end
 
 	send_new_turn (name_p: STRING)
 		do
 			create macro
-			some_targets.make_empty
+			create some_targets.make_filled(void, 1, 1)
 			some_targets := players_as_string ()
-			message_textual.make (macro.server, some_targets, "new_turn", name_p)
+			create message_textual.make (macro.server, some_targets, "new_turn", name_p)
 			add_output_message (message_textual)
 		end
 
 	send_new_phase ()
 		do
 			create macro
-			some_targets.make_empty
+			create some_targets.make_filled(void, 1, 1)
 			some_targets := players_as_string ()
-			message_textual.make (macro.server, some_targets, "new_phase", phase_current)
+			create message_textual.make (macro.server, some_targets, "new_phase", phase_current)
 			add_output_message (message_textual)
 		end
 
 	exist_player (name_player: STRING): BOOLEAN
 		local
-			i: INTEGER
+				--i: INTEGER
 			exist: BOOLEAN
+			player_0: ARRAY [STRING]
 		do
-			from
-				i := 1
-			until
-				i > players.count()
-			loop
-				if not (name_player.is_equal (players [i].name)) then
+			player_0 := players_as_string ()
+			if not (player_0.is_empty ()) then
+				if player_0.has (name_player) then
 					exist := True
-					i := players.count + 1
 				end
-				i := i + 1
 			end
 			Result := exist
 		end
@@ -522,14 +608,14 @@ feature {NONE} -- functions private for class G5_TABLE
 			from
 				i := 1
 			until
-				i > players.count()
+				i > players.count ()
 			loop
 				if (name_player.is_equal (players [i].name)) then
 					player_remove := players [i]
 					from
 						j := i
 					until
-						j > players.count()
+						j > players.count ()
 					loop
 						j := j + 1
 						players [i] := players [j]

@@ -20,42 +20,4 @@ create
 
     make
 
-
-feature {ANY} -- creation
-
---	make
---	do
-
---	end
-
-feature {ANY}
-
-	id: INTEGER
-
-	contents: LINKED_LIST[STRING]
-
-	update: BOOLEAN
-
-	set_id (new_id: INTEGER)
-	do
-
-	end
-
---	empty
---	do
---	end
-
---	append(s: STRING)
---	do
---	end
-
---	set_update
---	do
---	end
-
---	unset_update
---	do
---	end
-
-
 end

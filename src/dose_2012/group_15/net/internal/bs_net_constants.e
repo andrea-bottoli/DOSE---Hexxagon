@@ -11,7 +11,7 @@ feature
 
 	socket_accept_timeout_millis : INTEGER
 	once
-		result := 10000 -- 3600000; -- One hour
+		result := 3600000 -- 10000; -- One hour
 	end
 
 	socket_timeout_secs : INTEGER -- Testing has shown that this parameter is in fact ignored

@@ -3,7 +3,11 @@ deferred class
 
 feature
 
-	perform(map: G19_MAP)
+	get_player(): G19_PLAYER_INFO
+		deferred
+		end
+
+	get_actions(): LIST[TUPLE[x, y: INTEGER; action_type: STRING]]
 		deferred
 		end
 

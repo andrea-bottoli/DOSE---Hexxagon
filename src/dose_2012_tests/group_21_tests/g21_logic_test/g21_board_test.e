@@ -25,8 +25,8 @@ feature -- Test Routines
 
 		do
 
-			create board_object.make(0, -1)
-			assert ("board created, playerNumber assigned:", board_object.playerNumber=2)
+			create board_object.make(TRUE, -1)
+			assert ("board created, playerNumber assigned:", board_object.playerNumber=1)
 			assert ("board created, rulesApplied assigned:", board_object.rulesApplied/=void)
 			assert ("board created, sizeOfDeck1 assigned:", board_object.sizeOfDeck1>=0)
 			assert ("board created, sizeOfDeck2 assigned:", board_object.sizeOfDeck2>=0)
@@ -35,7 +35,8 @@ feature -- Test Routines
 			assert ("board created, cardDeckPlayer1 assigned:", board_object.cardDeckPlayer1/=void)
 			assert ("board created, cardDeckPlayer2 assigned:", board_object.cardDeckPlayer2/=void)
 			assert ("board created, gameBoard assigned:", board_object.gameBoard/=void)
-			assert ("board created, gameBoard number of cells assigned:", board_object.gameBoard.count=3 and board_object.gameBoard.item(1).count=3 and board_object.gameBoard.item(2).count=3 and board_object.gameBoard.item(3).count=3)
+			assert ("board created, gameBoard number of cells assigned:", board_object.gameBoard.capacity=(3*3))
+
 
 		end
 
@@ -96,9 +97,9 @@ feature -- Test Routines
 
 		do
 
-			create board_object.make(0, 0)
-			cards_player_1:= board_object.getCardListPlayer1
-			cards_player_2:= board_object.getCardListPlayer2
+			create board_object.make(TRUE, 0)
+			cards_player_1:= board_object.cardDeckPlayer1
+			cards_player_2:= board_object.cardDeckPlayer2
 
 			from
 
@@ -110,18 +111,18 @@ feature -- Test Routines
 
 			loop
 
-				assert ("getCardListPlayer1 assigned:", cards_player_1[elem].top=board_object.cardDeckPlayer1[elem].top)
-				assert ("getCardListPlayer1 assigned:", cards_player_1[elem].right=board_object.cardDeckPlayer1[elem].right)
-				assert ("getCardListPlayer1 assigned:", cards_player_1[elem].left=board_object.cardDeckPlayer1[elem].left)
-				assert ("getCardListPlayer1 assigned:", cards_player_1[elem].bottom=board_object.cardDeckPlayer1[elem].bottom)
-				assert ("getCardListPlayer1 assigned:", cards_player_1[elem].element=board_object.cardDeckPlayer1[elem].element)
-				assert ("getCardListPlayer1 assigned:", cards_player_1[elem].cardName=board_object.cardDeckPlayer1[elem].cardName)
-				assert ("getCardListPlayer2 assigned:", cards_player_2[elem].top=board_object.cardDeckPlayer2[elem].top)
-				assert ("getCardListPlayer2 assigned:", cards_player_2[elem].right=board_object.cardDeckPlayer2[elem].right)
-				assert ("getCardListPlayer2 assigned:", cards_player_2[elem].left=board_object.cardDeckPlayer2[elem].left)
-				assert ("getCardListPlayer2 assigned:", cards_player_2[elem].bottom=board_object.cardDeckPlayer2[elem].bottom)
-				assert ("getCardListPlayer2 assigned:", cards_player_2[elem].element=board_object.cardDeckPlayer2[elem].element)
-				assert ("getCardListPlayer2 assigned:", cards_player_2[elem].cardName=board_object.cardDeckPlayer2[elem].cardName)
+				assert ("getCardListPlayer1 assigned:", cards_player_1.item(elem).top=board_object.cardDeckPlayer1.item(elem).top)
+				assert ("getCardListPlayer1 assigned:", cards_player_1.item(elem).right=board_object.cardDeckPlayer1.item(elem).right)
+				assert ("getCardListPlayer1 assigned:", cards_player_1.item(elem).left=board_object.cardDeckPlayer1.item(elem).left)
+				assert ("getCardListPlayer1 assigned:", cards_player_1.item(elem).bottom=board_object.cardDeckPlayer1.item(elem).bottom)
+				assert ("getCardListPlayer1 assigned:", cards_player_1.item(elem).element=board_object.cardDeckPlayer1.item(elem).element)
+				assert ("getCardListPlayer1 assigned:", cards_player_1.item(elem).cardName=board_object.cardDeckPlayer1.item(elem).cardName)
+				assert ("getCardListPlayer2 assigned:", cards_player_2.item(elem).top=board_object.cardDeckPlayer2.item(elem).top)
+				assert ("getCardListPlayer2 assigned:", cards_player_2.item(elem).right=board_object.cardDeckPlayer2.item(elem).right)
+				assert ("getCardListPlayer2 assigned:", cards_player_2.item(elem).left=board_object.cardDeckPlayer2.item(elem).left)
+				assert ("getCardListPlayer2 assigned:", cards_player_2.item(elem).bottom=board_object.cardDeckPlayer2.item(elem).bottom)
+				assert ("getCardListPlayer2 assigned:", cards_player_2.item(elem).element=board_object.cardDeckPlayer2.item(elem).element)
+				assert ("getCardListPlayer2 assigned:", cards_player_2.item(elem).cardName=board_object.cardDeckPlayer2.item(elem).cardName)
 
 				elem := elem + 1
 
@@ -144,7 +145,7 @@ feature -- Test Routines
 
 		do
 
-			create board_object.make(0, 0)
+			create board_object.make(TRUE, 0)
 			old_size_player_1:= board_object.player1.size
 			old_size_player_2:= board_object.player2.size
 			board_object.addToCardDeckPlayer1(1)
@@ -169,7 +170,7 @@ feature -- Test Routines
 
 		do
 
-			create board_object.make(0, 0)
+			create board_object.make(TRUE, 0)
 			old_size_player_1:= board_object.player1.size
 			old_size_player_2:= board_object.player2.size
 			board_object.removeFromCardDeckPlayer1(1)
@@ -194,13 +195,13 @@ feature -- Test Routines
 
 		do
 
-			create board_object.make(0, 0)
+			create board_object.make(TRUE, 0)
 			position_x:= 2
 			position_y:= 2
-			assert("before makePlay position empty:", board_object.gameBoard.item(position_x).item(position_y)=void)
-			card_index:= 1
+			assert("before makePlay position empty:", board_object.gameBoard[position_x, position_y]=void)
+			card_index:= 0
 			board_object.makePlay(position_x, position_y, card_index)
-			assert("makePlay assigned:", board_object.gameBoard.item(position_x).item(position_y)/=void)
+			assert("makePlay assigned:", board_object.gameBoard[position_x, position_y]/=void)
 
 		end
 

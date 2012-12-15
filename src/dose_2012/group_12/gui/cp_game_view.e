@@ -31,7 +31,7 @@ feature -- Initialization
 			-- Window procedures
 			window := window_caller
 			window.set_size (1280, 1024)
-			window.set_minimum_size (1280, 1024)
+			--window.set_minimum_size (1280, 1024)
 			window.enable_user_resize
 			window.resize_actions.extend (agent update_game_view (?, ?, ?, ?))
 
@@ -70,8 +70,16 @@ feature {NONE} -- Build procedures
 			-- Builds the chat of the game
 		require
 			initialized = TRUE
+		local
+			sender_receiver: CP_CHAT_SENDER_RECEIVER
 		do
-			create chat_window.make
+			if window.server /= Void then
+				sender_receiver := window.server.chat_sender_receiver
+			elseif window.client /= Void then
+				sender_receiver := window.client.chat_sender_receiver
+			end
+
+			create chat_window.make (sender_receiver)
 			current.extend_with_position_and_size (chat_window, 930, 0,300,600)
 			chat_window.add_new_message_by_string ("System", "Welcome to the Hive Board Game! %NYou can use that part of the window to chat with your opponent.%NHave Fun!%N")
 		end

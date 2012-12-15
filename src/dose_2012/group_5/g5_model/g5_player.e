@@ -152,10 +152,10 @@ feature -- Phase Action
 		-- Play the card that is passed as a parameter
 		require
 			valid_arg:(card.type.has_substring("action") or card.type.has_substring("attack")  and card /= Void)
-			phase_action: table.phase_current = "ACTION"
+			phase_action: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_action)
 		do
+			amount_action := amount_action - 1
 			discard_pile.put(get_card_hand(card.id))
-			-- Bajar Carta (MESSAGE)
 			if card.type.has_substring("action") then
 				card.command1.execute
 			end
@@ -169,53 +169,51 @@ feature -- Phase Action
 	get_cards_playable(): ARRAY [STRING]
 		-- Return of the hand the cards that can be played at the phase of action
 		require
-			phase_action: table.phase_current = "ACTION"
+			phase_action: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_action)
 		local
-			cards: ARRAY [STRING]
 			i: INTEGER
 		do
 			from
-				cards.make_empty
+				create result.make_empty
 				hand_current.start
-				i := 0
+				i := 1
 			until
 				hand_current.index > hand_current.count
 			loop
 				if hand_current.item.type.has_substring ("action") or hand_current.item.type.has_substring ("attack") then
-					cards.put (hand_current.item.id, i)
+					result.grow (i)
+					result.put (hand_current.item.id, i)
 					i := i + 1
 				end
 				hand_current.forth
 			end
-			result := cards
 		ensure
-			valid_result: result /= Void implies hand_current.there_exists (agent (c: G5_CARD): BOOLEAN do Result := (c.type.has_substring ("action") or c.type.has_substring ("attack")) end )
+			valid_result: not result.is_empty implies hand_current.there_exists (agent (c: G5_CARD): BOOLEAN do Result := (c.type.has_substring ("action") or c.type.has_substring ("attack")) end )
 		end
 
 	get_cards_reaction(): ARRAY [STRING]
 		-- Return of the hand the reactions cards
 		require
-			phase_action: table.phase_current = "ACTION"
+			phase_action: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_action)
 		local
-			cards: ARRAY [STRING]
 			i: INTEGER
 		do
 			from
-				cards.make_empty
+				create result.make_empty
 				hand_current.start
-				i := 0
+				i := 1
 			until
 				hand_current.index > hand_current.count
 			loop
 				if hand_current.item.type.has_substring ("reaction") then
-					cards.put (hand_current.item.id, i)
+					result.grow (i)
+					result.put (hand_current.item.id, i)
 					i := i + 1
 				end
 				hand_current.forth
 			end
-			result := cards
 		ensure
-			valid_result: result /= Void implies hand_current.there_exists (agent (c: G5_CARD): BOOLEAN do Result := c.type.has_substring ("reaction") end )
+			valid_result: not result.is_empty implies hand_current.there_exists (agent (c: G5_CARD): BOOLEAN do Result := c.type.has_substring ("reaction") end )
 		end
 
 feature -- Phase Buy
@@ -224,28 +222,28 @@ feature -- Phase Buy
 		-- Search a card in the supply by id. if found returns its stack
 		require
 			valid_arg: id_card /= Void
-			Valid_phase: table.phase_current = "ACTION" or table.phase_current = "BUY"
+			valid_phase: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_action) or table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_buy)
 		local
 			pile: G5_PILE_CARD_SUPPLY
 		do
 			pile := table.supply.search_card (id_card)
 			result := table.supply.take_card (pile)
 		ensure
-			resulting_card: result = Void or result.id = id_card
+			resulting_card: result = Void or result.id.is_equal (id_card)
 		end
 
 	count_treasures()
 		-- Count the cards coming from coin treasures.
 		require
 			hand_state: hand_current /= Void
-			valid_phase: table.phase_current = "BUY"
+			valid_phase: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_buy)
 		do
 			from
 				hand_current.start
 			until
 				hand_current.index > hand_current.count
 			loop
-				if (hand_current.item.type.has_substring ("tresure")) then
+				if (hand_current.item.type.has_substring ({G5_MACRO_CARDS}.treasure)) then
 					hand_current.item.command2.execute
 				end
 				hand_current.forth
@@ -258,7 +256,7 @@ feature -- Phase Clean-up
 	cleaning_effect()
 		-- To carry out the cleaning phase about the player
 		require
-			valid_phase: table.phase_current = "CLEAN-UP"
+			valid_phase: table.phase_current.is_equal({G5_MACRO_CARDS}.phase_clean_up)
 		do
 			Scavenging()
 			get_new_hand()
@@ -274,7 +272,7 @@ feature -- Efect by Cards Action
 	add_buy (quantity_buy: INTEGER)
 		-- Increases the number of player buys, with the number passed as parameter
 		require
-			valid_arg: amount_buy > 0
+			valid_arg: quantity_buy > 0
 		do
 			amount_buy := amount_buy + quantity_buy
 		ensure
@@ -284,7 +282,7 @@ feature -- Efect by Cards Action
 	add_action (quantity_action: INTEGER)
 		-- Increases the number of player actions, with the number passed as parameter
 		require
-			valid_arg: amount_action > 0
+			valid_arg: quantity_action > 0
 		do
 			amount_action := amount_action + quantity_action
 		ensure
@@ -294,7 +292,7 @@ feature -- Efect by Cards Action
 	add_coin (quantity_coin: INTEGER)
 		-- Increases the number of player coins, with the number passed as parameter
 		require
-			valid_arg: amount_coin > 0
+			valid_arg: quantity_coin > 0
 		do
 			amount_coin := amount_coin + quantity_coin
 		ensure
@@ -317,21 +315,19 @@ feature -- Operation about hand
 		require
 			hand_current /= Void
 		local
-			cards: ARRAY [STRING]
 			i: INTEGER
 		do
 			from
 				hand_current.start
-				cards.make_empty
-				i:= 0
+				create result.make_filled ("", 1, hand_current.count)
+				i:= 1
 			until
 				hand_current.index > hand_current.count
 			loop
-				cards.put (hand_current.item.id, i)
+				result.put (hand_current.item.id, i)
 				i := i + 1
 				hand_current.forth
 			end
-			result := cards
 		ensure
 			valid_result: result.count = hand_current.count
 		end
@@ -357,9 +353,9 @@ feature -- Operation about hand
 			from
 				hand_current.start
 			until
-				((hand_current.index < hand_current.count) or (encountered))
+				((hand_current.index > hand_current.count) or (encountered))
 			loop
-				if hand_current.item.id = id_card then
+				if hand_current.item.id.is_equal (id_card) then
 					result := hand_current.item
 					hand_current.remove
 					encountered := True
@@ -370,7 +366,7 @@ feature -- Operation about hand
 				result := Void
 			end
 		ensure
-			resulting_card: result = Void or result.id = id_card
+			resulting_card: result = Void or result.id.is_equal (id_card)
 		end
 
 	adds_cards_hand(cards: LINKED_LIST [G5_CARD])
@@ -404,6 +400,7 @@ feature -- Operation about deck
 					if deck.is_empty then
 						no_more_cards := True
 					else
+						deck.shuffle
 						result.extend (deck.item)
 						deck.remove
 						i := i + 1
@@ -465,20 +462,20 @@ feature -- State finished
 			hand_empty: hand_current.is_empty
 			discard_pile_empty: discard_pile.is_empty
 		local
-			deck_clone: LINKED_LIST [G5_CARD]
+			deck_clone: LINKED_STACK [G5_CARD]
 		do
 			from
 				create deck_clone.make
 				deck_clone.append (deck)
-				deck_clone.start
 			until
-				deck_clone.index < deck_clone.count
+				deck_clone.is_empty
 			loop
-				if deck_clone.item.type.has_substring ("victory")  then
+				if deck_clone.item.type.has_substring ({G5_MACRO_CARDS}.victory)  then
 					deck_clone.item.command2.execute
 				end
-				deck_clone.forth
+				deck_clone.remove
 			end
+			result := point_victory
 		ensure
 		end
 

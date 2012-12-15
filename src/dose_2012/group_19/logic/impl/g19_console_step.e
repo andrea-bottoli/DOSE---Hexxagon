@@ -9,32 +9,27 @@ create
 
 feature{NONE}
 
-	current_player_info: G19_CONSOLE_PLAYER_INFO
-	current_coordinate: TUPLE[x, y:INTEGER]
-	current_step_type: STRING
+	current_player_info: G19_PLAYER_INFO
+	current_actions: LINKED_LIST[TUPLE[x, y: INTEGER; action_type: STRING]]
 
 feature
 
-	make(player_info: G19_CONSOLE_PLAYER_INFO; coordinate: TUPLE[x, y:INTEGER]; step_type: STRING)
+	make(player_info: G19_PLAYER_INFO; position: TUPLE[x, y:INTEGER]; action_type: STRING)
 		do
 			current_player_info := player_info
-			current_coordinate := coordinate
-			current_step_type := step_type
+
+			create current_actions.make()
+			current_actions.extend([position.x, position.y, action_type])
 		end
 
-	get_x(): INTEGER
+	get_player(): G19_PLAYER_INFO
 		do
-			result := current_coordinate.x
+			result := current_player_info
 		end
 
-	get_y(): INTEGER
+	get_actions(): LIST[TUPLE[x, y: INTEGER; action_type: STRING]]
 		do
-			result := current_coordinate.y
-		end
-
-	perform(map: G19_MAP)
-		do
-			map.build (current_player_info, current_coordinate, current_step_type)
+			result := current_actions
 		end
 
 end

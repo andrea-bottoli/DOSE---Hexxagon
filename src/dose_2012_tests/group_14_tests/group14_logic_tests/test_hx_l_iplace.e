@@ -64,6 +64,6 @@ feature -- Test routines
 
 		do
 			place := game.board.place (1,1)
-			assert ("Player at place 1,1 is not void",place.player /= Void)
+			assert ("Player at place 1,1 is not void",place.player_id /= 0)
 		end
 end

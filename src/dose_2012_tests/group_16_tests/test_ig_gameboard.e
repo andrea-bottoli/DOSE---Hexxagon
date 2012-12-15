@@ -77,6 +77,7 @@ feature -- Test routines
 			l_move.set_position(8,4)
 			l_move.set_rotation(1)
 			assert ("Move is valid before placing it", l_gameboard.is_move_valid (l_move))
+			create {IG_USER_PLAYER}l_player.make_with_name ("Eve")
 			l_gameboard.set_tile_on_board (l_move, l_player)
 			assert ("Tile is placed in the gameboard", not l_gameboard.is_move_valid (l_move))
 		end
@@ -124,8 +125,9 @@ feature -- Test routines
 			create l_inferior_hex.make ("r")
 			create l_tile.make_with_hexes(l_superior_hex,l_inferior_hex)
 			create l_move.make_with_tile(l_tile)
-			l_move.set_position(8,3)
+			l_move.set_position(9,3)
 			l_move.set_rotation(1)
+			create {IG_USER_PLAYER}l_player.make_with_name ("Wall-e")
 			l_gameboard.set_tile_on_board (l_move, l_player)
 			assert ("The move is not valid", l_gameboard.is_move_valid(l_move)=FALSE)
 		end

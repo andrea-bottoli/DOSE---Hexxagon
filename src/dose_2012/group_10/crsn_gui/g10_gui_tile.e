@@ -102,12 +102,16 @@ feature {G10_GUI_TERRAIN_PANEL, G10_GUI_PLAYER_ACTION_PANEL}
 		col_is_valid: col >= 0
 		terrain_not_null: terrain /= void
 	do
-		if( row < max_tiles_per_row and col < max_tiles_per_column and not terrain.has(current) )
+		if( terrain.valid_coordinates (row, col)and not terrain.get_background.has(current) )
 		then
-		 	terrain.extend_with_position_and_size (Current,
-						(col - 1) * (tile_width + distance_between_tiles)+ distance_between_tiles , (row - 1) * (tile_height + distance_between_tiles)+ distance_between_tiles,
-						tile_width, tile_height)
+		 	terrain.get_background.extend_with_position_and_size (  Current,
+																	(col - 1) * (tile_width + distance_between_tiles)+ distance_between_tiles ,
+																	(row - 1) * (tile_height + distance_between_tiles)+ distance_between_tiles,
+																	tile_width,
+																	tile_height)
 		end
+	ensure
+		tile_was_added_into_terrain_successfully:-- terrain.get_background.has (Current)
 	end
 
 	set_img_src(image_source : KL_PATHNAME)-- routine changes the image of the tile.

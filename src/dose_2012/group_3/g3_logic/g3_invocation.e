@@ -29,9 +29,16 @@ feature{G3_CONTROLLER}
 			parameters := new_parameters
 		end
 
+	set_parameters2 (new_parameters : ANY)
+		do
+			parameters2 := new_parameters
+		end
+
 	name_invocation : STRING
 
 	parameters : ANY
+
+	parameters2 : ANY
 
 
 

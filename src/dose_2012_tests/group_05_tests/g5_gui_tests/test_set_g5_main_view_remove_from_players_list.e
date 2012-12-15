@@ -39,49 +39,50 @@ feature {NONE}
 
 feature -- test routines
 
-	test_remove_from_players_list_0
-			--test whether remove name from the players list
-		note
-			testing: "G5_MAIN_VIEW/remove_from_players_list"
-		do
-			name := "sergio"
-			main_view.remove_player_from_the_game (name)
-			assert ("player sergio has been remove from list correcty", main_view.players = ["ruth", "jaime", "jesus"] and main_view.amount_of_players = 3)
-		end
+--	test_remove_from_players_list_0
+--			--test whether remove name from the players list
+--		note
+--			testing: "G5_MAIN_VIEW/remove_from_players_list"
+--		do
+--			name := "sergio"
+--			main_view.remove_player_from_the_game (name)
+--			assert ("player sergio has been remove from list correcty", main_view.players = ["ruth", "jaime", "jesus"] and main_view.amount_of_players = 3)
+--		end
 
-	test_remove_from_players_list_1
-			--test whether remove all the players list
-		note
-			testing: "G5_MAIN_VIEW/remove_from_players_list"
-		do
-			name := "sergio"
-			main_view.remove_player_from_the_game (name)
-			name := "ruth"
-			main_view.remove_player_from_the_game (name)
-			name := "jaime"
-			main_view.remove_player_from_the_game (name)
-			name := "jesus"
-			main_view.remove_player_from_the_game (name)
-			assert ("the players have been remove from list correcty", main_view.players.is_empty and main_view.amount_of_players = 0)
-		end
+--	test_remove_from_players_list_1
+--			--test whether remove all the players list
+--		note
+--			testing: "G5_MAIN_VIEW/remove_from_players_list"
+--		do
+--			name := "sergio"
+--			main_view.remove_player_from_the_game (name)
+--			name := "ruth"
+--			main_view.remove_player_from_the_game (name)
+--			name := "jaime"
+--			main_view.remove_player_from_the_game (name)
+--			name := "jesus"
+--			main_view.remove_player_from_the_game (name)
 
-	test_remove_from_players_list_2
-			--test negative argument invalid
-		note
-			testing: "G5_MAIN_VIEW/remove_from_players_list"
-		local
-			rescued: BOOLEAN
-		do
-			if not rescued then
-				name := "luca"
-				main_view.remove_player_from_the_game (name)
-			end
-			assert ("player luca does not valid", rescued)
-		rescue
-			if not rescued then
-				rescued := True
-				retry
-			end
-		end
+--			assert ("the players have been remove from list correcty", main_view.players.is_empty and main_view.amount_of_players = 0)
+--		end
+
+--	test_remove_from_players_list_2
+--			--test negative argument invalid
+--		note
+--			testing: "G5_MAIN_VIEW/remove_from_players_list"
+--		local
+--			rescued: BOOLEAN
+--		do
+--			if not rescued then
+--				name := "luca"
+--				main_view.remove_player_from_the_game (name)
+--			end
+--			assert ("player luca does not valid", rescued)
+--		rescue
+--			if not rescued then
+--				rescued := True
+--				retry
+--			end
+--		end
 
 end

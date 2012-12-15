@@ -58,12 +58,12 @@ class
 					token=t
 			end
 
-		popToken:CHARACTER
+		popToken
 			require
 				token/='n'
 
 			do
-				Result:=token
+			
 				token:='n'
 			ensure
 				token='n'

@@ -21,36 +21,44 @@ inherit
 		undefine
 			default_create, copy
 		end
-create
-	make_window--, make_window_with_controller
+--create
+--	make_window--, make_window_with_controller
 
 feature -- make and Initialize
 
-	make_window (a_main_ui_window: MAIN_WINDOW)
-			-- Creation procedure
-		do
-				-- Store the main_ui object. We want to restore it later on (it's currently minimized).
-			main_ui := a_main_ui_window
+--	make_window (a_main_ui_window: MAIN_WINDOW)
+--			-- Creation procedure
+--		do
+--				-- Store the main_ui object. We want to restore it later on (it's currently minimized).
+--			main_ui := a_main_ui_window
 
---				-- Create the Cluedo window.
-			set_title_window ("Cluedo - Main Lobby")
-			set_width_window (1100)
-			set_height_window (650)
-			make_with_title (window_title)
-			set_size (window_width,window_height)
-			create horizontal_separator
-			create con_main
-			create main_lobby
-			con_main := main_lobby.make
-			con_main.extend_with_position_and_size (horizontal_separator, 0, 0, 1100, 5)
-			put (con_main)
-			disable_user_resize
-		end
+----				-- Create the Cluedo window.
+--			set_title_window ("Cluedo - Main Lobby")
+--			set_width_window (1100)
+--			set_height_window (650)
+--			make_with_title (window_title)
+--			set_size (window_width,window_height)
+--			create horizontal_separator
+--			create con_main
+--			create main_lobby
+--			create mode.make_empty
+--			con_main := main_lobby.make
+----			mode := main_lobby.return_mode_game
+----			io.put_string (main_lobby.return_mode_game)
+--			con_main.extend_with_position_and_size (horizontal_separator, 0, 0, 1100, 5)
+--			put (con_main)
+--			disable_user_resize
+--		end
 
 --	make_window_with_controller (controller:CU_INIT_CONTROLLER)
 --	do
 --		set_window_controller(controller)
 --		default_create
+--	end
+
+--	return_mode: STRING
+--	do
+--		Result := mode
 --	end
 
 
@@ -299,23 +307,25 @@ feature {EQA_TEST_SET} -- Implementation / Constants
 
 	main_lobby: CU_MAIN_LOBBY
 
-	main_container: EV_VERTICAL_BOX
-			-- Main container (contains all widgets displayed in this window)
+--	main_container: EV_VERTICAL_BOX
+--			-- Main container (contains all widgets displayed in this window)
 
-	build_main_container
-			-- Create and populate `main_container'.
-		require
-			main_container_not_yet_created: main_container = Void
-		do
-			create main_container
+--	build_main_container
+--			-- Create and populate `main_container'.
+--		require
+--			main_container_not_yet_created: main_container = Void
+--		do
+--			create main_container
 
-			main_container.extend (create {EV_TEXT})
-		ensure
-			main_container_created: main_container /= Void
-		end
+--			main_container.extend (create {EV_TEXT})
+--		ensure
+--			main_container_created: main_container /= Void
+--		end
 
 	horizontal_separator: EV_HORIZONTAL_SEPARATOR
 
 	message_label: EV_LABEL
+
+	mode: STRING
 
 end

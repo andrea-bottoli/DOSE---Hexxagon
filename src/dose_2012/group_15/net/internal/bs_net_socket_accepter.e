@@ -38,26 +38,40 @@ feature {BS_NET_SERVER} -- Constructor
 
 	execute ()
 		require else
-			stop_not_requested:	stop_requested = false
+			stop_not_requested: stop_requested = false
 		local
 			last_accepted: SOCKET
+			failed: BOOLEAN
+			failed_while_accepting: BOOLEAN
 		do
-			running := true
-			from
-			until
-				stop_requested
-			loop
-				-- io.put_string ("Accepting...%N")
-				socket.set_accept_timeout (socket_accept_timeout_millis)
-				socket.accept ()
-				if socket.accepted /= void and socket.accepted /= last_accepted then
-					last_accepted := socket.accepted
-					client_connected_procedure.call ([socket.accepted])
-				else
-					-- io.put_string ("Nobody tried to connect.%N")
+			if not failed then
+				running := true
+				from
+				until
+					stop_requested
+				loop
+						-- io.put_string ("Accepting...%N")
+					socket.set_accept_timeout (socket_accept_timeout_millis)
+					failed_while_accepting := true
+					socket.accept ()
+					failed_while_accepting := false
+					if socket.accepted /= void and socket.accepted /= last_accepted then
+						last_accepted := socket.accepted
+						client_connected_procedure.call ([socket.accepted])
+					else
+							-- io.put_string ("Nobody tried to connect.%N")
+					end
 				end
 			end
 			running := false
+		rescue
+			if failed_while_accepting then
+				failed := true
+				retry
+			else
+				io.put_boolean (true)
+			end
+				-- Else fail.
 		end
 
 	stop_gracefully ()

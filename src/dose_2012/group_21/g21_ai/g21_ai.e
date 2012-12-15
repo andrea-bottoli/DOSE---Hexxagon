@@ -17,13 +17,11 @@ feature{G21_AI} -- Attributes
 
 feature{G21_AI} -- Interface Procedures, the only method the Logic component can use to call the AI
 
-	make_a_move (card_position: G21_POINT; player_card: G21_CARD): G21_MOVE --it returns and object move that the Logic will use to make AI move
+	make_a_move (card_position: G21_POINT): G21_MOVE --it returns and object move that the Logic will use to make AI move
 
 		require
 
-			--valid_card_position: card_position/=void
 			position_enemy_card: card_position=void or else board.item(card_position.y, card_position.x).isOccupied=TRUE
-			valid_player_card: player_card/=void
 
 		deferred
 
@@ -33,7 +31,6 @@ feature{G21_AI} -- Interface Procedures, the only method the Logic component can
 			free_position: board.item(result.position.x, result.position.y)/=void and then board.item(result.position.x, result.position.y).isoccupied=FALSE
 			card_in_deck: cards.has(result.card)=TRUE
 			card_position_not_changed: card_position=old card_position and then card_position.x=old card_position.x and then card_position.y=old card_position.y
-			card_not_changed: player_card=old player_card
 			deck_not_changed: cards=old cards and then cards.count = old cards.count
 			board_not_changed_first_row: board.item(1, 1) = old board.item(1, 1) and then board.item(1, 2) = old board.item(1, 2) and then board.item(1, 3) = old board.item(1, 3)
 			board_not_changed_second_row: board.item(2, 1) = old board.item(2, 1) and then board.item(2, 2) = old board.item(2, 2) and then board.item(2, 3) = old board.item(2, 3)

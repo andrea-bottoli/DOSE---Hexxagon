@@ -29,13 +29,10 @@ feature{G21_HARD_AI} -- Creation
 
 			row: INTEGER
 			column: INTEGER
-			cell: G21_CELL
-			default_cell: G21_CELL
 
 		do
 
-			create default_cell.make
-			create fake_board.make_filled(default_cell, 3, 3)
+			create fake_board.make_filled(void, 3, 3)
 
 			from
 
@@ -57,34 +54,11 @@ feature{G21_HARD_AI} -- Creation
 
 				loop
 
-					--create cell.make  It will be used when the egyptian team will implement the method cell.make
-					fake_board.item(row, column):=cell
+					fake_board.item(row, column):=logic_board.item (row, column).twin
 
 				end
 
 			end
-
-
---I can have only one cycle where I create any element of fake_board by copying the elements of logic_board
-
---			--insert values into fake_board
---			from
---				row:=1
---			until
---				row>3
---			loop
---				from
---					column:=1
---				until
---					column>3
---				loop
---					if logic_board.item(row)/=void and then logic_board.item(row).item(column)/=void and then logic_board.item(row).item(column)/=void
---						then
---						-- create cell.make() ??????????????????????
---						fake_board.item(row).put( cell,column)
---					end
---				end
---			end
 
 		ensure
 
@@ -126,14 +100,14 @@ feature{NONE} -- Procedure
 
 		do
 
-			result:= equals_card(first_cell.card, second_cell.card) and then first_cell.element=second_cell.element and then first_cell.isOccupied=second_cell.isOccupied
+			result:= equals_card(first_cell.card, second_cell.card) and then first_cell.element=second_cell.element and then first_cell.isOccupied=second_cell.isOccupied and then first_cell.getplayernumber=second_cell.getplayernumber
 
 		ensure
 
 			first_cell_not_changed: first_cell = old first_cell
 			second_cell_not_changed: second_cell = old second_cell
-			true_result: result=TRUE implies equals_card(first_cell.card, second_cell.card) and then first_cell.element=second_cell.element and then first_cell.isOccupied=second_cell.isOccupied
-			false_result: result=FALSE implies (not equals_card(first_cell.card, second_cell.card)) or else first_cell.element/=second_cell.element or else first_cell.isOccupied/=second_cell.isOccupied
+			true_result: result=TRUE implies equals_card(first_cell.card, second_cell.card) and then first_cell.element=second_cell.element and then first_cell.isOccupied=second_cell.isOccupied and then first_cell.getplayernumber=second_cell.getplayernumber
+			false_result: result=FALSE implies (not equals_card(first_cell.card, second_cell.card)) or else first_cell.element/=second_cell.element or else first_cell.isOccupied/=second_cell.isOccupied or else first_cell.getplayernumber/=second_cell.getplayernumber
 
 		end
 
@@ -149,7 +123,6 @@ feature{G21_HARD_AI} -- Procedures
 
 			row: INTEGER
 			column: INTEGER
-			cell: G21_CELL
 
 		do
 
@@ -175,9 +148,7 @@ feature{G21_HARD_AI} -- Procedures
 
 					if not equals_cell(fake_board.item (row, column), logic_board.item (row, column)) then
 
-						--create cell.make  It will be used when the egyptian team will implement the method cell.make
-						fake_board.item(row, column):=cell
-						--set the parameter occupied according to the logic parameter occupied
+						fake_board.item(row, column):=logic_board.item (row, column).twin
 
 					end
 
@@ -205,15 +176,10 @@ feature{G21_HARD_AI} -- Procedures
 			card_valid: fake_move.card/=void
 			position_valid: fake_move.position/=void and then fake_move.position.x>=1 and then fake_move.position.x<=3 and then fake_move.position.y>=1 and then fake_move.position.y<=3
 
-		local
-
-			cell: G21_CELL
-
 		do
 
-			--create cell.make  It will be used when the egyptian team will implement the method cell.make
-			fake_board.item (fake_move.position.x, fake_move.position.y):=cell
-			--set the parameter occupied true
+			fake_board.item (fake_move.position.x, fake_move.position.y).setcard (fake_move.card.twin)
+			fake_board.item (fake_move.position.x, fake_move.position.y).setplayernumber (2)
 
 		ensure
 
@@ -237,9 +203,9 @@ feature{G21_HARD_AI} -- Procedures
 
 		do
 
-			--create cell.make creation of an empty cell
-			fake_board.item (fake_position.x, fake_position.y):=empty_cell
-			--set the parameter occupied false
+			create empty_cell.make
+			empty_cell.setelement (fake_board.item (fake_position.x, fake_position.y).getelement)
+			fake_board.item (fake_position.x, fake_position.y):=empty_cell.twin
 
 		ensure
 
@@ -250,145 +216,3 @@ feature{G21_HARD_AI} -- Procedures
 		end
 
 end
-
-
-
-
-
-
-
-
-
-
---NOT TO USE
-
-
-	--flip_cards (logic_board: ARRAY2[G21_CELL]; fake_move: G21_MOVE; rules: G21_RULES):INTEGER -- it flips cards according rules and return the numeber of cards flipped
-
-	--	require
-	--	local
-	--		flipped_cards: INTEGER
-	--		rule_plus: G21_RULE_PLUS
-	--		rule_same: G21_RULE_SAME
-	--		rules_same_wall: G21_RULE_SAMEWALL
-	--		copy_fake_board: ARRAY2[G21_CELL]
-	--	do
-	--		copy_fake_board:=make_copy_fake_board
-	--		flipped_cards:=0
-
-	--		make_fake_move(fake_move)
-
-			-- all rules: open, random, same, same wall, plus, elemental, sudden death, dominion
-			-- rules to be verified: same, plus, same wall, elemental(done inside G21_RULES)
-
-		--	rules.makeChangeAndUpdate(fake_move.position.x;fake_move.position.y;fake_move.card;fake_board)
-
-		--	if(rules.plus) then
-		--		rule_plus.makechangeandupdate (fake_move.position.x;fake_move.position.y;fake_move.card;fake_board)
-		--	end
-
-		--	if(rules.same) then
-		--		rule_same.makechangeandupdate (fake_move.position.x;fake_move.position.y;fake_move.card;fake_board)
-		--	end
-
-		--	if(rules.samewall) then
-		--		rule_samewall.makechangeandupdate (fake_move.position.x;fake_move.position.y;fake_move.card;fake_board)
-		--	end
-
-	--		flipped_cards := number_cards_flipped(copy_fake_board)
-	--		result:= flipped_cards
-
-	--	ensure
-
-	--	end
-
-
-
-	--make_copy_fake_board():ARRAY2[G21_CELL] -- it flips cards according rules and return the numeber of cards flipped
-
-	--	require
-	--	local
-	--		copy_fake_board: ARRAY2[G21_CELL]
-	--		row: INTEGER
-	--		column: INTEGER
-	--		cell: G21_CELL
-
-	--	do
-
-	--		from
-
-	--			row:= 1
-
-	--		until
-
-	--			row>3
-
-	--		loop
-
-	--			from
-
-	--				column:= 1
-
-	--			until
-
-	--				column>3
-
-	--			loop
-					--create cell.make  It will be used when the egyptian team will implement the method cell.make
-	--				copy_fake_board.item(row, column):=cell
-					--set the parameter occupied according to the logic parameter occupied
-
-
-	--			end
-
-	--		end
---			result:=copy_fake_board
-
---		ensure
---		end
-
---	number_cards_flipped(copy_fake_board: ARRAY2[G21_CELL]):INTEGER -- number of different card
---		require
---		local
---			number_flips: INTEGER
---			row: INTEGER
---			column: INTEGER
---			cell: G21_CELL
-
---		do
---			number_flips:= 0
---			from
-
---				row:= 1
-
---			until
-
---				row>3
-
---			loop
-
---				from
-
---					column:= 1
-
---				until
-
---					column>3
-
---				loop
-
---					if not equals_cell(fake_board.item (row, column), copy_fake_board.item (row, column))  then
---						if  not equals_card(fake_board.item (row, column).card, copy_fake_board.item (row, column).card) then
---							number_flips:= number_flips + 1
---						end
-
---					end
-
---				end
-
---			end
---			result:=number_flips
-
---		ensure
---		end
-

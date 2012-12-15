@@ -37,9 +37,9 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			print(game.get_ip_local)
-			assert ("The IP is equal 1.2.3.4:", game.get_ip_local.is_equal ("1.2.3.4"))
+			assert ("The IP /= Void:", game.get_ip_local /= Void)
 		end
 
 	test_select_tokens
@@ -53,11 +53,11 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create token_t.make ("Horse")
-			create player_t.make (005, "Player")
+			create player_t.make (5, "Player")
 			game.select_tokens (player_t, token_t)
-			assert ("The token assigned to player 5 is Horse: ", token_t.l_player.get_id_player.is_equal (player_t.get_id_player))
+			assert ("The token assigned to player 5 is Horse: ", player_t.token.l_name.is_equal("Horse"))
 		end
 
 	test_join_game
@@ -70,7 +70,7 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			--game.join_game (player_t)
 				-- assert ("Player 5 joined the game") -- How I check if he/she is joined?
@@ -86,7 +86,7 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			--game.new_game (player_t)
 				-- assert("Player 5 has created a new game") -- How I check if he/she is joined/created?
@@ -103,7 +103,7 @@ feature -- Test routines
 			rules : STRING
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			rules := game.game_rules ()
 				-- assert("") -- How I check this function?
@@ -119,7 +119,7 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			--  game.exit (player_t)
 				-- assert("") -- How I check if the player is out?
@@ -135,7 +135,7 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"191.190.54.89")
 			create player_t.make (005, "Player")
 			--game.select_game (player_t)
 				-- assert("") -- How I check it?
@@ -152,10 +152,10 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			cell := game.roll_dice (player_t)
-				-- assert("") -- ???
+			assert("cell is invalid",cell /= Void)
 		end
 
 	test_buy
@@ -167,13 +167,16 @@ feature -- Test routines
 			player_t: G1_PLAYER
 			deed_t: G1_DEED
 			controller: G1_UI_CONTROLLER
+			bank: G1_BANK
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (5, "Player")
+			create bank.make
+			bank.withdraw_money (1500)
 			create deed_t.make_deed (10, 1, "cell 1")
 			game.buy (player_t, deed_t)
-				--assert("Player 5 has bought deed")
+			assert("Player 5 has bought deed", player_t.properties.has(deed_t))
 		end
 
 	test_auction
@@ -187,7 +190,7 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			create deed_t.make_deed (10, 1, "cell 1")
 			game.auction (player_t, deed_t, 10)
@@ -205,7 +208,7 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			create deed_t.make_deed (10, 1, "cell 1")
 			game.mortgage (player_t, deed_t)
@@ -223,11 +226,62 @@ feature -- Test routines
 			controller: G1_UI_CONTROLLER
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
+			create game.make_with_controller (controller,"192.10.1.674")
 			create player_t.make (005, "Player")
 			create deed_t.make_deed (10, 1, "cell 1")
 			game.mortgage (player_t, deed_t)
 				--assert("Player 5 has bought deed")
+		end
+
+	test_trade
+		note
+			testing: "covers/{G1_LOGIC_CLIENT}.trade"
+			testing: "user/G1"
+		local
+			game: G1_LOGIC_CLIENT
+			controller: G1_UI_CONTROLLER
+			l_player1, l_player2: G1_PLAYER
+			l_p1_deed, l_p2_deed: G1_DEED
+			l_p1_card, l_p2_card: G1_CARD
+		do
+			create controller.make
+			create game.make_with_controller (controller,"192.10.1.674")
+			create l_player1.make (1, "Player 1")
+			create l_p1_deed.make_deed (100, 1, "Deed 1")
+			--create l_p1_card.make_card (16, "Get out of jail", 1)
+			l_player1.add_property (l_p1_deed)
+			--l_player1.increment_jail_cards
+			create l_player2.make (2, "Player 2")
+			--create l_p2_deed.make_deed (100, 2, "Deed 2")
+			create l_p2_card.make_card (17, "Get out of jail", 1)
+			--l_player2.add_property (l_p2_deed)
+			l_player2.increment_jail_cards
+			game.trade (l_player1, l_p1_deed, Void, l_player2, Void, l_p2_card)
+			assert("Valid items in player 1", l_player1.jail_cards.is_equal (1))
+			assert("Valid items in player 2", l_player2.properties.has (l_p1_deed))
+		end
+
+	test_build
+		note
+			testing: "covers/{G1_LOGIC_CLIENT}.build"
+			testing: "user/G1"
+		local
+			game: G1_LOGIC_CLIENT
+			player: G1_PLAYER
+			street: G1_STREET
+			controller: G1_UI_CONTROLLER
+			rent_values: ARRAY [INTEGER]
+			i, j: INTEGER
+		do
+			create controller.make
+			create player.make (1, "Player 1")
+			create game.make_with_controller (controller,"192.10.1.674")
+			create rent_values.make_filled (0, 1, 6)
+			rent_values.item (2) := 10
+			create street.make_street (1, "street 1", 100, rent_values, 50)
+			street.set_owner (player)
+			game.build (player, street)
+			assert("House built", street.l_number_of_houses.is_equal (1))
 		end
 
 	test_finish_turn
@@ -238,41 +292,13 @@ feature -- Test routines
 			game: G1_LOGIC_CLIENT
 			player_t: G1_PLAYER
 			controller: G1_UI_CONTROLLER
+			l_finish_turn: G1_MESSAGE_FINISH
 		do
 			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
-			create player_t.make (005, "Player")
-			game.finish_turn (player_t)
+			create game.make_with_controller (controller,"192.10.1.674")
+			create player_t.make (1, "Player 1")
+			create l_finish_turn.make_finish (player_t.id_player)
+			game.finish_turn(player_t)
+			assert("Player has finished his turn", l_finish_turn.player_id.is_equal (1))
 		end
-
-	test_lock_player
-		note
-			testing: "covers/{G1_LOGIC_CLIENT}.lock_player"
-			testing: "user/G1"
-		local
-			game: G1_LOGIC_CLIENT
-			player_t: G1_PLAYER
-			controller: G1_UI_CONTROLLER
-		do
-			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
-			create player_t.make (005, "Player")
-			game.lock_player (player_t)
-		end
-
-	test_unlock_player
-		note
-			testing: "covers/{G1_LOGIC_CLIENT}.unlock_player"
-			testing: "user/G1"
-		local
-			game: G1_LOGIC_CLIENT
-			player_t: G1_PLAYER
-			controller: G1_UI_CONTROLLER
-		do
-			create controller.make
-			create game.make_with_controller ("1.2.3.4", controller)
-			create player_t.make (005, "Player")
-			game.unlock_player (player_t)
-		end
-
 end

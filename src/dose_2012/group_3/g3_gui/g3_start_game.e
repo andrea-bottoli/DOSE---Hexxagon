@@ -25,22 +25,61 @@ feature{G3_FIRST_WINDOW}
 		internal_pixmap1.set_with_named_file ("dose_2012/images/group_03/join1.png")
 		internal_pixmap2.set_with_named_file ("dose_2012/images/group_03/create1.png")
 
+
+
 		create create_game.default_create
+		create_game.set_background_pixmap (internal_pixmap2)
+		create_game.pointer_button_release_actions.extend (agent create_a_game(?,?,?,?,?,?,?,?))
+		create_game.pointer_enter_actions.extend (agent enter_pixmap(create_game))
+		create_game.pointer_leave_actions.extend (agent leave_pixmap(create_game))
+
 		create join_game.default_create
+		join_game.pointer_button_release_actions.extend (agent join_a_game(?,?,?,?,?,?,?,?))
+		join_game.set_background_pixmap (internal_pixmap1)
+		join_game.pointer_enter_actions.extend (agent enter_pixmap(join_game))
+		join_game.pointer_leave_actions.extend (agent leave_pixmap(join_game))
+
+
 		create port.make_with_text ("25876")
 		create name.make_with_text ("My_name")
-		main_cont.extend_with_position_and_size (join_game,150,380,90,40)
-		main_cont.extend_with_position_and_size (create_game,750,380,120,40)
-		create_game.set_background_pixmap (internal_pixmap2)
-		main_cont.extend_with_position_and_size (port,155,55,200,25)
-		main_cont.extend_with_position_and_size (name,170,90,200,25)
-		join_game.pointer_button_release_actions.extend (agent join_a_game(?,?,?,?,?,?,?,?))
-		create_game.pointer_button_release_actions.extend (agent create_a_game(?,?,?,?,?,?,?,?))
-		join_game.set_background_pixmap (internal_pixmap1)
+
+		main_cont.extend_with_position_and_size (join_game,150,380,100,97)
+		main_cont.extend_with_position_and_size (create_game,750,380,100,97)
+		main_cont.extend_with_position_and_size (port,160,60,200,25)
+		main_cont.extend_with_position_and_size (name,170,105,200,25)
 		cont.extend_with_position_and_size (main_cont, 0, 0, 1000, 600)
 		main_cont.set_background_pixmap (internal_pixmap)
 	end
 
+	enter_pixmap (pix:EV_FIXED)
+	local
+			internal_pixmap: EV_PIXMAP
+	do
+		create internal_pixmap
+		if pix = create_game then
+			internal_pixmap.set_with_named_file ("dose_2012/images/group_03/create2.png")
+			create_game.set_background_pixmap (internal_pixmap)
+		else
+			internal_pixmap.set_with_named_file ("dose_2012/images/group_03/join2.png")
+			pix.set_background_pixmap (internal_pixmap)
+		end
+
+	end
+
+	leave_pixmap (pix:EV_FIXED)
+	local
+			internal_pixmap: EV_PIXMAP
+	do
+		create internal_pixmap
+		if pix = create_game then
+			internal_pixmap.set_with_named_file ("dose_2012/images/group_03/create1.png")
+			create_game.set_background_pixmap (internal_pixmap)
+		else
+			internal_pixmap.set_with_named_file ("dose_2012/images/group_03/join1.png")
+			pix.set_background_pixmap (internal_pixmap)
+		end
+
+	end
 
 feature{NONE}
 	--actions
@@ -58,6 +97,7 @@ feature{NONE}
 				create control.make_with_model (model)
 				control. set_tichu_game_window(window)
 				window.set_contoller(control)
+
 				window.intialize_game_window (wind, port.text, name.text,true)
 			end
 		end
@@ -66,8 +106,8 @@ feature{NONE}
 
 	local window:G3_GAME_WINDOW
 		do
-			if  port.text.is_empty or port.text.is_integer=false then
-				port.set_text ("Put the server port here")
+			if  port.text.is_empty or port.text.is_integer then
+				port.set_text ("Put the server ip here")
 			elseif name.text.is_empty then
 				name.set_text ("Put your name here")
 			else

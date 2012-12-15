@@ -34,8 +34,17 @@ feature -- Test routines
 			testing: "user/G1"
 		local
 			msg_trade_t: G1_MESSAGE_TRADE
+			p1, p2: G1_PLAYER
+			d1, d2: G1_DEED
+			c1, c2: G1_CARD
 		do
-			create msg_trade_t.make_trade (5, 10, 5)
-			assert ("Message Trade: Player:5, Offer:10, Deed:5 : ", msg_trade_t.id_player.is_equal (5) and msg_trade_t.id_deed_offered.is_equal (5) and msg_trade_t.price_offered.is_equal (10))
+			create p1.make (1, "Player 1")
+			create p2.make (2, "Player 2")
+			create d1.make_deed (100, 1, "Deed 1")
+			create d2.make_deed (100, 2, "Deed 2")
+			create c1.make_card (1, "Get out of jail", 0)
+			create c2.make_card (2, "Get out of jail", 1)
+			create msg_trade_t.make_trade (p1.id_player, d1.id_cell, c1.id, p2.id_player, d2.id_cell, c2.id, True)
+			assert ("Message Trade: Player:5, Offer:10, Deed:5 : ", msg_trade_t.id_player1.is_equal (1) and msg_trade_t.id_player1.is_equal (2))
 		end
 end

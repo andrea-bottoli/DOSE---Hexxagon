@@ -1,6 +1,6 @@
 note
 	description: "Summary description for {DO_HELP}."
-	author: "Damian Ojeda"
+	author: "Team Rio Cuarto9"
 	date: "$Date$"
 	revision: "$Revision$"
 

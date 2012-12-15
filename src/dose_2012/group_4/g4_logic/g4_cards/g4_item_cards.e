@@ -7,9 +7,11 @@ note
 deferred class
 	G4_ITEM_CARDS
 		inherit G4_CARDS
+		redefine get_instance end
 
 feature
-	action(a_Player_array : ARRAY[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE)
-	do	end
-
+	get_instance : STRING
+	do
+		Result := "Item"
+	end
 end

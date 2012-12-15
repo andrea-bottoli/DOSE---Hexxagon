@@ -1,7 +1,7 @@
 note
 	description: "Implementation of a main class for the NET sub-componet of the game TTNG."
 	author: "Rio Cuarto8"
-	date: "05/12/2012"
+	date: "$Date$"
 	revision: "1.0"
 
 class
@@ -192,14 +192,16 @@ feature -- Leave game
 feature -- Miscellaneous
 
 	valid_ip_address (ip: STRING): BOOLEAN
-			-- is a valid ip?
+			-- is a valid ipv4 address?
 		require
 			not_void_ip: ip /= Void
+		local
+			net_address: INET_ADDRESS_FACTORY
+			ipv4_address: INET_ADDRESS
 		do
-			Result := True
-		ensure
-			valid_length: ip.count > 6 and ip.count < 16
-				--valid_characters:
+			create net_address
+			ipv4_address ?= net_address.create_from_name(ip)
+			Result := ipv4_address /= Void
 		end
 
 	valid_number_rules (rules: ARRAY [BOOLEAN]): BOOLEAN

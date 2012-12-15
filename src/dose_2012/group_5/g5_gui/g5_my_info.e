@@ -44,7 +44,6 @@ feature {G5_MAIN_VIEW}-- application
 			valid_arg: a_card /= void
 		local
 			index_card_hand: INTEGER
-			card: G5_GUI_CARD
 		do
 			-- checks if it's necessary to convert cards in mini version
 			if ((cards_version.is_equal("slim")) and ((cards_in_the_hand.count + 1)>5)) then

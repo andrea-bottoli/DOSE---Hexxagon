@@ -40,8 +40,10 @@ feature -- Test routines
 			testing: "covers/{G1_MESSAGE_BUY}.make_buy"
 		local
 			msg_buy: G1_MESSAGE_BUY
+			player: G1_PLAYER
 		do
-			create msg_buy.make_buy (TRUE)
+			create player.make (1, "PLayer 1")
+			create msg_buy.make_buy (player.id_player, TRUE)
 			assert ("Message Buy: Buy:TRUE ", msg_buy.buy)
 		end
 

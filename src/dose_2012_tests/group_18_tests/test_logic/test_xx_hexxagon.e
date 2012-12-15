@@ -213,8 +213,8 @@ feature -- Test routines
 			end
 		end
 
-	--Tests the routine set_multi_player
-	test_set_multi_player
+	--Tests the routine set_server_setup
+	test_set_server_setup
 		note
 			testing:  "covers/{XX_HEXXAGON}.set_multi_player"
 			testing: "user/XX"
@@ -222,7 +222,6 @@ feature -- Test routines
 			l_hexxagon: XX_HEXXAGON
 			l_name_player: STRING
 			l_color_player: STRING
-			l_server: BOOLEAN
 			l_ip: STRING
 			l_port: INTEGER
 			l_i: INTEGER
@@ -233,7 +232,6 @@ feature -- Test routines
 			--First test
 			l_name_player:="NamePlayer"
 			l_color_player:="Rubies"
-			l_server:=TRUE
 			from
 				l_j:=0
 			until
@@ -255,7 +253,7 @@ feature -- Test routines
 					l_port:=l_i
 					l_name_player.append_integer (l_i)
 
-					l_hexxagon.set_multi_player (l_server,l_name_player, l_color_player, l_ip, l_port)
+					l_hexxagon.set_server_setup (l_name_player, l_ip, l_port)
 					assert ("hexxagon is not void ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
 					l_i:=l_i+1
 				end
@@ -284,7 +282,7 @@ feature -- Test routines
 					l_port:=l_i
 					l_name_player.append_integer (l_i)
 
-					l_hexxagon.set_multi_player (l_server,l_name_player, l_color_player, l_ip, l_port)
+					l_hexxagon.set_server_setup (l_name_player, l_ip, l_port)
 					assert ("hexxagon is not void ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
 					l_i:=l_i+1
 				end
@@ -292,7 +290,6 @@ feature -- Test routines
 			end
 
 			l_color_player:="Rubies"
-			l_server:=FALSE
 			from
 				l_j:=0
 			until
@@ -314,7 +311,7 @@ feature -- Test routines
 					l_port:=l_i
 					l_name_player.append_integer (l_i)
 
-					l_hexxagon.set_multi_player (l_server,l_name_player, l_color_player, l_ip, l_port)
+					l_hexxagon.set_server_setup (l_name_player, l_ip, l_port)
 					assert ("hexxagon is not void ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
 					l_i:=l_i+1
 				end
@@ -343,7 +340,7 @@ feature -- Test routines
 					l_port:=l_i
 					l_name_player.append_integer (l_i)
 
-					l_hexxagon.set_multi_player (l_server,l_name_player, l_color_player, l_ip, l_port)
+					l_hexxagon.set_server_setup (l_name_player, l_ip, l_port)
 					assert ("hexxagon is not void and inputs are valid ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
 					l_i:=l_i+1
 				end
@@ -367,39 +364,139 @@ feature -- Test routines
 			assert ("hexxagon not void ", l_hexxagon/=Void)
 		end
 
-	--Tests the routine other_player
-	test_other_player
-
+--Tests the routine set_server_setup
+	test_set_client_setup
 		note
-			testing:  "covers/{XX_HEXXAGON}.other_player"
+			testing:  "covers/{XX_HEXXAGON}.set_multi_player"
 			testing: "user/XX"
 		local
 			l_hexxagon: XX_HEXXAGON
-			l_name: STRING
+			l_name_player: STRING
+			l_color_player: STRING
 			l_ip: STRING
+			l_port: INTEGER
 			l_i: INTEGER
+			l_j: INTEGER
 		do
 			create l_hexxagon.make_hexxagon
-			l_name:="name player"
-			from
-				l_i:=0
-			until
-				l_i>=10
-			loop
-				l_name.append_integer (l_i)
-				l_ip:=""
-				l_ip.append_integer ((l_i*4))
-				l_ip.append (".")
-				l_ip.append_integer ((l_i*6))
-				l_ip.append (".")
-				l_ip.append_integer ((l_i*9))
-				l_ip.append (".")
-				l_ip.append_integer ((l_i*11))
 
-				l_hexxagon.other_player (l_name, l_ip)
-				l_i:=l_i+1
+			--First test
+			l_name_player:="NamePlayer"
+			l_color_player:="Rubies"
+			from
+				l_j:=0
+			until
+				l_j>=4
+			loop
+				l_ip:=""
+				l_ip.append_integer ((l_j*4))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*6))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*9))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*11))
+				from
+					l_i:=1
+				until
+					l_i>=65535
+				loop
+					l_port:=l_i
+					l_name_player.append_integer (l_i)
+
+					l_hexxagon.set_client_setup (l_name_player, l_ip, l_port)
+					assert ("hexxagon is not void ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
+					l_i:=l_i+1
+				end
+				l_j:=l_j+1
 			end
-			assert ("hexxagon not void and inputs are valid ", l_hexxagon/=Void and not l_name.is_equal ("") and not l_ip.is_equal (""))
+
+			l_color_player:="Pearls"
+			from
+				l_j:=0
+			until
+				l_j>=4
+			loop
+				l_ip:=""
+				l_ip.append_integer ((l_j*4))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*6))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*9))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*11))
+				from
+					l_i:=1
+				until
+					l_i>=65535
+				loop
+					l_port:=l_i
+					l_name_player.append_integer (l_i)
+
+					l_hexxagon.set_client_setup (l_name_player, l_ip, l_port)
+					assert ("hexxagon is not void ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
+					l_i:=l_i+1
+				end
+				l_j:=l_j+1
+			end
+
+			l_color_player:="Rubies"
+			from
+				l_j:=0
+			until
+				l_j>=4
+			loop
+				l_ip:=""
+				l_ip.append_integer ((l_j*4))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*6))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*9))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*11))
+				from
+					l_i:=1
+				until
+					l_i>=65535
+				loop
+					l_port:=l_i
+					l_name_player.append_integer (l_i)
+
+					l_hexxagon.set_client_setup (l_name_player, l_ip, l_port)
+					assert ("hexxagon is not void ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
+					l_i:=l_i+1
+				end
+				l_j:=l_j+1
+			end
+
+			l_color_player:="Pearls"
+			from
+				l_j:=0
+			until
+				l_j>=4
+			loop
+				l_ip:=""
+				l_ip.append_integer ((l_j*4))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*6))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*9))
+				l_ip.append (".")
+				l_ip.append_integer ((l_j*11))
+				from
+					l_i:=1
+				until
+					l_i>=65535
+				loop
+					l_port:=l_i
+					l_name_player.append_integer (l_i)
+
+					l_hexxagon.set_client_setup (l_name_player, l_ip, l_port)
+					assert ("hexxagon is not void and inputs are valid ", not l_name_player.is_equal ("") and (l_color_player.is_equal ("Rubies")=TRUE or l_color_player.is_equal ("Pearls")=TRUE) and not l_ip.is_equal ("") and (l_port>0 and l_port<65536))
+					l_i:=l_i+1
+				end
+				l_j:=l_j+1
+			end
 		end
 
 end

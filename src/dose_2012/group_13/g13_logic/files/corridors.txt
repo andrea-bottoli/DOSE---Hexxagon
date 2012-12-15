@@ -13,7 +13,7 @@
 4 7 corridor corridor corridor wall
 4 8 corridor wall corridor corridor
 4 17 corridor corridor corridor wall
-4 18  corridor wall corridor corridor
+4 18 corridor wall corridor corridor
 5 7 corridor corridor corridor wall
 5 8 corridor wall corridor corridor
 5 17 corridor corridor corridor wall
@@ -177,7 +177,7 @@
 22 16 corridor corridor corridor wall
 22 17 corridor wall corridor corridor
 23 8 corridor corridor corridor wall
-23 9 corridor wal corridor corridor
+23 9 corridor wall corridor corridor
 23 16 corridor corridor corridor wall
 23 17 corridor wall corridor corridor
 24 8 corridor corridor corridor wall

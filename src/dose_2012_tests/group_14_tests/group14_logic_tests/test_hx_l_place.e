@@ -51,7 +51,7 @@ feature
 
 	test_hx_l_place_player
 		do
-			assert ("Player at place 1,1 is not void", board.place (1, 1).player /= Void)
+			assert ("Player at place 1,1 is not void", board.place (1, 1).player_id /= 0)
 		end
 
 end -- class TEXT_HX_L_PLACE

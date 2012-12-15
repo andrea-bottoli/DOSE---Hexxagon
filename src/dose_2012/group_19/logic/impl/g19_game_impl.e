@@ -17,7 +17,7 @@ feature{NONE}
 
 	current_step_checker: G19_STEP_CHECKER_IMPL
 
-	current_left_buildings: ARRAY[INTEGER]
+	current_avaible_actions_count: ARRAY[INTEGER]
 
 feature{G19_GAME_BUILDER}
 
@@ -40,9 +40,13 @@ feature{G19_GAME_BUILDER}
 			end
 
 			create current_terrain_card_manager.make()
-			create current_map.make("normal", "normal", "normal", "normal", current_terrain_card_manager)
+			create current_map.make("map1", "map2", "map3", "map4", current_terrain_card_manager)
 
-			create current_left_buildings.make_filled(40, 1, current_players.count)
+			create current_step_checker.make()
+			create current_avaible_actions_count.make_filled(5 -- todo 20
+			, 1, current_players.count)
+
+
 		end
 
 feature
@@ -51,7 +55,8 @@ feature
 		local
 			end_of_game: BOOLEAN
 			last_step: G19_STEP
-			i, changes_count: INTEGER
+			i, changes_count, actions_counter: INTEGER
+			game_result: G19_GAME_RESULT_IMPL
 		do
 			emit_on_game_start(current)
 			emit_on_terrain_card_recieve(current, current_terrain_card_manager)
@@ -61,42 +66,45 @@ feature
 			until
 				end_of_game
 			loop
+				end_of_game := true
 				from
 					i := 1
 				until
 					i > current_players.count
 				loop
-					if current_left_buildings.at(i) > 0 then
+					if current_avaible_actions_count.at(i) > 0 then
+						end_of_game := false
 						emit_on_waiting_for(current, current_players.at(i).get_info())
 
-
-						current_map.start_transaction()
 						from
 							last_step := current_players.at(i).on_next_step(current)
 						until
-							current_step_checker.is_step_valid(current_map, current_players.at(i).get_info(), last_step)
+							current_step_checker.is_step_valid(Current, last_step)
 						loop
-							current_map.rollback()
-							current_map.start_transaction()
 							last_step := current_players.at(i).on_wrong_step(current, last_step)
 						end
-						changes_count := current_map.commit()
+						current_map.apply (last_step)
 
-						current_left_buildings.put(current_left_buildings.at(i) - changes_count, i)
-
+						--
+						update_avaible_actions_count (last_step, i)
 						emit_on_step(current, current_players.at(i).get_info(), last_step)
 					end
 
 					i := i + 1
 				end
 			end
+			create game_result.make(current)
 
-			emit_on_game_end(current, void)
+			emit_on_game_end(current, game_result)
 		end
 
 	get_avaible_actions_count(player: G19_PLAYER_INFO): TABLE[INTEGER, STRING]
+		local
+			table: HASH_TABLE[INTEGER, STRING]
 		do
-
+			create table.make(4)
+			table.put(current_avaible_actions_count.at(current_infos.index_of(player, 1)), "NORMAL")
+			result := table
 		end
 
 	get_players(): TWO_WAY_SORTED_SET[G19_PLAYER_INFO]
@@ -110,6 +118,22 @@ feature
 		end
 
 feature{NONE}
+
+	update_avaible_actions_count(last_step: G19_STEP; player: INTEGER)
+		local
+			actions_counter, old_value: INTEGER
+		do
+			from
+				actions_counter := 1
+			until
+				actions_counter > last_step.get_actions.count
+			loop
+				old_value := current_avaible_actions_count.at(player) - 1
+				current_avaible_actions_count.put(old_value, player)
+
+				actions_counter := actions_counter + 1
+			end
+		end
 
 	emit_on_game_start(game: G19_GAME)
 		local

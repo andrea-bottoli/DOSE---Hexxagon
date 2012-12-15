@@ -6,31 +6,26 @@ note
 
 class
 	GR11_SPECIAL_CARD_DRECKACH_3
-	--this special_card permit to the player to draw three card
+	--dreakach 3 : player have three movement card at each turn
 
 inherit
 	GR11_SPECIAL_CARD
 
-	redefine
-		update,
-		control
-	end
+create
+	make
 
 
-feature --query
-	control(board:GR11_BOARD;x:INTEGER;y:INTEGER;player:GR11_PLAYER):BOOLEAN
-	--for this specific special card run its control and return true if control has successfull
-	do
-	end
+feature {NONE}--inizializer
+		make
+		--create action for this specific card
+			do
+				action_special_card:=create {GR11_ACTION_DRECKACH_3}
+				name_id:="DRECKACH_3"
+				always:=TRUE
+				end_of_turn:=FALSE
+			end
 
-feature --modifiers
-	update(board:GR11_BOARD;list_of_coordinates:LIST[GR11_COORDINATES];player:GR11_PLAYER):BOOLEAN
-	--for this specific sepcial card update component passed and return true if update has successfull
-	do
-		player.update_special_card
-		is_activated:=TRUE
-		Result:=TRUE
-	end
+
 
 end
 

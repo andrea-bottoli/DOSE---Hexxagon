@@ -134,9 +134,11 @@ feature {NONE}	--Internal methods to create and populate the panel
 	set_style_components
 	local
 		l_font: EV_FONT
+		l_font2: EV_FONT
 		l_color: EV_COLOR
 	do
 		create l_font
+		create l_font2
 		create l_color
 
 		game_info_panel.set_padding (2)
@@ -167,13 +169,14 @@ feature {NONE}	--Internal methods to create and populate the panel
 		chat_input.set_font (l_font)
 		chat_input_panel.set_padding (5)
 
-		l_color.set_rgb_with_8_bit (255, 0, 0)
-		l_font.set_family ({EV_FONT_CONSTANTS}.Family_sans)
-		l_font.set_weight ({EV_FONT_CONSTANTS}.Weight_black)
-		l_font.set_shape ({EV_FONT_CONSTANTS}.Shape_regular)
-		l_font.set_height_in_points (15)
+		l_color.set_rgb_with_8_bit (0, 0, 255)
 		chat_enable_button.set_foreground_color (l_color)
-		chat_enable_button.set_font (l_font)
+		l_font2.set_family ({EV_FONT_CONSTANTS}.Family_sans)
+		l_font2.set_weight ({EV_FONT_CONSTANTS}.Weight_regular)
+		l_font2.set_shape ({EV_FONT_CONSTANTS}.shape_italic)
+		l_font2.set_height_in_points (15)
+		l_font2.preferred_families.extend ("Verdana")
+		chat_enable_button.set_font (l_font2)
 
 		l_color.set_rgb_with_8_bit (255, 0, 0)
 		l_font.set_family ({EV_FONT_CONSTANTS}.Family_sans)
@@ -233,9 +236,11 @@ feature {XX_GUI} --Methods used by XX_GUI
 	set_chat_enable_button(a_cond: BOOLEAN)
 	do
 		if(a_cond) then
-			chat_enable_button.disable_sensitive
-		else
 			chat_enable_button.enable_sensitive
+			chat_enable_button.enable_select
+		else
+			chat_enable_button.disable_sensitive
+			chat_enable_button.disable_select
 		end
 	end
 
@@ -254,7 +259,21 @@ feature {XX_GUI} --Methods used by XX_GUI
 
 	--Cleans the timer
 	clean_timer
+	local
+		l_color: EV_COLOR
+		l_font: EV_FONT
 	do
+		create l_color
+		create l_font
+
+		l_color.set_rgb_with_8_bit (255, 255, 255)
+		l_font.set_height_in_points (40)
+		l_font.set_family ({EV_FONT_CONSTANTS}.Family_sans)
+		l_font.set_weight ({EV_FONT_CONSTANTS}.weight_black)
+		l_font.set_shape ({EV_FONT_CONSTANTS}.Shape_regular)
+		l_font.preferred_families.extend ("Arial Black")
+		timer.set_font (l_font)
+		timer.set_foreground_color (l_color)
 		timer.set_text ("--:--")
 	end
 
@@ -438,38 +457,42 @@ feature{XX_GUI} --Methods for checking contracts
 	--Allow to check if game_status is empty
 	is_game_status_empty:BOOLEAN
 	do
-		Result:=(player1_panel.is_empty or player1_panel.is_player_status_empty or
-		   		 player2_panel.is_empty or player2_panel.is_player_status_empty)
+		Result:=(player1_panel.is_player_status_empty or player2_panel.is_player_status_empty)
 	end
 
 	--Allow to check if network_status is empty
 	is_network_status_empty:BOOLEAN
 	do
-		Result:=(player1_panel.is_empty or player1_panel.is_network_status_empty or
-		   		 player2_panel.is_empty or player2_panel.is_network_status_empty)
+		Result:=player1_panel.is_network_status_empty or player2_panel.is_network_status_empty
 	end
 
 	--Allow to check if board is empty
 	is_board_empty:BOOLEAN
 	do
-		Result:= board_panel.is_empty or board_panel.is_board_empty
+		Result:= board_panel.is_board_empty
 	end
 
 	--Allow to check if timer is empty
 	is_timer_empty:BOOLEAN
 	do
-		Result:= timer_panel.is_empty or timer.text.is_empty
+		Result:= timer.text.is_equal ("--:--")
 	end
 
 	--Allow to check if chat is empty
 	is_chat_empty:BOOLEAN
 	do
-		Result:= chat_panel.is_empty or chat_output.text.is_empty
+		Result:= chat_output.text.is_empty
 	end
 
 	--Allow to check if chat is displayed
 	is_chat_displayed:BOOLEAN
 	do
-		Result:= chat_panel.is_displayed and chat_output.is_displayed and chat_input.is_displayed
+		Result:= chat_panel.is_sensitive
+	end
+
+	--Check if the game panel is in default state
+	is_game_panel_in_default_state: BOOLEAN
+	do
+		Result:= is_game_status_empty and is_network_status_empty and is_board_empty and is_timer_empty and is_chat_empty
 	end
 end

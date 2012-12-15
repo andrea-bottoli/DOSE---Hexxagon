@@ -55,11 +55,21 @@ feature -- GUI colors
 			Result := l_col_blue
 		end
 
+	col_light_blue: EV_COLOR
+		once
+			create Result.make_with_8_bit_rgb(183, 228, 240)
+		end
+
 	col_yellow : EV_COLOR
 		local
 			l_col_yellow : EV_COLOR
 		once
 			create l_col_yellow.make_with_8_bit_rgb (255, 200, 0)
 			Result := l_col_yellow
+		end
+
+	col_green: EV_COLOR
+		once
+			create Result.make_with_8_bit_rgb (34, 177, 76)
 		end
 	end

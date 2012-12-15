@@ -19,39 +19,27 @@ feature{NONE}
 	is_finished: BOOLEAN
 
 
-feature {G10_JOINED_PLAYER, G10_HOST} -- constructor
+feature {G10_LOBBY_USER, G10_HOST} -- constructor
 	make
 	do
 		create Map.make()
-		create Players.make ()
+		create Players.make_players("Forever Alone", 1)
 		create TilePull.make()
+		create CurrentPlayerTile.make
 		is_finished := false
 		CurrentPlayer:=void
-		CurrentPlayerTile:=void
+		--CurrentPlayerTile:=void
 	end
 
---implements THREAD method
-feature
-	execute  --basic method that runs the game thread
-	local
-
+	make_for_host(host_name: STRING max_players: INTEGER)
 	do
-		--fields initialization	
-
-		--waiting for start message (cycle for players connection waiting???)
-		--start game
-
-		from  is_finished:=False
-		until is_finished=True
-		loop
-	    	--game cycle:
-	    		--get message
-	    		--call corresponding method
-	    		--send message
-	    end
-
-		--closing, deallocating
-
+		create Map.make()
+		create Players.make_players(host_name, max_players)
+		create TilePull.make()
+		create CurrentPlayerTile.make
+		is_finished := false
+		CurrentPlayer :=  void
+		--CurrentPlayerTile:= void
 	end
 
 -- mutator methods.
@@ -80,13 +68,21 @@ feature{ANY}
 		players.add_player (p)
 	end
 
+	add_player_to_list_name(player_name : STRING) -- routine adds player in the players list with name player_name and default the other attributes
+	local
+		p : G10_PLAYER
+	do
+		create p.make_with_name (player_name)
+		players.add_player (p)
+	end
+
 	update_game(m : G10_CRSN_MESSAGE) -- routine takes a message , parses it and then updates the game regarding the move it decodes from message
 	do
 	end
 
 	rotate_current_players_tile_clockwise() -- routine rotates the current players tile to 90 degrees at time.
 	do
-		CurrentPlayerTile.rotateclockwise()
+		CurrentPlayerTile.rotate()
 	end
 
 	rotate_current_players_tile_counterclockwise() -- routine rotates the current players tile to 90 degrees at time.
@@ -209,6 +205,24 @@ feature{ANY}
 	get_players_list() : G10_PLAYERS -- routine returns a collection with the players of the game.
 	do
 		Result := Players
+	end
+
+	get_players_arrayed_list() : ARRAYED_LIST[G10_PLAYER] -- routine returns a collection with the players of the game.
+	do
+		Result := Players.get_players
+	end
+
+	get_players_list_names() : ARRAYED_LIST[STRING] -- routine returns a collection with the player names of the game.
+	do
+	end
+
+	get_first_player_name : STRING -- this is a test routine that returns the first players name.
+	require
+		players_list_not_empty : players.get_players.is_empty = false
+	do
+		result := players.get_players.i_th (1).get_name
+	ensure
+		players_list_not_mutated : players.get_players.is_equal (old players.get_players)
 	end
 
 	get_players_name(p : G10_PLAYER) : STRING -- routine returns the name of player p

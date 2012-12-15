@@ -26,6 +26,7 @@ feature -- Test routines
 			moves:ARRAYED_LIST[B8_MOVE]
 			tile:B8_GAME_TILE
 			valid:BOOLEAN
+			l_scores:ARRAYED_LIST[INTEGER]
 --			k,h:INTEGER
 --			output_file: PLAIN_TEXT_FILE
 		do
@@ -146,7 +147,7 @@ feature -- Test routines
 		 		end
 				valid:=l_new_game.make_a_move (moves[i].player, moves[i].x,moves[i].y,tile)
 				if(valid)then
-					l_new_game.confirm_last_move ()
+					assert("the "+i.out+" move is not confirmed: "+moves[i].x.out+" "+moves[i].y.out,l_new_game.confirm_last_move ()/=Void)
 				end
 		 		if(moves[i].valid)then
 --		 			if(not valid)then
@@ -179,10 +180,11 @@ feature -- Test routines
 
 			assert("Game is not Over", l_new_game.get_game_mode.is_game_over)
 			assert ("Game is started", not l_new_game.game_is_started)
-			assert("Player 1 scoreis not correct",l_new_game.get_players[1].get_score=-4)
-			assert("Player 2 scoreis not correct",l_new_game.get_players[2].get_score=-31)
-			assert("Player 3 scoreis not correct",l_new_game.get_players[3].get_score=-25)
-			assert("Player 4 scoreis not correct",l_new_game.get_players[4].get_score=-38)
+			l_scores:=l_new_game.get_scores
+			assert("Player 1 score is not correct",l_scores[1]=-4)
+			assert("Player 2 score is not correct",l_scores[2]=-31)
+			assert("Player 3 score is not correct",l_scores[3]=-25)
+			assert("Player 4 score is not correct",l_scores[4]=-38)
 		end
 
 	test_is_game_over2
@@ -196,6 +198,7 @@ feature -- Test routines
 			moves:ARRAYED_LIST[B8_MOVE]
 			tile:B8_GAME_TILE
 			valid:BOOLEAN
+			l_scores:ARRAYED_LIST[INTEGER]
 --			k,h:INTEGER
 --			output_file: PLAIN_TEXT_FILE
 		do
@@ -316,7 +319,7 @@ feature -- Test routines
 		 		end
 				valid:=l_new_game.make_a_move (moves[i].player, moves[i].x,moves[i].y,tile)
 				if(valid)then
-					l_new_game.confirm_last_move ()
+					assert("the "+i.out+" move is not confirmed: "+moves[i].x.out+" "+moves[i].y.out,l_new_game.confirm_last_move ()/=Void)
 				end
 		 		if(moves[i].valid)then
 --		 			if(not valid)then
@@ -349,10 +352,9 @@ feature -- Test routines
 
 			assert("Game is not Over", l_new_game.get_game_mode.is_game_over)
 			assert ("Game is started", not l_new_game.game_is_started)
-			assert("Player 1 scoreis not correct",l_new_game.get_players[1].get_score=-4)
-			assert("Player 2 scoreis not correct",l_new_game.get_players[2].get_score=-31)
-			assert("Player 3 scoreis not correct",l_new_game.get_players[3].get_score=-25)
-			assert("Player 4 scoreis not correct",l_new_game.get_players[4].get_score=-38)
+			l_scores:=l_new_game.get_scores
+			assert("Player 1 score is not correct",l_scores[1]=-29)
+			assert("Player 2 score is not correct",l_scores[2]=-69)
 		end
 
 	test_next_move
@@ -369,7 +371,7 @@ feature -- Test routines
 			l_new_game.start_game
 			assert("It is turn 0", l_new_game.get_turn = 0)
 			assert("Make a move", l_new_game.make_a_move (0,0,0,l_new_game.get_players[1].get_tiles[1]))
-			l_new_game.confirm_last_move ()
+			assert("The move is not confirmed",l_new_game.confirm_last_move ()/=Void)
 			assert("Turn has changed", l_new_game.get_turn = 1)
 		end
 end

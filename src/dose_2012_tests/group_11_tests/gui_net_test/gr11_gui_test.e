@@ -28,8 +28,8 @@ feature -- Test routines
 		    -- l_fake_screen: FAKE_SCREEN
 
 		do
-			create msg_update
-			create msg_error
+			create msg_update.make ("<update destination%"*%"></update>")
+			create msg_error.make("<update destination%"*%"><error>ERROR</error></update>")
 			--create l_gui(l_fake_screen)
 			--l_gui.recv_msg(msg_update)
 			--assert("an update message is checked", l_fake_screen.update_message)

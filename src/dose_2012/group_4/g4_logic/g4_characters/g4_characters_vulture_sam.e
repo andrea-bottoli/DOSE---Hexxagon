@@ -8,9 +8,14 @@ class
 	G4_CHARACTERS_VULTURE_SAM
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Vulture Sam")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Vulture Sam")
   		Character_Life = 4

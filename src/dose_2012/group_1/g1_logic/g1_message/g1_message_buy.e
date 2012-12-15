@@ -12,22 +12,22 @@ inherit
 	G1_MESSAGE
 
 create
-	make, make_buy
+	make_buy
 
 feature -- Initialization
 
-	make
-			-- Initialize the message whit default values
+	make_buy (a_player_id: INTEGER; a_buy: BOOLEAN)
+		require
+			valid_id_player: a_player_id > 0
 		do
-			buy := False
-		end
-
-	make_buy (a_buy: BOOLEAN)
-		do
+			player_id := a_player_id
 			buy := a_buy
 		end
 
 feature --Measurent
+
+	player_id: INTEGER
+			-- Id of the player who buy a deed.
 
 	buy: BOOLEAN
 			-- If you "buy" is true, the player buys the property in that position.

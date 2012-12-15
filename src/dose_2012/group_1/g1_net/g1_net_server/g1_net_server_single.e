@@ -6,8 +6,11 @@ note
 
 class
 	G1_NET_SERVER_SINGLE
+
 inherit
+
 	SOCKET_RESOURCES
+
 	SED_STORABLE_FACILITIES
 
 create
@@ -16,23 +19,30 @@ create
 feature {NONE}
 
 	port: INTEGER
-	players_list: HASH_TABLE [SED_MEDIUM_READER_WRITER,INTEGER]
+
+	players_list: HASH_TABLE [SED_MEDIUM_READER_WRITER, INTEGER]
+
 	server_IP: STRING
+
 	socket: NETWORK_STREAM_SOCKET
+
 	game_server: G1_LOGIC_SERVER
 
 feature {NONE} -- Server status
 
-	is_started: BOOLEAN
 	timeout: INTEGER
+
+	l_match_name: STRING
+
+	is_started: BOOLEAN
 
 feature -- Initialization
 
-	make
+	make (match_name: STRING)
 			--- This constructor initialize the default server information.
 			--- Set default port to 9190
 		do
-			create game_server.make_controller(Current)
+			create game_server.make_net (Current)
 			port := 9190
 			is_started := FALSE
 			timeout := 5
@@ -46,6 +56,16 @@ feature -- Initialization
 
 feature {ANY} -- Operations
 
+	get_match_name: STRING
+		do
+			Result := l_match_name
+		end
+
+	set_match_name (match_name: STRING)
+		do
+			l_match_name := match_name
+		end
+
 	send_message_broadcast (message: G1_MESSAGE)
 			--- This method sends message to the network, to all the players who plays in specific match
 			--- The message will be transformed to a string which will send on the network
@@ -54,13 +74,13 @@ feature {ANY} -- Operations
 		local
 			count: INTEGER
 			l_medium: SED_MEDIUM_READER_WRITER
-			players: ARRAY[INTEGER]
+			players: ARRAY [INTEGER]
 		do
 			from
 				count := 1
 				players := players_list.current_keys
 			until
-				count = players_list.count+1
+				count = players_list.count + 1
 			loop
 				l_medium := players_list.item (players.entry (count))
 				l_medium.set_for_writing
@@ -70,7 +90,7 @@ feature {ANY} -- Operations
 		ensure
 		end
 
-	send_message_to (player: G1_PLAYER; message: G1_MESSAGE)
+	send_message_to (player: INTEGER; message: G1_MESSAGE)
 			--- This feature, called by LOGIC subcomponents, sends to the specific player of the match the message
 			--- The player is associated at a specific match, so will send only to him.
 		require
@@ -79,16 +99,16 @@ feature {ANY} -- Operations
 		local
 			l_medium: SED_MEDIUM_READER_WRITER
 		do
-			l_medium := players_list.at (player.get_id_player)
+			l_medium := players_list.at (player)
 			l_medium.set_for_writing
-			store(message,l_medium)
+			store (message, l_medium)
 			l_medium.set_for_reading
 		ensure
 		end
 
 feature {ANY} -- Server settings
 
-	start_server()
+	start_server ()
 			--- This method starts the server.
 			--- It is called by server launcher
 		require
@@ -96,16 +116,15 @@ feature {ANY} -- Server settings
 		local
 			count: INTEGER
 		do
-			io.put_string ("SERVER: Server Started%N")
 			is_started := TRUE
-
 			from
 				socket.listen (5)
+				socket.set_non_blocking
 				count := 0
 			until
 				count = 5
 			loop
-				listener(socket)
+				listener (socket)
 				count := count + 1
 			end
 			socket.cleanup
@@ -113,7 +132,7 @@ feature {ANY} -- Server settings
 			status: is_started = TRUE
 		end
 
-	listener(single_socket: NETWORK_STREAM_SOCKET)
+	listener (single_socket: NETWORK_STREAM_SOCKET)
 		local
 			l_medium: SED_MEDIUM_READER_WRITER
 		do
@@ -121,24 +140,23 @@ feature {ANY} -- Server settings
 			if attached {NETWORK_STREAM_SOCKET} single_socket.accepted as socket_player then
 				create l_medium.make (socket_player)
 				l_medium.set_for_reading
-				if attached {G1_PLAYER} retrieved (l_medium, True) as player then
-					players_list.put (l_medium,player.get_id_player)
+				if attached {INTEGER} retrieved (l_medium, True) as player then
+					players_list.put (l_medium, player)
 					game_server.add_player (player)
 				end
 			end
 		end
 
-	listener_from_network(player: G1_PLAYER)
+	listener_from_network (player: INTEGER)
 		local
 			l_medium_current: SED_MEDIUM_READER_WRITER
 		do
-			l_medium_current := players_list.at (player.get_id_player)
+			l_medium_current := players_list.at (player)
 			l_medium_current.set_for_reading
 			if attached {G1_MESSAGE} retrieved (l_medium_current, True) as message then
-				-- SEND TO LOGIC_SERVER
+					-- SEND TO LOGIC_SERVER
 			end
 		end
-
 
 	stop_server ()
 			--- This method stops the server.
@@ -150,5 +168,5 @@ feature {ANY} -- Server settings
 		ensure
 			status: is_started = FALSE
 		end
-end
 
+end

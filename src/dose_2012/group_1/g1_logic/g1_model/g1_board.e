@@ -206,7 +206,7 @@ feature {NONE} -- Basic Operations
 			create cell_street.make_street (23, "Indiana Avenue", 220, load_rent (18, 90, 250, 700, 875, 1050), 150)
 			cells [23] := cell_street
 			create cell_street.make_street (24, "Illinois Avenue", 240, load_rent (20, 100, 300, 750, 925, 1100), 150)
-			cells [23] := cell_street
+			cells [24] := cell_street
 
 				-- Yellow
 			create cell_street.make_street (26, "Atlantic Avenue", 260, load_rent (22, 110, 330, 800, 975, 1150), 150)
@@ -351,7 +351,7 @@ feature -- Status Report
 	move_player (a_player: G1_PLAYER; a_dices: INTEGER)
 			--Move player to the position
 		require
-			valid_position: a_dices > 0 and a_dices <= 6
+			valid_position: a_dices > 0 and a_dices <= 12
 		local
 			position: INTEGER
 		do

@@ -53,7 +53,7 @@ feature -- Test routines
 			create  l_sender --make(l_fake_gui)
 			create  l_receiver --make(l_fake_gui)
 				-- then we send some commands through the network
-			create l_msg --TODO:XML_HERE
+			create l_msg.make ("<fire />") --TODO:XML_HERE
 			-- l_sender.send_net_msg(l_msg)
 				--for each msg sent, we check if the fake controller received it
 			-- assert("The message sent equals the message received:", l_msg.equals(l_fake_controller.received_msg) );

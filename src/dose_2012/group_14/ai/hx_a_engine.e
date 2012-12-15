@@ -135,24 +135,26 @@ feature--
 		j: INTEGER
 		a: INTEGER
 		b: INTEGER
+		count: INTEGER
 	do
-		if (problem.ended (state) or md = 0) then
+		if (md = 0 or problem.ended (state,md = 0)) then
 			Result := problem.value (state)
 		else
 			succesors := problem.getsuccessor (state)
+			count := succesors.count
 			a := alfa
 			b := beta
 			from
 				i := 1
 			until
-				i > succesors.count or a >= b
+				i > count or a >= b
 			loop
 				j := minMaxAB(succesors.at (i),a,b,md-1)
 				if problem.is_max (state) and j > a then
 					a := j
-				end
-				if problem.is_min (state) and j < b then
+				else if problem.is_min (state) and j < b then
 					b := j
+				end
 				end
 				i := i + 1
 			end

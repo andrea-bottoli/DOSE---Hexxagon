@@ -46,31 +46,31 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	pop_up_selection0
-		-- pop_up_selection("PLAY",2,2,["C1","K4","K8","V1"])
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_selection"
-		do
-			cards_are_from := "SUPPLY"
-			min_choice := 2
-			max_choice := 2
-			cards := <<"C1","K4","K8","V1">>
-			class_test.pop_up_selection (cards_are_from, min_choice,max_choice,cards)
-			assert ("pop_up_selection has selected the correct cards correct place in a proper quantity ", class_test.a_pop_up_selection.list_of_cards.is_equal(cards) and class_test.a_pop_up_selection.place.is_equal(cards_are_from) and class_test.a_pop_up_selection.min_selection = min_choice and class_test.a_pop_up_selection.max_selection = max_choice)
-		end
+--	pop_up_selection0
+--		-- pop_up_selection("PLAY",2,2,["C1","K4","K8","V1"])
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_selection"
+--		do
+--			cards_are_from := "SUPPLY"
+--			min_choice := 2
+--			max_choice := 2
+--			cards := <<"C1","K4","K8","V1">>
+--			class_test.pop_up_selection (cards_are_from, min_choice,max_choice,cards)
+--			assert ("pop_up_selection has selected the correct cards correct place in a proper quantity ", class_test.a_pop_up_selection.list_of_cards.is_equal(cards) and class_test.a_pop_up_selection.place.is_equal(cards_are_from) and class_test.a_pop_up_selection.min_selection = min_choice and class_test.a_pop_up_selection.max_selection = max_choice)
+--		end
 
-	pop_up_selection1
-		-- pop_up_selection("PLAY",1,4,["C3","K1","V3"])
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_selection"
-		do
-			cards_are_from := "HAND"
-			min_choice := 1
-			max_choice := 4
-			cards := <<"C3","K1","V3">>
-			class_test.pop_up_selection (cards_are_from, min_choice,max_choice,cards)
-			assert ("pop_up_selection has selected the correct cards correct place in a proper quantity ", class_test.a_pop_up_selection.list_of_cards.is_equal(cards) and class_test.a_pop_up_selection.place.is_equal(cards_are_from) and class_test.a_pop_up_selection.min_selection = min_choice and class_test.a_pop_up_selection.max_selection = max_choice)
-		end
+--	pop_up_selection1
+--		-- pop_up_selection("PLAY",1,4,["C3","K1","V3"])
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_selection"
+--		do
+--			cards_are_from := "HAND"
+--			min_choice := 1
+--			max_choice := 4
+--			cards := <<"C3","K1","V3">>
+--			class_test.pop_up_selection (cards_are_from, min_choice,max_choice,cards)
+--			assert ("pop_up_selection has selected the correct cards correct place in a proper quantity ", class_test.a_pop_up_selection.list_of_cards.is_equal(cards) and class_test.a_pop_up_selection.place.is_equal(cards_are_from) and class_test.a_pop_up_selection.min_selection = min_choice and class_test.a_pop_up_selection.max_selection = max_choice)
+--		end
 
 feature -- Test negative
 

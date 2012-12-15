@@ -58,7 +58,8 @@ feature {G5_LAUNCHER, EQA_TEST_SET} -- Game Start
 				players.count <= 4
 
 			all_players_name_are_not_void:
-				players.for_all (agent (player: STRING): BOOLEAN do Result := (player /= void) end)
+				players.for_all (agent (player: STRING): BOOLEAN do Result := (player /= void
+				and not(player.is_empty)) end)
 
 		deferred
 		ensure
@@ -113,7 +114,7 @@ feature {G5_ITABLE, EQA_TEST_SET} -- Game Management
 								received_messages.for_all (agent (message: G5_MESSAGE): BOOLEAN
 								do Result := (message /= void) end)
 			message_source_is_server:	received_messages.for_all (agent (message: G5_MESSAGE): BOOLEAN
-										do Result := (message.source.is_empty and message.source /= void) end)
+										do Result := (not(message.source.is_empty) and message.source /= void) end)
 			message_targets_are_all_clients:
 				received_messages.for_all (agent (message: G5_MESSAGE): BOOLEAN
 										do Result := (

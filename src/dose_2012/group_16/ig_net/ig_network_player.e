@@ -79,10 +79,13 @@ feature {NONE}
 		do
 			--Listen on the connection, but make frequent brakes to check whether this thread should terminate
 			from
-
+				abort := False
+--				messages_waiting.wipe_out
 			until
 				abort
 			loop
+--				io.put_string ("Listening on peer port " + socket.peer_address.port.out + "...%N")
+				ps.execute (10, 1000)				--1 Sec
 				from
 					messages_waiting.start
 				until
@@ -91,12 +94,10 @@ feature {NONE}
 					internal_send_message(messages_waiting.first)
 					messages_waiting.remove
 				end
-				io.put_string ("Listening on peer port " + socket.peer_address.port.out + "...%N")
-				ps.execute (10, 1000)				--1 Sec
 			end
 
-			--We must abort, maybe send some abort message to the other side?
-			--TODO
+			--We must abort
+			Current.exit
 
 		end
 
@@ -113,10 +114,16 @@ feature {NONE}
 
 
 	internal_send_message(a_message: STRING)
+		require
+			a_message /= Void
 		do
 			io.put_string ("Sending message: " + a_message + ". Size: " + a_message.count.out + ". To port " + socket.peer_address.port.out + ".%N")
 
 			socket.put_string (a_message + "%N")
+
+			if a_message.is_equal ("send_abort") or a_message.starts_with ("send_game_over") then
+				abort := True
+			end
 		end
 
 feature {ANY}
@@ -242,7 +249,12 @@ feature {IG_LOGIC}	--During game, or in preparation
 
 	send_abort
 		do
-			send_message("abort")
+			send_message("send_abort")
+		end
+
+	is_connected: BOOLEAN
+		do
+			Result := socket /= Void
 		end
 
 feature {NONE}
@@ -254,7 +266,7 @@ feature {NONE}
 		end
 
 
-feature
+feature {NONE}
 
 	host_adress: STRING
 		-- The host address of the player.

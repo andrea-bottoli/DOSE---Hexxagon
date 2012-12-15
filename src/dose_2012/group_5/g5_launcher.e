@@ -93,22 +93,25 @@ feature {G5_CLIENT_THREAD, G5_MAIN_MENU} -- Client components initialization
 			do
 				create net_client.make(gui_manager)
 
-				-- The netclient try to connect to the selected server..
+				-- The net client try to connect to the selected server..
 				net_client.connect(player_name, server_ip_address, server_port_number)
 
 				-- Until a valid connection is obtained or the back button is pressed, the system requires
 				-- new inputs to the user and continues trying to connect.
-				from
-				until
-					net_client.has_a_valid_connection
-				loop
-					-- Some features hat affects directly the GUI part in order to obtain
+--				from
+--				until
+--					net_client.has_a_valid_connection
+--				loop
+					-- Some features may affects directly the GUI part in order to obtain
 					-- new inputs or return to the main menu.. IMPEMENTATION IS NOT PRESENT!!
 
-					net_client.connect(player_name, server_ip_address, server_port_number)
-				end
+--					net_client.connect(player_name, server_ip_address, server_port_number)
+--				end
 
-				net_client.game_phase
+				-- If a valid connection is obtained, the system starts the game_phase.
+				if net_client.has_a_valid_connection then
+					net_client.game_phase
+				end
 
 			ensure
 				-- A client can connect properly to the selected server and, if everything

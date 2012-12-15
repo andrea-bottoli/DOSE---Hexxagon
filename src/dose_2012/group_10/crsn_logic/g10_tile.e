@@ -10,93 +10,305 @@ class
 create
  make
 
-feature{}
+-- attributes
+feature{ANY}
 
  --IsTowerInCenter: BOOLEAN
 
  PlayerID: INTEGER
-
  Rotation: INTEGER --  0-0, 1-90, 2-180, 3-270
+ Parts: ARRAY2[G10_TILE_PART] -- 9 numbers to describe groung of tile in 4 corners, 4 edges and center
 
- --9 numbers to describe groung of tile in 4 corners, 4 edges and center
- Parts: ARRAY2[G10_TILE_PART]
 
-feature
+feature{ANY}
  FindPlacesForFollower():ARRAYED_LIST[G10_TILE_PART]
- do  end
- --rotate tile
- Rotate():BOOLEAN
  do
- 	if Rotation=3 then
- 		Rotation:=0
- 	else
- 		Rotation:=Rotation+1
+ end
+
+ -- rotate tile
+ Rotate -- routine rotates the tile.
+ do
+ 	if (rotation = 0) then
+ 		rotation := 90
+ 	elseif((rotation = 90)) then
+ 		rotation := 180
+ 	elseif((rotation = 180)) then
+ 		rotation := 270
+ 	elseif((rotation = 270)) then
+ 		rotation := 0
  	end
  end
---Description of this tile part texture(grass = 0, road = 1, building = 2,shield =3 ???)
- setType(type: INTEGER)
+
+--Description of this tile part texture(grass = 0, road = 1, building = 2)
+ setType(type: INTEGER)														-- ERROR FIX
  do
- 	inspect type
- 	 when 1-- cherch
- 	 	then
-			Parts.item (1,1).make(2)
- 	 when 2--cherch+road
- 	 	then
- 	 		Parts.item (1,1).make(2)
- 	 		Parts.item (2,1).make(1)
- 	 when 3--fulltown+shield
- 	 	then
- 	 		--
- 	 when 4--town+grass
- 	 	then
- 	 		Parts.item (0,0).make(2)
- 	 		Parts.item (0,1).make(2)
- 	 		Parts.item (0,2).make(2)
- 	 		Parts.item (1,0).make(2)
- 	 		Parts.item (1,1).make(2)
- 	 		Parts.item (1,2).make(2)
- 	 when 5--town+shield+grass
- 	 	then
- 	 when 6--town+road
- 	 	then
- 	 when 7--town+shield+road
- 	 	then
- 	 when 8--town+diagonalgrass
- 	 	then
- 	 when 9--town+shield+diagonalgrass
- 	 	then
- 	 when 10--town+diagonalroad
- 	 	then
- 	 when 11--town+shield+diagonalroad
- 	 	then
- 	 when 12--town+doublegrass
- 	 	then
- 	 when 13--town+shield+doublegrass
- 	 	then
- 	 when 14--town+town+grass
- 	 	then
- 	 when 15--doubletown+grass
- 	 	then
- 	 when 16--grass+town
- 	 	then
- 	 when 17--leftdiagonalroad+town+grass
- 	 	then
- 	 when 18--rightdiagonalroad+town+grass
- 	 	then
- 	 when 19--crossroad+town+grass
- 	 	then
- 	 when 20--horizontroad+town+grass
- 	 	then
- 	 when 21--vertroad+grass
- 	 	then
- 	 when 22--diagonalroad+grass
- 	 	then
- 	 when 23--triplecrossroad+grass
- 	 	then
- 	 when 24--qadrcrossroad+grass
- 	 	then
-  	else
-  	end
+-- 	inspect type
+-- 	 when 1-- cherch
+-- 	 	then
+--			Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(0)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 2--cherch+road
+-- 	 	then
+--			Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(0)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 3--fulltown+shield
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(2)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(2)
+-- 	 		Parts.item (2,0).make(2)
+-- 	 		Parts.item (2,1).make(2)
+-- 	 		Parts.item (2,2).make(2)
+-- 	 when 4--town+grass
+-- 	 	then
+--			Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(2)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(2)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 5--town+shield+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(2)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(2)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 6--town+road
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(2)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(2)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 7--town+shield+road
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(2)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(2)
+-- 	 		Parts.item (1,2).make(2)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 8--town+diagonalgrass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 9--town+shield+diagonalgrass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 10--town+diagonalroad
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 11--town+shield+diagonalroad
+-- 	 	then
+-- 	 		Parts.item (0,0).make(2)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 12--town+doublegrass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(2)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 13--town+shield+doublegrass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(2)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 14--town+town+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(2)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 15--doubletown+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(2)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 16--grass+town
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(0)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 17--leftdiagonalroad+town+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(1)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 18--rightdiagonalroad+town+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 19--crossroad+town+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(1)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 20--horizontroad+town+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(2)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(1)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(0)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 21--vertroad+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(1)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(0)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 22--diagonalroad+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(0)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(1)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(0)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 23--triplecrossroad+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(0)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(1)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+-- 	 when 24--qadrcrossroad+grass
+-- 	 	then
+-- 	 		Parts.item (0,0).make(0)
+-- 	 		Parts.item (0,1).make(1)
+-- 	 		Parts.item (0,2).make(0)
+-- 	 		Parts.item (1,0).make(1)
+-- 	 		Parts.item (1,1).make(1)
+-- 	 		Parts.item (1,2).make(1)
+-- 	 		Parts.item (2,0).make(0)
+-- 	 		Parts.item (2,1).make(1)
+-- 	 		Parts.item (2,2).make(0)
+--  	else
+--  	end
  end
 feature
 	get_parts():ARRAY2[G10_TILE_PART]
@@ -168,14 +380,16 @@ feature{ANY}
  do
 	PlayerID:=0
 	Rotation:=0
-	create Parts.make_filled (void,3,3)
-	from i:=0 until i>=3
-	loop
-		from j:=0 until j>=3
-		loop
-			Parts.item (i, j).make (0) --in the beginning all is grass
-		end
-	end
+--	create Parts.make_filled (void,3,3)
+--	from i:=0 until i>=3
+--	loop
+--		from j:=0 until j>=3
+--		loop
+--			Parts.item (i, j).make (0) --in the beginning all is grass
+--			i:=i+1
+--		end
+--		j:=j+1
+--	end
  end
 
 end --TILE

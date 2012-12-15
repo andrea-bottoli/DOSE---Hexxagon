@@ -200,4 +200,26 @@ feature --Access
 		Result.append_name ("play_hover.png")
 	end
 
+	--
+	img_go_back_winner: KL_PATHNAME
+		-- Path to "go_back_to_menu image
+	do
+		Result := img_path
+		Result.append_name ("go_back_winner.png")
+	end
+
+	img_play_again_winner: KL_PATHNAME
+		-- Path to "play_again_button" image
+	do
+		Result := img_path
+		Result.append_name ("play_again_winner.png")
+	end
+
+	img_play_new_game_winner: KL_PATHNAME
+		-- Path to "play_new_game_button" image
+	do
+		Result := img_path
+		Result.append_name ("play_new_game_winner.png")
+	end
+
 end

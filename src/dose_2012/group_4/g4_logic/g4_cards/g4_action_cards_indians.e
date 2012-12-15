@@ -16,13 +16,12 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Indians")
  	ensure
   		Name.is_equal("Indians")
-  		(CardNum = 1)or (CardNum = 13)
-  		CardSymbol.is_equal ("Diamnonds")
  	end
 
- 	action(a_Player_array : ARRAY[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
+ 	action(a_Player_array : ARRAYED_LIST[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
  	local
  		i:INTEGER
 	do

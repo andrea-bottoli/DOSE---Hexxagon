@@ -76,14 +76,6 @@ feature -- Test routines
 			assert ("get player",player/=void)
 		end
 
-		test_shuffle
-		local
-			m : G3_MODEL
-		do
-			create m.make
-			assert ("shuffle",m.shuffle/=void)
-		end
-
 end
 
 

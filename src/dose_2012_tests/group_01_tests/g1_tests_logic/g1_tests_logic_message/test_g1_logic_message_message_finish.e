@@ -40,9 +40,11 @@ feature -- Test routines
 			testing: "covers/{G1_MESSAGE_FINISH}.make_finish"
 		local
 			msg_finish: G1_MESSAGE_FINISH
+			player: G1_PLAYER
 		do
-			create msg_finish.make_finish (TRUE)
-			assert ("Message Finish: Finish_Turn: TRUE", msg_finish.finish_turn)
+			create player.make (1, "Player 1")
+			create msg_finish.make_finish (player.id_player)
+			assert ("Message Finish: Finish_Turn: TRUE", msg_finish.player_id.is_equal (1))
 		end
 
 end

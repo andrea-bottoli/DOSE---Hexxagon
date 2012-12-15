@@ -14,6 +14,8 @@ create
 feature --Constructor
  	make
  	do
+ 		set_character_name("Bart Cassidy")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Bart Cassidy")
   		Character_Life = 4

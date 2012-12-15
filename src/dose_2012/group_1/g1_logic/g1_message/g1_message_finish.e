@@ -12,26 +12,20 @@ inherit
 	G1_MESSAGE
 
 create
-	make, make_finish
+	make_finish
 
 feature -- Initialization
 
-	make
-			-- Initialize the message whit default values
-		do
-			finish_turn := False
-		end
-
-	make_finish (a_finish_turn: BOOLEAN)
+	make_finish (a_player_id: INTEGER)
 		require
-			valid_finish_turn: a_finish_turn = True
+			valid_id_player: a_player_id > 0
 		do
-			finish_turn := a_finish_turn
+			player_id := a_player_id
 		end
 
 feature --Measurent
 
-	finish_turn: BOOLEAN
-			-- If true player's turn finalize
+	player_id: INTEGER
+			-- Id of the player who finish turn
 
 end

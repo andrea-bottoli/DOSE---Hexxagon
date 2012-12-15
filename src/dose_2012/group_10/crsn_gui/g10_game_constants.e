@@ -7,12 +7,13 @@ note
 class
 	G10_GAME_CONSTANTS
 inherit
-	G10_GUI_CONSTANTS
+	G10_CRSN_CONSTANTS
 
 feature{NONE} --folders
 	game_folder			: STRING = "game"
 	tile_folder			: STRING = "tiles"
 	followers_folder	: STRING = "followers"
+	player_info_folder	: STRING = "player_info"
 	drawed_tiles_folder : STRING = "drawed_tiles"
 	field_tile_folder 	: STRING = "field_tiles"
 
@@ -22,6 +23,14 @@ feature{NONE} --folders
 	do
 		Result := img_path
 		Result.append_name (game_folder)
+	end
+
+	player_info_img_path: KL_PATHNAME -- routine returns the game directory path : \src\dose_2012\images\carcassonne\game\player_info
+	require
+		img_path_not_null: img_path /= void
+	do
+		Result := game_img_path
+		Result.append_name (player_info_folder)
 	end
 
 	game_tiles_img_path: KL_PATHNAME -- routine returns the tiles directory path : \src\dose_2012\images\carcassonne\game\tiles
@@ -55,40 +64,41 @@ feature{NONE} --folders
 		Result := game_tiles_img_path
 		Result.append_name (drawed_tiles_folder)
 	end
+feature {ANY} -- event constants.
+	rotate_event : STRING
+	once
+		result := "rotate"
+	end
 
 feature{ANY} --component sizes
-
 	--window
 	game_window_width : INTEGER = 1024
 	game_window_height : INTEGER = 768
 
-	--score board
-	scoreboard_start_width : INTEGER
-	once
-		Result := distance_between_components
-	end
-	scoreboard_start_height : INTEGER
-	once
-		Result := game_window_height - player_info_height - distance_between_components
-	end
-
-		--player info
-		player_info_width : INTEGER = 167
-		player_info_height : INTEGER = 112
-		distance_between_info : INTEGER = 5
-
-
 	--terrain
+	scrolled_terrain_width: INTEGER
+	do
+		Result := game_window_width - (action_panel_width)
+	end
+	scrolled_terrain_height: INTEGER
+	do
+		Result := game_window_height - (player_info_height + 10*distance_between_components)
+	end
+	starting_offset_x: INTEGER = 550
+	starting_offset_y: INTEGER = 610
+	starting_position_x: INTEGER = 350
+	starting_position_y: INTEGER = 250
+
 	terrain_width : INTEGER
 	do
-		Result := (tile_width+distance_between_tiles) * max_tiles_per_row
+		Result :=(tile_width+distance_between_tiles) * max_tiles_per_row -- 2000
 	end
 	terrain_height : INTEGER
 	do
-		Result := (tile_height+distance_between_tiles) * max_tiles_per_row
+		Result := (tile_height+distance_between_tiles) * max_tiles_per_row -- 2000
 	end
-	max_tiles_per_row : INTEGER = 30
-	max_tiles_per_column : INTEGER = 30
+	max_tiles_per_row : INTEGER = 40
+	max_tiles_per_column : INTEGER = 40
 	distance_between_tiles : INTEGER = 3
 
 		--field tile
@@ -109,29 +119,42 @@ feature{ANY} --component sizes
 				Result := tile_width//4
 			end
 
-	--player action area
-	action_panel_width : INTEGER = 198
-	action_panel_height : INTEGER = 397
-
-	action_area_start_width : INTEGER
-	once
-		Result := game_window_width - action_panel_width - distance_between_components
-	end
-	action_area_start_height : INTEGER
+	--score board
+	scoreboard_start_width : INTEGER
 	once
 		Result := distance_between_components
 	end
+	scoreboard_start_height : INTEGER
+	once
+		Result := game_window_height - player_info_height - distance_between_components
+	end
+
+		--player info
+		player_info_width : INTEGER = 167
+		player_info_height : INTEGER = 112
+		distance_between_info : INTEGER = 5
+
+
+	--player action area
+	action_panel_width : INTEGER = 220
+	action_panel_height : INTEGER = 425
+
+	action_area_start_width : INTEGER
+	once
+		Result := game_window_width - action_panel_width
+	end
+	action_area_start_height : INTEGER = 0
 
 		--drawed tile
 		drawed_tile_width : INTEGER = 156
 		drawed_tile_height : INTEGER = 156
 		drawed_tile_start_width : INTEGER
 		once
-			Result := 21
+			Result := 42
 		end
 		drawed_tile_start_height : INTEGER
 		once
-			Result := 60
+			Result := 58
 		end
 
 			--followers
@@ -145,11 +168,11 @@ feature{ANY} --component sizes
 		rotate_button_height : INTEGER = 35
 		rotate_button_start_width : INTEGER
 		once
-			Result := action_panel_width//2 -17
+			Result := action_panel_width//2 - 5
 		end
 		rotate_button_start_height : INTEGER
 		once
-			Result := action_panel_height - 130
+			Result := action_panel_height - 150
 		end
 
 
@@ -170,24 +193,12 @@ feature{ANY} --component sizes
 	img_terrain_panel: KL_PATHNAME
 		do
 			Result := game_img_path
-			Result.append_name ("terrain_background_1914_991.png")
+			Result.append_name ("terrain_background_2024_2024.png")
 		end
 	pix_terrain_panel: EV_PIXMAP
 		once
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string(img_terrain_panel) )
-		end
-
-	-- player action panel
-	img_game_player_action_panel: KL_PATHNAME
-		do
-			Result := game_img_path
-			Result.append_name ("Player_Action_Flag_198_397.png")
-		end
-	pix_game_player_action_panel: EV_PIXMAP
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_game_player_action_panel) )
 		end
 
 	-- rotate button
@@ -202,42 +213,239 @@ feature{ANY} --component sizes
 			Result.set_with_named_file (file_system.pathname_to_string(img_rotate_button) )
 		end
 
-	-- player info
+	-- player
 		-- red
+			-- red action panel
+	img_game_player_action_panel: KL_PATHNAME
+		do
+			Result := game_img_path
+			Result.append_name ("red_action_flag_220_425.png")
+		end
+	pix_game_player_action_panel: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_game_player_action_panel) )
+		end
+
+		-- red info
 	img_game_red_info: KL_PATHNAME
-		do
-			Result := game_img_path
-			Result.append_name ("red_info_167_112.png")
-		end
+	do
+		Result := player_info_img_path
+		Result.append_name ("red_info_167_112.png")
+	end
+
+	img_game_red_name: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("red_name.png")
+	end
+
+	img_game_red_numbers: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("red_numbers.png")
+	end
+
 	pix_game_red_info_panel: EV_PIXMAP
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_game_red_info) )
-		end
-		-- blue
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_red_info) )
+	end
 
+	pix_game_red_name: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_red_name) )
+	end
+
+	pix_game_red_numbers: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_red_numbers) )
+	end
+	-- blue
 	img_game_blue_info: KL_PATHNAME
-		do
-			Result := game_img_path
-			Result.append_name ("blue_info_167_112.png")
-		end
-	pix_game_blue_info_panel: EV_PIXMAP
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_game_blue_info) )
-		end
-		-- yellow
+	do
+		Result := player_info_img_path
+		Result.append_name ("blue_info_167_112.png")
+	end
 
+	img_game_blue_name: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("blue_name.png")
+	end
+
+	img_game_blue_numbers: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("blue_numbers.png")
+	end
+
+	pix_game_blue_info_panel: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_blue_info) )
+	end
+
+	pix_game_blue_name: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_blue_name) )
+	end
+
+	pix_game_blue_numbers: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_blue_numbers) )
+	end
+	-- yellow
 	img_game_yellow_info: KL_PATHNAME
-		do
-			Result := game_img_path
-			Result.append_name ("yellow_info_167_112.png")
-		end
+	do
+		Result := player_info_img_path
+		Result.append_name ("yellow_info_167_112.png")
+	end
+
+	img_game_yellow_name: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("yellow_name.png")
+	end
+
+	img_game_yellow_numbers: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("yellow_numbers.png")
+	end
+
 	pix_game_yellow_info_panel: EV_PIXMAP
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_game_yellow_info) )
-		end
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_yellow_info) )
+	end
+
+	pix_game_yellow_name: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_yellow_name) )
+	end
+
+	pix_game_yellow_numbers: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_yellow_numbers) )
+	end
+
+	-- green
+	img_game_green_info: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("green_info_167_112.png")
+	end
+
+	img_game_green_name: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("green_name.png")
+	end
+
+	img_game_green_numbers: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("green_numbers.png")
+	end
+
+	pix_game_green_info_panel: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_green_info) )
+	end
+
+	pix_game_green_name: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_green_name) )
+	end
+
+	pix_game_green_info_numbers: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_green_numbers) )
+	end
+
+	-- gray
+	img_game_gray_info: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("gray_info_167_112.png")
+	end
+
+	img_game_gray_name: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("gray_name.png")
+	end
+
+	img_game_gray_numbers: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("gray_numbers.png")
+	end
+
+	pix_game_gray_info_panel: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_gray_info) )
+	end
+
+	pix_game_gray_name: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_gray_name) )
+	end
+
+	pix_game_gray_numbers: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_gray_numbers) )
+	end
+
+	-- purple
+	img_game_purple_info: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("purple_info_167_112.png")
+	end
+
+	img_game_purple_name: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("purple_name.png")
+	end
+
+	img_game_purple_numbers: KL_PATHNAME
+	do
+		Result := player_info_img_path
+		Result.append_name ("purple_numbers.png")
+	end
+
+	pix_game_purple_info_panel: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_purple_info) )
+	end
+
+	pix_game_purple_name: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_purple_name) )
+	end
+
+	pix_game_purple_numbers: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_game_purple_numbers) )
+	end
 
 -- followers - constants
 	-- clicable point width.

@@ -45,9 +45,9 @@ feature
 			create con_accusation
 			con_accusation.extend_with_position_and_size (accuse_button, 62, 200, 80, 40)
 			con_accusation.extend_with_position_and_size (cancel_button, 249, 200, 80, 40)
-			con_accusation.extend_with_position_and_size (suspects_combo_box, 10, 50, 120, 24)
-			con_accusation.extend_with_position_and_size (weapons_combo_box, 140, 50, 120, 24)
-			con_accusation.extend_with_position_and_size (rooms_combo_box, 270, 50, 120, 24)
+			con_accusation.extend_with_position_and_size (suspects_combo_box, 10, 50, 120, 22)
+			con_accusation.extend_with_position_and_size (weapons_combo_box, 140, 50, 120, 22)
+			con_accusation.extend_with_position_and_size (rooms_combo_box, 270, 50, 120, 22)
 
 			set_message("Select a Suspect")
 			con_accusation.extend_with_position_and_size (message_label, 10, 15, 100, 20)

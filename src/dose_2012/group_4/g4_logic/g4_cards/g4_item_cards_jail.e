@@ -16,20 +16,17 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Jail")
  	ensure
   		Name.is_equal("Jail")
-  		(CardNum = 4) or (CardNum<=10) or (CardNum = 11)
-  		CardSymbol.is_equal ("Spades")
-  		CardSymbol.is_equal ("Hearts")
-
  	end
 
 feature
-	action(a_Player_array : ARRAY[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
 	do	end
 
 feature
-	go_to(a_Player_array : ARRAY[G4_PLAYER];a_player_target: INTEGER)
+	go_to(a_Player_array : LINKED_LIST[G4_PLAYER];a_player_target: INTEGER)
 	do
 		a_Player_array[a_player_target].get_item_board.add_item (current)
 	end

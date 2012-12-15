@@ -111,7 +111,7 @@ feature {XX_HEXXAGON,XX_AI_PLAYER}
 																		--if -1 the piece wasnt blank.used only on empty positions
 
 	require
-		valid_indexes: (board/=Void) and (which>=0)and (which>=58) and (player = 1 or player = 2)
+		valid_indexes: (board/=Void) and (which>=0)and (which<=58) and (player = 1 or player = 2)
 	local
 		flag:INTEGER
 		clonelist:TUPLE
@@ -171,7 +171,7 @@ feature{XX_HEXXAGON}
 																	--if -1 the piece wasnt the players. called only after do move
 
 	require
-		valid_indexes: (board/=Void) and (which>=0)and (which>=58) and (player = 1 or player = 2)
+		valid_indexes: (board/=Void) and (which>=0)and (which<=58) and (player = 1 or player = 2)
 	local
 		flag:INTEGER
 		clonelist:TUPLE
@@ -226,7 +226,7 @@ feature{XX_HEXXAGON}
 --###############################################################
 	update_gui_move(board:XX_BOARD;which:INTEGER)	--updates a pieces possible moves on the gui representation of the board
 	require
-		valid_indexes: (board/=Void) and (which>=0)and (which>=58)
+		valid_indexes: (board/=Void) and (which>=0)and (which<=58)
 	local
 		cell:INTEGER
 		gui_board:XX_GUI_BOARD
@@ -313,29 +313,39 @@ feature{XX_HEXXAGON}
 		cells:ARRAY[XX_CELL]
 	do
 		flag:=False
-		cells:=board.get_cell_board
+
+		-- Init the cells array
+		create cells.make_filled (Void, 0, 57)
+		from i:= 0 until i = 58
+		loop
+			cells.at(i):= create {XX_CELL}.make_cell(i)
+			i := i+1
+		end
+
 		from i:=0
 		until flag or i>=58
 		loop
-			clonelist:=board.get_cell_clonep (i)
-			clonesize:=clonelist.count
-			jumplist:=board.get_cell_jump (i)
-			jumpsize:=jumplist.count
-			from j:=1
-			until flag or j>clonesize
-			loop
-				if cells[clonelist.integer_item (j)].get_is_blank then
-					flag:=True
+			if board.get_cell(i).get_contents = player then
+				clonelist:=board.get_cell_clonep (i)
+				clonesize:=clonelist.count.as_integer_32
+				jumplist:=board.get_cell_jump (i)
+				jumpsize:=jumplist.count.as_integer_32
+				from j:=1
+				until flag or j>clonesize
+				loop
+					if cells[clonelist.integer_item (j)].get_is_blank then
+						flag:=True
+					end
+					j:=j+1
 				end
-				j:=j+1
-			end
-			from j:=1
-			until flag or j>jumpsize
-			loop
-				if cells[jumplist.integer_item (j)].get_is_blank then
-					flag:=True
+				from j:=1
+				until flag or j>jumpsize
+				loop
+					if cells[jumplist.integer_item (j)].get_is_blank then
+						flag:=True
+					end
+					j:=j+1
 				end
-				j:=j+1
 			end
 			i:=i+1
 		end
@@ -413,4 +423,25 @@ make_copy_move(board:XX_BOARD;player:INTEGER;move:XX_POSSIBLE_MOVES):XX_BOARD	--
 		ensure
 			Result/=Void
 	end
+
+
+	do_move_AI(board:XX_BOARD;player:INTEGER;move:XX_POSSIBLE_MOVES):XX_BOARD	--makes a move on the board
+																			----returns 1 if is clone 2 if is jump if not valid returns 0
+	local
+		flag:INTEGER
+		which:INTEGER
+		where_to:INTEGER
+	do
+		flag := try_move(board,player,move)
+		which := move.get_piece
+		where_to := move.get_position
+		if ( flag = 1) then
+			board.get_cell (where_to).set_contents (player)
+		elseif flag = 2 then
+			board.get_cell (where_to).set_contents (player)
+			board.get_cell (which).set_contents (0)
+		end
+		Result:=board
+	end
+
 end

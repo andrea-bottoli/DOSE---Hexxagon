@@ -20,7 +20,7 @@ feature -- Test routines
 			player : DO_PLAYER
 
 		do
-			create game.play_game
+			create game.play_game(1)
 
 			player.set_name ("Player 1");
 			player.set_active (True)
@@ -29,7 +29,7 @@ feature -- Test routines
 			game.add_player (player)
 			game.init_players
 			game.init_deck_piles
-			game.play_game
+			game.play_game(1)
 
 			assert ("Is player active", player.get_active = False)
 

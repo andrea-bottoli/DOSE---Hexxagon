@@ -45,6 +45,8 @@ feature {NONE}	-- Initialization
 
 		end
 
+feature {G5_MAIN_MENU, G5_IGUI_TO_NET} -- initialize the container of the main menu
+
 	create_container_main_menu
 		-- the constructor of the main menu container
 		do

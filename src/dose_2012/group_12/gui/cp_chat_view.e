@@ -19,11 +19,15 @@ create
 
 feature -- Initilization
 
-	make
+	make (a_sender_receiver: CP_CHAT_SENDER_RECEIVER)
 			-- Initializes the component
 		local
 			black : EV_COLOR
 		do
+			sender_receiver := a_sender_receiver
+			sender_receiver.set_receive_action (agent add_new_message_by_string)
+			sender_receiver.launch
+
 			default_create
 			create inputbox.default_create
 			create chat_box.default_create
@@ -85,13 +89,17 @@ feature -- Send message event
 
 	send_message
 			-- Sends the message
+		local
+			new_message: CP_MESSAGE
 		do
 			if(inputbox.text.count>0)then
+				-- We need player names...
 				add_new_message_by_string("PLAYER",inputbox.text)
+				create new_message.make_msg ("PLAYER", inputbox.text)
 				inputbox.set_text ("")
 
 				-- Send the message to the other player
-				-- TO DO
+				sender_receiver.send_message (new_message)
 			end
 		end
 
@@ -100,5 +108,7 @@ feature -- Attributes
 chat_box: EV_TEXT
 inputbox: EV_TEXT_FIELD
 send_btn: EV_BUTTON
+
+sender_receiver: CP_CHAT_SENDER_RECEIVER
 
 end

@@ -14,12 +14,13 @@ feature	-- Implementation
 	--Set up with userID id
 
 		require
-			id/= Void
+			true
 
 			do
 				userID:=id
 				HToken:=5
 				BToken:=5
+				zombieCollection:=0
 				create peonPosition.make (0, 0)
 
 				ensure
@@ -29,9 +30,73 @@ feature	-- Implementation
 userID: INTEGER
 HToken: INTEGER
 BToken: INTEGER
+zombieCollection:INTEGER assign setZombieCollection
+movementDiceRoll:INTEGER assign setMovementDiceRoll
+combatDiceRoll:INTEGER   assign setCombatDiceRoll
+zombieToMoveDiceRoll:INTEGER assign setZombieToMove
+
 
 peonPosition: ZB_POSITION
+zombieInStartPosition:BOOLEAN
+haveToGoInZombieMovement:BOOLEAN assign setHaveToGoInZombieMovement
 
+setHaveToGoInZombieMovement(bol:BOOLEAN)
+do
+	haveToGoInZombieMovement:=bol
+end
+
+setZombieToMove(int : INTEGER )
+do
+	zombieToMoveDiceRoll:=int
+end
+popHT
+do
+	HToken:=HToken-1
+end
+
+pushHT
+do
+	HToken:=HToken+1
+end
+
+pushBT
+do
+	BToken:=BToken+1
+end
+
+popBT(int:INTEGER)
+require
+	BToken>=int
+do
+	BToken:=BToken-int
+end
+setMovementDiceRoll(int:INTEGER)
+do
+	movementDiceRoll:=int
+end
+
+setCombatDiceRoll(int:INTEGER)
+do
+	combatDiceRoll:=int
+end
+
+setPeonPosition(x,y:INTEGER)
+local
+	tmppos:ZB_POSITION
+do
+	create tmppos.make (x, y)
+	peonPosition:=tmppos
+end
+
+setZombieInStartPosition(bol:BOOLEAN)
+do
+	zombieInStartPosition:=bol
+end
+
+setZombieCollection(int:INTEGER)
+do
+	zombieCollection:=int
+end
 
 movePeon(position: ZB_POSITION)
 --move a player peon to the position
@@ -45,7 +110,7 @@ movePeon(position: ZB_POSITION)
 
 --eventCard: ARRAY [ZB_EVENT_CARD]
 
-state: INTEGER -- 0 non active; 1 in mapcardplacement; 2 in movement; 3 in combat; 4 in zombie placement; 5 turn over
+state: INTEGER -- 0 non active; 1 in mapcardplacement; 2 in zombie placement; 3 in movement; 4 in combat;  5 in zombie movement;6 turn over; 7 rollDice
 getState(): INTEGER
 --returns the integer associated with the state of the player
 	require
@@ -58,7 +123,7 @@ getState(): INTEGER
 setState(s:INTEGER)
 --set the player state
 	require
-		s/=void and s>=0
+		s>=0
 		do
 			state:=s
 			ensure
@@ -85,13 +150,20 @@ bt(): INTEGER
 
 		end
 
+inDiceRolling():BOOLEAN
+	do
+
+		if state = 7 then Result:=true
+		else Result:=false
+		end
+	end
 
 inCombat(): BOOLEAN
 --returns true if the player is in combat state
 	require
 		true
 		do
-			if state=3 then Result:=true else Result:=false end
+			if state=4 then Result:=true else Result:=false end
 			ensure
 				result=true implies not inMovement() and not inZombieMovement() and not turnOver and not inMapCardPlacement
 		end
@@ -101,16 +173,27 @@ inMovement(): BOOLEAN
 	require
 		true
 		do
-			if state=2 then Result:=true else Result:=false end
+			if state=3 then Result:=true else Result:=false end
 			ensure
 				result=true implies not inCombat() and not inZombieMovement() and not turnOver() and not inMapCardPlacement()
 		end
+
+inZombiePlacement():BOOLEAN
+--returns true if the player is in zombie movement state
+	require
+		true
+		do
+			if state=2 then Result:=true else Result:=false end
+			ensure
+				result=true implies not inCombat() and not inMovement() and not turnOver() and not inMapCardPlacement()
+		end
+
 inZombieMovement():BOOLEAN
 --returns true if the player is in zombie movement state
 	require
 		true
 		do
-			if state=4 then Result:=true else Result:=false end
+			if state=5 then Result:=true else Result:=false end
 			ensure
 				result=true implies not inCombat() and not inMovement() and not turnOver() and not inMapCardPlacement()
 		end
@@ -119,7 +202,7 @@ turnOver(): BOOLEAN
 	require
 		true
 		do
-			if state=5 then Result:=true else Result:=false end
+			if state=6 then Result:=true else Result:=false end
 			ensure
 				result=true implies not inCombat() and not inZombieMovement() and not inMovement and not inMapCardPlacement()
 		end

@@ -28,18 +28,7 @@ feature
 			print ("tested client make")
 		end
 
-	test_process
-		note
-			testing: "covers/{CP_CLIENT}.process"
-		local
-			l_client:CP_CLIENT
-		do
-			l_client.process()
-			print ("tested client process")
-		end
-
-
-		test_start_game
+	test_start_game
 		note
 			testing: "covers/{CP_CLIENT}.start_game"
 		local
@@ -58,8 +47,7 @@ feature
 			l_player:CP_PLAYER
 			l_message:STRING
 		do
-			l_client.send_message (l_player, l_message)
-			print ("tested client send message")
+			-- Feature moved to chat_sender_receiver
 		end
 
 
@@ -83,8 +71,7 @@ feature
 			l_message:CP_MESSAGE
 			l_client:CP_CLIENT
 		do
-			l_client.post_message (l_message)
-			print ("tested client post message")
+			-- Feature moved to chat_sender_receiver
 		end
 
 

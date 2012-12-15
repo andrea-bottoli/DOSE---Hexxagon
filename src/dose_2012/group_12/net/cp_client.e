@@ -21,6 +21,7 @@ feature -- Attributes
 	is_connected: BOOLEAN
 	socket : NETWORK_STREAM_SOCKET
 	reader_writer: SED_MEDIUM_READER_WRITER
+	chat_sender_receiver: CP_CHAT_SENDER_RECEIVER
 
 feature	-- Initialization
 
@@ -33,23 +34,19 @@ feature	-- Initialization
 			create socket.make_client_by_port (port, ip_address)
 			socket.connect
 			create reader_writer.make (socket)
+			create chat_sender_receiver.make (socket, 33)
 
 			is_connected := True
 		ensure
 			connnection_status: is_connected = TRUE
 		end
 
-	process()
-			-- Listening for any message
+	get_game_message
+		-- Listen for new game message
 		do
 			reader_writer.set_for_reading
 			if attached {CP_GAMEMESSAGE} retrieved (reader_writer, True) as new_game_message then
 
-			end
-
-			reader_writer.set_for_reading
-			if attached {CP_MESSAGE} retrieved (reader_writer, True) as new_message then
-				post_message (new_message)
 			end
 		end
 
@@ -65,21 +62,6 @@ feature	-- Actions
 
 		ensure
 			game_has_strated: game_started = TRUE
-		end
-
-	send_message(player: CP_PLAYER; message: STRING)
-			-- Send a message to the other player
-		require
-			player_not_void: player/=Void
-			message_not_void: message/= Void
-			message_not_empty: message/=""
-			player_is_connected: is_connected = TRUE
-		local
-			new_message: CP_MESSAGE
-		do
-			create new_message.make_msg ("Add accessors in CP_PLAYER!", message)
-			reader_writer.set_for_writing
-			store (new_message, reader_writer)
 		end
 
 	send_move(player: CP_PLAYER; insect: CP_INSECT; position: CP_POSITION)
@@ -98,15 +80,6 @@ feature	-- Actions
 			create new_message.make_gamemsg (new_move)
 			reader_writer.set_for_writing
 			store (new_message, reader_writer)
-		end
-
-	post_message(message:CP_MESSAGE;)
-			-- Send to the GUI the message
-		require
-			message_not_void: message/=Void
-			player_is_connected: is_connected = TRUE
-		do
-
 		end
 
 	apply_move(game_msg:CP_GAMEMESSAGE;board:ARRAY[CP_INSECT])
@@ -137,6 +110,5 @@ feature -- Actions for connection
 				socket.cleanup
 			end
 		end
-
-
+		
 end

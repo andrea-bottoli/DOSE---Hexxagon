@@ -21,7 +21,7 @@ feature {ANY} -- Status on the ongoing game
 	owner_id: INTEGER
 			-- Who owns this property? 0 -> bank 1-8 -> player
 
-	is_mortgaged: BOOLEAN
+	is_mortgaged: BOOLEAN assign set_is_mortgaged
 			-- is morgaged this property?
 
 feature {ANY} --Access
@@ -51,6 +51,16 @@ feature -- Basic operations
 		ensure
 			owner_ok: owner_id = p_owner_id
 		end
+	set_is_mortgaged(bool: BOOLEAN)
+		do
+			is_mortgaged := bool
+		end
+
+	ret_is_mortgaged():BOOLEAN
+		do
+			Result := is_mortgaged
+		end
+
 
 invariant
 	owner_id >= 0 and owner_id <= 8

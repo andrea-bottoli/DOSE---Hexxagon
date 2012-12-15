@@ -15,31 +15,31 @@ create
 feature --attributes
 
 	player1,player2:XX_PLAYER
-	is_active:BOOLEAN
+	active:BOOLEAN
 
 feature{NONE} --creation
 
-	make(a_player1:XX_PLAYER ;a_player2:XX_PLAYER;active:BOOLEAN)
+	make(a_player1:XX_PLAYER ;a_player2:XX_PLAYER;a_active:BOOLEAN)
 		do
 			player1:=a_player1
 			player2:=a_player2
-			is_active:=active
+			active:=a_active
 		end
-		
+
 feature{XX_NET}
-	get_pl1 : XX_PLAYER
+	get_player1 : XX_PLAYER
 		do
 			result:=player1
 		end
 
-	get_pl2 : XX_PLAYER
+	get_player2 : XX_PLAYER
 		do
 			result:=player2
 		end
 
-	get_active:BOOLEAN
+	is_active:BOOLEAN
 		do
-			result:=is_active
+			result:=active
 		end
 end
 

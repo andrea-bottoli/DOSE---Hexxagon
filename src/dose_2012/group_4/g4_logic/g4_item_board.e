@@ -23,6 +23,9 @@ feature --Constructor
 
 	make
 	do
+		Player_Life := 0
+		Max_Distance := 1
+		create Player_Items.make
 	ensure
 		Player_Life = 0
 		Max_Distance = 1
@@ -49,7 +52,7 @@ feature --Setters Getters
 	do
 		Player_Character := a_character
 	ensure
-		Player_Character.is_equal(a_character)
+		Player_Character = a_character
 	end
 
 	get_player_character(): G4_CHARACTERS
@@ -141,7 +144,7 @@ feature --Distance
 feature
 
 	--Items
-	get_player_items(): LINKED_LIST[G4_ITEM_CARDS]
+	get_player_items: LINKED_LIST[G4_ITEM_CARDS]
 	do
 		Result := Player_Items
 	end

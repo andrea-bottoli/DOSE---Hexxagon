@@ -39,38 +39,38 @@ feature {NONE}
 
 feature -- test routines
 
-	test_check_players_name_0
-			--test whether player "jesus" is in the list of players
+--	test_check_players_name_0
+--			--test whether player "jesus" is in the list of players
+--
+--		note
+--			testing: "G5_MAIN_VIEW/check_players_name"
+--		local
+--			ret: BOOLEAN
+--		do
+--			name := "jesus"
+--			ret := main_view.check_players_name (name)
+--			assert ("the name in contained in the list of players", ret)
+--		end
 
-		note
-			testing: "G5_MAIN_VIEW/check_players_name"
-		local
-			ret: BOOLEAN
-		do
-			name := "jesus"
-			ret := main_view.check_players_name (name)
-			assert ("the name in contained in the list of players", ret)
-		end
-
-	test_check_players_name_1
-			--test_negative, the name assigned does not player
-		note
-			testing: "G5_MAIN_VIEW/check_players_name"
-		local
-			ret: BOOLEAN
-			rescued: BOOLEAN
-		do
-			if not rescued then
-				name := "gabriele"
-				ret := main_view.check_players_name (name)
-			end
-			assert ("the name is invalid", not ret)
-		rescue
-			if not rescued then
-				rescued := True
-				ret := True
-				retry
-			end
-		end
+--	test_check_players_name_1
+--			--test_negative, the name assigned does not player
+--		note
+--			testing: "G5_MAIN_VIEW/check_players_name"
+--		local
+--			ret: BOOLEAN
+--			rescued: BOOLEAN
+--		do
+--			if not rescued then
+--				name := "gabriele"
+--				ret := main_view.check_players_name (name)
+--			end
+--			assert ("the name is invalid", not ret)
+--		rescue
+--			if not rescued then
+--				rescued := True
+--				ret := True
+--				retry
+--			end
+--		end
 
 end

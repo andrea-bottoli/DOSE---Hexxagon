@@ -10,8 +10,19 @@ class
 
 inherit
 	EQA_TEST_SET
+		redefine
+			on_prepare
+		end
 
+feature --Initialization
 
+table: G5_TABLE
+inet : G5_INET_TO_LOGIC
+
+	on_prepare()
+	do
+		create table.make_game_default (3, inet)
+	end
 feature -- Test routines
 
 
@@ -27,7 +38,7 @@ feature -- Test routines
 		do
 			assert("supplies not initialized",((supply.sub_supply_victory = VOID) and (supply.sub_supply_kingdom = VOID) and (supply.sub_supply_treasure = VOID) and (supply.sub_supply_curse = VOID)))
 			-- MODIFICATA RIGA SOTTO
-			create supply.init_supply (card_kingdom, 5, 5, 5, 5)
+			create supply.init_supply (table, card_kingdom, 5, 5, 5, 5)
 			assert("supply initialized:",((supply.sub_supply_victory /= VOID) and (supply.sub_supply_kingdom /= VOID) and (supply.sub_supply_treasure /= VOID) and (supply.sub_supply_curse /= VOID)))
 			assert("victory supply lenght is correct:",(supply.sub_supply_victory.count = supply.sub_supply_victory))
 			assert("kingdom supply lenght is correct:",(supply.sub_supply_kingdom.count = supply.sub_supply_kingdom))
@@ -49,7 +60,7 @@ feature -- Test routines
 			-- CONSTRUSCTOR missed
 			-- create pile
 			-- MODIFICATA RIGA SOTTO
-			create supply.init_supply (card_kingdom, 5, 5, 5, 5)
+			create supply.init_supply (table, card_kingdom, 5, 5, 5, 5)
 			returned_card:= supply.take_card (pile)
 			assert("take_card returns the correct card:",returned_card.id.is_equal (pile.card.id))
 		end
@@ -67,7 +78,7 @@ feature -- Test routines
 		do
 			-- PILE_CARD_SUPPLY MISSED (So we can't create a pile with cellar card (if default set contains cellar this will work)
 			-- MODIFICATA RIGA SOTTO
-			create supply.init_supply (card_kingdom, 5, 5, 5, 5)
+			create supply.init_supply (table, card_kingdom, 5, 5, 5, 5)
 			pile:= supply.search_card ("cellar")
 			assert("search_card find the correct pile",pile.get_instance.id.is_equal ("cellar"))
 		end

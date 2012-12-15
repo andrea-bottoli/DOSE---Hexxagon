@@ -30,7 +30,7 @@ feature -- Test routines
 			player: BS_PLAYER
 			flag: BOOLEAN
 		do
-			create player.make(1,1)
+			create player.make(1,1,0)
 			create game.make
 			flag:=game.add_player(player)
 			assert("The quantity of players is correct.",flag)
@@ -47,10 +47,10 @@ feature -- Test routines
 			player3: BS_PLAYER
 			flag: BOOLEAN
 		do
-			create player.make(1,1)
-			create player1.make(2,2)
-			create player2.make(3,3)
-			create player3.make(4,4)
+			create player.make(1,1,0)
+			create player1.make(2,2,0)
+			create player2.make(3,3,0)
+			create player3.make(4,4,0)
 			create game.make
 			flag:=game.add_player(player)
 			flag:=game.add_player(player1)

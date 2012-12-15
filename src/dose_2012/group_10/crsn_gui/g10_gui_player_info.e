@@ -24,24 +24,19 @@ feature {NONE}
 
 -- costructors.
 feature {ANY}
-	make(player_id : INTEGER)
+	make(player_id : INTEGER  player_name : STRING)
 	do
 		default_create()
 		init_followers()
-		init_player()
+		init_player(player_name)
 		init_score()
-		if player_id = 1 then
-			update_background(pix_game_red_info_panel)
-		elseif player_id = 2 then
-			update_background(pix_game_blue_info_panel)
-		elseif player_id = 3 then
-			update_background(pix_game_yellow_info_panel)
-		end
+
+		draw_background_pixmap(player_id)
 
 		set_minimum_height (player_info_height)
 		set_minimum_width (player_info_width)
 
-		--draw_player_info() -- This will paint on top of the previous added pixmaps 3 more pixmaps (points_pix, follower_num__available_pix, userid_pix)
+		draw_player_info() -- This will paint on top of the previous added pixmaps 3 more pixmaps (points_pix, follower_num__available_pix, userid_pix)
 	end
 
 -- mutator methods.
@@ -53,9 +48,9 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 		followers_not_void : followers /= void
 	end
 
-	init_player() -- routine initializes the player.
+	init_player(player_name : STRING) -- routine initializes the player with player name.
 	do
-		create player.make()
+		create player.make(player_name)
 	ensure
 		player_not_void : player /= void
 	end
@@ -67,6 +62,28 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 		score_not_void : score /= void
 	end
 
+	draw_background_pixmap(player_id : INTEGER) -- routine draws the background pixmap depending the id of the player.
+	require
+		valid_player_id : player_id >= 1 and player_id <= 6
+		pixmap_not_drawed_yet : background_pixmap = void
+	do
+		if (player_id = 1) then
+			update_background(pix_game_red_info_panel)
+		elseif (player_id = 2) then
+			update_background(pix_game_blue_info_panel)
+		elseif (player_id = 3) then
+			update_background(pix_game_yellow_info_panel)
+		elseif (player_id = 4) then
+			update_background(pix_game_green_info_panel)
+		elseif (player_id = 5) then
+			update_background(pix_game_gray_info_panel)
+		elseif (player_id = 6) then
+			update_background(pix_game_purple_info_panel)
+		end
+	ensure
+		pixmap_drawed : background_pixmap /= void
+	end
+
 	draw_player_info()
 	require
 		followers_not_void : followers /= void
@@ -74,11 +91,11 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 		score_not_void : score /= void
 	do
 		extend (player)
-		extend_with_position_and_size (followers, 0, 100, followers.minimum_width, followers.minimum_height)
-		extend_with_position_and_size (score, 0, 130, score.minimum_width, score.minimum_height)
+		extend_with_position_and_size (followers,  player_info_width - followers.minimum_width, 45, followers.minimum_width, followers.minimum_height)
+		extend_with_position_and_size (score, player_info_width - score.minimum_width , 80, score.minimum_width, score.minimum_height)
 	ensure
 		player_drawned : current.has (player)
-		followers_drawned : current.has(followers)
+--		followers_drawned : current.has(followers)
 		score_drawned : current.has (score)
 	end
 
@@ -120,7 +137,7 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 	end
 
 -- accesor methods.
-feature {G10_GUI_PLAYER_INFO,G10_GUI_GAME_MAIN }
+feature {G10_GUI_PLAYER_INFO,G10_GUI_GAME_MAIN , G10_GUI_SCOREBOARD_PANEL}
 	get_follower_number() : INTEGER -- routine returns the follower number of this object's attribute.
 	do
 		ensure
@@ -129,6 +146,7 @@ feature {G10_GUI_PLAYER_INFO,G10_GUI_GAME_MAIN }
 
 	get_player_name() : STRING -- routine returns the name of the player object's attribute.
 	do
+		result := player.get_player_name_display
 		ensure
 			object_not_mutated : player = old player and player.get_player_name_display = old player.get_player_name_display and player /= void
 	end

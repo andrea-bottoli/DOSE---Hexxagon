@@ -59,15 +59,15 @@ feature {BS_GAME_WINDOW} -- Image changes
 			create l_pix
 			inspect a_color
 			when 0 then
-				l_pix.set_with_named_file (get_gfx_file_name("block_gray"))
+				l_pix := get_block_gray
 			when 1 then
-				l_pix.set_with_named_file (get_gfx_file_name("block_blue"))
+				l_pix := get_block_blue
 			when 2 then
-				l_pix.set_with_named_file (get_gfx_file_name("block_yellow"))
+				l_pix := get_block_yellow
 			when 3 then
-				l_pix.set_with_named_file (get_gfx_file_name("block_red"))
+				l_pix := get_block_red
 			when 4 then
-				l_pix.set_with_named_file (get_gfx_file_name("block_green"))
+				l_pix := get_block_green
 			else
 
 			end

@@ -12,8 +12,8 @@ create dflt_make_msg, make_msg
 feature {NONE}-- attributes
 
 	id: STRING
-	sender: G10_NET_PLAYER_INFO
-	receiver: G10_NET_PLAYER_INFO
+	sender: G10_NET_INFO
+	receiver: G10_NET_INFO
 --------------------------------------
 feature {ANY}-- constructors
 
@@ -24,7 +24,7 @@ feature {ANY}-- constructors
 		receiver := void
 	end
 
-	make_msg(an_id: STRING a_sender, a_receiver: G10_NET_PLAYER_INFO)
+	make_msg(an_id: STRING a_sender, a_receiver: G10_NET_INFO)
 	require-- might miss the require here if we need for some reason to create the object with void attributes
 		id_not_null: an_id /= void
 		sender_not_null: a_sender /= void
@@ -44,14 +44,14 @@ feature {ANY}-- mutators
 		id := an_id
 	end
 
-	set_sender(a_sender: G10_NET_PLAYER_INFO)
+	set_sender(a_sender: G10_NET_INFO)
 	require
 		arg_not_void: a_sender /= void
 	do
 		sender := a_sender;
 	end
 
-	set_receiver(a_receiver: G10_NET_PLAYER_INFO)
+	set_receiver(a_receiver: G10_NET_INFO)
 	require
 		arg_not_void: a_receiver /= void
 	do
@@ -65,12 +65,12 @@ feature {ANY}-- accessors
 		Result := id;
 	end
 
-	get_sender: G10_NET_PLAYER_INFO
+	get_sender: G10_NET_INFO
 	do
 		Result := sender;
 	end
 
-	get_receiver: G10_NET_PLAYER_INFO
+	get_receiver: G10_NET_INFO
 	do
 		Result := receiver
 	end

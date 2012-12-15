@@ -11,6 +11,7 @@
 		<library name="gobo_kernel" location="$ISE_LIBRARY\library\gobo\gobo_kernel.ecf"/>
 		<library name="gobo_regexp" location="$ISE_LIBRARY\library\gobo\gobo_regexp.ecf"/>
 		<library name="net" location="$ISE_LIBRARY\library\net\net.ecf"/>
+		<library name="process" location="$ISE_LIBRARY\library\process\process.ecf"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
 		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
@@ -116,7 +117,11 @@
 				<option full_class_checking="true">
 				</option>
 			</cluster>
-			<cluster name="group_20" location=".\dose_2012\group_20\" recursive="true"/>
+			<cluster name="group_20" location=".\dose_2012\group_20\" recursive="true">
+				<file_rule>
+					<exclude>^/in_logic$</exclude>
+				</file_rule>
+			</cluster>
 			<cluster name="group_21" location=".\dose_2012\group_21\" recursive="true"/>
 			<cluster name="main_ui" location=".\dose_2012\main_ui\" recursive="true"/>
 			<cluster name="tictactoe" location=".\dose_2012\tictactoe\" recursive="true"/>

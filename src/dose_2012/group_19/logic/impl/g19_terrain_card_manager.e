@@ -6,81 +6,72 @@ create
 
 feature{NONE}
 
-	deck: ARRAY[INTEGER]
 	current_cards: ARRAY[TUPLE[player: G19_PLAYER_INFO; card: INTEGER]]
-	rand: RANDOM
+	current_random_sequence: RANDOM
 
 feature
 
 	make
 		local
 			i: INTEGER
+			time: TIME
 		do
-			create deck.make(1, 5)
-			create current_cards.make(1, 4)
-			create rand.make
-			from
-				i := 1
-			until
-				i = 6
-			loop
-				deck.item(i) := 5
-				i := i+1
-			end
+			create time.make_now
+
+			create current_cards.make_filled([void, -1], 1, 4)
+			create current_random_sequence.set_seed(time.milli_second)
 		end
+
+	next_card(player: G19_PLAYER_INFO)
+		local
+			random_value: INTEGER
+			player_index: INTEGER
+		do
+			current_random_sequence.forth()
+			random_value := (current_random_sequence.item \\ 4) + 1
+			player_index := find_player(player)
+			current_cards.put([current_cards.at(player_index).player, random_value], player_index)
+		end
+
+	get_card(player: G19_PLAYER_INFO): INTEGER
+		do
+			result := current_cards.at(find_player(player)).card
+		end
+
+feature{NONE}
 
 	find_player(player: G19_PLAYER_INFO): INTEGER
 		local
 			i: INTEGER
 		do
-			from
-				i := 1
-			until
-				i = 5
-			loop
-				if player = current_cards.item (i).player then
-					Result := i
-					--break
-				end
-			end
+			result := -1
 
 			from
 				i := 1
 			until
-				i = 5
+				i = 5 or result /= -1
 			loop
-				if current_cards.item (i).player = void then
-					current_cards.item (i).player := player
-					Result := i
+				if player = current_cards.at(i).player then
+					result := i
+				end
 
+				i := i + 1
+			end
+
+			if result = -1 then
+				from
+					i := 1
+				until
+					i = 5 or result /= -1
+				loop
+					if current_cards.at(i).player = void then
+						current_cards.put([player, -1], i)
+						result := i
+					end
+
+					i := i + 1
 				end
 			end
-
-		end
-
-	next_card(player: G19_PLAYER_INFO)
-		local
-			i, j: INTEGER
-		do
-			from
-				i := rand.next_random (4) + 1
-			until
-				i /= 0
-			loop
-
-			end
-
-			deck.item (i) := deck.item (i) - 1
-			j := find_player (player)
-			current_cards.item(j).card :=  i
-		end
-
-	get_card(player: G19_PLAYER_INFO): INTEGER
-		local
-			i:INTEGER
-		do
-			i := find_player (player)
-			Result := current_cards.item(i).card
 		end
 
 end

@@ -6,7 +6,7 @@ inherit
 
 feature
 
-	build(player: G19_PlAYER_INFO; position: TUPLE[x: INTEGER; y: INTEGER]; action_type: STRING)
+	build(player: G19_PlAYER_INFO; position: TUPLE[x, y: INTEGER]; action_type: STRING)
 		require
 			player_is_not_void: player /= void
 			x_is_valid: 1 <= position.x and position.x >= 20
@@ -15,7 +15,7 @@ feature
 		deferred
 		end
 
-	move(player: G19_PLAYER_INFO; dropped: TUPLE[x: INTEGER; y: INTEGER]; created: TUPLE[x: INTEGER; y: INTEGER]; action_type: STRING)
+	move(player: G19_PLAYER_INFO; dropped: TUPLE[x, y: INTEGER]; created: TUPLE[x, y: INTEGER]; action_type: STRING)
 		require
 			player_is_not_void: player /= void
 			action_type_is_valid: action_type.is_empty /= true

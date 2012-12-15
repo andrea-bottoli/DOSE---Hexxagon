@@ -39,9 +39,11 @@ feature -- Test routines
 			testing:  "user/G1"
 			testing:  "covers/{G1_MESSAGE_BUILDING}"
 		local
+			player: G1_PLAYER
 			msg_building: G1_MESSAGE_BUILDING
 		do
-			create msg_building.make_building (17, 19)
+			create player.make (0, "Player")
+			create msg_building.make_building (player.id_player, 17, 19)
 			assert ("Message Building: Deed_Build:17, Deed_Sell:19", msg_building.id_deed_build.is_equal (17) and msg_building.id_deed_sell.is_equal (19))
 		end
 

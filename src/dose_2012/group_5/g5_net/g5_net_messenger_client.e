@@ -1,7 +1,7 @@
 note
 	description: "[
-					This class will be responsible for communication on Client side. 
-					Infact it will manage all the messages arriving or sent to the 
+					This class will be responsible for communication on Client side.
+					Infact it will manage all the messages arriving or sent to the
 					Server side through a socket.
 					]"
 	author: "Luca Falsina"
@@ -20,13 +20,17 @@ create
 
 feature -- Status Report
 
-	communication_socket: detachable G5_NET_SOCKET
+	communication_socket: detachable NETWORK_STREAM_SOCKET
 			-- This socket is generated when a client connects succesfully with its server.
 			-- It will be used to send and receive G5_MESSAGE instances from the server net class.
 
-	received_messages: LINKED_LIST[G5_MESSAGE]
+	received_messages: G5_MESSAGES_CONTAINER
 			-- This list contains all the received G5_MESSAGE objects, which are generated on Server
 			-- side and need to be forwarded to the NET CONTROLLER CLIENT
+
+	response_messages: G5_MESSAGES_CONTAINER
+			-- This list contains all the messages that are going to be sent to the server at the next
+			-- invocation of the send_response feature.
 
 	messenger_observer: G5_NET_MESSENGER_OBSERVER
 			-- This is the reference to the object which is informed about the activities of sending
@@ -67,6 +71,7 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Initialization by G5_NET_CONTROLLER_CLIENT
 			player_name := my_name
 
 			create received_messages.make
+			create response_messages.make
 
 			-- Here the client try to connect to the server using a Socket and end a message
 			-- with action connect to the Server.
@@ -77,18 +82,33 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Initialization by G5_NET_CONTROLLER_CLIENT
 			connection_message.independent_store (communication_socket)
 
 			-- Here the client waits for a connection response from th Server.
-			if attached {G5_MESSAGE_TEXTUAL} retrieved (communication_socket) as connect_result_message then
-				if (connect_result_message.targets.item (1).is_equal (player_name) and
-					connect_result_message.action.is_equal ("connect_result")) then
+			if attached {G5_MESSAGES_CONTAINER} retrieved (communication_socket) as connect_result_list then
+				-- Here the first message of the container, which must have action "connect_result",
+				-- is recovered and checked.
+				connect_result_list.start
 
-					-- In this case a correct message is retrieved from the Server and it will be
-					-- simply forwarded to the messenger_observer.
-					received_messages.force (connect_result_message)
+				if (connect_result_list.item.targets.item (1).is_equal (player_name) and
+					connect_result_list.item.action.is_equal ("connect_result")) then
+
+					-- In this case a correct message container has just been retrieved from the Server and its
+					-- messages will be forwarded later to the messenger_observer.
+					from
+						connect_result_list.start
+					until
+						connect_result_list.off
+					loop
+						received_messages.force (connect_result_list.item)
+
+						connect_result_list.forth
+					end
+					-- This class reports to the messenger observer that one or more new messages
+					-- can be retrieved.
 					messenger_observer.alert_for_incoming_messages
 
 				else
 					clean_up_socket_and_exit
 				end
+
 			else
 				clean_up_socket_and_exit
 			end
@@ -98,6 +118,7 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Initialization by G5_NET_CONTROLLER_CLIENT
 			valid_player_name: player_name = my_name
 			valid_socket: communication_socket /= void
 			valid_list_incoming_messages: received_messages /= void
+			valid_list_outgoing_messages: response_messages /= void
 
 		rescue
             if communication_socket /= Void then
@@ -127,7 +148,7 @@ feature {G5_NET_MESSENGER_CLIENT} -- Internal feature
 
 feature {G5_NET_CONTROLLER_CLIENT, TEST_SET_G5_NET_MESSENGER_CLIENT} -- Communication through socket
 
-	send_message_to_server(socket_message: G5_MESSAGE)
+	enque_message_to_server(socket_message: G5_MESSAGE)
 			-- This feature will be called whenever a G5_MESSAGE object needs to be carried
 			-- from the actual client to the server.
 		require
@@ -137,47 +158,46 @@ feature {G5_NET_CONTROLLER_CLIENT, TEST_SET_G5_NET_MESSENGER_CLIENT} -- Communic
 				socket_message.targets.count = 1 and
 				socket_message.targets.item (1).is_equal ("SERVER")
 		do
-			socket_message.independent_store (communication_socket)
-			communication_socket.set_has_message_for_server
+			response_messages.force (socket_message)
+
 		ensure
-			-- the message is correctly sent to the server through the socket.
+			-- the message is correctly enqued in the response_messages list.
+		end
+
+	send_response_to_server
+			-- This feature sends a response composed by a list of G5_MESSAGE objects.
+			-- In particular the last one of them will be a message with action "response".
+			-- After that the list of the responses is sent, it will be made empty.
+		local
+			tail_message: G5_MESSAGE_TEXTUAL
+		do
+			-- A tail message with action "response" is added to the outgoing list.
+			create tail_message.make (player_name, <<"SERVER">>, "response", void)
+			response_messages.force (tail_message)
+
+			-- The list of outgoing messages is sent to the Server.
+			response_messages.independent_store (communication_socket)
+
+			-- The outgoing messages list is clean.
+			response_messages.wipe_out
+
+		ensure
+			empty_response_list: response_messages.is_empty
 		end
 
 	wait_for_messages()
 			-- This feature will be invoked when a client needs to receive one or more G5_MESSAGE
 			-- from the server before performing an action.
 			-- When this component receives a message, it will notify its supervisor of this event
-			-- so that the messages in the queue can be recovered.
-		local
-			no_more_messages: BOOLEAN
-				-- When its true all the messages sent from the Server have been recovered..
+			-- so that the messages in the queue can be later recovered.
 		do
-			if(communication_socket.has_message_for_client) then
-
-				no_more_messages := false
-
-				from
-				until
-					no_more_messages
-				loop
-					if attached {G5_MESSAGE} retrieved (communication_socket) as incoming_message then
-						-- Here a new message is retrieved and put into recieved_messages list.
-						received_messages.force (incoming_message)
-					else
-						-- No more messages are present so the boolean is set on true and
-						-- the attribute of the socket has_message_for_client is reset.
-						no_more_messages := true
-						communication_socket.reset_has_message_for_client
-					end
-				end
+			if attached {G5_MESSAGES_CONTAINER} retrieved (communication_socket) as incoming_message_list then
+				-- Here a new message list is retrieved and its messages are saved into recieved_messages list.
+				received_messages.append (incoming_message_list)
 
 				-- It is reported to the observer that new messages can be recovered.
 				messenger_observer.alert_for_incoming_messages
 			end
-		ensure
-			-- The client has checked and retrieved messages sent by the server.
-			socket_has_no_messages_left:
-				not(communication_socket.has_message_for_client)
 		end
 
 	get_and_clean_message_list(): LINKED_LIST[G5_MESSAGE]
@@ -216,8 +236,8 @@ feature {G5_NET_CONTROLLER_CLIENT, TEST_SET_G5_NET_MESSENGER_CLIENT} -- Communic
 		end
 
 	close_communication
-			-- When this feature is invoked, it mans that a game is finished and the rematch was
-			-- not taken. The communiction socket is closed
+			-- When this feature is invoked, it reports that a game is finished and the rematch was
+			-- not taken. The communiction socket is closed.
 		do
 			communication_socket.close
 		ensure

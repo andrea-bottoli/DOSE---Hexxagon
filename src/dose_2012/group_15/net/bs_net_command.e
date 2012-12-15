@@ -36,6 +36,8 @@ feature -- Public
 
 	score_list: ARRAY [TUPLE [INTEGER, STRING, INTEGER]] assign set_score_list -- ID, name, score
 
+	you_are_master: BOOLEAN assign set_you_are_master
+
 	validation_enabled: BOOLEAN assign set_validation_enabled -- The class invariant is only check if this is true
 
 	message: STRING assign set_message
@@ -91,6 +93,11 @@ feature {NONE} -- Setters
 			score_list := pmt
 		end
 
+	set_you_are_master (pmt: BOOLEAN)
+		do
+			you_are_master := pmt
+		end
+
 	set_validation_enabled (pmt: BOOLEAN)
 		do
 			validation_enabled := pmt
@@ -125,6 +132,8 @@ feature {NONE} -- Private
 				result := result and (is_valid_player_range (player_id) and score_list /= void)
 			when command_closing then
 					-- No parameters required
+			when command_welcome then
+				result := result and you_are_master /= void -- Yes, I know that a bolean cannot be void...
 			end
 		end
 

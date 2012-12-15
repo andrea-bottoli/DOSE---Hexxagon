@@ -215,7 +215,7 @@ feature {NONE} -- Implementation, Close event
 			io.put_integer (a_number_of_players)
 			io.put_new_line
 
-			create l_logic.make
+--			create l_logic.make
 		end
 
 	do_join_game(l_server_ip, l_player_name: STRING)

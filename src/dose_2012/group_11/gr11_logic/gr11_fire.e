@@ -58,10 +58,11 @@ feature --function
 		from
 			l_index := 0
 		until
-			l_index < fire_range
+			l_index >= fire_range
 		loop
 			l_coordinates := l_hexagon_move.move_to (direction, l_coordinates)
-            list_of_coordinates.put_front (l_coordinates)
+            list_of_coordinates.put_front(l_coordinates)
+            l_index := l_index + 1
 		end
 
 		Result := list_of_coordinates

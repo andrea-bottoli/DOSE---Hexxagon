@@ -9,6 +9,7 @@ class
 
 inherit
 	XX_ILOGIC
+	EXECUTION_ENVIRONMENT
 
 create
 	make_hexxagon
@@ -28,25 +29,26 @@ feature {NONE}
 	game_gui: XX_GUI		-- The game gui that logic manipulates
 	game_net: XX_NET		-- The game net about multiplatyer games that logic manipulates
 	game_rules: XX_RULES	-- The rules of the game
-	game_ai: XX_AI_PLAYER	-- About the game player vs computer
+	game_ai: XX_AI_BOX	-- About the game player vs computer
 
 --########################################################	
 	state:INTEGER				--fsm state for enforce
 	gui_move:XX_POSSIBLE_MOVES	--global for enforce
+	fired:BOOLEAN				--for main_game
 
 
 feature {ANY}
 
 
 	make_hexxagon  -- Cunstructor of object hexxagon
+	local
+		p_move: XX_POSSIBLE_MOVES
+		i: INTEGER
 	do
 		-- Initialize board,rules and timer
 		initialize_board()
 		create game_rules.make_rules
 		create timer.make_timer
-		print("Timer sec:")
-		print(timer.get_timer_status)
-		print("%N")
 
 
 		-- Initial state of some attributes
@@ -79,61 +81,68 @@ feature {NONE}
 
 	new_game()	-- Create new game
 	do
-		-- now game is ready to start
 		-- Initialized states
-		now_playing := 1
-		player1.set_is_enabled(True)
+
 		board.get_cell(10).set_contents(1)
 		board.get_cell(14).set_contents(1)
 		board.get_cell(57).set_contents(1)
 		board.get_cell(0).set_contents(2)
 		board.get_cell(43).set_contents(2)
 		board.get_cell(47).set_contents(2)
+		game_rules.update_gui_board (board)
 
 		if(single_player = True) then
 
-			-- AI related instructions
-			game_ai.set_board(board)
-			game_ai.set_game_status(player1,player2,True)
+			-- AI proper instructions after AI finished changes
+			-- Work a lot but not correclt and calid_indexes exceptios is displayed....for now at comments
+
+			--game_ai.set_board(board)
+			--game_ai.set_game_status(player1,player2,True)
 
 			-- Gui related instructions
 			game_gui.clean_game_window
-			game_gui.set_board(board.get_gui_board)
+			print("player1 colour:")
+			print(player1.get_colour_piece)
+			print("%N")
+			print("player2 colour:")
+			print(player2.get_colour_piece)
+			print("%N")
 			game_gui.set_game_status(player1,player2,True)
-			game_gui.set_timer(timer)
+			game_gui.set_board(board.get_gui_board)
+--			game_gui.set_timer(timer)
+			game_gui.chat_enable (False)
 			game_gui.switch_panel_menu_to_game
 		else
 			if (server_mode = True)then
 
---				game_gui.clean_game_window
---				game_net.send_command_clean_game_window
-
-				game_gui.set_board(board.get_gui_board)
-				game_net.send_board(board)
+				game_gui.clean_game_window
+				game_net.send_command_clean_game_window
 
 				game_gui.set_game_status(player1,player2,True)
 				game_net.send_game_status(player1,player2,True)
 
-				game_gui.chat_enable(False)
-				game_net.send_chat_enable(False)
+				game_gui.set_board(board.get_gui_board)
+				game_net.send_board(board)
 
-				game_gui.switch_panel_game_to_menu
-				game_net.send_command_switch_panel_game_to_menu
+				game_gui.chat_enable(True)
+				game_net.send_chat_enable(True)--couldn't also be true?
+
+				game_gui.switch_panel_menu_to_game
+				game_net.send_command_switch_panel_menu_to_game
 			else
 
 				print("Client new_game method...i came here and i continuee%N")
 				-- Client operation while initializing game
 				-- Maybe not used these instructions...because the methods are called inside receive_soc
 
---				receive_clean_game_window()
-
---				receive_board(board)							--#######modified by andrea
---			    receive_game_status(player1,player2,TRUE)		--#######modified by andrea
---			    receive_chat_enable(TRUE)						--#######modified by andrea
---			    receive_command_switch_panel_menu_to_game()		--#######modified by andrea
-
 			end
 		end
+
+		-- The game now is really ready to begin
+		now_playing := 1
+		player1.set_is_enabled(True)
+		Current.main_game
+
 	ensure
 		valid_player1: player1 /= Void
 		valid_player2: player2 /= Void
@@ -143,8 +152,35 @@ feature {NONE}
 
 
 feature {XX_HEXXAGON}
+--@@@@@@@@@@@@@@@@@@@@@ W O R K I N G  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	main_game()
+	require
+		has_winner = False
+	do
+	fired:=True
 
-
+		if now_playing = 1 and fired then
+			game_gui.set_game_status (player1, player2, True)
+			game_gui.set_board (board.get_gui_board)
+			fired:=False
+			print("%NPlayer1%N")
+		elseif now_playing = 2 and fired then
+			print("%NTRY UPDATE%N")
+			game_rules.update_gui_board (board)
+			game_gui.set_board (board.get_gui_board)
+			print("%NSHOULD UPDATE%N")
+			print("%NPlayer2%N")
+			if single_player then
+				game_ai.set_board (board)
+				game_ai.set_game_status (player1, player2,True)
+			else
+				game_net.send_game_status (player1, player2, True)
+				game_net.send_board (board)
+			end
+			fired:=False
+		end
+	end
+--####################### F I N I S H E D ######################
 	set_has_winner(value: BOOLEAN)	-- Set if true if a winner exists
 	require
 		check_value: value = True or value = False
@@ -153,42 +189,37 @@ feature {XX_HEXXAGON}
 	ensure
 		valid_winner: has_winner = value
 	end
+--####################### F I N I S H E D ######################
+	change_order():INTEGER		--changes the game order and returns who played last
+	require
+		now_playing =1 or now_playing=2
+
+	do
+		if now_playing =1 then
+			now_playing:=2
+			player1.set_is_enabled (False)
+			player2.set_is_enabled (True)
+			Result:=1
+		else
+			now_playing:=1
+			player2.set_is_enabled (False)
+			player1.set_is_enabled (True)
+			Result:=2
+		end
+	ensure now_playing = 1 or now_playing = 2
+	end
 
 
 feature {NONE}  -- Methods visible only from XX_HEXXAGON class at initialization stage
 
-
+--####################### F I N I S H E D ######################
 	initialize_board()	-- Initialize the board of the game
 	do
 		create board.make_board
 	ensure
 		valid_board: board /= Void
 	end
-
-
-
-	affected_opponent_cells(target_piece: INTEGER)
-	local
-		adjacent_cells: TUPLE
-		i: INTEGER
-	do
-		create adjacent_cells
-		adjacent_cells := board.get_cell_clonep(target_piece)
-		from i :=0 until i = adjacent_cells.count.as_integer_32
-		loop
-			if (player1.get_is_enabled = False and board.get_cell(adjacent_cells.integer_32_item(i)).get_cell_player1 = True) then
-				board.get_cell(adjacent_cells.integer_32_item(i)).set_cell_player2
-				player2.set_total_pieces(player2.get_total_pieces + 1 )
-				player1.set_total_pieces(player1.get_total_pieces - 1 )
-			elseif (player2.get_is_enabled = False and board.get_cell(adjacent_cells.integer_32_item(i)).get_cell_player2 = True) then
-				board.get_cell(adjacent_cells.integer_32_item(i)).set_cell_player1
-				player1.set_total_pieces(player1.get_total_pieces + 1 )
-				player2.set_total_pieces(player2.get_total_pieces - 1 )
-			end
-		end
-	end
-
-
+--####################### F I N I S H E D ######################
 	enforce(move: XX_POSSIBLE_MOVES):BOOLEAN  -- It will implemented soon possibly from Haris
 	require
 		check_move: move /= Void
@@ -224,15 +255,17 @@ feature {NONE}  -- Methods visible only from XX_HEXXAGON class at initialization
 					player2.set_total_pieces (player2.get_total_pieces + captres)
 					player1.set_total_pieces (player1.get_total_pieces - captres)
 				end
-				game_rules.update_gui_board (board)
+
 				flag:=True --move successful
 			else
 				flag:=False --move unsuccessful
 			end
+			game_rules.update_gui_board (board)	--update gui
 			state:=0
 		elseif state=0 then --if gui send something initial state
 			if (board.get_cell (move_piece).get_contents = now_playing) then
-				game_rules.update_gui_move (board, move_piece)--update with possible jumps and clones
+				game_rules.update_gui_board (board)				--update gui with possible jumps and clones
+				game_rules.update_gui_move (board, move_piece)	--update gui with possible jumps and clones
 				create gui_move.make_possible_moves
 				gui_move.set_piece (move_piece)--put piece in a move object
 				state:=1--change state
@@ -252,131 +285,93 @@ feature {NONE}  -- Methods visible only from XX_HEXXAGON class at initialization
 
 feature {ANY}		-- Implementation of interface methods
 
-
+--####################### F I N I S H E D ######################
 	associated_move(move: XX_POSSIBLE_MOVES)  -- Associated move of the player himself/herself
 	require else
 		check_move: move /= Void
 	local
-		value: INTEGER
+		flag: BOOLEAN
+		last:INTEGER
 	do
-		if (move.get_type = 1) then -- Gui/Net sends the move...so capture gui/net scenario
-			if ((player1.get_priority = now_playing) and (player1.get_is_enabled = True) and (server_mode = True)) then
-					-- The player is the server and so does not use other_move() method
-					value := game_rules.do_move(board,player1.get_priority,move)
-					if (value = 1) then
-						player1.set_total_pieces(player1.get_total_pieces + 1)
-					end
-
-					-- Affected adjacent cells from the move and AI/GUI update
-					affected_opponent_cells(move.get_position)
-					game_rules.update_gui_move(board,move.get_position)   -- Be careful here...ask haris and milano team
-					game_rules.update_gui_board(board)
-
-					game_gui.set_board(board.get_gui_board)
-					--game_net.send_board(board.get_gui_board)  STORABLE problem
-
-					game_gui.set_game_status(player1,player2,True)
-					--game_net.send_game_status(player1,player2,True) STORABLE problem
-
-
-			elseif ((player2.get_priority = now_playing) and (player2.get_is_enabled = True)) then
-					-- The player is the client and uses other_move() method
-					value := game_rules.do_move(board,player2.get_priority,move)
-					if (value = 1) then
-						player2.set_total_pieces(player2.get_total_pieces + 1)
-					end
-
-					-- Affected adjacent cells from the move and AI/GUI update
-					affected_opponent_cells(move.get_position)
-					game_rules.update_gui_move(board,move.get_position)   -- Be careful here...ask haris and milano team
-					game_rules.update_gui_board(board)
-
-					game_net.other_move		-- Must be filled from NET with attributes
-
-					game_gui.set_board(board.get_gui_board)
-					game_gui.set_game_status(player1,player2,True)
+		if (Server_mode or single_player )then	--server mode so this is called for the player that sits on server pc
+			flag:=False
+			if(single_player and player1.get_priority = now_playing and player1.get_is_enabled = True) then
+				game_ai.set_board (board)
+				game_ai.set_game_status (player1, player2,True)
 
 			else
-					game_ai.send_confirm(False)
+				flag:=enforce(move)	--enforces his move
+				if flag then		--if move was successfull change order
+					last:=change_order
+					fired:=True
+					if not(game_rules.more_moves (board, now_playing)) then
+						game_rules.capture_all (board, last)
+					end
+				end
 			end
+			game_gui.set_game_status (player1,player2,(not flag))	--UPDATE GUI
+			game_gui.set_board (board.get_gui_board)				--UPDATE GUI
+		else
+			game_net.send_possible_move (move)								--client mode send move to server
 		end
+		--Current.main_game
 	ensure then
 		valid_move: (board /= Void) and (player1 /= Void) and (player2 /= Void)
 	end
 
-
+--####################### F I N I S H E D ######################
 	other_move(move: XX_POSSIBLE_MOVES)  -- Move of the other player of the game
 	require else
-		check_move: move /= Void
+		check_move: move /= Void and Server_mode
 	local
-		value: INTEGER
+		flag: BOOLEAN
+		last:INTEGER
 	do
-		if (move.get_type = 2) then  -- Ai sends the move...so capture ai scenario
-
-			if ((player1.get_priority = 1) and (player1.get_is_enabled = True)) then
-				value := game_rules.do_move(board,player1.get_priority,move)
-				if (value = 1) then
-					player1.set_total_pieces(player1.get_total_pieces + 1)
-				end
-
-				-- Affected adjacent cells from the move and AI/GUI update
-				affected_opponent_cells(move.get_position)
-				game_rules.update_gui_move(board,move.get_position)   -- Be careful here...ask haris and milano team
-				game_rules.update_gui_board(board)
-
-				game_ai.set_board(board)
-				game_ai.set_game_status (player1,player2,True)
-				game_ai.send_confirm(True)
-				game_gui.set_board(board.get_gui_board)
-				game_gui.set_game_status(player1,player2,True)
-			else
-				game_ai.send_confirm(False)
-			end
-		elseif (move.get_type = 1) then  -- Only client uses/calls the other_move() method and not the server
-			if ((player1.get_priority = now_playing) and (player1.get_is_enabled = True)) then
-				value := game_rules.do_move(board,player1.get_priority,move)
-				if (value = 1) then
-					player1.set_total_pieces(player1.get_total_pieces + 1)
-				end
-
-				-- Affected adjacent cells from the move and AI/GUI update
-				affected_opponent_cells(move.get_position)
-				game_rules.update_gui_move(board,move.get_position)   -- Be careful here...ask haris and milano team
-				game_rules.update_gui_board(board)
-
-				game_net.send_board(board)
-				game_net.send_game_status(player1,player2,True)
-				game_net.other_move
-
-				game_gui.set_board(board.get_gui_board)
-				game_gui.set_game_status(player1,player2,True)
+		flag:=False
+		flag:=enforce(move)	--enforces his move
+		if flag then		--if move was successfull change order
+			last:=change_order
+			fired:=True
+			if not(game_rules.more_moves (board, now_playing)) then
+				game_rules.capture_all (board, last)
 			end
 		end
+		if(single_player) then
+			game_ai.set_board (board)								--update ai if single player
+			game_ai.set_game_status (player1, player2,(not flag))	--update ai if single player
+		else
+			game_net.send_game_status (player1, player2,(not flag))	--update client if multiplayer
+			game_net.send_board (board)								--update client if multiplayer
+		end
+		--Current.main_game
 	ensure then
 		valid_move: (board /= Void) and (player1 /= Void) and (player2 /= Void)
 	end
-
-
+--####################### F I N I S H E D ######################
 	receive_board(a_board: XX_BOARD)  -- Receive the board that needed from GUI in order to draw
 	require else
-		check_board: a_board /= Void
+		check_board: a_board /= Void and Server_mode=False
 	do
 		board := a_board
+		game_gui.set_board (board.get_gui_board)
 	ensure then
 		valid_board: board.get_gui_board() /= Void
 	end
 
-
+--####################### F I N I S H E D ######################
 	receive_game_status(a_player1,a_player2 : XX_PLAYER; is_active: BOOLEAN)   -- Receive the current game status
 	require else
-		check_args: (a_player1 /= Void and a_player2 /= Void)  and (is_active = True or is_active = False)
+		check_args: (a_player1 /= Void and a_player2 /= Void)  and (is_active = True or is_active = False) and Server_mode=False
 	do
+		player1:=a_player1
+		player2:=a_player2
+		game_gui.set_game_status (a_player1, a_player2 , is_active)
 
 	ensure then
 		valid_result: (player1 /= Void and player2 /= Void)
 	end
 
-
+--****************N O T   S U R E*****************************
 	abort_game()  -- Abort the game
 	do
 		set_has_winner(True)
@@ -414,7 +409,7 @@ feature {ANY}		-- Implementation of interface methods
 		valid_abort: end_game = True and has_winner = True
 	end
 
-
+--****************N O T   S U R E*****************************
 	exit_game()   -- Exit the game
 	do
 		end_game :=  True
@@ -426,17 +421,26 @@ feature {ANY}		-- Implementation of interface methods
 		valid_exit: end_game = True
 	end
 
-
+--****************N O T   S U R E*****************************
 	victory()   -- A player has won the game and so the victory method is needed
 	do
+		game_gui.victory
+		sleep(1000000000)
+		game_gui.clean_game_window
+		game_gui.switch_panel_game_to_menu
+
 
 	ensure then
 		valid_victory: end_game = True and has_winner = True
 	end
 
-
+--****************N O T   S U R E*****************************
 	defeat()  -- A player has lost and so the defeat method is needed
 	do
+		game_gui.defeat
+		sleep(1000000000)
+		game_gui.clean_game_window
+		game_gui.switch_panel_game_to_menu
 
 	ensure then
 		valid_defeat: (end_game = True and has_winner = True)
@@ -448,27 +452,35 @@ feature {ANY}		-- Implementation of interface methods
 		valid_colour: (colour /= Void) and (colour.is_equal ("") = False )
 	do
 
-		-- Example of timer
-		print("Timer sec:")
-		print(timer.get_timer_status)
-		print("%N")
-
+	-- AI first player scenario
 		single_player := True
-		create game_ai.ensure_move
-		create player1.make_player(name,colour)
-		player1.set_priority(1)
-		if(player1.get_colour_piece.is_equal("Pealrs") = True) then    -- maybe useless later...on AI the first player has rubies
-			create player2.make_player("AI player","Rubies")
-		else
-			create player2.make_player("AI player","Pearls")
-		end
+		create game_ai.make (Current)
+		create player2.make_player(name,colour)
 		player2.set_priority(2)
+		if(player2.get_colour_piece.is_equal("Pearls") = True) then    -- maybe useless later...on AI the first player has rubies
+			create player1.make_player("AI player","Rubies")
+		else
+			create player1.make_player("AI player","Pearls")
+		end
+		player1.set_priority(1)
+
+		-- AI second player scenario
+--		single_player := True
+--		create game_ai.make (Current)
+--		create player1.make_player(name,colour)
+--		player1.set_priority(1)
+--		if(player1.get_colour_piece.is_equal("Pearls") = True) then    -- maybe useless later...on AI the first player has rubies
+--			create player2.make_player("AI player","Rubies")
+--		else
+--			create player2.make_player("AI player","Pearls")
+--		end
+--		player2.set_priority(2)
 
 		-- Time to launch the game and see it via GUI with new_game method
 		-- From GUI call the receive_game_start() method
 
 	ensure then
-		valid_single_player: (player1.get_player_id.is_equal(name) = True) and (player1.get_colour_piece.is_equal(colour) = True)
+	--	valid_single_player: (player1.get_player_id.is_equal(name) = True) and (player1.get_colour_piece.is_equal(colour) = True)
 	end
 
 
@@ -485,7 +497,7 @@ feature {ANY}		-- Implementation of interface methods
 	end
 
 
-	set_server_setup(name: STRING; port: INTEGER)   -- Set the appropriate multi player settings at server
+	set_server_setup(name: STRING; ip: STRING; port: INTEGER)   -- Set the appropriate multi player settings at server
 	require else
 		check_name: (name /= Void) and (name.is_equal ("") = False)
 		check_port: (port >0 and port <= 65535)
@@ -498,11 +510,11 @@ feature {ANY}		-- Implementation of interface methods
 		create game_net.make_logic(a_logic)
 		create player1.make_player(name,"Rubies")
 		player1.set_priority(1)
-		-- player1.set_ip_net(IP) 	for now not implemeted taking the internal IP but it will be fixed soon
-		player1.set_ip_net("192.168.1.65")  -- put your ip manually for now in order to test
+		player1.set_ip_net(ip)
 		player1.set_port_number(port)
 
 		-- Launch Server Net to "hear" at a specific port
+		game_gui.set_net_to_chat (game_net)
 		game_net.init_listener(port)
 		print("Listener hear something an the server is ok...move on%N")
 
@@ -528,18 +540,20 @@ feature {ANY}		-- Implementation of interface methods
 		a_logic: XX_ILOGIC
 	do
 		single_player := False
-		server_mode := True
+		server_mode := False
 		a_logic := Current
 		create game_net.make_logic(a_logic)
-		create player1.make_player(name,"Pearls")
-		player1.set_priority(1)
+		create player2.make_player(name,"Pearls")
+		player2.set_priority(2)
 		-- player1.set_ip_net(IP) 	for now not implemeted taking the internal IP but it will be fixed soon
 
-		player1.set_ip_net(IP)  -- put your ip manually for now in order to test 
-		player1.set_port_number(port)
+		player2.set_ip_net(IP)  -- put your ip manually for now in order to test
+		player2.set_port_number(port)
 
 		-- Init connection with server
-		game_net.init_connection(player1.get_ip_net,port)
+		game_gui.set_net_to_chat (game_net)
+		game_net.init_connection(name,IP,port)
+		--game_net.init_connection(IP,port)
 
 		-- Wait also to create player2 by other_move method
 		-- Then call receive_game_start() and then new_game() method
@@ -566,6 +580,7 @@ feature {ANY}		-- Implementation of interface methods
 		print(player2.get_ip_net)
 		print("%N")
 
+		new_game
 	end
 
 
@@ -580,7 +595,8 @@ feature {ANY}		-- Implementation of interface methods
 				game_gui.chat_enable(value)
 				game_net.send_chat_enable(value)
 			else
-				game_net.send_chat_enable(value)
+				game_gui.chat_enable(value)
+--				game_net.send_chat_enable(value)
 			end
 		end
 	ensure then
@@ -611,7 +627,7 @@ feature {ANY}		-- Implementation of interface methods
 		game_gui.switch_panel_menu_to_game
 	end
 
-
+--&&&&&&&&&&&&&&&& G A R B A G E &&&&&&&&&&&&&&&&&&&&
 	receive_cell(a_cell: XX_CELL)
 	do
 		game_gui.set_board(board.get_gui_board)
@@ -630,24 +646,24 @@ feature {ANY}		-- Implementation of interface methods
 		game_gui.draw_status
 	end
 
-
+--####################### F I N I S H E D ######################
 	receive_victory()  -- Receive victory from net...the other player surrenders
 	do
-		end_game := True
-		game_gui.victory
-		game_net.close_connection
+		Current.victory
+
 	end
 
-
+--####################### F I N I S H E D ######################
 	receive_defeat()
 	do
+		Current.defeat
 
 	end
 
-
+--####################### F I N I S H E D ######################
 	receive_draw()
 	do
-		draw()
+		Current.draw
 	end
 
 	draw()

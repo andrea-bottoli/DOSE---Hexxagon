@@ -39,7 +39,6 @@ feature
 
 	execute (arg: ANY)
 		local
-			i: INTEGER
 			s: STRING
 			l: LIST[STRING]
 		do
@@ -74,11 +73,12 @@ feature
 				l.start
 				l.remove
 				send_game_over(l)
-			elseif l.first.is_equal ("abort") then
+			elseif l.first.is_equal ("send_abort") then
 				abort
 			else
 				--This should never happen
-				io.put_string ("ERROR: No command received with message!%N")
+				io.put_string ("ERROR: No command received with message! Aborting.%N")
+				abort
 			end
 
 		end
@@ -96,8 +96,6 @@ feature {NONE}
 --		end
 
 	send_all_names (args: LIST[STRING])
-		local
-			i: INTEGER
 		do
 			logic.receive_all_names(args)
 
@@ -166,7 +164,7 @@ feature {NONE}
 
 	abort
 		do
-			logic.receive_abort
+			logic.receive_abort (player)
 		end
 
 

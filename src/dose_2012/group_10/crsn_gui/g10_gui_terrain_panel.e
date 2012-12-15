@@ -7,7 +7,7 @@ note
 class
 	G10_GUI_TERRAIN_PANEL
 inherit
-	EV_FIXED
+	EV_VIEWPORT
 	G10_GAME_CONSTANTS
 	undefine
 		copy , is_equal, default_create
@@ -18,10 +18,9 @@ create
 
 -- attributes
 feature {NONE}
-	terrain : ARRAY2[G10_GUI_TILE]
---	count_of_tiles : INTEGER
---	max_horizontal_tiles_num : INTEGER
---	max_vertical_tiles_num : INTEGER
+	terrain: ARRAY2[G10_GUI_TILE]
+	background: EV_FIXED
+	initialized : BOOLEAN
 
 -- constructors.
 feature {ANY}
@@ -29,13 +28,25 @@ feature {ANY}
 	require
 		game_not_null : game /= void
 	do
+		--create the scollable area
 		default_create
-		update_background(pix_terrain_panel)
-		set_minimum_width (terrain_width)
-		set_minimum_height (terrain_height)
+		set_minimum_size (scrolled_terrain_width, scrolled_terrain_height)
 
+		--create the panel of the terrain
+		create background
+		update_background(pix_terrain_panel)
+		background.set_minimum_size(terrain_width, terrain_height)
+
+		-- init variable regarding terrain view
+		initialized := false
+
+		--add the panel into the scrollable area
+		extend (background)
+		--initialize the terrain with the starting tile and perimeter
 		init_terrain(game)
+
 	end
+
 
 -- mutator methods.
 feature {NONE}
@@ -43,9 +54,11 @@ feature {NONE}
 	require
 		arg_pixmap_not_void : a_pixmap /= void
 	do
-		set_background_pixmap (a_pixmap)
-		ensure
-			background_changed_to_arg_pixmap : background_pixmap.is_equal (a_pixmap)
+		background.set_background_pixmap (a_pixmap)
+		background.pointer_button_press_actions.extend (agent move_terrain_by_clicking(?,?,?,?,?,?,?,?))
+		background.pointer_enter_actions.extend (agent default_terrain_offset)
+	ensure
+		background_changed_to_arg_pixmap : background.background_pixmap.is_equal (a_pixmap)
 	end
 
 feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL}
@@ -60,7 +73,7 @@ feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL}
 			tile_inserted_xy : terrain.item (x , y) = tile
 	end
 
-	init_terrain(game : G10_GUI_GAME_MAIN) -- routine initializes the terrain array with the starting tile and it's perimets
+	init_terrain(game : G10_GUI_GAME_MAIN) -- routine initializes the terrain array with the starting tile and it's perimeter
 	require
 		terrain_is_void : terrain = void
 	local
@@ -77,6 +90,7 @@ feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL}
 	end
 
 feature {G10_GUI_TILE}
+
 	add_empty_tiles_in_perimeter(field: G10_GUI_TERRAIN_PANEL a_tile: G10_GUI_TILE) -- routine adds empty tiles in the perimeter of the i ,j tile if possible
 	local
 		temp_tile , north_tile , east_tile , south_tile , west_tile: G10_GUI_TILE
@@ -112,10 +126,12 @@ feature {G10_GUI_TILE}
 			insert_tile_to_terrain(a_tile.get_row , a_tile.get_column - 1 ,west_tile)
 			west_tile.draw_tile_to_terrain(Current, a_tile.get_row, a_tile.get_column-1)
 		end
+		wipe_out
+		extend (background)
 	end
 
 -- accesor methods.
-feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL}
+feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL, G10_GUI_TILE}
 	get_terrain() : ARRAY2[G10_GUI_TILE] -- routine returns the terrain attribute of this object
 	require
 		terrain_not_null: terrain /= void
@@ -125,38 +141,44 @@ feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL}
 			terrain_unmutated : terrain = old terrain
 	end
 
---	get_count_of_tiles : INTEGER
---	require
---		count_non_negative: count_of_tiles > -1
---	do
---		Result := count_of_tiles
---	ensure
---		count_unmutated : count_of_tiles = old count_of_tiles
---	end
-
---	get_max_horizontal_tiles : INTEGER
---	require
---		count_non_negative:  max_horizontal_tiles_num > -1
---	do
---		Result := max_horizontal_tiles_num
---	ensure
---		count_unmutated : max_horizontal_tiles_num = old max_horizontal_tiles_num
---	end
-
---	get_max_vertical_tiles : INTEGER
---	require
---		count_non_negative:  max_vertical_tiles_num > -1
---	do
---		Result := max_vertical_tiles_num
---	ensure
---		count_unmutated : max_vertical_tiles_num = old max_vertical_tiles_num
---	end
+	get_background: EV_FIXED
+	do
+		Result := background
+	end
 
 	valid_coordinates(x : INTEGER y : INTEGER) : BOOLEAN -- routine returns true if coordinates are valid (between the boundries of the 2d array terrain) else false
 	do
-		result := (x >= 0 and x <= max_tiles_per_row) and (y >= 0 and y <= max_tiles_per_column)
+		result := (x > 1 and x < max_tiles_per_row) and (y > 1 and y < max_tiles_per_column)
 	ensure
 		current_object_not_mutated : current = old current
+	end
+
+	-- terrain listener
+	move_terrain_by_clicking(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+	do
+		-- the -80 and +450 constants are used because the scrollable area is not a square in shape when the background is !!!!
+
+		if pointer_position.x-80 > starting_position_x then
+			set_x_offset (pointer_position.x+(pointer_position.x - starting_position_x -80))
+		else
+			set_x_offset (pointer_position.x)
+		end
+
+		if pointer_position.y+430 > starting_position_y then
+			set_y_offset (pointer_position.y+(pointer_position.y - starting_position_y+430))
+		else
+			set_y_offset (pointer_position.y)
+		end
+
+	end
+
+	default_terrain_offset
+	do
+		if (not initialized) then
+			set_x_offset (starting_offset_x)
+			set_y_offset (starting_offset_y)
+			initialized := true
+		end
 	end
 
 --class invariants

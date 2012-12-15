@@ -39,7 +39,7 @@ feature {NONE} -- Initialization
 
 			create con_main
 
-			create btn_start.make_with_text("START")
+			create btn_start.make_with_text("Goto Game Lobby")
 			btn_start.select_actions.extend(agent start_game)
 			con_main.extend_with_position_and_size (btn_start, 40, 120, 100, 20)
 
@@ -68,19 +68,25 @@ feature {NONE} -- Initialization
 			txf_network_port.disable_edit
 			txf_network_port.align_text_center
 			txf_network_port.change_actions.extend (agent validate_network_port)
-			con_main.extend_with_position_and_size (txf_network_port, 220, 60, 50, 20)
+			con_main.extend_with_position_and_size (txf_network_port, 220, 50, 40, 20)
 
 			create lbl_n_network_players.make_with_text("Number of network players: ")
 			lbl_n_network_players.align_text_left
-			create total_players_combo_box.make_with_strings (<<"0", "1", "2", "3">>)
-			total_players_combo_box.disable_edit
 			con_main.extend_with_position_and_size (lbl_n_network_players, 40, 80, 210, 15)
-			--con_main.extend_with_position_and_size (total_players_combo_box, 40, 80, 210, 15)
-			create txf_n_network_players.make_with_text("1")
-			txf_n_network_players.disable_edit
-			txf_n_network_players.align_text_center
-			txf_n_network_players.change_actions.extend (agent validate_n_players)
-			con_main.extend_with_position_and_size (txf_n_network_players, 220, 80, 50, 20)
+
+			create total_players_combo_box.make_with_strings (<< "1", "2", "3">>)
+			total_players_combo_box.align_text_left
+			total_players_combo_box.disable_sensitive
+			total_players_combo_box.disable_edit
+			con_main.extend_with_position_and_size (total_players_combo_box, 250, 80, 30, 24) --154, 70, 30, 24) -- 114, 20, 80, 24)
+			--con_main.extend_with_position_and_size (total_players_combo_box, 220, 80, 50, 20)
+
+			--create total_players_combo_box.make_with_strings (<< "1", "2", "3">>)
+			--total_players_combo_box.disable_edit
+			--create txf_n_network_players.make_with_text("1")
+			--txf_n_network_players.disable_edit
+			--txf_n_network_players.align_text_center
+			--txf_n_network_players.change_actions.extend (agent validate_n_players)
 
 
 			put(con_main)
@@ -97,6 +103,13 @@ feature {BS_LOBBY_WINDOW} -- Interface to Lobby Window
 			is_destroyed
 		do
 			Result := txf_game_name.text
+		end
+
+	network_port : INTEGER
+		require
+			is_destroyed
+		do
+			Result := txf_network_port.text.to_integer
 		end
 
 	is_networking_enabled : BOOLEAN
@@ -124,7 +137,9 @@ feature {NONE} -- User Actions
 		do
 			if chk_networking_enabled.is_selected then
 				txf_network_port.enable_edit
-				txf_n_network_players.enable_edit
+				total_players_combo_box.enable_edit
+				total_players_combo_box.enable_sensitive
+				--txf_n_network_players.enable_edit
 
 			-- Start the address request
 			create l_address_request
@@ -132,10 +147,20 @@ feature {NONE} -- User Actions
 			con_main.extend_with_position_and_size (l_address_label, 40, 100, 210, 15)
 
 			else
+				create l_address_label.make_with_text("          ")
+				l_address_label.align_text_left
+				--lbl_game_name.change_actions.extend (agent validate_game_name)
+				con_main.extend_with_position_and_size (l_address_label, 40, 100, 210, 15)
+
 				txf_network_port.disable_edit
-				txf_n_network_players.disable_edit
+				total_players_combo_box.disable_edit
+				total_players_combo_box.disable_sensitive
+
+				--l_address_request.disable_edit
 
 			end
+			--l_address_label.disable_edit
+
 
 			check_ready_to_start
 		end

@@ -7,7 +7,11 @@ note
 class
 	G10_GUI_PLAYER
 inherit
-	EV_FIXED
+	EV_LABEL
+	G10_GAME_CONSTANTS
+	undefine
+		copy , is_equal, default_create
+	end
 
 create
 	make
@@ -20,14 +24,14 @@ feature {NONE}
 
 -- constructors
 feature {ANY}
-	make()
+	make(player_name : STRING)
 	do
 		default_create()
-		set_player_name_display("test_name")
+		set_player_name_display(player_name)
 		set_img_src("test img src")
 		update_background_color()
-		set_minimum_height (100)
-		set_minimum_width (100)
+		set_minimum_height (30)
+		set_minimum_width (player_info_width)
 	end
 
 -- accesor methods.
@@ -62,13 +66,16 @@ feature {G10_GUI_PLAYER_INFO}
 
 -- mutator methods.
 feature {NONE}
-	set_player_name_display(n : STRING) -- routine sets player_name_display attribute of this object to n.
+	set_player_name_display(n : STRING) -- routine sets player_name_display attribute of this object and the text attribute inherited from ev_label of this object to n.
 	require
 		name_is_valid : n /= void
+		--text_is_void : current.text = void
 	do
 		player_name_display := n
-		ensure
-			valid_mutation : old n = player_name_display
+		set_text (n)
+	ensure
+		valid_mutation : old n = player_name_display
+		valid_text_mutation : text.is_equal (player_name_display) = true
 	end
 
 	set_img_src(src : STRING) -- routine sets this object's image source to src

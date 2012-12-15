@@ -163,7 +163,7 @@ feature {EQA_TEST_SET} -- Implementation
         	create players_button.make_with_strings (<<"2", "3", "4">>)
 			players_button.disable_edit
 			--Delete the next line to allow more than 2 players (not implemented yet)
-			players_button.disable_sensitive
+--			players_button.disable_sensitive
 
 			create kingdom_cards_button.make_with_strings (<<"10", "11", "12">>)
 			kingdom_cards_button.disable_edit
@@ -252,7 +252,7 @@ feature {EQA_TEST_SET} -- Implementation
 
 	connect
 		do
-			create client.make(get_ip(),get_port)
+			create client.make(get_ip(),get_port,name)
 			create_board
 		ensure
 			client.connected
@@ -283,18 +283,21 @@ feature {EQA_TEST_SET} -- Implementation
 			if (board /= Void) then
 				board.destroy
 			end
-			create game.play_game
+			create game.play_game(players)
 			if (not is_new_game and not is_join_game) then
-				create server.make(port,game, Current)
+				create server.make(port,game, Current,players, name)
 			end
 			if (is_join_game) then
-				create board.make_board(window, client, Void)
+				create board.make_board(window, client, Void, game)
 			else
-				create board.make_board(window, Void, server)
+				create board.make_board(window, Void, server, game)
 			end
 			window.minimize
 			board.show
 			destroy
+			if server/=Void then
+				server.others_turn
+			end
 		end
 
 feature {ANY} --implementation

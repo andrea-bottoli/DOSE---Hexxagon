@@ -1,6 +1,6 @@
 note
 	description: "Summary description for {TEST_SET_G5_INET_TO_LOGIC_ADD_SERVER_LOGIC}."
-	author: "JESUS CASTELLI"
+	author: "JESUS CASTELLI/Luca Falsina"
 	date: "$21/11/2012$"
 	revision: "$0.1$"
 
@@ -51,14 +51,14 @@ feature -- Preparation of Test
 feature -- Test positive
 
 	add_server_logic0
-		-- Link the server logic to the test component
+		-- Link the server logic to the test component. Verify that make_game feature
+		-- has already linked the server logic to the tested class.
 		note
 			testing: "G5_INET_TO_LOGIC/.add_server_logic"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 		do
 			create table.make_game_default (4, class_test)
 			added_server_logic := table
-			class_test.add_server_logic (added_server_logic)
 			assert ("add_observer the server logic was not recorded", class_test.server_logic /= void and class_test.server_logic = added_server_logic)
 		end
 
@@ -75,7 +75,6 @@ feature -- Test negative
 			if not rescued then
 				create table.make_game_default (2, class_test)
 				added_server_logic := table
-				class_test.add_server_logic (added_server_logic)
 				class_test.add_server_logic (added_server_logic)
 			end
 			assert ("add_server_logic raised a rescue procedure", rescued)

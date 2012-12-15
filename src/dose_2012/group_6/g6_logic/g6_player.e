@@ -15,7 +15,7 @@ feature -- Measurement
 	active: BOOLEAN
 			--is the player still playing?
 
-	in_jail: BOOLEAN
+	in_jail: BOOLEAN assign set_in_jail
 			--this prisoner the player?
 
 	name: STRING
@@ -24,15 +24,15 @@ feature -- Measurement
 	position: INTEGER
 			-- Actual position of the player
 
-	money: INTEGER
+	money: INTEGER assign set_money
 			-- The money of the player
 
-	potential_money: INTEGER
+	potential_money: INTEGER assign set_potential_money
 			-- how much money does this player would have if sold / mortgaged all their properties? this
 			-- value is updated just after each properties modification
 
 	jail_cards: INTEGER
-			-- Number of the jail cards of the player
+			-- 0 = no jail_cards, 1 = comunity chest jail_card, -1 =  chance jail_card
 
 	properties: LINKED_LIST [INTEGER]
 			-- Properties of the player, max 22 elements
@@ -138,6 +138,26 @@ feature -- Basic Operations
 			valid_d: d >= 2 and d <= 12
 		do
 			position := position + d;
+		end
+
+	set_in_jail (bool: BOOLEAN)
+		do
+			in_jail := bool
+		ensure
+			in_jail = bool
+		end
+
+	set_money (mount: INTEGER)
+		do
+			money := mount
+		ensure
+			money = mount
+		end
+	set_potential_money(mount: INTEGER)
+		do
+			potential_money := mount
+		ensure
+			potential_money = mount
 		end
 
 invariant

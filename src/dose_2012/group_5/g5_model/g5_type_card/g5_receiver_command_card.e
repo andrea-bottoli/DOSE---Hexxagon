@@ -212,6 +212,7 @@ feature -- Implementations
 			hand: LINKED_LIST [G5_CARD]
 			card: G5_CARD
 			exist_treasure_cards:BOOLEAN
+			targets:ARRAY[STRING]
 		do
 
 			from game_current.player_current.hand_current.start
@@ -243,7 +244,7 @@ feature -- Implementations
 				game_current.add_output_message (message)
 
 				game_current.update_to_net()
-				-- the net responds with the selected card involved_cards
+				-- the net responds with the selected card involved_cards to change
 				-- send message to net
 				game_current.emptied_output_messages
 				message:= create {G5_MESSAGE_UPDATE}.make(game_current.player_current.name,game_current.players_as_string,"update_state",game_current.player_current.get_estate,game_current.supply.get_info_supply)
@@ -259,11 +260,12 @@ feature -- Implementations
 					i:=i+1
 				end
 				game_current.input_messages.start
-				-- in_message :={G5_MESSAGE_ACTION}game_current.input_messages.item
+			--	in_message :=game_current.input_messages[1]
 				id_cards.put (in_message.involved_cards.item(1), i)
 				message:= create {G5_MESSAGE_ACTION}.make(game_current.player_current.name,game_current.players_as_string,"cards_in_trash",id_cards,0,0,false)
 				game_current.add_output_message (message)
 				-- set posibles treasure cards to choose
+				-- selecciono del supply las cartas tesoro posibles.
 				create id_cards.make_empty
 				if  in_message.involved_cards.item(1).is_equal({G5_MACRO_CARDS}.copper) then
 					id_cards.put ({G5_MACRO_CARDS}.copper,1)
@@ -278,17 +280,40 @@ feature -- Implementations
 				game_current.add_output_message (message)
 
 				game_current.update_to_net
-				-- falta realizar los ultimos 3 message
+				-- recibo de la net la carta tesoro.
+				--in_message:= game_current.input_messages[1]
+				if in_message.involved_cards.item (1).is_equal ({G5_MACRO_CARDS}.copper) then
+					game_current.supply.sub_supply_treasure.item (1).decrement
+				end
+				if in_message.involved_cards.item (1).is_equal ({G5_MACRO_CARDS}.silver) then
+					game_current.supply.sub_supply_treasure.item (2).decrement
 
+				end
+				if in_message.involved_cards.item (1).is_equal ({G5_MACRO_CARDS}.gold) then
+					game_current.supply.sub_supply_treasure.item (3).decrement
+				end
+				game_current.player_current.add_action (-1)
+				message:= create {G5_MESSAGE_UPDATE}.make(game_current.player_current.name,game_current.players_as_string,"update_state",game_current.player_current.get_estate,game_current.supply.get_info_supply)
+				game_current.add_output_message (message)
+				message := create {G5_MESSAGE_UPDATE}.make(game_current.player_current.name,game_current.players_as_string,"update_supply",game_current.player_current.get_estate,game_current.supply.get_info_supply)
+				game_current.add_output_message (message)
+				create targets.make (1,1)
+				targets.put (game_current.player_current.name, 1)
+--				message:= create {G5_MESSAGE_ACTION}.make({G5_MACRO_CARDS}.server,targets,"put_in_hand",1,1,false)
+				game_current.add_output_message (message)
+			else
+				-- el jugador no tenia ninguna carta tesoro
+				game_current.player_current.add_action (-1)
+				message:= create {G5_MESSAGE_UPDATE}.make(game_current.player_current.name,game_current.players_as_string,"update_state",game_current.player_current.get_estate,game_current.supply.get_info_supply)
 			end
+
 			game_current.update_to_net
 
 		end -- end feature action_mine
 
-	action_moat()
+	action_moat ()
 		require
-			date_of_card: card_current/= void and card_current.type.has_substring( {G5_MACRO_CARDS}.action) and
-							card_current.id= {G5_MACRO_CARDS}.moat
+			date_of_card: card_current/= void and card_current.type.has_substring( {G5_MACRO_CARDS}.action) and	card_current.id= {G5_MACRO_CARDS}.moat
 			state_of_game: game_current.phase_current={G5_MACRO_CARDS}.phase_action
 		local
 			message_action: G5_MESSAGE_ACTION
@@ -499,6 +524,10 @@ feature -- Implementations
 			game_current.player_current.add_point_victory (-1)
 		end
 
+	-- Remplaza lo de abajo por esto:
+	-- add_point_victory (amount: INTEGER)
+	-- card_current no se usa
+
 	add_point_victory ()
 		require
 			date_of_card: card_current /= void and card_current.type.has_substring ({G5_MACRO_CARDS}.victory) and (card_current.id = {G5_MACRO_CARDS}.estate xor card_current.id = {G5_MACRO_CARDS}.duchy xor card_current.id = {G5_MACRO_CARDS}.province xor card_current.id = {G5_MACRO_CARDS}.garden)
@@ -516,6 +545,10 @@ feature -- Implementations
 				game_current.player_current.add_point_victory (game_current.player_current.deck.count // 10)
 			end
 		end
+
+	-- Remplaza lo de abajo por esto:
+	-- add_value_tresure (amount: INTEGER)
+	-- card_current no se usa
 
 	get_value_treasure ()
 			-- This feature adds the value of the current card to the currency that the player can spend in your Buy phase.

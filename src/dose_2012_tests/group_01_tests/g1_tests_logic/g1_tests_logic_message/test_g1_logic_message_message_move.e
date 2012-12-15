@@ -41,7 +41,7 @@ feature -- Test routines
 		local
 			msg_move: G1_MESSAGE_MOVE
 		do
-			create msg_move.make_position (33)
+			create msg_move.make_move (1,33)
 			assert ("Message Move: Position:33", msg_move.position.is_equal (33))
 		end
 

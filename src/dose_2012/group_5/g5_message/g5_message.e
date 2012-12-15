@@ -25,10 +25,10 @@ invariant
 	-- class invariant
 
 	attributes_not_void_or_empty:
-		source /= void and not(source.is_equal ("")) and
+		source /= void and not(source.is_empty) and
 		targets /= void and
 		targets.for_all (agent (target: STRING): BOOLEAN
-			do Result := (target /= void and not(target.is_equal (""))) end )
+			do Result := (target /= void and not(target.is_empty)) end )
 		action /= void
 
 	source_of_a_message_is_not_a_target:

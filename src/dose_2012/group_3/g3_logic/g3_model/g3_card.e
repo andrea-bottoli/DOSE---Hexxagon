@@ -19,7 +19,7 @@ create
 feature
 
 
-	make (number_card: STRING ; kind_card: STRING; special_card: BOOLEAN; point_card : INTEGER )
+	make (number_card: STRING ; kind_card: STRING; special_card: BOOLEAN; point_card : INTEGER;value_card : REAL )
 			-- Initialize card whit parameters
 		require
 			valid_number: number_card.is_equal ("A") or  number_card.is_equal ("2") or  number_card.is_equal ("3") or number_card.is_equal ("4") or
@@ -34,12 +34,13 @@ feature
 			kind := kind_card
 			special := special_card
 			point := point_card
+			value := value_card
 		ensure
 			number = number_card
 			kind = kind_card
 			special = special_card
 			point = point_card
-			value >= 1
+			value >= 1 and value <= 15
 		end
 
 
@@ -80,7 +81,7 @@ feature
 
 	is_equal(card_:G3_CARD):BOOLEAN
 		do
-			Result:= number.is_equal (card_.number) and kind.is_equal (card_.kind) and special=card_.special and point=card_.point
+			Result:= number.is_equal (card_.number) and kind.is_equal (card_.kind) and special=card_.special and point=card_.point and value=card_.value
 		end
 
 	set_value(value_ : REAL)
@@ -91,6 +92,14 @@ feature
 		do
 			value := value_
 		end
+
+	set_number(number_ : STRING)
+		require
+			valid_id: number /= Void
+		do
+			number:= number_
+		end
+
 
 feature
 	number : STRING

@@ -9,15 +9,15 @@ class
 
 inherit
 	LAUNCHER
+	G10_LOBBY_CONSTANTS
 
 feature -- Implementation
 
 	launch (main_ui: MAIN_WINDOW)
 			-- launch the application
 		local
-			host 		 : G10_HOST
-			player 		 : G10_JOINED_PLAYER
-			root 		 : G10_LOBBY_SERVER
+			player	 : G10_LOBBY_USER
+			lobby_server : G10_LOBBY_SERVER
 
 			temp : INTEGER
 		do
@@ -25,10 +25,9 @@ feature -- Implementation
 			io.read_integer
 			temp := io.last_integer
 			if temp = 1 then
-				create player.make (main_ui)
+				create player.make (main_ui, lobby_id, lobby_ip,"", lobby_port)
 			elseif temp = 2 then
-				create root.make ("6666", "192.168.1.1", "root server")
-				--create root.make ("6666", "192.168.1.65", "root server")
+				create lobby_server.make(lobby_id, lobby_ip,"", lobby_port)
 			end
 
 		end

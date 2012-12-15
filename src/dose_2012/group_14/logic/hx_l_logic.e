@@ -55,7 +55,7 @@ feature {HX_L_LOGIC, HX_L_BOARD} -- Internal stuff
 
 	get_move_from_ai(a_board: HX_L_IBOARD): HX_L_IMOVE
 		do
-			Result := logic_ai.getmovement (a_board)
+			Result := logic_ai.getmovement (a_board.clone_board)
 		end
 
 	gui_move(a_player: HX_L_IPLAYER)
@@ -187,7 +187,7 @@ feature -- Control game.
 			non_void: a_template_path /= Void
 			not_running: not is_running
 			player_name_is_valid: is_valid_player_name (a_player_name)
-			positive_difficulty: a_difficulty >= 1
+			positive_difficulty: a_difficulty >= 0
 		local
 			l_template: ARRAY2[INTEGER]
 		do
@@ -305,10 +305,17 @@ feature -- Control game.
 	stop()
 		require
 			running: is_running
+		local
+			l_highscore: HX_L_IHIGHSCORE
 		do
-			-- TODO: Implement.
+			l_highscore := highscore()
+
+			if logic_board.player_1.pieces_count > l_highscore.high_score then
+				l_highscore.set_high_score (logic_board.winner.pieces_count)
+			end
 
 			is_running := FALSE
+
 		ensure
 			running: not is_running
 		end

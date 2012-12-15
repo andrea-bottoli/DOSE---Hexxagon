@@ -39,7 +39,7 @@ feature -- Test routines
 				i > 3 -- Testing with all valid difficulty levels
 			loop
 				create board.make ()
-				create player.make_ai (i, 1)
+				create player.make_ai (1, 1, i)
 				from
 					j := 1
 				until
@@ -85,7 +85,7 @@ feature -- Test routines
 				until
 					k > 4
 				loop
-					create this_player.make_ai (i, k)
+					create this_player.make_ai (k, k, i)
 					players.at (k) := this_player
 				end
 				from

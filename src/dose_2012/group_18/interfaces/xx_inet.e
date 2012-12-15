@@ -36,7 +36,7 @@ feature -- Deferred methods to use hexxagon through the net
 	end
 
 	-- This method permits to send the cell
-	send_cell(a_cell: XX_CELL)
+	send_possible_move(a_cell: XX_POSSIBLE_MOVES)
 	require
 		cell_exists: a_cell/=Void
 	deferred
@@ -62,9 +62,9 @@ feature -- Deferred methods to use hexxagon through the net
 	end
 
 	--This method permits to open a connection to a host
-	init_connection(a_ip: STRING a_port: INTEGER)
+	init_connection(a_client_name:STRING a_server_ip: STRING a_server_port: INTEGER)
 	require
-		ip_address_valid: is_address_valid(a_ip, a_port)=TRUE
+		ip_address_valid: is_address_valid(a_server_ip, a_server_port)=TRUE
 	deferred
 	end
 
@@ -97,10 +97,6 @@ feature -- Deferred methods to use hexxagon through the net
 	deferred
 	end
 
-	--USELESS METHOD
-	other_move
-	deferred
-	end
 
 feature{NONE} --Private Method
 
@@ -119,6 +115,6 @@ feature{NONE} --Private Method
 	deferred
 	end
 
-	
+
 end
 

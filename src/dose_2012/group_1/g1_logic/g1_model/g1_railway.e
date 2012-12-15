@@ -17,10 +17,6 @@ inherit
 create
 	make_railway
 
-feature
-
-	number_of_railways: INTEGER
-
 feature -- Initialization
 
 	make_railway (r_id: INTEGER; r_name: STRING)
@@ -43,13 +39,17 @@ feature -- Initialization
 
 feature --Basics Operations
 
-	set_railways (r_id: INTEGER; r_name: STRING)
+	set_railways (a_id: INTEGER; a_name: STRING)
 			-- Set the number of the railways
 		require
-			valid_railways: r_id > 0 and r_name /= Void
+			valid_railways: a_id > 0 and a_name /= Void
 		do
-			id_cell := r_id
-			name_cell := r_name
+			id_cell := a_id
+			name_cell := a_name
+			price := 200
+			mortgaged_value := 100
+			mortgage := False
+			sold := False
 		ensure
 			valid_railways: id_cell > 0 and name_cell /= Void
 		end
@@ -87,8 +87,4 @@ feature --Basics Operations
 		ensure then
 			valid_owner: owner /= Void
 		end
-
-invariant
-	valid_number_railways: number_of_railways >= 0
-
 end

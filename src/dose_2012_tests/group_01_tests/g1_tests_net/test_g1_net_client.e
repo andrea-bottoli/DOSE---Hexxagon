@@ -23,8 +23,8 @@ feature -- Test routines
 		local
 			net: G1_NET_CLIENT
 		do
-			create net.make ()
-			assert ("Make good implementation", net.port = 9190 and net.server_ip /= Void)
+			create net.make
+			assert ("Make good implementation", net.port = 9190 and net.server_ip = Void)
 		end
 
 	test_g1_net_connect_1
@@ -33,10 +33,13 @@ feature -- Test routines
 			testing: "covers/{G1_NET_CLIENT}/connect"
 		local
 			net: G1_NET_CLIENT
+			logic: G1_LOGIC_CLIENT
+			controller : G1_UI_CONTROLLER
 		do
-			create net.make ()
-			net.connect ("192.32.24.56", 9912)
-			assert ("Connect", net.port = 9912 and net.server_ip = "192.32.24.56")
+			create controller.make
+			create logic.make_with_controller (controller, "190.191.54.89")
+			create net.make_client ("190.191.54.81",logic)
+			assert ("Connect", true)
 		end
 
 	test_g1_net_connect_2

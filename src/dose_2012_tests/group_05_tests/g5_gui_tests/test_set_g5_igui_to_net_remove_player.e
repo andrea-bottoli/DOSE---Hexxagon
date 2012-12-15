@@ -36,15 +36,15 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	remove_player0
-		-- remove_player("JESUS")
-		note
-			testing: "G5_IGUI_TO_NET/.remove_player"
-		do
-			a_player_name := "JESUS"
-			class_test.remove_player (a_player_name)
-			assert ("remove_player was successful ", TRUE)
-		end
+--	remove_player0
+--		-- remove_player("JESUS")
+--		note
+--			testing: "G5_IGUI_TO_NET/.remove_player"
+--		do
+--			a_player_name := "JESUS"
+--			class_test.remove_player (a_player_name)
+--			assert ("remove_player was successful ", TRUE)
+--		end
 
 feature -- Test negative
 

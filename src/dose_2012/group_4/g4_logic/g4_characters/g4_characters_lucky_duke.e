@@ -8,9 +8,14 @@ class
 	G4_CHARACTERS_LUCKY_DUKE
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Lucky Duke")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Lucky Duke")
   		Character_Life = 4

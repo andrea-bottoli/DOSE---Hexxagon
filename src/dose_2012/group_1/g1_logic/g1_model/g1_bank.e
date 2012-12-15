@@ -19,9 +19,9 @@ feature -- Initialization
 	make
 			-- Initialize the bank whit default values
 		do
-			money_available := 20000
+			money_available := 50000
 		ensure
-			money_available = 20000
+			money_available = 50000
 		end
 
 feature -- Basic operations
@@ -40,7 +40,6 @@ feature -- Basic operations
 			--deposit the amount of money spent as a parameter
 		require
 			valid_amount: a_mount > 0
-			valid_amount2: (a_mount + money_available) < 20000
 		do
 			money_available := money_available + a_mount
 		ensure

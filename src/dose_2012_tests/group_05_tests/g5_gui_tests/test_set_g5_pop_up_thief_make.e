@@ -24,19 +24,19 @@ feature -- Elements needed to the test
 
 feature -- Test positive
 
-	make0
-		-- make("JESUS",[["T3","C1"],["V2","K4"],["T1","T2"]])
-		note
-			testing: "G5_POP_UP_THIEF/.make"
-		do
-			owner_player := "JESUS"
-			the_revealed_cards.make (3)
-			the_revealed_cards.put ("T3","C1")
-			the_revealed_cards.put ("V2","K4")
-			the_revealed_cards.put ("T1","T2")
-			class_test.make (owner_player,the_revealed_cards)
-			assert ("make was successful", TRUE)
-		end
+--	make0
+--		-- make("JESUS",[["T3","C1"],["V2","K4"],["T1","T2"]])
+--		note
+--			testing: "G5_POP_UP_THIEF/.make"
+--		do
+--			owner_player := "JESUS"
+--			the_revealed_cards.make (3)
+--			the_revealed_cards.put ("T3","C1")
+--			the_revealed_cards.put ("V2","K4")
+--			the_revealed_cards.put ("T1","T2")
+--			class_test.make_trash (owner_player,the_revealed_cards)
+--			assert ("make was successful", TRUE)
+--		end
 
 feature -- Test negative
 
@@ -50,7 +50,7 @@ feature -- Test negative
 			if not rescued then
 				owner_player := "JESUS"
 				the_revealed_cards.make (3)
-				class_test.make (owner_player,the_revealed_cards)
+--				class_test.make_trash (owner_player,the_revealed_cards)
 			end
 			assert ("make raised problem", rescued)
 			rescue

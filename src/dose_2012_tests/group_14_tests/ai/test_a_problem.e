@@ -57,7 +57,7 @@ feature -- Test routines
 			test_board := test_logic.board()
 
 			--test ended
-			bool := test_make.ended(test_board)
+			bool := test_make.ended(test_board,true)
 			assert("test_board:",test_board/=void)
 		end
 

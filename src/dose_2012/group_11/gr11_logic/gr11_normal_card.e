@@ -7,28 +7,41 @@ note
 class
 	GR11_NORMAL_CARD
 create
-	make
+	make,
+	make_int
 
 feature{NONE}--inizialization
 
 	make(card_string:STRING)
 	--receive string of the card and update attributes
 	local
+
 		file_split:LIST [STRING]
-
+		card:STRING
+		c:CHARACTER
 	do
-		file_split:=card_string.split (' ')
 
-		movement_fighter := (((file_split[0]).split('='))[1]).to_integer
-		rotation_fighter := (((file_split[1]).split('='))[1]).to_integer
-		fire_fighter := (((file_split[2]).split('='))[1]).to_integer
-		movement_capital_ship := (((file_split[3]).split('='))[1]).to_integer
-		rotation_capital_ship := (((file_split[4]).split('='))[1]).to_integer
-		fire_capital_ship := (((file_split[5]).split('='))[1]).to_integer
+		file_split:=card_string.split (' ')
+		movement_fighter := (((file_split[1]).split('='))[2]).to_integer
+		rotation_fighter := (((file_split[2]).split('='))[2]).to_integer
+		fire_fighter := (((file_split[3]).split('='))[2]).to_integer
+		movement_capital_ship := (((file_split[4]).split('='))[2]).to_integer
+		rotation_capital_ship := (((file_split[5]).split('='))[2]).to_integer
+		fire_capital_ship := (((file_split[6]).split('='))[2]).to_integer
 
 	ensure
 		--movement_fighter>0  and rotation_fighter>0 and fire_fighter=5 and
 		--movement_capital_ship>0 and rotation_capital_ship>0 and fire_capital_ship=2
+	end
+
+	make_int(MF,RF,FF,MRCS,FCS:INTEGER)
+	do
+		movement_fighter:=MF
+		rotation_fighter:=RF
+		fire_fighter:=FF
+		movement_capital_ship:=MRCS
+		rotation_capital_ship:=MRCS
+		fire_capital_ship:=FCS
 	end
 
 feature{NONE} --status access
@@ -41,6 +54,14 @@ rotation_capital_ship:INTEGER
 fire_capital_ship:INTEGER
 
 feature --query
+
+
+is_equal_card(card:GR11_NORMAL_CARD):BOOLEAN
+do
+	if card.get_fire_capital_ship=fire_capital_ship then
+
+	end
+end
 
 get_movement_fighter:INTEGER
 do

@@ -17,7 +17,7 @@ create
 
 feature
 	-- Attributes
-	msgListener: ARRAYED_LIST[G21_MSGLISTENER]
+	msgListener: ARRAYED_LIST[G21_MSG_LISTENER]
 	notifyListener: ARRAYED_LIST[G21_NOTIFYLISTENER]
 	net_in: CHARACTER[]
 	net_out: CHARACTER[]
@@ -69,7 +69,7 @@ feature
 			send.launch
 		end
 
-	addMsgListener(listener : G21_MSGLISTENER)
+	addMsgListener(listener : G21_MSG_LISTENER)
 		require
 			msgListener /= Void
 			listener /= Void

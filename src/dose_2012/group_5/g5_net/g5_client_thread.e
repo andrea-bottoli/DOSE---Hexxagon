@@ -48,12 +48,29 @@ feature {NONE} -- Initialization
 				is_launchable = true
 		end
 
+feature{G5_NET_SERVER} -- Mutex management
+
+	lock_mutex
+			-- This feature lets a G5_NET_SERVER lock the mutex of this thread
+		require
+
+		do
+			mutex.lock
+		end
+
+	unlock_mutex
+			-- This feature lets a G5_NET_SERVER unlock the mutex of this thread
+		do
+			mutex.unlock
+		end
 
 feature {NONE} -- Implementation
 
 	mutex: MUTEX
+		-- The mutex of this thread
 
 	associated_g5_launcher: G5_LAUNCHER
+		-- The object which creates this thread
 
 	server_IP_address: STRING
 
@@ -64,8 +81,9 @@ feature {NONE} -- Implementation
     execute
 			-- This feature will make the new host thread works as a client of this match.
 		do
---			sleep (600000000)
+			mutex.lock
 			associated_g5_launcher.submitting_as_a_client(server_IP_address, player_name, server_port_number)
+			mutex.unlock
 		ensure then
 			-- The client is associated to the game if the name was not empty
 			-- and is different from "SERVER".

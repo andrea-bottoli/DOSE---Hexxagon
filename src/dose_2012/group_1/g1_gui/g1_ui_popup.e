@@ -12,4 +12,5 @@ feature {NONE}	-- Attributes
 	controller : G1_UI_CONTROLLER
 
 	popup_area : EV_FIXED
+
 end

@@ -19,18 +19,17 @@ feature --Function
 	do
 		create NewPile.make
 		count:=Pile.count
-		from i:=0 until i=count		--Copying Pile to NewPile but Shuffled.
+		from i:=1 until i = count + 1		--Copying Pile to NewPile but Shuffled.
 		loop
 			imod:=i\\2
 			NewPile.start
 			if	imod=0	then
-				if i=0 then
-					NewPile.force (Pile.item)
-				else
-					NewPile.start
-					NewPile.put_right (Pile.item)
-				end
+				NewPile.start
+				NewPile.put_right (Pile.item)
 			else
+				if i=1 then
+					NewPile.force (Pile.item)
+				end
 				NewPile.start
 				NewPile.put_left (Pile.item)
 			end
@@ -41,13 +40,27 @@ feature --Function
 	end
 
 feature
+	get_pile : LINKED_LIST[G4_CARDS]
+	do
+		Result := Card_Pile
+	end
+
+feature
 
 	display_list(Pile : LINKED_LIST [G4_CARDS])
+	local
+		i : INTEGER
 	do
-
 		from Pile.start until Pile.item = Pile.last
 			loop
-				io.put_string (Pile.item.get_symbol)
+				io.new_line
+				io.put_string (Pile.item.getname + " ")
+				print(Pile.item.get_number)
+				io.put_string (" " + Pile.item.get_symbol + " ")
+				io.put_string (" Code: ")
+				print(i)
+				io.new_line
+				i := i+1
 				Pile.forth
 			end
 	end

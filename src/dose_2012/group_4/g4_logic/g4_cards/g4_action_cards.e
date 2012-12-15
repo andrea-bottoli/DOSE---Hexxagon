@@ -7,12 +7,13 @@ note
 class
 	G4_ACTION_CARDS
 	inherit G4_CARDS
+	redefine get_instance end
 
 
 feature
 
-	action(a_Player_array : ARRAY[G4_PLAYER]; a_player_id: INTEGER; a_player_target: INTEGER; Draw_Pile: G4_DRAW_PILE)
+	get_instance : STRING
 	do
+		Result := "Action"
 	end
-
 end

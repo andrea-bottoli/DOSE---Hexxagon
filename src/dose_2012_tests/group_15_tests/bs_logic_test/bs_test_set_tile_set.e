@@ -23,7 +23,7 @@ feature -- Test routines
 			tile_set : BS_PLAYER
 			rescued : BOOLEAN
 		do
-			create tile_set.make (1, 1)
+			create tile_set.make (1, 1, 0)
 			if (not rescued)
 			then
 				tile_set.add_tile_set (2)

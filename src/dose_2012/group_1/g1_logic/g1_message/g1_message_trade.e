@@ -7,57 +7,52 @@ note
 class
 	G1_MESSAGE_TRADE
 
+inherit
+
+	G1_MESSAGE
+
 create
-	make, make_trade
+	make_trade
 
 feature -- Initialization
 
-	make
-			-- Initialize the message with default values.
-		do
-			id_player := 0
-			price_offered := 0
-			id_deed_offered := 0
-		end
-
-	make_trade (a_id_player: INTEGER; a_price_offered: INTEGER; a_id_deed_offered: INTEGER)
+	make_trade (a_p1_id: INTEGER; a_p1_deed_id: INTEGER; a_p1_card_id: INTEGER; a_p2_id: INTEGER; a_p2_deed_id: INTEGER; a_p2_card_id: INTEGER; a_trade: BOOLEAN)
 			-- Initialize the message with the ID of the player, price offered for trade and de ID of the DEED offered.
 		require
-			valid_id_player: a_id_player > 0 and a_id_player <= 6
-			valid_price: a_price_offered > 0 and a_price_offered < 20000
-			valid_deed: a_id_deed_offered > 0 and a_id_deed_offered < 29
+			valid_id_players: a_p1_id > 0 and a_p2_id > 0
+			valid_id_deeds: a_p1_deed_id > 0 and a_p2_deed_id > 0
+			valid_id_cards: a_p1_card_id > 0 and a_p2_card_id > 0
 		do
-			id_player := a_id_player
-			price_offered := a_price_offered
-			id_deed_offered := a_id_deed_offered
+			id_player1 := a_p1_id
+			id_player2 := a_p2_id
+			p1_deed_id := a_p1_deed_id
+			p2_deed_id := a_p2_deed_id
+			p1_card_id := a_p1_card_id
+			p2_card_id := a_p2_card_id
+			trade := a_trade
 		end
 
 feature -- Measurents
 
-	id_player: INTEGER
+	id_player1: INTEGER
 			-- Represents the player is offered an trade
 
-	price_offered: INTEGER
-			-- Price offered by the player
+	id_player2: INTEGER
+			-- Represents the player is offered an trade
 
-	id_deed_offered: INTEGER
-			-- Deed offered by the player
+	p1_deed_id: INTEGER
+			-- Deed offered by the player1
 
-feature -- Basic operations
+	p2_deed_id: INTEGER
+			-- Deed offered by the player2
 
-	set_id_player (a_id_player: INTEGER)
-		do
-			id_player := a_id_player
-		end
+	p1_card_id: INTEGER
+			-- Card offered by the player1
 
-	set_price_offered (a_price_offered: INTEGER)
-		do
-			price_offered := a_price_offered
-		end
+	p2_card_id: INTEGER
+			-- Card offered by the player2
 
-	set_id_deed_offered (a_id_deed_offered: INTEGER)
-		do
-			id_deed_offered := a_id_deed_offered
-		end
+	trade: BOOLEAN
+			-- True is trade is acepted, else false.
 
 end

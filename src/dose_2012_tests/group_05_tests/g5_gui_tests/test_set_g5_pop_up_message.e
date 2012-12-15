@@ -42,7 +42,7 @@ feature -- Test routines
 			testing: "G5_POP_UP_MESSAGE/make"
 			-- test make
 		do
-			pop_up_mesage.make (string_entry)
+			create pop_up_mesage.make (string_entry)
 			rescued := string_entry.is_equal (pop_up_mesage.message)
 			assert ("correct make", rescued)
 		end

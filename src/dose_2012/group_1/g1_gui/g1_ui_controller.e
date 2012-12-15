@@ -15,21 +15,30 @@ feature
 	make
 		local
 			request_ip: G1_IP_ADDRESS
-			socket: NETWORK_STREAM_SOCKET
+			socket_in,socket_out: NETWORK_STREAM_SOCKET
 		do
 			create request_ip
 			ip_address := request_ip.ip_address
 
 			create request_ip.country_create
 			country := request_ip.country_code
+			port := 9190
 
-			create socket.make_server_by_port (11000)
-			intern_ip_address := socket.address.host_address.host_address
-			socket.close
+			create socket_in.make_server_by_port (11000)
+			socket_in.listen(1)
+			socket_in.set_non_blocking
+			socket_in.accept
+			create socket_out.make_client_by_port (11000, "127.0.0.1")
+			socket_out.connect
+			intern_ip_address := socket_out.address.host_address.host_address
+			socket_out.close_socket
+			socket_in.close_socket
 
-			-- create game.make_with_controller (ip_address, Current)
+			create game.make_with_controller (Current,ip_address)
 			-- l_player := game.get_player
 			create l_player.make (999, "Player")
+
+			is_server_started := FALSE
 		end
 
 feature {NONE}
@@ -59,12 +68,20 @@ feature {ANY} -- Initial operation
 			match_name = matchname
 		end
 
-	get_player_name (): STRING
+	get_player_name: STRING
 			--- This feature is called by LOGIC subcomponent o by each GUI to get the name of the current player
 			--- Player's name is useful to associate the idPlayer, saved on LOGIC subcomponent, with a human-readable identificator
 		require
 		do
 			Result := l_player.get_name
+		ensure
+			Result /= Void
+		end
+
+	get_match_name: STRING
+		require
+		do
+			Result := match_name
 		ensure
 			Result /= Void
 		end
@@ -159,6 +176,13 @@ feature {G1_UI_MAIN}
 			Result = server_ip
 		end
 
+	get_port: INTEGER
+		do
+			Result := port
+		ensure
+			Result = port
+		end
+
 	get_local_ip: STRING
 		do
 			Result := ip_address
@@ -180,8 +204,6 @@ feature {G1_UI_MAIN}
 
 	start_gameboard (main_ui: MAIN_WINDOW)
 		do
-			-- finestra di attesa
-			-- quando si riceve l'ok dalla LOGIC-CLIENT (tutti i giocatori sono pronti)
 			create gameboard.make (main_ui, Current)
 			gameboard.show
 			gameboard.maximize
@@ -190,11 +212,14 @@ feature {G1_UI_MAIN}
 feature {G1_UI_MAIN} -- USED TO START SERVER
 
 	server: G1_NET_SERVER_STARTER
+	is_server_started: BOOLEAN
 
 	start_server
 		do
-			create server.make_server
+			create server.make_server(match_name)
 			server.launch
+
+			is_server_started := TRUE
 		end
 
 feature {ANY} -- Features called by other GUI classes
@@ -217,13 +242,57 @@ feature {ANY} -- Features called by other GUI classes
 			Result := game.roll_dice (l_player)
 		end
 
+	buy_property(property : G1_DEED)
+		do
+			game.buy (l_player, property)
+		end
+
 	finish_turn
 		do
 			game.finish_turn (l_player)
 		end
 
-	leave_game
+	mortgage(a_deed : G1_DEED)
 		do
-			game.leave_game (l_player)
+			game.mortgage (l_player, a_deed)
+		end
+
+	unmortgage(a_deed : G1_DEED)
+		do
+			game.unmortage (l_player, a_deed)
+		end
+
+	pay_rent
+		do
+			game.pay_rent_to_player(l_player)
+		end
+
+	build(a_street: G1_STREET)
+		do
+			game.build (l_player, a_street)
+		end
+
+	sell_property(property:G1_DEED)
+		do
+			--game.sell (l_player, property)
+		end
+
+	sell_hotel_house(a_street: G1_STREET)
+		do
+			game.sell_building (l_player, a_street)
+		end
+
+	get_card(type : INTEGER) : G1_CARD
+		do
+			if type = 1 then
+				Result := game.board.get_next_card_community
+			elseif type = 2 then
+				Result := game.board.get_next_card_chance
+			end
+		end
+
+	get_property(id : INTEGER) : G1_CELL
+		do
+			Result := game.board.cells[id]
 		end
 end

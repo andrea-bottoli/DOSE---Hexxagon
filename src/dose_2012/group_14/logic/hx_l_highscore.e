@@ -38,10 +38,9 @@ feature -- access
 	set_high_score(new_high_score: INTEGER)
 		-- Set the value of the high score
 		local
-			l_highscore_file: RAW_FILE
+			l_highscore_file: PLAIN_TEXT_FILE
 		do
             create l_highscore_file.make_open_write (file_system.pathname_to_string (highscore_path))
-            l_highscore_file.wipe_out
             l_highscore_file.put_integer (new_high_score)
             l_highscore_file.close
         end
@@ -49,7 +48,7 @@ feature -- access
 	high_score: INTEGER
 		-- Get the value of the high score
 		local
-			l_highscore_file: RAW_FILE
+			l_highscore_file: PLAIN_TEXT_FILE
 		do
 
             create l_highscore_file.make_open_read (file_system.pathname_to_string (highscore_path))

@@ -15,30 +15,29 @@ create
 
 feature
 
-	make (a_player: CU_ENUM_SUSPECTS;a_suspect_card: CU_SUSPECT_CARD; a_weapon_card: CU_WEAPON_CARD; a_room_card: CU_ROOM_CARD)
+	make --(a_player: CU_ENUM_SUSPECTS;a_suspect_card: CU_SUSPECT_CARD; a_weapon_card: CU_WEAPON_CARD; a_room_card: CU_ROOM_CARD)
 		-- Displays the window by an accusation incorrect
-		require
-			has_a_suspect_card: solution_game.solution.has (a_suspect_card)
-			has_a_weapon_card: solution_game.solution.has (a_weapon_card)
-			has_a_room_card: solution_game.solution.has (a_room_card)
+--		require
+--			has_a_suspect_card: solution_game.solution.has (a_suspect_card)
+--			has_a_weapon_card: solution_game.solution.has (a_weapon_card)
+--			has_a_room_card: solution_game.solution.has (a_room_card)
 		do
-			--set_message("Your accusation is false,%N you lose this match")
-			set_message("Your accusation is false,%N you lose this match")
 
 			create accept_button.make_with_text ("Accept")
 			accept_button.set_minimum_size (75, 24)
 			accept_button.select_actions.extend (agent destroy)
 
 			create con_accusation_incorrect
-			con_accusation_incorrect.extend_with_position_and_size (accept_button, 70, 100, 80, 40)
-			con_accusation_incorrect.extend_with_position_and_size (label_window, 30, 20 , 200, 80)
+			con_accusation_incorrect.extend_with_position_and_size (image_lose_game, 0, 0, 464, 560)
+			con_accusation_incorrect.extend_with_position_and_size (accept_button, 192, 515, 80, 40)
 
 			make_with_title ("Lose for Accusation Incorrect")
-			set_size (400,350)
+			set_size (464,560)
 			put (con_accusation_incorrect)
+			disable_user_resize
 
-		ensure
-			window_lose_display: is_displayed
+--		ensure
+--			window_lose_display: is_displayed
 		end
 
 feature	--Implementation/ Constants
@@ -52,12 +51,12 @@ feature	--Implementation/ Constants
 
     image_lose_game: EV_PIXMAP
 		-- Represents image of the lose game
-		-------------------------------------------------FALTA PATH-------------------------------------------
+
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (Img_main_background))
+			Result.set_with_named_file (file_system.pathname_to_string (img_lose))
 		end
--------------------------------------------------FALTA PATH-------------------------------------------
+
 	solution_game: CU_GAME
 
 	con_accusation_incorrect: EV_FIXED

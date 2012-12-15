@@ -7,7 +7,8 @@ note
 class
 	G20_COLOR
 		create
-		make
+		make,
+		make_random
 
 		feature{NONE}
 		color : INTEGER
@@ -18,9 +19,18 @@ class
 				color := 0;
 			end
 
+		make_random
+		local
+			rand: RANDOM
+		do
+			create rand.make
+			rand.start
+			color := (rand.item \\ 6) + 1
+		end
+
 		SetColor(argColor: INTEGER)
 			require
-				(color >= 1) and (color <= 6)
+				(argColor >= 1) and (argColor <= 6)
 			do
 				color := argColor
 			end

@@ -11,7 +11,7 @@ inherit {NONE}
 
 	BS_CONSTANTS
 
-feature {BS_NET_MACHINE} -- Information
+feature -- Information
 
 	is_game_master(): BOOLEAN
 	do

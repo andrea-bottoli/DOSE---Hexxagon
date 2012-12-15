@@ -52,9 +52,11 @@ feature{G21_NOT_EASY_AI} -- Procedures
 			row: INTEGER
 			column: INTEGER
 			move_value: INTEGER
+			human_id: INTEGER
 
 		do
 
+			human_id:= 1
 			move_value:= 0
 			row:=position.x
 			column:=position.y
@@ -65,7 +67,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 				if board.item (row-1, column).isoccupied=TRUE then
 
-					if card.top>board.item (row-1, column).card.bottom then --when it will be available, we'll have to check to whom the board card belongs
+					if 	board.item(row-1, column).getplayernumber=human_id and then	card.top>board.item (row-1, column).card.bottom then
 
 						move_value:= move_value + flip_value
 
@@ -89,7 +91,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 				if board.item (row+1, column).isoccupied=TRUE then
 
-					if card.bottom>board.item (row+1, column).card.top then --when it will be available, we'll have to check to whom the board card belongs
+					if board.item(row+1, column).getplayernumber=human_id and then card.bottom>board.item (row+1, column).card.top then
 
 						move_value:= move_value + flip_value
 
@@ -114,7 +116,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 				if board.item (row, column-1).isoccupied=TRUE then
 
-					if card.left>board.item (row, column-1).card.right then --when it will be available, we'll have to check to whom the board card belongs
+					if board.item(row, column-1).getplayernumber=human_id and then card.left>board.item (row, column-1).card.right then
 
 						move_value:= move_value + flip_value
 
@@ -138,7 +140,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 				if board.item (row, column+1).isoccupied=TRUE then
 
-					if card.right>board.item (row, column+1).card.left then --when it will be available, we'll have to check to whom the board card belongs
+					if board.item(row, column+1).getplayernumber=human_id and then card.right>board.item (row, column+1).card.left then
 
 						move_value:= move_value + flip_value
 
@@ -310,7 +312,6 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 			card_not_changed: equals_card(card_to_remove, old card_to_remove)
 			valuated_moves_resized: valuated_moves.count<= old valuated_moves.count
-			-- the other elements has not been changed
 
 		end
 
@@ -357,7 +358,6 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 			position_not_changed: position_to_remove.equals_position(old position_to_remove)
 			valuated_moves_resized: valuated_moves.count<= old valuated_moves.count
-			-- the other elements has not been changed
 
 		end
 

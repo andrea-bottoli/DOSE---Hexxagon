@@ -26,13 +26,17 @@ create
 
 feature {NONE}	-- Initialization
 
-	make(a_main_ui_window: MAIN_WINDOW)
+	make(a_main_ui_window: MAIN_WINDOW;a_logic:B8_LOGIC)
 			-- Creation procedure
 		do
 			-- Store the main_ui object. We want to restore it later on (it's currently minimized).
 			main_ui := a_main_ui_window
 			-- Create the main menù window.
 			make_with_title ("Blokus")
+			logic:=a_logic
+			if logic=Void then
+				create logic.make
+			end
 		end
 
 initialize
@@ -126,7 +130,7 @@ join_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INT
 		-- User klicked on client_button
 	do
 		destroy
-		create l_client.make
+		create l_client.make(logic)
 		l_client.show
 	end
 
@@ -134,7 +138,7 @@ create_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: I
 		-- User klicked on client_button
 	do
 		destroy
-		create l_server.make
+		create l_server.make(logic)
 		l_server.show
 	end
 
@@ -179,5 +183,7 @@ l_server: B8_2ND_LAYER_SERVER_WINDOW
 	-- Server button background on pointer enter
 	pix_create_enter: EV_PIXMAP
 
+feature
+	logic:B8_LOGIC
 
 end

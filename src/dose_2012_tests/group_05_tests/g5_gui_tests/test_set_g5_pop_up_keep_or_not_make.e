@@ -27,22 +27,27 @@ feature {NONE}
 
 feature -- test routines
 
-	test_make_0
-			--positive for make
-		do
-			card := "T2"
-			keep.make (card)
-			assert ("make successful", keep.card.is_equal (card))
-		end
+--	test_make_0
+--			--positive for make
+--		local
+--			gui: G5_GUI
+--		do
+--			create gui.make_test
+--			card := "T2"
+--			create keep.make (card, gui)
+--			assert ("make successful", keep.card.is_equal (card))
+--		end
 
 	test_make_1
 			--tste negative, arguments invalid
 		local
 			rescued: BOOLEAN
+			gui: G5_GUI
 		do
+			create gui.make_test
 			if not rescued then
 				card := VOID
-				keep.make (card)
+				keep.make (card, gui)
 			end
 			assert ("make raised problem", rescued)
 		rescue

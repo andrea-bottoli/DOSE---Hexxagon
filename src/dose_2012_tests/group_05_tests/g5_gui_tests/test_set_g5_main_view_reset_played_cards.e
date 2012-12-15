@@ -37,14 +37,14 @@ feature {NONE}
 
 feature -- test routines
 
-	test_reset_played_cards_0
+--	test_reset_played_cards_0
 			--test whether the array of played cards is reset
-	note
-		testing: "G5_MAIN_VIEW/reset_played_cards"
-	do
-		--main_view.reset_played_cards
-		assert("array played cards is reset correcty", main_view.board.played_cards_list.is_empty)
-	end
+--	note
+--		testing: "G5_MAIN_VIEW/reset_played_cards"
+--	do
+--		--main_view.reset_played_cards
+--		assert("array played cards is reset correcty", main_view.board.played_cards_list.is_empty)
+--	end
 
 --	test_reset_played_cards_1
 --			--test whether the array of played cards with two elements is reset

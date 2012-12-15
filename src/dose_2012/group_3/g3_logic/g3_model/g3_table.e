@@ -15,11 +15,11 @@ feature{NONE}
 	make
 			-- Makes a new game table.
 		do
-			hand_over := False
+			round_over := False
 			create  stack_of_play.make
 			create tichu.make
 			create grand_tichu.make
-			dog := Void
+			round_winner_player := Void
 			last_killer := Void
 		end
 
@@ -72,6 +72,16 @@ feature{G3_MODEL, G3_TEST_LOGIC_TABLE}
 			Result := sum
 		end
 
+	set_round_over(flag: BOOLEAN)
+		do
+			round_over := flag
+		end
+
+	set_round_winner_player(player_id : G3_PLAYER_ID)
+		do
+			round_winner_player := player_id
+		end
+
 	set_turn (turn_ : G3_PLAYER_ID)
 		require
 			valid_arg: turn_ /= Void
@@ -79,11 +89,6 @@ feature{G3_MODEL, G3_TEST_LOGIC_TABLE}
 			turn := turn_
 		ensure
 			set_ok : turn.is_equal (turn_)
-		end
-
-	set_dog(player_id : G3_PLAYER_ID)
-		do
-			dog := player_id
 		end
 
 	set_tichu(player_id : G3_PLAYER_ID)
@@ -96,11 +101,20 @@ feature{G3_MODEL, G3_TEST_LOGIC_TABLE}
 			grand_tichu.put(player_id)
 		end
 
+	set_last_killer(player_id :G3_PLAYER_ID)
+		do
+			last_killer := player_id
+		end
+
 feature
-	hand_over: BOOLEAN
-		-- Is the hand over?
+	round_over: BOOLEAN
+		-- Is the round over?
+
+	round_winner_player : G3_PLAYER_ID
+		-- The player who won the round.
 
 	turn : G3_PLAYER_ID
+
 
 	last_killer: G3_PLAYER_ID
 		-- The last player that plays a combination of cards.
@@ -113,5 +127,4 @@ feature
 
 	grand_tichu : LINKED_STACK[G3_PLAYER_ID]
 
-	dog : G3_PLAYER_ID
 end

@@ -33,10 +33,14 @@ feature -- Status Setting
 		require
 			valid_color: is_color_valid(a_color) and a_points >= 0
 		do
-			points[a_color] := points[a_color] + a_points
+			if points[a_color] + a_points > 18 then
+				points[a_color] := 18
+			else
+				points[a_color] := points[a_color] + a_points
+			end
 		ensure
 			count_increased: points[a_color] >= old points[a_color]
-			count_is_correct: points[a_color] = old points[a_color] + a_points
+			count_is_correct: points[a_color] = old points[a_color] + a_points or points[a_color] = 18
 		end
 
 	points_for_color (a_color:STRING): INTEGER

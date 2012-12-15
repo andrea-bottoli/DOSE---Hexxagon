@@ -80,6 +80,17 @@ feature -- Test routines
 			assert ("not_implemented", deed_t.owner.get_id_player.is_equal (player_t.get_id_player))
 		end
 
+	test_get_price
+		note
+			testing: "covers/{G1_DEED}.get_price"
+			testing: "user/G1"
+		local
+			deed_t: G1_DEED
+		do
+			create deed_t.make_deed (100, 4, "cell 4")
+			assert ("valid price", deed_t.get_price.is_equal (100))
+		end
+
 end
 
 

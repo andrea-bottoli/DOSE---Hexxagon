@@ -22,7 +22,7 @@ feature {NONE}
 	points : INTEGER
 	make
 	do
-
+		create hand.make (5)
 	end
 
 feature {ANY}
@@ -66,6 +66,7 @@ feature {ANY}
 
 	get_num_gold () : INTEGER
 		do
+			count_gold(hand)
 			Result := num_gold
 		ensure
 			name_num_gold : Result = num_gold
@@ -123,7 +124,7 @@ feature {ANY}
 
 	set_num_actions (a_num_actions : INTEGER)
 		require
-			arg_is_integer : a_num_actions < 0
+			arg_is_integer : a_num_actions >= 0
 		do
 			num_actions := a_num_actions
 		ensure
@@ -132,7 +133,7 @@ feature {ANY}
 
 	set_num_buys (a_num_buys : INTEGER)
 		require
-			arg_is_integer : a_num_buys < 0
+			arg_is_integer : a_num_buys >= 0
 		do
 			num_buys := a_num_buys
 		ensure
@@ -141,7 +142,7 @@ feature {ANY}
 
 	set_num_gold (a_num_gold : INTEGER)
 		require
-			arg_is_integer : a_num_gold < 0
+			arg_is_integer : a_num_gold >= 0
 		do
 			num_gold := a_num_gold
 		ensure
@@ -190,8 +191,8 @@ feature {ANY}
 				type := discard_pile.get_top_card().gettype()
 				if type.is_equal("Victory") = TRUE then
 					if attached {DO_VICTORY_CARD} discard_pile.get_top_card() as card then
-							point_sum := point_sum + card.getvictorypoints()
-						end
+						point_sum := point_sum + card.getvictorypoints()
+					end
 				end
 				discard_pile.remove_top_card()
 			end
@@ -200,5 +201,103 @@ feature {ANY}
 			draw_pile : draw_pile.Is_Empty() = TRUE
 			point_sum : Result >= -30
 		end
+
+		count_gold(p_hand : ARRAYED_LIST[DO_CARD])
+		do
+			across p_hand
+			as i
+			loop
+				if i.item.gettype.is_equal("Coin") then
+					if attached {DO_COIN_CARD} i.item as card then
+						num_gold := num_gold + card.getgolds
+					end
+				end
+			end
+		end
+
+		play_card(p_card : DO_CARD)
+		local
+			i : INTEGER
+			remove : INTEGER
+			y : BOOLEAN
+		do
+			y := TRUE
+			if (num_actions >= 1) and (p_card.gettype.is_equal("Kingdom")) then
+				p_card.doaction(p_card.getname)
+				if attached {DO_KINGDOM_CARD} p_card as card then
+					from i := 1
+					until i = hand.count + 1
+					loop
+--						print("%N" + "MALAKA " + hand.at(i).getname + "%N")
+--						io.putint (i)
+--						print("%N")
+						if hand.at(i).getname.is_equal(p_card.getname) and y = TRUE then
+--							--print(p_card.getname+"%N")
+--							discard_pile.add_top_card (hand.at (i))
+--							hand.go_i_th (i-1)
+--							--print ("%N"+hand.at(i).getname+"%N")
+--							hand.remove_right
+--							hand.go_i_th (i)
+							remove := i
+							y:= FALSE
+						end
+						i:=i+1
+					end
+					if y = FALSE then
+						discard_pile.add_top_card (hand.at (remove))
+						hand.go_i_th (remove-1)
+						hand.remove_right
+					end
+					hand.go_i_th (1)
+
+					num_gold := num_gold + card.getplus_gold
+					num_actions := num_actions + card.getactions - 1
+					num_buys := num_buys + card.getbuys
+					from i := card.getdiscard until i = 0
+					loop
+						-- hand trash card(s)
+						-- mporei na rwtaei ton player an thelei na kanei trash me mia if kai na kanoume to i := 0 an dn thelei na petaksei alli
+						i := i - 1
+					end
+					from i := card.getpluscards until i = 0
+					loop
+						if draw_pile.is_empty then
+							draw_pile.refill_draw (discard_pile)
+							if draw_pile.is_empty and i >0 then
+						--		print ("a")
+								i :=1
+							else
+							--	print("TROMPA")
+							--  na milate pio omorfa alliws 8a sas diagrapsw apo to DOSE
+							--  me pollh agaph
+							--  amoustakos programmatisths
+								hand.force (draw_pile.remove_top_card)
+							end
+						else
+							hand.force (draw_pile.remove_top_card)
+						end
+					--	print ("kati")
+						i := i - 1
+					end
+
+				end
+				--add p_card to discard
+			end
+		end
+
+		buy_card(b_card : DO_CARD)
+		do
+			count_gold (hand)
+			if (num_gold >= b_card.getcost) and (num_buys >= 1) then
+				num_gold := num_gold - b_card.getcost
+				num_buys := num_buys - 1
+				--add b_card to discard
+				discard_pile.add_top_card (b_card)
+				discard_pile.emfanise
+			else
+				print("POULO")
+			end
+		end
+
 
 end

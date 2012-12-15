@@ -9,6 +9,9 @@ class
 
 inherit
 	HASHABLE
+	redefine
+		is_equal
+	end
 
 create
 	make
@@ -38,6 +41,11 @@ feature --status access
 	do
 		Result := x + y*y
 	end
+
+	is_equal (other: GR11_COORDINATES): BOOLEAN
+    do
+    	Result := current.x = other.x and current.y = other.y
+    end
 
 invariant
 	x_and_y_positive: x >= 0 and then y >= 0

@@ -55,7 +55,7 @@ feature -- Test positive
 		do
 			create table.make_game_default (4, class_test)
 			added_server_logic := table
-			class_test.add_server_logic (added_server_logic)
+--			class_test.add_server_logic (added_server_logic)
 			assert("A Server logic component was not added", class_test.server_logic = added_server_logic)
 			class_test.remove_server_logic (added_server_logic)
 			assert ("remove_server_logic has not remove the logic component.", class_test.server_logic = void)
@@ -74,6 +74,7 @@ feature -- Test negative
 			if not rescued then
 				create table.make_game_default (4, class_test)
 				added_server_logic := table
+				class_test.remove_server_logic (added_server_logic)
 				class_test.remove_server_logic (added_server_logic)
 			end
 			assert ("remove_server_logic raised problem", rescued)

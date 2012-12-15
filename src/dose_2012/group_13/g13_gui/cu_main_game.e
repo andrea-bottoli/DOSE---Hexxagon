@@ -22,7 +22,9 @@ feature -- make
 	    	pass_turn.select_actions.extend (agent hide)
 
 	    	create throw_dices.make_with_text ("Throw dices")
-	    	throw_dices.select_actions.extend (agent hide)
+	    	create dices.make
+	    	throw_dices.select_actions.extend (agent dices.show)
+	    	throw_dices.select_actions.extend (agent throw_dices.disable_sensitive)
 
 	    	create make_suggestion.make_with_text ("Make a suggestion")
 	    	create make_sugg.make
@@ -190,4 +192,5 @@ feature {NONE} -- Implementation / Constants
 	make_accus:CU_MAKE_AN_ACCUSATION
 	cards: CU_SHOW_CARDS
 	notes: CU_TAKE_NOTES
+	dices: CU_THROW_DICES
 end

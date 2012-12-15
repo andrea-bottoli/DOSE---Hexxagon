@@ -49,6 +49,7 @@ feature {ANY} --Setter of Level and color
 
 	set_Element (elem: STRING)
 		do
+			g2_card_element := elem
 		end
 
 	set_LevelDown (Down: INTEGER)
@@ -152,6 +153,22 @@ feature {ANY} --Setter of Level and color
 					Result:=FALSE
 				end
 
+			end
+		print_card()
+			do
+			--	print("LEVELS: "+g2_card_levelUP+"--"+g2_card_levelRight+"--"+g2_card_levelDown+"--"+g2_card_levelLeft+"%N")
+			--	print("Element: "+g2_card_element+"%N")
+			io.put_new_line
+			io.put_integer (g2_card_levelUP)
+			io.put_string ("--")
+			io.put_integer (g2_card_levelRight)
+			io.put_string ("--")
+			io.put_integer (g2_card_levelDown)
+			io.put_string ("--")
+			io.put_integer (g2_card_levelLeft)
+			io.put_string ("--")
+			io.put_boolean (g2_card_color)
+			io.put_new_line
 			end
 
 invariant

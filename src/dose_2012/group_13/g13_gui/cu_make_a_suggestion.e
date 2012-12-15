@@ -34,11 +34,11 @@ feature
 			cancel_button.select_actions.extend (agent hide)
 
 			create con_suggestion
-			io.put_integer (suspects_combo_box.height)
+--			io.put_integer (suspects_combo_box.height)
 			con_suggestion.extend_with_position_and_size (suggest_button, 300,70 , 80, 40)
 			con_suggestion.extend_with_position_and_size (cancel_button, 300, 160, 80, 40)
-			con_suggestion.extend_with_position_and_size (suspects_combo_box, 30, 50, 100, 22)
-			con_suggestion.extend_with_position_and_size (weapons_combo_box, 170, 50, 100, 22)
+--			con_suggestion.extend_with_position_and_size (suspects_combo_box, 30, 50, 100, 22)
+--			con_suggestion.extend_with_position_and_size (weapons_combo_box, 170, 50, 100, 22)
 			set_message("Select a Suspect")
 			con_suggestion.extend_with_position_and_size (message_label, 30, 20, 100, 30)
 			set_message("Select a Weapon")

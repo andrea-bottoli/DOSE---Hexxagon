@@ -29,17 +29,20 @@ create
 
 feature
 
-	make (pmt_socket: attached NETWORK_STREAM_SOCKET; pmt_agent_set: BS_NET_AGENT_SET; pmt_specific_disconnect_agent: detachable procedure [ANY, TUPLE [BS_NET_REMOTE_MACHINE]])
+	make (pmt_socket: attached NETWORK_STREAM_SOCKET; pmt_owner_server: BS_NET_SERVER; pmt_agent_set: BS_NET_AGENT_SET; pmt_specific_disconnect_agent: detachable procedure [ANY, TUPLE [BS_NET_REMOTE_MACHINE]])
 		do
 			socket := pmt_socket
 			specific_disconnect_agent := pmt_specific_disconnect_agent
 			agent_set := pmt_agent_set
+			owner_server := pmt_owner_server
 			create protocol
 			create serializer
 			create socket_reader.make (socket, current)
-			socket_reader.launch
+			socket_reader.launch()
+			socket_reader.authenticate()
 		ensure
 			socket_assigned: socket = pmt_socket
+			server_assigned: owner_server = pmt_owner_server
 			agent_set_assigned: agent_set = pmt_agent_set
 			disconnect_agent_assigned: specific_disconnect_agent = pmt_specific_disconnect_agent
 			thread_launched: socket_reader.is_last_launch_successful
@@ -159,25 +162,36 @@ feature -- Game status messages
 			game_status := status_game_terminated
 		end
 
+
+
 	disconnect ()
+		local
+			failed_while_sending: BOOLEAN
 		do
 			if not dead and not disconnect_in_progress then
 				disconnect_in_progress := true
+
 				if not harakiried then
-					io.put_string ("Clean disconnect.%N")
-					send_line (protocol.closing)
-						-- send_line ("Nel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%NNel mezzo del cammin di nostra vita%N")
-						--					sleep (2000000000)
+					if not failed_while_sending then
+						io.put_string ("Clean disconnect.%N")
+						if not socket.is_closed then
+							failed_while_sending := true
+							send_line (protocol.closing)
+							failed_while_sending := false
+						end
+					end
 				else
 					io.put_string ("Harakiri disconnect.%N")
 				end
 				if attached specific_disconnect_agent as x then
 					x.call ([Current])
 				end
-					-- specific_disconnect_agent := void -- No more than one call.
+
 				dead := true
-				socket.close ()
+				socket.close () -- This should also unlock the SOCKET_READER thread.
 			end
+		rescue
+			retry
 		end
 
 feature {BS_NET_SERVER}
@@ -207,9 +221,9 @@ feature {BS_NET_SOCKET_READER}
 			serialized_object := serializer.serialize (object)
 			length := serialized_object.count
 			send_line (length.out)
-			socket_reader.check_response (protocol.send_it)
+			-- socket_reader.check_response (protocol.send_it) -- Sendit no longer required
 			send (serialized_object)
-			socket_reader.check_ack ()
+			-- socket_reader.check_ack () -- Ack no longer required
 		end
 
 	send_command (command: BS_NET_COMMAND)
@@ -243,6 +257,11 @@ feature {BS_NET_SOCKET_READER}
 			send (what + "%N");
 		end
 
+	set_master (value: BOOLEAN)
+	do
+		is_master := value
+	end
+
 	harakiri () -- Called in case of any communication error: disconnects the machine
 		do
 			if not harakiried then
@@ -256,9 +275,16 @@ feature {BS_NET_SOCKET_READER}
 
 	agent_set: attached BS_NET_AGENT_SET
 
+	get_server_master_key() : INTEGER
+	do
+		result := owner_server.master_key
+	end
+
 feature {NONE} -- Locals
 
 	socket: attached NETWORK_STREAM_SOCKET
+
+	owner_server: attached BS_NET_SERVER
 
 	specific_disconnect_agent: detachable procedure [ANY, TUPLE [BS_NET_MACHINE]]
 

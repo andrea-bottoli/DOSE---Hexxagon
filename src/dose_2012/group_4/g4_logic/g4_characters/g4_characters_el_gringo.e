@@ -8,9 +8,14 @@ class
 	G4_CHARACTERS_EL_GRINGO
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("El Gringo")
+ 		set_character_life(3)
  	ensure
   		Character_Name.is_equal("El Gringo")
   		Character_Life = 3

@@ -43,7 +43,7 @@ feature
 		do
 				--initialize server
 			create game.make
-			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void))
+			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void, void, void), 0)
 			string_aux := server.start_listening ()
 			create dummythread.make (void, void)
 				-- dummythread.yield
@@ -60,7 +60,7 @@ feature
 				--client.connect_server (ip_address, 3333)
 				--verify number of connected players
 
-			create game_connection.make ("127.0.0.1", 3333)
+			create game_connection.make ("127.0.0.1", 3333, -1)
 				-- dummythread.yield
 			sleep (1000000000)
 			users_connected := server.get_machines
@@ -92,18 +92,25 @@ feature
 			users_connected: LIST [BS_NET_REMOTE_MACHINE]
 			the_machine: BS_NET_REMOTE_MACHINE
 			game_connection: BS_NET_GAME_CONNECTION
+			my_random: BETTER_RANDOM
+			master_key: INTEGER
 		do
 			create command_list
+			create my_random.make()
 
 				--initialize server
 			create game.make
-			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, agent add_player_handler, agent remove_player_handler))
+
+
+			master_key := my_random.next_random (my_random.seed)
+
+			create server.make (game, 3333, 4, create {BS_NET_AGENT_SET}.make (void, void, agent add_player_handler, agent remove_player_handler, void, void), master_key)
 			string_aux := server.start_listening ()
 			sleep (200000000)
 
 				--				io.put_string (string_aux + "%N")
 
-			create game_connection.make ("127.0.0.1", 3333)
+			create game_connection.make ("127.0.0.1", 3333, master_key)
 			sleep (200000000)
 			users_connected := server.get_machines
 			io.put_string ("Connected users: " + users_connected.count.out + "%N")
@@ -134,8 +141,6 @@ feature
 				end)
 
 			single_command_test (the_machine, game_connection, command_list.command_playermakesmove, agent (mach: BS_NET_MACHINE)
-				local
-					received_move: BS_MOVE
 				do
 					mach.player_makes_move (1, 1, create {BS_MOVE}.make_with_action (3, void, void))
 				end)
@@ -243,7 +248,7 @@ feature {NONE} -- Tests and stuff
 			returned_string: STRING
 		do
 			create fake_game.make ()
-			create netserv.make (fake_game, 8765, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void))
+			create netserv.make (fake_game, 8765, 4, create {BS_NET_AGENT_SET}.make (void, void, void, void, void, void), 0)
 			returned_string := netserv.start_listening ()
 			io.put_string ("Returned: " + netserv.start_listening () + "%N")
 			if not (returned_string ~ "OK") then
@@ -263,8 +268,8 @@ feature {NONE} -- Tests and stuff
 			agent_set: BS_NET_AGENT_SET
 		do
 			create fake_game.make ()
-			create agent_set.make (agent machine_connected_handler, agent machine_disconnected_handler, void, void)
-			create netserv.make (fake_game, 8765, 4, agent_set)
+			create agent_set.make (agent machine_connected_handler, agent machine_disconnected_handler, void, void, void, void)
+			create netserv.make (fake_game, 8765, 4, agent_set, 0)
 			returned_string := netserv.start_listening ()
 			if not (returned_string ~ "OK") then
 					-- Do nothing
@@ -294,7 +299,7 @@ feature {NONE} -- Tests and stuff
 		local
 			game_connection: BS_NET_GAME_CONNECTION
 		do
-			create game_connection.make ("127.0.0.1", 3333)
+			create game_connection.make ("127.0.0.1", 3333, -1)
 		end
 
 	constants: BS_CONSTANTS

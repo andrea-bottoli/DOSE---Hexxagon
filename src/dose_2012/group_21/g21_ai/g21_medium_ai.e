@@ -52,7 +52,7 @@ feature{NONE} -- Creation
 
 feature{G21_BOARD, TEST_G21_MEDIUM_AI_MAKE_A_MOVE} -- Interface Procedure
 
-	make_a_move (card_position: G21_POINT; player_card: G21_CARD): G21_MOVE -- It redefines G21_AI feature. It makes an medium difficult level move by using several features of G21_NOT_EASY_AI
+	make_a_move (card_position: G21_POINT): G21_MOVE -- It redefines G21_AI feature. It makes an medium difficult level move by using several features of G21_NOT_EASY_AI
 
 		--require
 
@@ -62,7 +62,7 @@ feature{G21_BOARD, TEST_G21_MEDIUM_AI_MAKE_A_MOVE} -- Interface Procedure
 
 		do
 
-			if card_position/=void and then player_card/= void then
+			if card_position/=void then
 
 				remove_position_and_update(card_position, TRUE)
 

@@ -31,17 +31,21 @@ feature -- Public
 
 	command_closing: INTEGER = 11 -- []
 
+	command_welcome: INTEGER = 12 -- []
+
+	command_max: INTEGER = 12
+
 		-- Command, player, color, message, tile, move, string
 
 	valid_commands (): ARRAY [INTEGER]
 		local
 			i: INTEGER
 		once
-			create result.make_filled (0, 1, 11)
+			create result.make_filled (0, 1, command_max)
 			from
 				i := 1
 			until
-				i > 11
+				i > command_max
 			loop
 				result.at (i) := i
 				i := i + 1

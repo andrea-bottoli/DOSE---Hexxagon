@@ -24,15 +24,19 @@ feature
 			state_list: LINKED_LIST[HX_L_IBOARD]
 			i: INTEGER
 			aux: HX_L_IBOARD
+			count: INTEGER
+			moves: LIST[HX_L_IMOVE]
 		do
 			create state_list.make
+			moves := state.legal_moves
+			count := moves.count
 			from
 				i := 1
 			until
-				i > state.legal_moves.count
+				i > count
 			loop
 				aux := state.clone_board
-				aux.move_piece (state.legal_moves.at (i))
+				aux.move_piece (moves.at (i))
 				state_list.extend (aux)
 				i := i+1
 			end
@@ -41,14 +45,14 @@ feature
 			non_void: Result /= Void
 		end
 
-	ended(state: HX_L_IBOARD): BOOLEAN
+	ended(state: HX_L_IBOARD; bool: BOOLEAN): BOOLEAN
 		--Returns if the board is in an ended state
 		require
 			non_void: state /= Void
 		do
-			Result := state.is_end
+			Result := state.is_end_ai (bool)
 		ensure
-			non_void: Result = state.is_end
+			non_void: Result = state.is_end_ai (bool)
 		end
 
 	minValue: INTEGER
@@ -72,17 +76,13 @@ feature
 		require
 			non_void: state /= Void
 		do
-			if ended(state) and state.winner = state.player_2 then
+			if ended(state,true) and state.winner = state.player_2 then
 				Result := minValue
 			else
-				if ended(state) and state.winner /= state.player_2 then
+				if ended(state,true) and state.winner /= state.player_2 then
 					Result := maxValue
 				else
-					if ended(state) then
-						Result := 0
-					else
-						Result := state.pieces_count (state.player_1) - state.pieces_count (state.player_2)
-					end
+					Result := state.pieces_count (state.player_1) - state.pieces_count (state.player_2)
 				end
 			end
 		ensure

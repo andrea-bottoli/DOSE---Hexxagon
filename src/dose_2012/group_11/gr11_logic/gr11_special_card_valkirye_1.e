@@ -6,26 +6,23 @@ note
 
 class
 	GR11_SPECIAL_CARD_VALKYRIE_1
-	--this special_card update capital_ships, increase their movements by two
+	--valkyrie 1 : capital ship moves increased by 2
+	--problemi settare ogni turno i movimenti non sono costanti
+
 inherit
 	GR11_SPECIAL_CARD
 
-	redefine
-		update,
-		control
-	end
+create
+	make
 
-
-feature --query
-	control(board:GR11_BOARD;x:INTEGER;y:INTEGER;player:GR11_PLAYER):BOOLEAN
-	--for this specific special card run its control and return true if control has successfull
-	do
-	end
-
-feature --modifiers
-	update(board:GR11_BOARD;list_of_coordinates:LIST[GR11_COORDINATES];player:GR11_PLAYER):BOOLEAN
-	--for this specific sepcial card update component passed and return true if update has successfull
-	do
-	end
+feature {NONE}--inizializer
+		make
+		--create action for this specific card
+			do
+				action_special_card:=create {GR11_ACTION_VALKYRIE_1}
+				name_id:="VALKYRIE_1"
+				always:=TRUE
+				end_of_turn:=FALSE
+			end
 
 end

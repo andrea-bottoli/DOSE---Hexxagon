@@ -23,20 +23,20 @@ create
 feature {NONE}	-- Attributes
 
 	--the components that interact with the lobby component
-	player: G10_JOINED_PLAYER
+	player: G10_LOBBY_USER
 	game_window: EV_WINDOW-- the game window that is currently opened
 
 	--parts of the lobby graphic component
 	background: EV_FIXED
 	all_buttons: G10_LOBBY_ALL_BUTTONS
-	all_online_users: G10_LOBBY_ONLINE_USERS_LIST
+	all_online_users: G10_LOBBY_ONLINE_PLAYERS
 	all_hosted_games: G10_LOBBY_HOSTED_GAMES
-	new_game_info: G10_LOBBY_NEW_GAME_INFO
+	new_game_info: G10_LOBBY_SOUTH_PANEL
 	----------------------------------
 
 feature {NONE} -- constructor and initializers a titled window
 
-	make (a_player: G10_JOINED_PLAYER)
+	make (a_player: G10_LOBBY_USER)
 	require
 		--Main_window_not_null: a_main_ui_window /= void
 		player_not_null: a_player /= void
@@ -52,7 +52,7 @@ feature {NONE} -- constructor and initializers a titled window
 		lobby_not_null: Current /= void
 	end
 	----------------------------------
-	initialize -- Build the interface for this window.
+	initialize
 	do
 		Precursor {EV_TITLED_WINDOW}
 		close_request_actions.extend (agent quit_lobby)
@@ -83,7 +83,7 @@ feature {NONE} -- constructor and initializers a titled window
 		create all_buttons.make_buttons(Current)
 		create all_online_users.make_online_users(Current)
 		create all_hosted_games.make_hosted_games (Current)
-		create new_game_info.make_new_game_info_panel(Current)
+		create new_game_info.make(Current)
 	ensure
 		create_button_exists: all_buttons.get_create_button /= void
 		join_button_exists: all_buttons.get_join_button /= void
@@ -91,13 +91,55 @@ feature {NONE} -- constructor and initializers a titled window
 		return_button_exists: all_buttons.get_return_button /= void
 	end
 
-feature {G10_LOBBY_ALL_BUTTONS, G10_JOINED_PLAYER, G10_GUI_GAME_MAIN, G10_LOBBY_NEW_GAME_INFO} -- button actions
+feature {G10_LOBBY_ONLINE_PLAYERS, G10_LOBBY_HOSTED_GAMES}
 
-	launch_carcassonne_game_window
+	update_lobby
 	require
-		lobby_not_null: Current /= void
+		player_not_null: player /= void
+	local
+		old_hosted_games_num: INTEGER
+		old_connected_players_num: INTEGER
 	do
-		player.launch_crsn_game
+		--keep in the local variables the old values of the counts
+		old_hosted_games_num := get_lobby_logic.get_active_games_no
+		old_connected_players_num := get_lobby_logic.get_connected_player_no
+
+		-- get latest lobby data
+		player.keep_lobby_updated
+
+		-- update ui if needed
+		if (get_lobby_logic.get_active_games_no /= old_hosted_games_num or
+			get_lobby_logic.get_connected_player_no /= old_connected_players_num) then
+			-- redraw hosted games
+			all_hosted_games.redraw_all_games(get_lobby_logic)
+			-- redraw online players
+			all_online_users.redraw_all_players(get_lobby_logic)
+		end
+	end
+
+feature {G10_LOBBY_ALL_BUTTONS, G10_LOBBY_USER, G10_GUI_GAME_MAIN, G10_LOBBY_NEW_GAME_INFO} -- button actions
+
+	launch_as_host(game_title, player_num: STRING)
+	require
+		args_not_void: game_title /= void and player_num /= void
+		args_not_empty: (not game_title.is_empty) and (not player_num.is_empty)
+	do
+		player.launch_host(game_title, player_num)
+		minimize
+	end
+
+	launch_as_joined_player(host_ip, host_port: STRING)
+	require
+		args_not_void: host_ip /= void and host_port /= void
+		args_not_empty: (not host_ip.is_empty) and (not host_port.is_empty)
+	do
+		player.launch_joined_player(host_ip, host_port)
+		minimize
+	end
+
+	launch_as_forever_alone
+	do
+		player.launch_dummy
 		minimize
 	ensure
 		game_window_is_not_null: player.get_crsn_game_ui /= void
@@ -141,13 +183,17 @@ feature {G10_LOBBY_ALL_BUTTONS, G10_JOINED_PLAYER, G10_GUI_GAME_MAIN, G10_LOBBY_
 	end
 	----------------------------------
 
-
 feature {ANY} --accessors
 
 	----------------------------------
-	get_player: G10_JOINED_PLAYER
+	get_lobby_logic: G10_LOBBY_LOGIC
 	do
-		Result := player
+		Result := player.get_crsn_lobby_logic
+	end
+	----------------------------------
+	get_crsn_game_ui: G10_GUI_GAME_MAIN
+	do
+		Result := player.get_crsn_game_ui
 	end
 	----------------------------------
 	get_game_window: EV_WINDOW
@@ -165,7 +211,7 @@ feature {ANY} --accessors
 		Result := all_buttons
 	end
 	----------------------------------
-	get_all_online_users: G10_LOBBY_ONLINE_USERS_LIST
+	get_all_online_users: G10_LOBBY_ONLINE_PLAYERS
 	do
 		Result := all_online_users
 	end
@@ -175,11 +221,11 @@ feature {ANY} --accessors
 		Result := all_hosted_games
 	end
 	----------------------------------
-	get_new_game_info: G10_LOBBY_NEW_GAME_INFO
+	get_new_game_info: G10_LOBBY_SOUTH_PANEL
 	do
 		Result := new_game_info
 	end
-	----------------------------------	
+	----------------------------------
 
 invariant
 	player_is_valid: player /= void

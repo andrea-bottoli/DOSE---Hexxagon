@@ -16,24 +16,27 @@ create
 
 feature {NONE} -- Initialization
 
-	make (pmt_game_object: attached BS_GAME; pmt_port: INTEGER; pmt_max_clients: INTEGER; pmt_agent_set: BS_NET_AGENT_SET)
+	make (pmt_game_object: attached BS_GAME; pmt_port: INTEGER; pmt_max_clients: INTEGER; pmt_agent_set: BS_NET_AGENT_SET; pmt_master_key: INTEGER)
 			-- The two procedures will be invoked when a new machine respectively connects or disconnects.
 			-- They can be used, for example, for removing the players belonging to a machine that disconnected.
 		require
 			allowed_port_range: 1024 <= pmt_port and pmt_port <= 65535
+			non_negative_master_key: master_key >= 0
 		do
 			local_port := pmt_port
 			game_object := pmt_game_object
 			max_clients := pmt_max_clients
 			local_port := pmt_port
 			agent_set := pmt_agent_set
+			master_key := pmt_master_key
 			status_listening := false
 			create connected_clients.make (max_clients)
 		ensure
 			port_stored: local_port = pmt_port
 			agents_stored: agent_set = pmt_agent_set
-			status_listening = false
-			game_object = pmt_game_object
+			game_stored: game_object = pmt_game_object
+			master_key_stored: master_key = pmt_master_key
+			not_yet_listenineg: status_listening = false
 		end
 
 feature -- Interface for LOGIC component
@@ -112,6 +115,10 @@ feature -- Interface for LOGIC component
 			returning_a_copy: Result ~ connected_clients
 		end
 
+feature {BS_NET_REMOTE_MACHINE} -- Accessible to BS_NET_REMOTE_MACHINE
+
+	master_key: INTEGER
+
 feature {NONE} -- Private
 
 	client_accepted(client_socket: attached NETWORK_STREAM_SOCKET)
@@ -123,7 +130,7 @@ feature {NONE} -- Private
 	do
 		client_socket.set_timeout (socket_timeout_secs)
 		-- io.put_string ("Building machine.%N")
-		create new_machine.make (client_socket, agent_set, agent machine_disconnected_handler)
+		create new_machine.make (client_socket, current, agent_set, agent machine_disconnected_handler)
 
 		connected_clients.extend (new_machine)
 		if attached agent_set.machine_connected_agent as x then
@@ -157,15 +164,6 @@ feature {NONE} -- Locals
 
 	connected_clients: ARRAYED_LIST [BS_NET_REMOTE_MACHINE]
 
-		--		-- This can probably be removed.
-
-		--	send_data (client_id: INTEGER; serialized_data: STRING)
-		--		require
-		--			client_id_exists: 0 <= client_id and client_id < connected_clients.count
-		--			data_not_empty: serialized_data.count > 0
-		--		do
-		--		ensure
-		--		end
 
 invariant
 	allowed_port_range: 1024 <= local_port and local_port <= 65535

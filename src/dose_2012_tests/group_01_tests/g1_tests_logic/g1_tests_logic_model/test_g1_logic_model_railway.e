@@ -39,7 +39,7 @@ feature -- Test routines
 			railway_t : G1_RAILWAY
 		do
 			create railway_t.make_railway(15, "Pennsylvania")
-			assert ("Number of railway is 0 ", railway_t.number_of_railways.is_equal(0))
+			assert ("Valid id cell ", railway_t.id_cell.is_equal (15))
 		end
 
 	test_set_railways
@@ -51,7 +51,7 @@ feature -- Test routines
 		do
 			create railway_t.make_railway(25, "Baltimore And Ohio (B&O)")
 			railway_t.set_railways (5, "Reading")
-			assert ("Number of railway is 0 ", railway_t.number_of_railways.is_equal(1))
+			assert ("Number of railway is 0 ", railway_t.id_cell.is_equal (5))
 		end
 end
 

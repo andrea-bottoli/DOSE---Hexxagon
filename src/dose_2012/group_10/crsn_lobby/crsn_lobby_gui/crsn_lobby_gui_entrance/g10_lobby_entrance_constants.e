@@ -7,7 +7,7 @@ note
 class
 	G10_LOBBY_ENTRANCE_CONSTANTS
 inherit
-	G10_GUI_CONSTANTS
+	G10_CRSN_CONSTANTS
 
 feature{NONE} --folder path of lobby images
 	lobby_folder: STRING = "lobby"

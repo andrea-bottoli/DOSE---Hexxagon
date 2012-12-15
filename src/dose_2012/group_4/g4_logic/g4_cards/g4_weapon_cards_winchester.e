@@ -13,9 +13,8 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Winchester")
  	ensure
   		Name.is_equal("Winchester")
-  		(CardNum = 8)
-  		CardSymbol.is_equal ("Spades")
  	end
 end

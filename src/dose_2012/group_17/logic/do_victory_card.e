@@ -24,7 +24,7 @@ feature{ANY}
 			isString : this_name  /= void
 			isString : this_type  /= void
 			isInteger : this_cost  >= 0
-			isInteger : this_victory_points >= 0
+			isInteger : this_victory_points >= -1
 		do
 			name := this_name
 			type := this_type

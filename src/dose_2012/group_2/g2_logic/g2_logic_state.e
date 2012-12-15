@@ -16,8 +16,11 @@ create
 
 feature
 	make
+		local
+			tmp_matrix:G2_LOGIC_MATRIX
 		do
-			create g2_matrix.make(3, 3)
+			create tmp_matrix.make (void,"NONE")
+			create g2_matrix.make_filled (tmp_matrix,3,3)
 			create g2_player1.make(1, 5)
 			create g2_player2.make(1, 5)
 			g2_player1_number_cards:=0
@@ -46,7 +49,7 @@ feature {ANY} --procedure
 
 	set_player1_number_cards(a_number:INTEGER)
 	require else
-			non_void:a_number/=void
+			non_void:a_number/=0
 		do
 			g2_player1_number_cards := a_number
 		ensure then
@@ -54,7 +57,7 @@ feature {ANY} --procedure
 		end
 	set_player2_number_cards(a_number:INTEGER)
 		require else
-			non_void:a_number/=void
+			non_void:a_number/=0
 		do
 			g2_player2_number_cards := a_number
 		ensure then
@@ -88,7 +91,7 @@ feature {ANY} --procedure
 
 	state_is_equal(a_state:G2_LOGIC_STATE):BOOLEAN
 		do
-			if g2_matrix.is_equal(a_state.g2_matrix) and g2_player1.is_equal(a_state.g2_player1) and g2_player2.is_equal(a_state.g2_player2) and g2_player.is_equal(a_state.g2_player) and g2_player1_number_cards =a_state.g2_player1_number_cards and g2_player2_number_cards=a_state.g2_player2_number_cards then
+			if g2_matrix.is_equal(a_state.g2_matrix) and g2_player1.is_equal(a_state.g2_player1) and g2_player2.is_equal(a_state.g2_player2) and g2_player1_number_cards =a_state.g2_player1_number_cards and g2_player2_number_cards=a_state.g2_player2_number_cards then
 				Result := True
 			else
 				Result := False

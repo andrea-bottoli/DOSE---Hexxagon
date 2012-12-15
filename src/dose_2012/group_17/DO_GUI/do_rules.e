@@ -1,6 +1,6 @@
 note
 	description: "Summary description for {DO_RULES}."
-	author: "Alejandro Yaciuk"
+	author: "Team Rio Cuarto9"
 	date: "13/11/12"
 	revision: "0.0"
 

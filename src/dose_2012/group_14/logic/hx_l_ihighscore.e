@@ -17,7 +17,7 @@ feature -- Access
 	set_high_score(new_high_score: INTEGER)
 		-- Set the value of the high score
 		require
-			is_higher_than_old: new_high_score <= high_score
+			is_higher_than_old: new_high_score >= high_score
 		deferred
 
 		ensure

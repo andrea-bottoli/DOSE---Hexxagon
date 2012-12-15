@@ -2,7 +2,7 @@ note
 	description: "Summary description for {TEST_SET_G5_TABLE}."
 	author: "Gabriele Fanchini"
 	date: "19.11.2012"
-	revision: "1.0"
+	revision: "2.0(by Jaime Painefilu)"
 	testing: "type/manual"
 
 class
@@ -17,15 +17,19 @@ inherit
 
 feature -- Elements needed to the test
 
-	inet_server: G5_INET_TO_LOGIC
+	net_server: G5_NET_SERVER
 	table: G5_TABLE
+	creation_mutex: MUTEX
+	client_for_host_thread: G5_CLIENT_THREAD
+	launcher : G5_LAUNCHER
 
 feature -- Preparation of Tests
 
 	on_prepare
 		-- Initializes the necessary elements
 		do
-			create table.make_game_default (3, inet_server)
+			create net_server.make (2222, 3)
+			create table.make_game_default (3, net_server)
 		end
 feature -- Test routines
 
@@ -63,7 +67,6 @@ feature -- Test routines
 			position_next_player: INTEGER
 
 		do
-		--	create table.make_game_table(i)
 			old_current_player_name:= table.player_current.name
 			position_next_player:=table.next_player
 			old_current_player_position:= position_next_player-1
@@ -110,12 +113,10 @@ feature -- Test routines
 			testing: "covers/{G5_TABLE}.init_game_default"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 		local
-			itable: G5_ITABLE
+			--itable: G5_ITABLE
 			players_number: INTEGER
-			inet: G5_INET_TO_LOGIC
+			--inet: G5_INET_TO_LOGIC
 		do
-			--itable.make_game_default (3, inet)
-
 			-- we assumed that the initi feature set the dimension of the array, all the elements are void
 			players_number:= table.players.count
 
@@ -131,11 +132,11 @@ feature -- Test routines
 			testing: "covers/{G5_TABLE}.init_game_randomize"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 		local
-			table_randomize: G5_TABLE
-			itable: G5_ITABLE
+			--table_randomize: G5_TABLE
+			--itable: G5_ITABLE
 			players_number: INTEGER
 		do
-			create table.make_game_randomize (4, inet_server)
+			create table.make_game_randomize (4, net_server)
 			--itable.init_game_randomize (4)
 
 			-- we assumed that the initi feature set the dimension of the array, all the elements are void
@@ -153,7 +154,7 @@ feature -- Test routines
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 		local
 			table_personalized: G5_TABLE
-			itable: G5_ITABLE
+			--itable: G5_ITABLE
 			players_number: INTEGER
 			cards: ARRAY[STRING]
 		do
@@ -171,7 +172,7 @@ feature -- Test routines
 			cards.put ("K10",10)
 
 
-		create table_personalized.make_game_personalized (2, cards, inet_server)
+		create table_personalized.make_game_personalized (2, cards, net_server)
 
 			players_number:= table.players.count
 
@@ -188,23 +189,12 @@ feature -- Test routines
 			testing: "covers/{G5_TABLE}.connection"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 		local
-			itable: G5_ITABLE
 			a_name: STRING
 			returned_value: BOOLEAN
-			old_number_players: INTEGER
 		do
-			a_name:= "player_name"
-			old_number_players:= table.players.count
-			returned_value:= itable.connection (a_name)
-
-			if
-				returned_value = true
-				-- later (during the implementation) it will be be also performed a check that ensure that doesn't axist alredy a player with the same name
-			then
-				assert("number of player has been updated",table.players.count = (old_number_players+1))
-			else
-				assert("number of player didn't change",table.players.count = old_number_players)
-			end
+			a_name:= "sergio"
+			returned_value:= table.connection (a_name)
+			assert("sergio was added successfully", returned_value and (table.players.item (1).name = "sergio"))
 		end
 
 
@@ -233,4 +223,21 @@ feature -- Test routines
 			-- it can be tested yet (only with other feature can be tested the correctness of this feature)
 		end
 
+feature -- Auxiliares created by Painefilu Jaime
+
+	test_exist_player
+	note
+	local
+		player_1 : G5_PLAYER
+		players : ARRAY[G5_PLAYER]
+	do
+		create player_1.make ("nahuel", table)
+		create players.make_filled (player_1, 1, 3)
+		players.put (player_1, 1)
+		create player_1.make ("rayen", table)
+		players.put (player_1, 2)
+		create player_1.make ("ailen", table)
+		players.put (player_1, 3)
+		assert("the player find exist ",table.exist_player ("ailen"))
+	end
 end

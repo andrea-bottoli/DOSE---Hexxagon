@@ -21,7 +21,7 @@ create
 
 feature -- Status report
 
-	reception_socket: detachable G5_NET_SOCKET
+	reception_socket: detachable NETWORK_STREAM_SOCKET
 			-- This socket is the one who will wait for clients request of connection.
 
 	max_connections: INTEGER
@@ -30,16 +30,6 @@ feature -- Status report
 	connection_attempts: HASH_TABLE[BOOLEAN, STRING]
 			-- This table will keep a sort of register of all names used by clients to attempt a connection.
 			-- In particular it will store if a client succeded or not to connect by using a certain name.
-
-	incoming_messages: LINKED_LIST[G5_MESSAGE]
-			-- This list contains all the messages received by the server from the different clients.
-
-	outgoing_messages: LINKED_LIST[G5_MESSAGE]
-			-- This is the list of all the messages that are waiting to be sent to the proper clients.
-
-	expected_client_responses: INTEGER
-			-- This integer represents the number of messages that the server must receive from the clients
-			-- before it can restart sending messages to them.
 
 	clean_up_condition: BOOLEAN
 			-- When this boolean is set to true it means that a match is over and a rematch choice
@@ -51,13 +41,21 @@ feature -- Status report
 	is_ready_to_start: BOOLEAN
 			-- When this boolean is true, server can start to accept clients.
 
-	client_sockets: detachable HASH_TABLE[G5_NET_SOCKET, STRING]
+	host_thread_as_client: G5_CLIENT_THREAD
+			-- The host_thread is used to make the host connect as a client to its own game.
+
+	client_sockets: detachable HASH_TABLE[NETWORK_STREAM_SOCKET, STRING]
 			-- This is the table of the sockets connected to this server. Every socket will be linked
 			-- with a playing client and it will be identified with the validated player name, that
 			-- the client used to identify itself during the previous connection process with the server.
 
-	host_thread_as_client: G5_CLIENT_THREAD
-			-- The host_thread is used to make the host connect as a client to its own game.
+	message_containers_to_clients: detachable HASH_TABLE[G5_MESSAGES_CONTAINER, STRING]
+			-- This object associates every G5_MESSAGES_CONTAINER to the proper name of the related client.
+			-- This user will receive the messages contained into his/her message container through his/her Socket.
+
+	incoming_messages: LINKED_LIST[G5_MESSAGE]
+			-- This list contains all the messages received by the server from the different clients,
+			-- that needs to be forwarded to the LOGIC component
 
 feature {ANY} -- Initialization performed by G5_LAUNCHER
 
@@ -73,10 +71,11 @@ feature {ANY} -- Initialization performed by G5_LAUNCHER
 			max_connections := number_max_clients
 			host_thread_as_client := void
 			create incoming_messages.make
-			create outgoing_messages.make
+
+			create message_containers_to_clients.make(4)
+
 			create connection_attempts.make (10)
 			create client_sockets.make (4)
-			expected_client_responses := 0
 
 		ensure
 			-- server is correctly initialized.
@@ -88,10 +87,9 @@ feature {ANY} -- Initialization performed by G5_LAUNCHER
 				host_thread_as_client = void and
 				reception_socket /= void and
 				incoming_messages.is_empty and
-				outgoing_messages.is_empty and
+				message_containers_to_clients.is_empty and
 				connection_attempts.is_empty and
-				client_sockets.is_empty and
-				expected_client_responses = 0
+				client_sockets.is_empty
 
 		rescue
             if reception_socket /= void then
@@ -124,62 +122,24 @@ feature {G5_LAUNCHER,EQA_TEST_SET} -- Game Start: Inherited methods from G5_INET
 
 	start_game (players: ARRAY[STRING])
 		local
-			keys: ARRAY[STRING]
-			index: INTEGER
 			start_message: G5_MESSAGE_TEXTUAL
-			clients_are_ready: BOOLEAN
-			response_list: LINKED_LIST [G5_MESSAGE]
 		do
-			-- A call in order to obtain all the sockets of the different connected clients.
-			keys := client_sockets.current_keys
+			-- Create a new textual message with "start" as an action and send it to all players.
+			create start_message.make ("SERVER", players, "start", void)
 
-			from
-				index := 1
-			until
-				index = keys.count + 1
-			loop
-				-- Create a new textual message with "start" as an action and send to all players.
-				create start_message.make ("SERVER", players, "start", void)
+			-- The start message will be put in all outgoing lists to the clients.
+			enque_message_into_containers (start_message)
 
-				-- Send this message by retrieving all the opened sockets, one by one.
-				client_sockets.search (keys.item (index))
-				start_message.independent_store (client_sockets.found_item)
+			-- The start message is sent to all clients.
+			send_messages_to_clients
 
-				-- A message must be retrieved by the client.
-				client_sockets.found_item.set_has_message_for_client
-
-				index := index + 1
-			end
-
-
-			-- In this part server will wait until all clients have read the start message
-		 	-- (has_message_for_client is on false)  	
-			from
-		 	until
-		 		clients_are_ready
-			loop
-		 		clients_are_ready := true
-
-				from
-					index := 1
-				until
-					index = client_sockets.count + 1 or not(clients_are_ready)
-		 	 	loop
-		 	 		client_sockets.search (keys[index])
-		 	 		if client_sockets.found_item.has_message_for_client then
-						clients_are_ready := false
-					end
-				end
-			end
-
-			-- This section of code sends a message to the LOGIC component to inform it
+			-- After that all clients has notified the reception message,
+			-- this section of code create a message for the LOGIC component to inform it
 			-- than new messages (initial cards, new turn and new phase.. ) should be sent
 		 	-- to the clients.
 
-			create response_list.make
 		 	create start_message.make ("NET_SERVER", <<"SERVER">>, "start_logic", void)
-		 	response_list.force(start_message)
-		 	server_logic.set_respose (response_list)
+			incoming_messages.force (start_message)
 
 			-- After all the initializaion steps are ended, the game can actually start.
 			manage_game_phase
@@ -208,36 +168,22 @@ feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods f
 			-- the NET. Then the game phase must be ended.
 		local
 			keys: ARRAY [STRING]
-			index: INTEGER
 			end_message: G5_MESSAGE_END_GAME
 		do
 
 			-- Send scores through the Sockets to the clients
 			-- A call in order to obtain all the sockets of the different connected clients.
-			keys := client_sockets.current_keys
+			keys := message_containers_to_clients.current_keys
 
-			from
-				index := 1
-			until
-				index = keys.count + 1
-			loop
-				-- Create a new end message and send it to all players.
-				create end_message.make ("SERVER", keys, "end", scores)
-
-				-- The end_message is added at the end of the list of the outgoing messages.
-				outgoing_messages.force (end_message)
-
-				index := index + 1
-			end
+			-- Create a new end message and enque it in all players message containers.
+			create end_message.make ("SERVER", keys, "end", scores)
+			enque_message_into_containers (end_message)
 
 			end_game_condition := true
 
 		ensure then
 
 			end_game_condition_is_on: end_game_condition = true
-			a_new_end_message_was_added:
-				outgoing_messages.count = old outgoing_messages.count + 1 and
-				attached {G5_MESSAGE_END_GAME} outgoing_messages.last
 
 		end
 
@@ -252,7 +198,6 @@ feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods f
 				connection_attempts.remove (a_player_name)
 			end
 			connection_attempts.put (valid_connection, a_player_name)
---			connection_attempts.force (valid_connection, a_player_name)
 
 		ensure then
 			valid_addition_to_the_table:
@@ -274,21 +219,21 @@ feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods f
 
 	update (received_messages: LINKED_LIST[G5_MESSAGE])
 			-- Incoming messages coming from the LOGIC component are
-			-- appended to the outgoing_messages list.
+			-- enqued into the appropriate message containers.
 		do
-			if outgoing_messages.is_empty then
-				outgoing_messages := received_messages
-			else
-				received_messages.append (outgoing_messages)
+			from
+				received_messages.start
+			until
+				received_messages.off
+			loop
+				-- Every single message is saved in the appropriate G5_MESSAGE
+				-- container thanks to the target attribute of the message.
+				enque_message_into_containers (received_messages.item)
+
+				received_messages.forth
 			end
-		ensure then
-			all_messages_were_stored_in_outgoing_list:
-				received_messages.for_all (agent (message: G5_MESSAGE): BOOLEAN
-				do
-					Result := (outgoing_messages.has (message))
-				end) and
-				outgoing_messages.count = old outgoing_messages.count + received_messages.count
 		end
+
 
 feature {G5_NET_SERVER} -- Server Internal Operations
 
@@ -297,15 +242,19 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 			-- An incoming client will be redirected on an other socket. If the server validates the name of the
 			-- new client then it is saved into the hash table of the client sockets.
 		local
-			connection_result_message: G5_MESSAGE_TEXTUAL
-				-- This message will be sent to the incoming client to inform it about the result of the procedure
+
+			connection_result_container: G5_MESSAGES_CONTAINER
+				-- This message container will be sent to the incoming client to inform it about the result of the procedure
 
 			connection_on_logic: BOOLEAN
 				-- This boolean tells if the attempt of connection to the server logic by this client was successful or not
 		do
 			-- In this extract the client thread of the host is launched to make it connect to its own game..
 			if client_sockets.is_empty then
+				host_thread_as_client.lock_mutex
+				-- THIS FEATURE STILL NOT WORK PROPERLY!!!
 --				host_thread_as_client.launch
+				host_thread_as_client.unlock_mutex
 			end
 
 			reception_socket.accept
@@ -313,39 +262,76 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 			if attached reception_socket.accepted as accepted_socket then
 				if attached {G5_MESSAGE_TEXTUAL} retrieved (accepted_socket) as connect_message then
 					if connect_message.action.is_equal ("connect") then
+						create connection_result_container.make
 						connection_on_logic := server_logic.connection (connect_message.source)
 						if connection_on_logic then
-							-- This is a valid connection so this socket must be stored into client sockets table
-							client_sockets.put (accepted_socket, connect_message.source)
+							if connection_attempts.item (connect_message.source) then
+								-- This is a valid connection so this socket must be stored into client sockets table and an
+								-- associated message container for this client will be prepared..
+								client_sockets.put (accepted_socket, connect_message.source)
 
-							-- A message of valid connection must be sent to the client
-							create connection_result_message.make ("SERVER", <<connect_message.source>>, "connect_result", "accepted")
+								-- A message of valid connection must be sent to the client
+								connection_result_container.force (create {G5_MESSAGE_TEXTUAL}.make ("SERVER", <<connect_message.source>>,
+								 "connect_result", "accepted"))
 
-							-- The result message is sent through the socket
-							connection_result_message.independent_store (accepted_socket)
+								message_containers_to_clients.put (connection_result_container, connect_message.source)
 
-							-- A message with the names of all connected players plus the new one is sent to all the clients
-							create connection_result_message.make ("SERVER", client_sockets.current_keys , "accepted_client", void)
-							send_message_to (connection_result_message)
+								-- A message with the names of all connected players plus the new one is sent to all the clients
+								enque_message_into_containers (create {G5_MESSAGE_TEXTUAL}.make ("SERVER", client_sockets.current_keys ,
+								 "accepted_client", void))
 
+								-- The result message container is sent through the socket
+								send_messages_to_clients
+
+							else
+								-- This is an invalid connection since the name used by the player
+								-- has been already taken by another player.
+								connection_result_container.force (create {G5_MESSAGE_TEXTUAL}.make ("SERVER", <<connect_message.source>>,
+								 "connect_result", "refused:invalid_name"))
+
+								-- In both cases of refused connection, a message container with a negative
+								-- result is also sent back before closing the socket.
+								connection_result_container.independent_store (accepted_socket)
+
+								-- In every case the Server waits for an ack response from the incoming client
+								if attached {G5_MESSAGES_CONTAINER} retrieved (accepted_socket) as ack_response_list then
+									if ack_response_list.last.action.is_equal ("response") then
+										-- Everything works right: Server can continue its execution..
+									else
+										-- Something goes wrong: a rescue process should be thrown since this part of code
+										-- should never be reached..
+										raise ("EXCEPTION")
+									end
+								end
+
+								accepted_socket.close
+							end
 						else
 							if connection_attempts.item (connect_message.source) then
 								-- This is an invalid connection since the maximum number of players
 								-- have been already reached.
-								create connection_result_message.make ("SERVER", <<connect_message.source>>,
-								 "connect_result", "refused:max_player")
-							else
-								-- This is an invalid connection since the name used by the player
-								-- has been already taken by another player.
-								create connection_result_message.make ("SERVER", <<connect_message.source>>,
-								 "connect_result", "refused:invalid_name")
-							end
+								connection_result_container.force (create {G5_MESSAGE_TEXTUAL}.make ("SERVER", <<connect_message.source>>,
+								 "connect_result", "refused:max_player"))
 
-							-- In both cases the message of refused connection is sent back before
-							-- closing the socket
-							connection_result_message.independent_store (accepted_socket)
-							accepted_socket.close
+								-- In both cases of refused connection, a message container with a negative
+								-- result is also sent back before closing the socket.
+								connection_result_container.independent_store (accepted_socket)
+
+								-- In every case the Server waits for an ack response from the incoming client
+								if attached {G5_MESSAGES_CONTAINER} retrieved (accepted_socket) as ack_response_list then
+									if ack_response_list.last.action.is_equal ("response") then
+										-- Everything works right: Server can continue its execution..
+									else
+										-- Something goes wrong: a rescue process should be thrown since this part of code
+										-- should never be reached..
+										raise ("EXCEPTION")
+									end
+								end
+
+								accepted_socket.close
+							end
 						end
+
 					else
 						-- If the message was invalid the server simply closes the connection
 						accepted_socket.close
@@ -357,18 +343,20 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 		end
 
 	manage_game_phase
-			-- During the game phase the server will continue to switch between the
-			-- sending message phase and the receving one until the game is ended and
+			-- During the game phase the server will continue to switch between a phase
+			-- in which messages are sent to the LOGIC component and one in which
+			-- G5_MESSEGES_CONTAINER objects are sent to the clients.
+			-- This cyclic procedure will continue until the game is ended and
 			-- players don't accept to play a rematch.
 		do
 			from
 			until
 				-- When the table with the result of the game is obtained and no other
 				-- messages must be sent to the clients then a game is ended.
-				end_game_condition and outgoing_messages.is_empty
+				end_game_condition
 			loop
-				sending_message_phase
-				receving_message_phase
+				send_messages_to_logic
+				send_messages_to_clients
 			end
 
 				-- Rematch choice routine
@@ -378,183 +366,139 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 
 		end
 
-	sending_message_phase
-			-- This game phase at first checks that no message from any other player is still
-			-- waited. If this condition is verified, messages are sent. In particular if a
-			-- message needs to receive an answer the correspondent source of the response is
-			-- added to the expected clients list.
+	send_messages_to_logic
+			-- This feature simply checks that one or more message has been sent by the clients.
+			-- If this event is verified, all the received messages are forwarded to the LOGIC
+			-- component, which will use their information.
 		do
-			if not(outgoing_messages.is_empty) then
-				from
-					outgoing_messages.start
-				until
-					outgoing_messages.off or expected_client_responses > 0
-				loop
-						-- The number of expected responses is increased depending on the type of the message
-					expected_client_responses := expected_client_responses + check_number_of_responses(outgoing_messages.item)
-
-						-- The oldest item (the first one of this iteration) of the list of outgoing
-						-- messages is sent to all the requestd targets.
-					send_message_to (outgoing_messages.item)
-
-						-- The item of the outgoing list, that has just been sent, is removed.
-					outgoing_messages.forth
-					outgoing_messages.remove_left
-
-				end
-			end
-		ensure
-			outgoing_messages_can_only_decrease:
-				outgoing_messages.count <= old outgoing_messages.count
-		end
-
-	check_number_of_responses(message_to_be_evaluated: G5_MESSAGE): INTEGER
-			-- This method checks how many responses the clients must send to the server in
-			-- order to properly answer to its message. This number is finally returned.
-		require
-			no_void_message:
-				message_to_be_evaluated /= void
-		do
-			-- ACTION MESSAGE CASES
-			if message_to_be_evaluated.action.is_equal ("reveal") then Result := 0
-			elseif message_to_be_evaluated.action.is_equal ("put_in_hand") then Result := 0
-			elseif message_to_be_evaluated.action.is_equal ("put_on_top_discard") then Result := 0
-			elseif message_to_be_evaluated.action.is_equal ("cards_in_trash") then Result := 0
-			-- The played action is much more complex and it will return a different number of
-			-- actions depending on the card played. For now it will always need a unique
-			-- message of response
-			elseif attached {G5_MESSAGE_ACTION} message_to_be_evaluated as action_message then
-					if action_message.action.is_equal ("played") then Result := check_played(action_message)
-					end
-			elseif message_to_be_evaluated.action.is_equal ("select_from_supply") then Result := 1
-			elseif message_to_be_evaluated.action.is_equal ("keep_or_not_card") then Result := 1
-			elseif message_to_be_evaluated.action.is_equal ("select_from_hand") then Result := 1
-			elseif message_to_be_evaluated.action.is_equal ("resolved_card") then Result := 1
-
-			-- TEXTUAL MESSAGE CASES
-			elseif message_to_be_evaluated.action.is_equal ("display") then Result := 0
-			elseif attached {G5_MESSAGE_TEXTUAL} message_to_be_evaluated as textual_message then
-					if textual_message.action.is_equal ("new_phase") then Result := check_new_phase (textual_message)
-					end
-			elseif message_to_be_evaluated.action.is_equal ("new_turn") then Result := 0
-
-			-- THIEF MESSAGE CASES
-			elseif message_to_be_evaluated.action.is_equal ("update_thief_trash") then Result := 0
-			elseif message_to_be_evaluated.action.is_equal ("update_thief_gain") then Result := 0
-
-			-- UPDATE MESSAGE CASES
-			elseif message_to_be_evaluated.action.is_equal ("update_state") then Result := 0
-			elseif message_to_be_evaluated.action.is_equal ("update_supply") then Result := 0
-
-			-- END_GAME MESSAGE CASES
-			elseif message_to_be_evaluated.action.is_equal ("end") then Result := 0
-
-			-- Here it will be added the case of rematch choice..
-
-			end
-		ensure
-			valid_range_of_the_result:
-				Result >= 0 and Result <= 4
-		end
-
-	check_played(evaluated_message: G5_MESSAGE_ACTION): INTEGER
-			-- This subroutine will evaluate how many responses are needed to
-			-- resolve a message with action "played"
-		require
-			not_void_message: evaluated_message /= void
-			valid_action: evaluated_message.action.is_equal ("played")
-		do
-			-- NOT COMPLETELY IMPLEMENTED!!!
-			Result := 1
-		ensure
-			valid_range_of_the_result:
-				Result >= 0 and Result <= 4
-		end
-
-	check_new_phase(evaluated_message: G5_MESSAGE_TEXTUAL): INTEGER
-			-- This subroutine will evaluate how many responses are needed to
-			-- resolve a message with action "new phase"
-		require
-			not_void_message: evaluated_message /= void
-			valid_action: evaluated_message.action.is_equal ("new_phase")
-		do
-			if evaluated_message.textual_message.is_equal ("Action") then Result := 1
-			elseif evaluated_message.textual_message.is_equal ("Buy") xor
-					evaluated_message.textual_message.is_equal ("Clean-up") then Result := 0
-			end
-
-		ensure
-			valid_range_of_the_result:	Result = 0 or Result = 1
-			valid_result:
-				Result = 0 implies (evaluated_message.textual_message.is_equal ("Buy") xor
-									evaluated_message.textual_message.is_equal ("Clean-up"))
-				and Result = 1 implies evaluated_message.textual_message.is_equal ("Action")
-		end
-
-	receving_message_phase
-			-- if some messages must be received from clients, this feature continues
-			-- to check all the sockets and when one of them reports its intention to
-			-- send a message, it retrieves and forwards this message to the LOGIC component.
-		local
-			keys: ARRAY [STRING]
-			index: INTEGER
-			stop_retrieving_from_this_socket: BOOLEAN
-		do
-			index := 1
-			keys := client_sockets.current_keys
-
-			-- In the first phase of the algorithm the sockets which will have one or more messages for
-			-- the server are periodically checked..
-			from
-			until
-				expected_client_responses = 0
-			loop
-				client_sockets.search (keys.item (index))
-
-				stop_retrieving_from_this_socket := false
-
-				if client_sockets.found and client_sockets.found_item.has_message_for_server then
-					from
-					until
-						stop_retrieving_from_this_socket or expected_client_responses = 0
-					loop
-						-- If a socket has one or more messages to transmit, this objects will be placed
-						-- into incoming_messages list and the number of expected responses is decreased by
-						-- the number of received messages.
-
-						if attached {G5_MESSAGE} retrieved (client_sockets.found_item) as received_message then
-							incoming_messages.force (received_message)
-							expected_client_responses := expected_client_responses - 1
-						else
-						-- When no further messages are found on a specific socket, its attribute
-						-- 'has_message_for_server' is resetted and the following socket is analysed.
-							client_sockets.found_item.reset_has_message_for_server
-							stop_retrieving_from_this_socket := true
-						end
-					end
-				end
-
-				-- Indexes are incremented depending on the position in the list. If we are at the end of the
-				-- list, during the next iterian we shall return to the beginning.
-				if index = client_sockets.count then
-					index := 1
-				else
-					index := index + 1
-				end
-			end
-
-			-- In the final phase the list of the incoming_messages is passed to the LOGIC component
-			-- for evaluation and finally all its previous content is trashed.
 			server_logic.set_respose (incoming_messages)
 			incoming_messages.wipe_out
-
 		ensure
 			all_messages_are_redirected: incoming_messages.is_empty
-			all_sockets_has_no_messages_left:
-				client_sockets.current_keys.for_all (agent (player_name: STRING): BOOLEAN do
-				Result := (not(client_sockets.item (player_name).has_message_for_server))
-				end)
-				and expected_client_responses = 0
+		end
+
+	enque_message_into_containers(socket_message: G5_MESSAGE)
+			-- This feature receives a G5_MESSAGE and by looking at its attribute "targets",
+			-- it put a copy of this message into the G5_MESSAGES_CONTAINERS of
+			-- every involved player.
+		require
+			valid_message: socket_message /= void
+			consistent_source: socket_message.source /= void and not(socket_message.source.is_empty)
+			consistent_targets:
+				socket_message.targets.for_all (agent (name: STRING): BOOLEAN
+					do Result := (not(name.is_equal ("SERVER"))) end)
+		local
+			index: INTEGER
+			current_player: STRING
+		do
+			from
+				index := 1
+			until
+				index > socket_message.targets.count
+			loop
+				-- For all the sockets associated to a name in the array "targets"
+				-- an instance of socket_message is enqued into its container.
+				current_player := socket_message.targets.item (index)
+
+				client_sockets.search (current_player)
+
+				if client_sockets.found then
+					message_containers_to_clients.search (current_player)
+
+					if message_containers_to_clients.found then
+						message_containers_to_clients.found_item.force (socket_message)
+					end
+
+				end
+
+				index := index + 1
+			end
+		end
+
+	send_messages_to_clients
+			-- This feature sends the message container to the appropriate cliens.
+			-- A container with no messages left won't be sent.
+			-- After the delivery of the messages to every client, this feature will
+			-- wait until one or more messages, including a response one, are retrieved
+			-- from the involved client.
+		local
+			index: INTEGER
+			current_player: STRING
+			current_players: ARRAY [STRING]
+		do
+			current_players := message_containers_to_clients.current_keys
+
+			from
+				index := 1
+			until
+				index > message_containers_to_clients.count
+			loop
+				current_player := current_players.item (index)
+
+				message_containers_to_clients.search (current_player)
+
+				-- Check and send messages only for those containers which have messages..
+				if not(message_containers_to_clients.found_item.is_empty) then
+					-- Some messages must be sent to the current player through
+					-- its socket..
+					client_sockets.search (current_player)
+
+					if client_sockets.found then
+						-- The message container is stored on the correct socket.
+						message_containers_to_clients.found_item.independent_store (client_sockets.found_item)
+
+						-- The messages of this container can be erased.
+						message_containers_to_clients.found_item.wipe_out
+
+						-- Wait for messages sent by the client.
+						wait_for_response_and_update(client_sockets.found_item)
+					end
+
+				end
+
+				index := index + 1
+			end
+		ensure
+		end
+
+	wait_for_response_and_update(client_socket: NETWORK_STREAM_SOCKET)
+			-- This feature is invoked after that a message container is sent to the Server.
+			-- It put the Server waiting for at least a response message from the client.
+			-- If more than one message is retrieved, all the instances with action different from
+			-- "response", are stored in the list of the messags which will be forwarded to
+			-- the LOGIC component.
+		require
+			client_socket_not_void: client_socket /= void
+		do
+			if attached {G5_MESSAGES_CONTAINER} retrieved (client_socket) as response_list then
+				if response_list.last.action.is_equal ("response") then
+					-- Everything works right: Server can continue its execution..
+					if response_list.count > 1 then
+						-- The client has generated some more G5_messages different from the simple one
+						-- with "response" action. These messages must be stored in the Server and
+						-- forwarded to the LOGIC component later.
+
+						from
+							response_list.start
+						until
+							response_list.off
+						loop
+
+							-- Only messeges with action different from response should be
+							-- forwarded to the LOGIC component.
+							if not(response_list.item.action.is_equal ("response")) then
+								incoming_messages.force (response_list.item)
+							end
+
+							response_list.forth
+						end
+					end
+				else
+					-- Something goes wrong: a rescue process should be thrown since this part of code
+					-- should never be reached..
+					raise ("EXCEPTION")
+				end
+			end
 		end
 
 	cleaning_procedure
@@ -582,6 +526,7 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 			-- Finally the initial listening socket is closed
 			reception_socket.cleanup
 		end
+
 
 feature {G5_NET_SERVER, TEST_SET_G5_NET_SERVER} -- Communication through sockets
 
@@ -612,16 +557,16 @@ feature {G5_NET_SERVER, TEST_SET_G5_NET_SERVER} -- Communication through sockets
 
 					-- If a message is sent to a certain socket, its attribute
 					-- 'has_message_for_client' must be set on true.
-					client_sockets.found_item.set_has_message_for_client
+--					client_sockets.found_item.set_has_message_for_client
 				end
 
 				index := index + 1
 			end
 		ensure
 			-- G5_MESSAGE is sent only to the correct clients.
-			appropriate_sockets_have_message_for_client:
-				socket_message.targets.for_all (agent (target_name: STRING): BOOLEAN
-					do Result := (client_sockets.item (target_name).has_message_for_client) end)
+--			appropriate_sockets_have_message_for_client:
+--				socket_message.targets.for_all (agent (target_name: STRING): BOOLEAN
+--					do Result := (client_sockets.item (target_name).has_message_for_client) end)
 		end
 
 	-- TO BE EVALUATED..
@@ -658,9 +603,6 @@ invariant
 
 	max_connections_is_valid:
 		max_connections >= client_sockets.count
-
-	expected_client_responses_must_be_not_negative:
-		expected_client_responses >= 0
 
 end
 

@@ -38,7 +38,7 @@ class
 
 		playerTEST:ZB_PLAYER
 
-		rotate(player:ZB_PLAYER)
+		rotate(player:ZB_PLAYER;clockwise:BOOLEAN)
 		--Rotate the current map card
 
 			do

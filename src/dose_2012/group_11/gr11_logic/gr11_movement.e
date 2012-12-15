@@ -10,7 +10,7 @@ class
 create
 	make
 
-feature --initialization
+feature{NONE} --initialization
 
 	make(number_of_movements:INTEGER)
 	--number_of_movements: says how much the current ship can move in the board
@@ -41,18 +41,32 @@ feature --functions
 		create l_hexagon_move
 		create l_list.make(movements)
 
-		from
-			l_index := 0
-		until
-			l_index < movements
-		loop
+		l_coordinates := coordinates_input
 
+		from
+			l_index := 1
+		until
+			l_index > movements
+		loop
+			l_coordinates := l_hexagon_move.move_to(direction, l_coordinates)
+			l_list.put_front(l_coordinates)
+			l_index := l_index + 1
 		end
+
+		Result := l_list
 
 
 	ensure
 		Result_not_void : Result /= Void
 		Result_not_empty : Result.count /= 0
+	end
+
+	set_range(range:INTEGER)
+	--set a new range for the current movement
+	require
+		range_positive: range > 0
+	do
+		movements := range
 	end
 
 feature{NONE} --implementation

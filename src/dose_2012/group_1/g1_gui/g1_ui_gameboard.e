@@ -45,7 +45,6 @@ feature {NONE}	-- Attributes
     btn_houses_hotels : EV_BUTTON
     btn_trade : EV_BUTTON
     btn_pass : EV_BUTTON
-    btn_leave_game : EV_BUTTON
 
     players_combo_box: HASH_TABLE [INTEGER, INTEGER]  -- id,key
 
@@ -62,17 +61,17 @@ feature {NONE} -- Initialization
 	initialize
 		do
 				Precursor {EV_TITLED_WINDOW}
-				close_request_actions.extend (agent request_close_game(main_ui,current,controller))
+				close_request_actions.extend (agent request_close_window(main_ui,current))
 
 				monopoly_gameboard_area := set_background(mp_img_load("background_gameboard.png"),0,0);
-				monopoly_logo_area := set_background(mp_img_load("logo_monopoly.png"),370,80);
+				monopoly_logo_area := set_background(mp_img_load("logo_monopoly2.png"),370,80);
 				monopoly_gameboard_area.extend_with_position_and_size (monopoly_logo_area, 995, 0, 370, 80)
 				-- create player_information.make (controller.get_player.get_id_player,controller.get_player.get_name)
-				create player_information.make (2,controller.get_player.get_name)  -- per ora
+				create player_information.make (5,controller.get_player.get_name)  -- per ora
                 monopoly_gameboard_area.extend_with_position_and_size (player_information, 995, 85, 370, 250)
 
-                monopoly_game_area := set_background(mp_img_load("monopoly_gameboard.png"),600,600);
-                monopoly_gameboard_area.extend_with_position_and_size (monopoly_game_area, 0, 0,600,600 )
+                monopoly_game_area := set_background(mp_img_load("monopoly_gameboard.png"),650,650);
+                monopoly_gameboard_area.extend_with_position_and_size (monopoly_game_area, 0, 0,650,650)
 
 				create label_players
 				label_players.set_background_color (GREEN)
@@ -113,10 +112,6 @@ feature {NONE} -- Initialization
 				create btn_pass.make_with_text ("Pass")
 				monopoly_gameboard_area.extend_with_position_and_size (btn_pass, 580, 690, 80, 30)
 				btn_pass.select_actions.extend (agent pass)
-
-				create btn_leave_game.make_with_text ("Leave Game")
-				monopoly_gameboard_area.extend_with_position_and_size (btn_leave_game, 700, 690, 80, 30)
-				btn_leave_game.select_actions.extend (agent request_close_game(main_ui,current,controller))
 
 				extend(monopoly_gameboard_area)
 		end
@@ -292,9 +287,9 @@ feature {NONE} -- Implementation features buttons and combo_box
 			elseif attached {G1_UTILITY} cell as cell_utility then
 				create std_popup.make_deed (controller, cell_utility)
 				std_popup.show
-	--		elseif attached {G1_NON_DEED} cell as cell_non_deed	then
-	--		--	create special_popup.make(controller)
-	--		--	special_popup.show
+			elseif attached {G1_NON_DEED} cell as cell_non_deed	then
+				create special_popup.make (controller, cell_non_deed)
+				special_popup.show
 			end
 		end
 
@@ -318,7 +313,11 @@ feature {NONE} -- Implementation features buttons and combo_box
 
 	pass
 			-- pass turn to next player
+--		local                                              --    di prova per vedere i popup_special
+--			special_popup : G1_UI_POPUP_SPECIAL
 		do
+--			create special_popup.make_prova (controller, 2)
+--			special_popup.show
 			controller.finish_turn
 		end
 
@@ -330,16 +329,21 @@ feature {NONE} -- Implementation features buttons and combo_box
 		--	k := combo_box_total_players.index
 		--	id := players_combo_box.item (k)
 			-- create other_player_information.make (id,combo_box_total_players.selected_item.text)  -- corretto
-			create other_player_information.make (1,combo_box_total_players.selected_item.text)      -- togliere
+			create other_player_information.make (4,combo_box_total_players.selected_item.text)      -- togliere
         	monopoly_gameboard_area.extend_with_position_and_size (other_player_information, 995, 400, 370, 250)
 		end
 
 feature -- Implementation features called by other GUI classes
 
-	set_turn(a_name : STRING; my_turn : BOOLEAN)
+	set_turn(a_name : STRING; my_turn : BOOLEAN; i_am_in_jail : BOOLEAN)
+		local
+			jail_popup : G1_UI_POPUP_JAIL
 		do
 			label_current_player.set_text (a_name)
-			if my_turn then
+			if my_turn and i_am_in_jail then
+				create jail_popup.make(controller)
+				jail_popup.show
+			elseif my_turn then
 				btn_roll_dice.enable_capture
     			btn_houses_hotels.enable_capture
     			btn_trade.enable_capture

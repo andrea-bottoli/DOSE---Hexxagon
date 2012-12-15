@@ -27,8 +27,52 @@ feature {HX_L_IBOARD} -- Initialization
 
 	board_last_move: HX_L_IMOVE
 
+	parent: HX_L_BOARD
+
 	logic: separate HX_L_LOGIC
 		-- The reference to the logic component.
+
+	non_existant_place: HX_L_PLACE
+		once ("PROCESS")
+			create Result.make_non_existent ()
+		end
+
+	empty_place: HX_L_PLACE
+		once ("PROCESS")
+			create Result.make_empty ()
+		end
+
+	player1_place: HX_L_PLACE
+		require
+			non_void: player_1 /= Void
+		once ("PROCESS")
+			create Result.make_owned (player_1.id)
+		end
+
+	player2_place: HX_L_PLACE
+		require
+			non_void: player_2 /= Void
+		once ("PROCESS")
+			create Result.make_owned (player_2.id)
+		end
+
+	active_player_place: HX_L_PLACE
+		do
+			if active_player = player_1 then
+				Result := player1_place
+			else
+				Result := player2_place
+			end
+		end
+
+	non_active_player_place: HX_L_PLACE
+		do
+			if active_player /= player_1 then
+				Result := player1_place
+			else
+				Result := player2_place
+			end
+		end
 
 	make_copy(board: HX_L_BOARD)
 		-- Make a copy of the given board.
@@ -39,15 +83,12 @@ feature {HX_L_IBOARD} -- Initialization
 			l_place: HX_L_IPLACE
 		do
 			logic := board.logic
+			parent := board
 			board_serializer := board.board_serializer
 			height := board.height
 			width := board.width
-			create board_player_1.make (
-				Current, board.board_player_1.id,
-				board.board_player_1.name, board.board_player_1.is_human)
-			create board_player_2.make (
-				Current, board.board_player_2.id,
-				board.board_player_2.name, board.board_player_2.is_human)
+			board_player_1 := board.board_player_1.twin
+			board_player_2 := board.board_player_2.twin
 			player_1 := board_player_1
 			player_2 := board_player_2
 			if board.board_active_player = board.player_1 then
@@ -57,38 +98,9 @@ feature {HX_L_IBOARD} -- Initialization
 			end
 			existing_places_count := board.existing_places_count
 			moves_count := board.moves_count
-			create board_array.make_filled (Void, width, height)
-			from
-				l_x := 1
-			until
-				l_x > height
-			loop
-				from
-					l_y := 1
-				until
-					l_y > width
-				loop
-					l_place := board.place (l_x, l_y)
-					if not l_place.exists then
-						board_array.put (
-							create {HX_L_PLACE}.make(FALSE, TRUE, Void), l_x, l_y)
-					elseif l_place.is_empty then
-						board_array.put (
-							create {HX_L_PLACE}.make(TRUE, TRUE, Void), l_x, l_y)
-					elseif l_place.player = board.player_1 then
-						board_array.put (
-							create {HX_L_PLACE}.make(TRUE, FALSE, player_1), l_x, l_y)
-						board_player_1.inc_pieces_count
-					else
-						board_array.put (
-							create {HX_L_PLACE}.make(TRUE, FALSE, player_2), l_x, l_y)
-						board_player_2.inc_pieces_count
-					end
-					l_y := l_y + 1
-				end
-				l_x := l_x + 1
-			end
+			board_array := board.board_array.twin
 		ensure
+			parent_exists: parent /= Void and parent = board
 			same_size: height = board.height and width = board.width
 			different_player1: player_1 /= board.player_1
 			different_player2: player_2 /= board.player_2
@@ -136,15 +148,15 @@ feature {HX_L_IBOARD} -- Initialization
 				loop
 					if a_template.item (x, y) = 0 then
 						existing_places_count := existing_places_count + 1
-						l_template.put (create {HX_L_PLACE}.make(TRUE, TRUE, Void), x, y)
+						l_template.put (empty_place, x, y)
 					elseif a_template.item (x, y) = 3 then
-						l_template.put (create {HX_L_PLACE}.make(FALSE, TRUE, Void), x, y)
+						l_template.put (non_existant_place, x, y)
 					elseif a_template.item (x, y) = 1 then
-						l_template.put (create {HX_L_PLACE}.make(TRUE, FALSE, player_1), x, y)
+						l_template.put (player1_place, x, y)
 						board_player_1.inc_pieces_count()
 						existing_places_count := existing_places_count + 1
 					elseif a_template.item (x, y) = 2 then
-						l_template.put (create {HX_L_PLACE}.make(TRUE, FALSE, player_2), x, y)
+						l_template.put (player2_place, x, y)
 						board_player_2.inc_pieces_count()
 						existing_places_count := existing_places_count + 1
 					end
@@ -155,6 +167,8 @@ feature {HX_L_IBOARD} -- Initialization
 
 			create board_serializer
 			board_array := l_template
+		ensure
+			no_parent: parent = Void
 		end
 
 feature -- Internal
@@ -163,17 +177,23 @@ feature -- Internal
 
 feature -- Access
 
+	player_1: HX_L_IPLAYER
+	player_2: HX_L_IPLAYER
+
 	place(x: INTEGER; y: INTEGER): HX_L_IPLACE
 		-- Place at position (x, y).
-		local
-			l_place: HX_L_PLACE
 		do
 			if (1 <= x and x <= width) and (1 <= y and y <= height) then
 				Result := board_array[x, y]
 			else
-				create l_place.make(FALSE, TRUE, Void)
-				Result := l_place
+				Result := non_existant_place
 			end
+		end
+
+	set_place(a_place: HX_L_PLACE; x: INTEGER; y: INTEGER)
+		-- Set place at position (x, y).
+		do
+			board_array[x, y] := a_place
 		end
 
 	active_player: HX_L_IPLAYER
@@ -183,13 +203,11 @@ feature -- Access
 		end
 
 	legal_moves: LIST[HX_L_IMOVE]
+		-- Warning: caches moves per board.
 		local
 			l_list: LINKED_LIST[HX_L_IMOVE]
 			x, y: INTEGER
-		do
-			-- TODO: Cache results, because AI is going to use this function twice: by calling
-			-- is_end and by calling this function directly. Cache should be invalidated, when
-			-- move_piece is called.
+		once ("OBJECT")
 			create l_list.make
 
 			from x:=1
@@ -198,7 +216,8 @@ feature -- Access
 			  	from y:=1
 			  	until y>height
 			  	loop
-			  		if place(x,y).exists AND NOT place(x,y).is_empty AND place(x,y).player.is_equal(active_player)
+			  		if (place(x,y).exists AND NOT place(x,y).is_empty AND
+			  			place(x,y).player_id = active_player.id)
 			  		then
 						l_list.append (possible_moves(x, y))
 			  		end
@@ -209,6 +228,22 @@ feature -- Access
 
 			Result := l_list
 
+		end
+
+	is_end_ai(a_leaf: BOOLEAN): BOOLEAN
+		-- Is it the end of the game?
+		do
+			if existing_places_count - player_1.pieces_count - player_2.pieces_count = 0 then
+				Result := TRUE
+			elseif player_1.pieces_count = 0 or player_2.pieces_count = 0 then
+				Result := TRUE
+			else
+				if not a_leaf then
+					Result := legal_moves.is_empty
+				else
+					Result := FALSE
+				end
+			end
 		end
 
 	is_end: BOOLEAN
@@ -249,7 +284,8 @@ feature -- Access
 	is_piece_selectable(x: INTEGER; y: INTEGER): BOOLEAN
 		-- Can piece in this place be selected?
 		do
-			Result := place(x,y).exists AND NOT place(x,y).is_empty AND place(x,y).player.is_equal(active_player)
+			Result := (place(x,y).exists AND NOT place(x,y).is_empty AND
+				place(x,y).player_id = active_player.id)
 		end
 
 	possible_moves(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
@@ -261,13 +297,13 @@ feature -- Access
 			l_move: HX_L_MOVE
 		do
 			create l_list.make()
+			create l_from.make (x, y)
 
 			-- Get all the the free places which are first grade neighbors
 			across first_grade_neighbors_of_location (x, y) as neighbor
 			loop
 				l_to := neighbor.item
 				if place(l_to.x, l_to.y).exists and place(l_to.x, l_to.y).is_empty then
-					create l_from.make (x, y)
 					create l_move.make(l_from, l_to)
 					l_list.extend(l_move)
 				end
@@ -278,7 +314,6 @@ feature -- Access
 			loop
 				l_to := neighbor.item
 				if place(l_to.x, l_to.y).exists and place (l_to.x, l_to.y).is_empty then
-					create l_from.make (x, y)
 					create l_move.make (l_from, l_to)
 					l_list.extend (l_move)
 				end
@@ -300,7 +335,7 @@ feature -- Access
 			source_ok := (
 				source.exists AND
 				NOT source.is_empty AND
-				source.player.is_equal(active_player)
+				source.player_id = active_player.id
 				)
 			l_neighbour := is_first_grade_neighbor (from_x, from_y, to_x, to_y)
 			l_neighbour := is_second_grade_neighbor (from_x, from_y, to_x, to_y) OR l_neighbour
@@ -313,15 +348,13 @@ feature -- Access
 	move_piece(a_move: HX_L_IMOVE)
 		-- Move a piece to a new location.
 		local
-			l_source, l_dest: HX_L_IPLACE
 			l_from, l_to: HX_L_ILOCATION
 			l_active_player: HX_L_PLAYER
 			l_passive_player: HX_L_PLAYER
+			l_x, l_y: INTEGER
 		do
 			l_from := a_move.source
 			l_to := a_move.destination
-			l_source := place(l_from.x, l_from.y)
-			l_dest := place(l_to.x, l_to.y)
 
 			if active_player = player_1 then
 				l_active_player := board_player_1
@@ -334,28 +367,24 @@ feature -- Access
 			-- Case 1: Doubling piece
 			if is_first_grade_neighbor(l_from.x, l_from.y, l_to.x, l_to.y) then
 				-- Set destination place properties
-				l_dest.set_is_empty (FALSE)
-				l_dest.set_player (l_active_player)
+				set_place (active_player_place, l_to.x, l_to.y)
 				l_active_player.inc_pieces_count()
 			end
 
 			-- Case 2: Jump with piece
 			if is_second_grade_neighbor (l_from.x, l_from.y, l_to.x, l_to.y) then
 				-- Set destination place properties
-				l_dest.set_is_empty (FALSE)
-				l_dest.set_player (l_active_player)
-
+				set_place (active_player_place, l_to.x, l_to.y)
 				-- Set source place properties
-				l_source.set_is_empty (TRUE)
+				set_place (empty_place, l_from.x, l_from.y)
 			end
 
-			across first_grade_neighbors_of_place(l_to.x, l_to.y) as neighbor
+			across first_grade_neighbors_of_location (l_to.x, l_to.y) as neighbour
 				loop
-					if neighbor.item.exists AND
-						not neighbor.item.is_empty AND
-						neighbor.item.player = l_passive_player
-					then
-						neighbor.item.set_player (active_player)
+					l_x := neighbour.item.x
+					l_y := neighbour.item.y
+					if place (l_x, l_y) = non_active_player_place then
+						set_place (active_player_place, l_x, l_y)
 						l_passive_player.dec_pieces_count
 						l_active_player.inc_pieces_count
 					end
@@ -363,7 +392,7 @@ feature -- Access
 
 			moves_count := moves_count + 1
 			board_last_move := a_move
-
+			change_active_player()
 		end
 
 	change_active_player()
@@ -394,13 +423,12 @@ feature -- Access
 
 			if is_end then
 
-				fill_empty_places
+				fill_empty_places(winner)
 
 				create l_message.make (winner.id, player_1.pieces_count, player_2.pieces_count)
+				logic.stop
 				logic.logic_gui.game_finished (l_message)
 			else
-
-				change_active_player()
 
 				if not board_active_player.is_human then
 					print("UI finished move...  %N")
@@ -432,23 +460,41 @@ FEATURE {HX_L_IBOARD} -- Internal details
 FEATURE {NONE} -- Helper functions
 
 
-	fill_empty_places()
+	fill_empty_places(a_winner: HX_L_IPLAYER)
+		local
+			l_x, l_y: INTEGER
+			l_winner: HX_L_PLAYER
+			l_winner_place: HX_L_IPLACE
 		do
-			across board_array as l_place
-			loop
-				if l_place.item.exists AND l_place.item.is_empty then
-
-					l_place.item.set_is_empty (FALSE)
-					l_place.item.set_player (active_player)
-
-					if l_place.item.player = board_player_1 then
-						board_player_1.inc_pieces_count
-					else
-						board_player_2.inc_pieces_count
-					end
-
-				end
+			if a_winner = board_player_1 then
+				l_winner := board_player_1
+				l_winner_place := player1_place
+			else
+				l_winner := board_player_2
+				l_winner_place := player2_place
 			end
+			from
+				l_x := 1
+			until
+				l_x > height
+			loop
+				from
+					l_y := 1
+				until
+					l_y > width
+				loop
+					if place (l_x, l_y) = empty_place then
+						set_place (non_active_player_place, l_x, l_y)
+						l_winner.inc_pieces_count
+					end
+					l_y := l_y + 1
+				end
+				l_x := l_x + 1
+			end
+		ensure
+			pieces: (a_winner.pieces_count - old a_winner.pieces_count) = (
+				existing_places_count - old player_1.pieces_count
+				- old player_2.pieces_count)
 		end
 
 	first_grade_neighbors_of_place(x,y: INTEGER): LIST[HX_L_IPLACE]
@@ -513,7 +559,42 @@ FEATURE {NONE} -- Helper functions
 			end
 		end
 
+	first_grade_neighbors_of_location_cache(): ARRAY2[LIST[HX_L_ILOCATION]]
+		-- Generates cache of neighbouring places.
+		local
+			l_list: LINKED_LIST[HX_L_ILOCATION]
+			l_location: HX_L_LOCATION
+			l_x, l_y: INTEGER
+		once
+			create Result.make_filled (Void, max_height, max_width)
+			from
+				l_x := 1
+			until
+				l_x > max_height
+			loop
+				from
+					l_y := 1
+				until
+					l_y > max_width
+				loop
+					Result.put (
+						first_grade_neighbors_of_location_generator (l_x, l_y),
+						l_x, l_y)
+					l_y := l_y + 1
+				end
+				l_x := l_x + 1
+			end
+		end
+
 	first_grade_neighbors_of_location(x, y: INTEGER): LIST[HX_L_ILOCATION]
+		-- Returns a list containing the neighboring places,
+		-- where the piece can potentially be duplicated.
+		do
+			Result := first_grade_neighbors_of_location_cache().item (x, y)
+		end
+
+
+	first_grade_neighbors_of_location_generator (x, y: INTEGER): LIST[HX_L_ILOCATION]
 		-- Returns a list containing the neighboring places, where the piece can potentially be duplicated.
 		local
 			l_list: LINKED_LIST[HX_L_ILOCATION]
@@ -609,7 +690,41 @@ FEATURE {NONE} -- Helper functions
 			end
 		end
 
+	second_grade_neighbors_of_location_cache (): ARRAY2[LIST[HX_L_ILOCATION]]
+		-- Generates cache of neighbouring locations.
+		local
+			l_list: LINKED_LIST[HX_L_ILOCATION]
+			l_location: HX_L_LOCATION
+			l_x, l_y: INTEGER
+		once
+			create Result.make_filled (Void, max_height, max_width)
+			from
+				l_x := 1
+			until
+				l_x > max_height
+			loop
+				from
+					l_y := 1
+				until
+					l_y > max_width
+				loop
+					Result.put (
+						second_grade_neighbors_of_location_generator (l_x, l_y),
+						l_x, l_y)
+					l_y := l_y + 1
+				end
+				l_x := l_x + 1
+			end
+		end
+
 	second_grade_neighbors_of_location (x, y: INTEGER): LIST[HX_L_ILOCATION]
+		-- Returns a list containing the neighbouring places, where
+		-- a piece could potentially jump.
+		do
+			Result := second_grade_neighbors_of_location_cache().item (x, y)
+		end
+
+	second_grade_neighbors_of_location_generator (x, y: INTEGER): LIST[HX_L_ILOCATION]
 		-- Returns a list containing places, where the piece could potentially jump to
 		local
 			l_list: LINKED_LIST[HX_L_ILOCATION]

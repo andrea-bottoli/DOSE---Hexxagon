@@ -25,5 +25,13 @@ feature {ANY} --ATTRIBUTES
 	g2_matrix_card: G2_LOGIC_CARD
 
 	g2_matrix_element: STRING
-
+feature
+	set_card(a_card:G2_LOGIC_CARD)
+	require
+		non_void:a_card/=void
+	do
+		g2_matrix_card:=a_card
+		ensure
+			non_void:g2_matrix_card=a_card
+	end
 end

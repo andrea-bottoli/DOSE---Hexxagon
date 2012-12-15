@@ -29,7 +29,7 @@ feature {NONE} -- Constructor of the class
 		game_panel:=a_game_panel
 		hexagonal_board:=pixmap_board
 		current.extend (hexagonal_board)
-		create hexagonal_cells_array.make_filled (Void, 1, 58)
+		create hexagonal_cells_array.make_filled (Void, 0, 57)
 		create_cells
 		draw_board
 		set_agents
@@ -58,13 +58,13 @@ feature {XX_GAME_PANEL}
 		until
 			l_i>=58
 		loop
-			l_status:=hexagonal_cells_array.at (l_i+1).get_status
-			l_new_status:=a_board.at (l_i+1)
-			l_x_pos:=hexagonal_cells_array.at (l_i+1).get_x_coord
-			l_y_pos:=hexagonal_cells_array.at (l_i+1).get_y_coord
+			l_status:=hexagonal_cells_array.at (l_i).get_status
+			l_new_status:=a_board.at (l_i)
+			l_x_pos:=hexagonal_cells_array.at (l_i).get_x_coord
+			l_y_pos:=hexagonal_cells_array.at (l_i).get_y_coord
 			if(l_new_status/=l_status) then
-				hexagonal_cells_array.at (l_i+1).set_status (l_new_status)
-				hexagonal_cells_array.at (l_i+1).draw_cell (l_x_pos, l_y_pos, l_new_status, get_board)
+				hexagonal_cells_array.at (l_i).set_status (l_new_status)
+				hexagonal_cells_array.at (l_i).draw_cell (l_x_pos, l_y_pos, l_new_status, get_board)
 			end
 			l_i:=l_i+1
 		end
@@ -80,7 +80,7 @@ feature {XX_GAME_PANEL}
 		until
 			l_i>=58
 		loop
-			hexagonal_cells_array.at (l_i+1).set_status (0)
+			hexagonal_cells_array.at (l_i).set_status (0)
 			l_i:=l_i+1
 		end
 	end
@@ -112,7 +112,7 @@ feature {NONE} --Methods for drawing the board
 		loop
 			create hexagonal_cell
 			hexagonal_cell.set_id (l_i)
-			hexagonal_cells_array.put (hexagonal_cell, l_i+1)
+			hexagonal_cells_array.put (hexagonal_cell, l_i)
 			l_i:=l_i+1
 		end
 		clean_board
@@ -136,10 +136,10 @@ feature {NONE} --Methods for drawing the board
 			l_coordinates:=get_cell_position (l_i)
 			l_x_coord:=l_coordinates.at (1)
 			l_y_coord:=l_coordinates.at (2)
-			l_status:=hexagonal_cells_array.at (l_i+1).get_status
-			hexagonal_cells_array.at (l_i+1).set_x_coord (l_x_coord)
-			hexagonal_cells_array.at (l_i+1).set_y_coord (l_y_coord)
-			hexagonal_cells_array.at (l_i+1).draw_cell (l_x_coord, l_y_coord, l_status, get_board)
+			l_status:=hexagonal_cells_array.at (l_i).get_status
+			hexagonal_cells_array.at (l_i).set_x_coord (l_x_coord)
+			hexagonal_cells_array.at (l_i).set_y_coord (l_y_coord)
+			hexagonal_cells_array.at (l_i).draw_cell (l_x_coord, l_y_coord, l_status, get_board)
 			l_i:=l_i+1
 		end
 	end
@@ -499,15 +499,15 @@ feature {NONE} --Methods for drawing the board
 		until
 			l_i>=hexagonal_cells_array.count//2 or l_b=TRUE
 		loop
-			l_x1_pos:=hexagonal_cells_array.at (l_i+1).get_x_coord
-			l_y1_pos:=hexagonal_cells_array.at (l_i+1).get_y_coord
-			l_cell1_width:=hexagonal_cells_array.at (l_i+1).get_width
-			l_cell1_height:=hexagonal_cells_array.at (l_i+1).get_height
+			l_x1_pos:=hexagonal_cells_array.at (l_i).get_x_coord
+			l_y1_pos:=hexagonal_cells_array.at (l_i).get_y_coord
+			l_cell1_width:=hexagonal_cells_array.at (l_i).get_width
+			l_cell1_height:=hexagonal_cells_array.at (l_i).get_height
 
-			l_x2_pos:=hexagonal_cells_array.at (l_num_elem-l_i).get_x_coord
-			l_y2_pos:=hexagonal_cells_array.at (l_num_elem-l_i).get_y_coord
-			l_cell2_width:=hexagonal_cells_array.at (l_num_elem-l_i).get_width
-			l_cell2_height:=hexagonal_cells_array.at (l_num_elem-l_i).get_height
+			l_x2_pos:=hexagonal_cells_array.at (l_num_elem-l_i-1).get_x_coord
+			l_y2_pos:=hexagonal_cells_array.at (l_num_elem-l_i-1).get_y_coord
+			l_cell2_width:=hexagonal_cells_array.at (l_num_elem-l_i-1).get_width
+			l_cell2_height:=hexagonal_cells_array.at (l_num_elem-l_i-1).get_height
 
 			if(a_x_pos>l_x1_pos+17 and a_x_pos<(l_x1_pos+l_cell1_width-17) and a_y_pos>l_y1_pos and a_y_pos<(l_y1_pos+l_cell1_height)) then
 				Result.append_integer (l_i)
@@ -525,7 +525,25 @@ feature{XX_GAME_PANEL} --Method for checking contracts
 
 	--Checks board status
 	is_board_empty: BOOLEAN
+	local
+		l_b: BOOLEAN
+		l_i: INTEGER
 	do
-		Result:= hexagonal_cells_array.is_empty
+		from
+			l_i:=0
+			l_b:=TRUE
+		until
+			l_i>=hexagonal_cells_array.count or l_b=FALSE
+		loop
+			if(hexagonal_cells_array.at (l_i).get_status/=0)then
+				l_b:=FALSE
+				Result:=FALSE
+			end
+			l_i:=l_i+1
+		end
+
+		if(l_b)then
+			Result:=TRUE
+		end
 	end
 end

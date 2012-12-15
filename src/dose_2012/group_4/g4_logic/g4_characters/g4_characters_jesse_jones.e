@@ -8,11 +8,16 @@ class
 	G4_CHARACTERS_JESSE_JONES
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Jesse Jones")
+ 		set_character_life(4)
  	ensure
-  		Character_Name.is_equal("Jess Jones")
+  		Character_Name.is_equal("Jesse Jones")
   		Character_Life = 4
 
  	end

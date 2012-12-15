@@ -24,7 +24,7 @@ feature {ANY}-- constructors
 		data := void
 	end
 
-	make_data_msg(an_id: STRING a_sender, a_receiver: G10_NET_PLAYER_INFO some_data: ANY)
+	make_data_msg(an_id: STRING a_sender, a_receiver: G10_NET_INFO some_data: ANY)
 	do
 		make_msg(an_id, a_sender, a_receiver)
 		data := some_data

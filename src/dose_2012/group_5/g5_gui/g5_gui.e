@@ -22,8 +22,6 @@ feature {G5_LAUNCHER} --Initialization performed by the G5_LAUNCHER
 		require
 			valid_arg: main_ui_window/= void
 			valid_arg: a_launcher/=void
-		local
-			window_menu: G5_MAIN_MENU
 		do
 			main_ui:= main_ui_window
 			app_launcher:= a_launcher
@@ -55,31 +53,214 @@ feature {G5_NET_CONTROLLER_CLIENT}
 			valid_arg: players_name /= void
 			valid_name: my_name /= void and not(my_name.is_equal (""))
 			game_not_already_started: main_view = void
-			exists_waiting_room: ((host_waiting_room /= void and common_player_waiting_room = void) or (host_waiting_room = void and common_player_waiting_room /= void))
+			exists_waiting_room: player_waiting_room /= void
 		do
+
+			-- Destroy the waiting room
+			player_waiting_room.destroy
+			player_waiting_room:= void
+
+			my_name_in_the_game:= my_name
+
 			create main_view.make (players_name, my_name, current, main_ui)
 			main_view.show
 
+--			if (players_name[1].is_equal (my_name)) then
+--				main_view.show
+--				current_player_name:= my_name
+--			else
+--				create main_view_as_observer.make
+--				main_view_as_observer.show
+--				current_player_name:= players_name[1]
+--			end
+
+
+			-- ** NOTA ** e questo??
 			-- add reference of G5_GUI to the main launcher to avoid problem of garbage collection
 			main_ui.add_reference_to_game (main_view)
-
-			-- Destroy the waiting room
-			if (host_waiting_room /= void) then
-				host_waiting_room.destroy
-			else
-				common_player_waiting_room.destroy
-			end
 
 		ensure then
 			-- that the game will be initialized and will start with the players indicated
 			main_view.amount_of_players = players_name.count
-			host_waiting_room = void
-			common_player_waiting_room = void
+			player_waiting_room = void
+		end
+
+
+	pop_up_selection (cards_are_from: STRING; min_choice: INTEGER; max_choice: INTEGER; cards: ARRAY [STRING])
+		-- the implementation of the feature that creates a pop_up with selection
+		do
+			if (current_player_name.is_equal (my_name_in_the_game)) then
+				create a_pop_up_selection.make (cards_are_from, cards, min_choice, max_choice, current)
+				a_pop_up_selection.show_modal_to_window (main_view)
+			else
+				create a_pop_up_selection.make (cards_are_from, cards, min_choice, max_choice, current)
+				a_pop_up_selection.show_modal_to_window (main_view_as_observer)
+			end
+		end
+
+	keep_or_not_card(card: STRING)
+		-- the implementation of the feature that creates a pop_up keep or not
+		do
+			if (current_player_name.is_equal (my_name_in_the_game)) then
+				create a_pop_up_keep.make (card, current)
+				a_pop_up_keep.show_modal_to_window (main_view)
+			else
+				create a_pop_up_keep.make (card, current)
+				a_pop_up_keep.show_modal_to_window (main_view_as_observer)
+			end
+		end
+
+	pop_up_thief (player_that_played_thief: STRING; cards_revealed_by_players: HASH_TABLE[STRING, STRING]; pop_up_type: STRING)
+		-- the implementation of the feature that creates pop-ups for thief
+		local
+			i: INTEGER
+		do
+			-- check if is the first request of the thief card
+			if (pop_up_type.is_equal ("REVEAL_OR_SELECT")) then
+
+				-- check if i'm the current player
+				if (player_that_played_thief.is_equal(my_name_in_the_game)) then
+					create a_pop_up_thief_as_owner.make_initial_request_as_owner (player_that_played_thief, cards_revealed_by_players, current)
+					a_pop_up_thief_as_owner.show_modal_to_window (main_view)
+				else
+					create a_pop_up_thief.make_initial_request (player_that_played_thief, cards_revealed_by_players)
+					a_pop_up_thief.show_modal_to_window (main_view_as_observer)
+				end
+
+			-- check if is an update_trash message 	
+			elseif (pop_up_type.is_equal ("UPDATE_TRASH")) then
+
+				-- check if i'm the current player
+				if (player_that_played_thief.is_equal(my_name_in_the_game)) then
+					create a_pop_up_thief_as_owner.make_after_update_as_owner (player_that_played_thief, cards_revealed_by_players, current)
+					a_pop_up_thief_as_owner.show_modal_to_window (main_view)
+				else
+					create a_pop_up_thief.make_after_update (player_that_played_thief, cards_revealed_by_players)
+					a_pop_up_thief.show_modal_to_window (main_view_as_observer)
+				end
+
+			elseif (pop_up_type.is_equal ("UPDATE_GAIN")) then
+				if (current_player_name.is_equal (my_name_in_the_game)) then
+					create a_pop_up_thief.make_after_update (player_that_played_thief, cards_revealed_by_players)
+					a_pop_up_thief.show_modal_to_window (main_view)
+
+					-- wait an amout of time to display the pop-up
+					from
+						i:=1
+					until
+						i>1500
+					loop
+						i:=i+1
+					end
+
+					a_pop_up_thief.destroy
+				else
+					create a_pop_up_thief.make_after_update (player_that_played_thief, cards_revealed_by_players)
+					a_pop_up_thief.show_modal_to_window (main_view_as_observer)
+
+					-- wait an amout of time to display the pop-up
+					from
+						i:=1
+					until
+						i>1500
+					loop
+						i:=i+1
+					end
+
+					a_pop_up_thief.destroy
+
+				end
+			end
+		end
+
+feature {G5_INET_TO_GUI, EQA_TEST_SET} -- connection initialization
+
+	connection_failed(a_message: STRING)
+		-- implementation of the feature
+		local
+			error_dialog: EV_INFORMATION_DIALOG
+		do
+			player_waiting_room.destroy
+
+			--create window_menu.make (main_ui, app_launcher)
+			window_menu.create_container_main_menu
+			window_menu.show
+
+			create error_dialog.make_with_text (a_message)
+			error_dialog.set_title ("CONNECTION FAILED")
+			error_dialog.show_modal_to_window (window_menu)
+		end
+
+	terminate_game(a_message: STRING)
+		-- this feature is called when the game has to be terminated
+		local
+			error_dialog: EV_INFORMATION_DIALOG
+		do
+			-- destroy all the view
+			main_view.destroy
+
+			if (not(current.main_view_as_observer.is_destroyed)) then
+				current.main_view_as_observer.destroy
+			end
+
+			if (not(current.a_pop_up_end.is_destroyed)) then
+				current.a_pop_up_end.destroy
+			end
+
+			if (not(current.a_pop_up_keep.is_destroyed)) then
+				current.a_pop_up_keep.destroy
+			end
+
+			if (not(current.a_pop_up_message.is_destroyed)) then
+				current.a_pop_up_message.destroy
+			end
+
+			if (not(current.a_pop_up_reveal.is_destroyed)) then
+				current.a_pop_up_reveal.destroy
+			end
+
+			if (not(current.a_pop_up_selection.is_destroyed)) then
+				current.a_pop_up_selection.destroy
+			end
+
+			if (not(current.a_pop_up_thief.is_destroyed)) then
+				current.a_pop_up_thief.destroy
+			end
+
+			if (not(current.a_pop_up_thief_as_owner.is_destroyed)) then
+				current.a_pop_up_thief_as_owner.destroy
+			end
+
+			--create window_menu.make (main_ui, app_launcher)
+			window_menu.create_container_main_menu
+			window_menu.show
+
+			create error_dialog.make_with_text (a_message)
+			error_dialog.set_title ("CONNECTION FAILED")
+			error_dialog.show_modal_to_window (window_menu)
+		end
+
+	end_game (scores: HASH_TABLE [INTEGER, STRING])
+		do
+			-- GESTIRE CON LE DUE VIEW
+
+			main_view.hide
+
+			create a_pop_up_end.make(scores)
+			a_pop_up_end.show
+
+			-- ** NOTA ** cambiarla in base al rematch
+
+			main_ui.restore
+			main_ui.remove_reference_to_game (main_view)
+
+			main_view.destroy
+			main_view:= void
 		end
 
 feature {G5_MAIN_VIEW} -- feature used to communicate to the NET user actions
 
-	clicked_card_notification(a_card_id: STRING; a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+	clicked_card_notification(a_card_id: STRING)
 		-- notify that a card has been clicked
 		require
 			valid_arg: a_card_id/= void
@@ -97,6 +278,48 @@ feature {G5_MAIN_VIEW} -- feature used to communicate to the NET user actions
 		-- notify that the player wants to leave the game
 		do
 			net_component.leave_game
+		end
+
+feature {G5_POP_UP_WITH_SELECTION} -- feature called by pop_up
+
+	selected_pop_up_response(a_place: STRING; selected_cards: ARRAY[STRING]; a_pop_up: G5_POP_UP_WITH_SELECTION)
+		-- the feature called in respose to a pop-up with selection
+		do
+			a_pop_up.destroy
+
+			if (a_place.is_equal ("hand")) then
+
+				net_component.select_from_hand (selected_cards)
+
+			elseif (a_place.is_equal ("supply")) then
+
+				net_component.selected_from_supply (selected_cards)
+
+			end
+		end
+
+feature {G5_POP_UP_KEEP_OR_NOT} -- feature called by pop_up
+
+	keep_or_not_card_response(cards: ARRAY[STRING]; a_pop_up: G5_POP_UP_KEEP_OR_NOT)
+		-- the feature called in respose to a pop-up with selection
+		do
+			a_pop_up.destroy
+			net_component.keep_or_not_card_response (cards)
+
+		end
+
+feature {G5_POP_UP_THIEF_WITH_SELECTION} -- feature called by pop_up
+
+	thief_response(cards: HASH_TABLE[ARRAY[STRING],STRING]; a_pop_up: G5_POP_UP_THIEF_WITH_SELECTION; response_type: STRING)
+		-- the feature called in respose to a pop-up with selection
+		do
+			a_pop_up.destroy
+
+			if (response_type.is_equal("TRASH")) then
+				net_component.trashed_by_thief (cards)
+			elseif (response_type.is_equal("GAIN")) then
+				net_component.gained_by_thief (cards)
+			end
 		end
 
 feature -- Attributes

@@ -14,7 +14,7 @@ inherit
 	end
 
 create
-	make
+	make , make_with_id
 
 -- attributes
 feature {NONE}
@@ -23,11 +23,11 @@ feature {NONE}
 
 -- constructor methods.
 feature {ANY} -- creates a new PLAYER_ACTION_PANEL object.
-	make(game: G10_GUI_GAME_MAIN)
+	make(game: G10_GUI_GAME_MAIN) -- routine creates a new reference to a new players action panel with default values
 	do
 		default_create()
 		init_current_player_tile(game)
-		init_rotate_button()
+		init_rotate_button(game)
 
 		update_background(pix_game_player_action_panel)
 		set_minimum_height (action_panel_height)
@@ -36,47 +36,22 @@ feature {ANY} -- creates a new PLAYER_ACTION_PANEL object.
 		draw_player_action_panel()
 	end
 
--- accesor methods.
-feature {G10_GUI_GAME_MAIN} -- routine returns the color of the player_action_panel object
-	get_backgroung_color() : EV_COLOR
+	make_with_id(game: G10_GUI_GAME_MAIN  tile_id : INTEGER) -- routine creates a new reference to a player action panel with the drawed tile initialized to tile_id
 	do
-		result := background_color
-		ensure
-			color_not_void : background_color /= void
-	end
+		default_create()
+		init_current_player_tile_id(game , tile_id)
+		init_rotate_button(game)
 
-	get_rotate_button() : G10_GUI_ROTATE_BUTTON -- routine returns the rotate button.
-	do
-		result := rotate_button
-	ensure
-		rotate_button_not_mutated : rotate_button = old rotate_button
-	end
+		update_background(pix_game_player_action_panel)
+		set_minimum_height (action_panel_height)
+		set_minimum_width (action_panel_width)
 
-	get_current_player_tile () : G10_GUI_TILE -- routine returns the current players tile
-	do
-		result := current_player_tile
-		ensure
-			attr_not_mutated : current_player_tile = old current_player_tile
+		draw_player_action_panel()
 	end
-
-	get_width() : INTEGER -- routine returns the width of this object
-	do
-		result := width
-		ensure
-			attr_not_mutated : width = old width
-	end
-
-	get_height() : INTEGER -- routine returns the height of this object
-	do
-		result := height
-		ensure
-			attr_not_mutated : height = old height
-	end
-
 -- mutator methods.
 feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of this player_action_panel object.
 
-	init_current_player_tile(game: G10_GUI_GAME_MAIN) -- routine initializes the current players tile tile.
+	init_current_player_tile(game: G10_GUI_GAME_MAIN) -- routine initializes the current players tile with a dfault tile.
 	require
 		uninitialized_current_players_tile : current_player_tile = void
 	do
@@ -85,13 +60,22 @@ feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of
 			initialized_current_players_tile : current_player_tile /= void
 	end
 
-	init_rotate_button() -- routine initializes the rotate button of the player action panel
+	init_current_player_tile_id(game: G10_GUI_GAME_MAIN tile_id : INTEGER) -- routine initializes the current players tile with tile_id.
+	require
+		uninitialized_current_players_tile : current_player_tile = void
+	do
+		create current_player_tile.make_drawed_tile_with_id (game , tile_id)
+	ensure
+		initialized_current_players_tile : current_player_tile /= void
+	end
+
+	init_rotate_button(game : G10_GUI_GAME_MAIN) -- routine initializes the rotate button of the player action panel
 	require
 		uninitialized_rotate_button : rotate_button = void
 	do
 		create rotate_button.make
 		rotate_button.set_minimum_size (rotate_button_width, rotate_button_height)
-		rotate_button.pointer_button_press_actions.extend (agent action_performed_rotate_button(rotate_button, ?, ?, ?, ?, ?, ?, ?, ?))
+		rotate_button.pointer_button_press_actions.extend (agent action_performed_rotate_button(game, ?, ?, ?, ?, ?, ?, ?, ?))
 		ensure
 			initialized_rotate_button : rotate_button /= void
 	end
@@ -139,13 +123,51 @@ feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of
 			successfull_drawned : current.has (rotate_button) and current.has (current_player_tile)
 	end
 
-	action_performed_rotate_button(obj : ANY a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32) -- routine changes the source and draws the new pixmap of the current players tile.
+	action_performed_rotate_button(game: G10_GUI_GAME_MAIN a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32) -- routine changes the source and draws the new pixmap of the current players tile.
 	do
-		rotate_current_player_tile()
+		game.notify(rotate_event)
+		-- rotate_current_player_tile()
 	end
 
-	--class invariants
-	invariant
-		rotate_button_not_void : rotate_button /= void
-		current_player_tile_not_void : current_player_tile /= void
+-- accesor methods.
+feature {G10_GUI_GAME_MAIN} -- routine returns the color of the player_action_panel object
+	get_backgroung_color() : EV_COLOR
+	do
+		result := background_color
+		ensure
+			color_not_void : background_color /= void
+	end
+
+	get_rotate_button() : G10_GUI_ROTATE_BUTTON -- routine returns the rotate button.
+	do
+		result := rotate_button
+	ensure
+		rotate_button_not_mutated : rotate_button = old rotate_button
+	end
+
+	get_current_player_tile () : G10_GUI_TILE -- routine returns the current players tile
+	do
+		result := current_player_tile
+		ensure
+			attr_not_mutated : current_player_tile = old current_player_tile
+	end
+
+	get_width() : INTEGER -- routine returns the width of this object
+	do
+		result := width
+		ensure
+			attr_not_mutated : width = old width
+	end
+
+	get_height() : INTEGER -- routine returns the height of this object
+	do
+		result := height
+		ensure
+			attr_not_mutated : height = old height
+	end
+
+--class invariants
+invariant
+	rotate_button_not_void : rotate_button /= void
+	current_player_tile_not_void : current_player_tile /= void
 end

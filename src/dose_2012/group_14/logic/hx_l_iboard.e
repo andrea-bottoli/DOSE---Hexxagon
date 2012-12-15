@@ -14,7 +14,16 @@ feature -- Access
 	width: INTEGER
 
 	player_1: HX_L_IPLAYER
+		deferred
+		ensure
+			valid_id: Result.id = 1
+		end
+
 	player_2: HX_L_IPLAYER
+		deferred
+		ensure
+			valid_id: Result.id = 2
+		end
 
 	max_height: INTEGER
 			-- The max board height.
@@ -50,6 +59,12 @@ feature -- Access
 		deferred
 		ensure
 			non_void: Result /= Void
+		end
+
+	is_end_ai(a_leaf: BOOLEAN): BOOLEAN
+		-- Is it the end of the game? (Method for AI.)
+		deferred
+		ensure
 		end
 
 	is_end: BOOLEAN

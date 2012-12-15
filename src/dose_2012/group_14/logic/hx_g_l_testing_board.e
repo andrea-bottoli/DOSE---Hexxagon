@@ -149,7 +149,7 @@ feature {NONE} -- Implementation
 						if l_place.is_empty then
 							l_pixmap := l_pixmap_empty
 						else
-							if l_place.player.id = 1 then
+							if l_place.player_id = 1 then
 								l_pixmap := l_pixmap_first_player
 							else
 								l_pixmap := l_pixmap_second_player
@@ -207,7 +207,7 @@ feature --Access
 						if l_place.is_empty then
 							l_pixmap := l_pixmap_empty
 						else
-							if l_place.player.id = 1 then
+							if l_place.player_id = 1 then
 								l_pixmap := l_pixmap_first_player
 							else
 								l_pixmap := l_pixmap_second_player

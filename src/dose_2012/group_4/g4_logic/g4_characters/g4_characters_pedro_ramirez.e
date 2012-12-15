@@ -8,9 +8,14 @@ class
 	G4_CHARACTERS_PEDRO_RAMIREZ
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Pedro Ramirez")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Pedro Ramirez")
   		Character_Life = 4

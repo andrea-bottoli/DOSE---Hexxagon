@@ -7,9 +7,14 @@ class
 	G4_CHARACTERS_CALAMITY_JANET
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Calamity Janet")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Calamity Janet")
   		Character_Life = 4

@@ -19,9 +19,13 @@ feature
 
 	receive_msg(sock : NETWORK_STREAM_SOCKET) :   G10_CRSN_MESSAGE
 	require
-		socket_closed : sock.is_closed = False
+	--	socket_closed : sock.is_closed = False
 
 	do
+		Result := void
+		if sock.ready_for_reading = true
+		then
+
       		if attached {G10_CRSN_MESSAGE} sock.retrieved as norm_msg
       		then
       			Result := norm_msg
@@ -30,14 +34,13 @@ feature
       			Result := data_msg
       		elseif attached {G10_CRSN_SPECIAL_DATA_MESSAGE} sock.retrieved as sp_data_msg
       		then
-      			print("Heeeeereeeeee %N %N")
       			Result := sp_data_msg
       		end
-
+		end
 
 
 		ensure
-			empty: Result/=void
+			--empty: Result/=void
 
 
 	end

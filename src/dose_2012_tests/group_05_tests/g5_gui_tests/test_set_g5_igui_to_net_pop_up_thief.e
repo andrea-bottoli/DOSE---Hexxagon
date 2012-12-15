@@ -39,44 +39,44 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	pop_up_thief0
-		-- pop_up_thief("JESUS",[["T3","T1"]])
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_thief"
-		do
-			cards_revealed_by_players.make (2)
-			player_that_played_thief := "JESUS"
-			cards_revealed_by_players.put ("T3","T1")
-			cards_revealed_by_players.put ("K3","T1")
-			class_test.pop_up_thief (player_that_played_thief, cards_revealed_by_players)
-			assert ("pop_up_thief is played by a correct player, and revealed right cards", class_test.a_pop_up_thief.owner_thief_card.is_equal (player_that_played_thief) and class_test.a_pop_up_thief.revealed_cards.is_equal (cards_revealed_by_players))
-		end
+--	pop_up_thief0
+--		-- pop_up_thief("JESUS",[["T3","T1"]])
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_thief"
+--		do
+--			cards_revealed_by_players.make (2)
+--			player_that_played_thief := "JESUS"
+--			cards_revealed_by_players.put ("T3","T1")
+--			cards_revealed_by_players.put ("K3","T1")
+--			class_test.pop_up_thief (player_that_played_thief, cards_revealed_by_players)
+--			assert ("pop_up_thief is played by a correct player, and revealed right cards", class_test.a_pop_up_thief.owner_thief_card.is_equal (player_that_played_thief) and class_test.a_pop_up_thief.revealed_cards.is_equal (cards_revealed_by_players))
+--		end
 
 feature -- Test negative
 
-	pop_up_thief1
-		-- pop_up_thief("JESUS",[])
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_thief"
-		local
-			rescued: BOOLEAN
-		do
-			if not rescued then
-				cards_revealed_by_players.make (5)
-				player_that_played_thief := "JESUS"
-				cards_revealed_by_players.put ("T3","T1")
-				cards_revealed_by_players.put ("K3","T1")
-				cards_revealed_by_players.put ("T1","T1")
-				cards_revealed_by_players.put ("K7","C1")
-				cards_revealed_by_players.put ("K10","K1")
-				class_test.pop_up_thief (player_that_played_thief, cards_revealed_by_players)
-			end
-			assert ("pop_up_thief raised problem", rescued)
-			rescue
-				if not rescued then
-					rescued := TRUE
-					retry
-				end
-		end
+--	pop_up_thief1
+--		-- pop_up_thief("JESUS",[])
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_thief"
+--		local
+--			rescued: BOOLEAN
+--		do
+--			if not rescued then
+--				cards_revealed_by_players.make (5)
+--				player_that_played_thief := "JESUS"
+--				cards_revealed_by_players.put ("T3","T1")
+---				cards_revealed_by_players.put ("K3","T1")
+--				cards_revealed_by_players.put ("T1","T1")
+--				cards_revealed_by_players.put ("K7","C1")
+--				cards_revealed_by_players.put ("K10","K1")
+--				class_test.pop_up_thief (player_that_played_thief, cards_revealed_by_players)
+--			end
+--			assert ("pop_up_thief raised problem", rescued)
+--			rescue
+--				if not rescued then
+--					rescued := TRUE
+--					retry
+--				end
+--		end
 
 end

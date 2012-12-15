@@ -33,13 +33,15 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	joined_player_waiting_room0
-		-- joined_player_waiting_room()
-		note
-			testing: "G5_IGUI_TO_NET/.joined_player_waiting_room"
-		do
-			class_test.joined_player_waiting_room()
-			assert ("joined_player_waiting_room was successfully performed", TRUE)
-		end
+--	joined_player_waiting_room0
+--		-- joined_player_waiting_room()
+--		note
+--			testing: "G5_IGUI_TO_NET/.joined_player_waiting_room"
+--		local
+--			main_menu: G5_MAIN_MENU
+--		do
+--			gui.joined_player_waiting_room
+--			assert ("joined_player_waiting_room was successfully performed", TRUE)
+--		end
 
 end

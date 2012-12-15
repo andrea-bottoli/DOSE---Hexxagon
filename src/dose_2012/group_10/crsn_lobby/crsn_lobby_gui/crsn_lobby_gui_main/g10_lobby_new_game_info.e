@@ -1,11 +1,12 @@
 note
-	description: "contains the functionality of the game's info panel on the lobby window"
+	description: "graphic inteface of the lobby's window new game info"
 	author: "Angel Kyriako"
-	date: "10/12/2012"
-	revision: "2.0"
+	date: "14/12/2012"
+	revision: "3.0"
 
 class
 	G10_LOBBY_NEW_GAME_INFO
+
 inherit
 	EV_FIXED
 	G10_LOBBY_CONSTANTS
@@ -14,47 +15,60 @@ inherit
 	end
 
 create
-	make_new_game_info_panel
+	make
 
 -- attributes
 feature {NONE}
-	empty_area: EV_FIXED
-	info_area: EV_FIXED
+	chat_new_message: EV_TEXT_FIELD -- the text field that the user is going to type
+	chat_log: EV_LIST -- the text area where the log is displayed
+
+feature {ANY}-- constructor
+
+	make(lobby: G10_LOBBY_MAIN)
+	do
+		-- create the panel
+		default_create
+		set_minimum_size (south_panel_width, south_panel_height)
+		set_background_pixmap (pix_new_game_info_background)
+
+		-- init subcomponents and add them to panel
+		init_game_title_input_bar
+		init_game_max_player_num_input_bar
+		init_start_game_button(lobby)
+	end
+
+feature {NONE} -- attributes
 	title_input: EV_TEXT_FIELD
 	player_num_input: EV_TEXT_FIELD
 	start_button: EV_FIXED
 
+feature {NONE} -- mutators
 
-feature {ANY}-- constructor
-
-	make_new_game_info_panel(lobby : G10_LOBBY_MAIN)
-	require
-		lobby_not_null : lobby /= void
-	do
-		-- create the panel
-		default_create
-		-- and add it to the background of lobby
-		lobby.get_background.extend_with_position_and_size (current, new_game_info_panel_start_width, new_game_info_panel_start_height,
-																	 new_game_info_panel_width, new_game_info_panel_height)
-		-- init the info panel
-		init_new_game_info_panel(lobby)
-		-- init an empty panel
-		init_empty_panel
-		-- starting with empty panel
-		paint_empty_panel(lobby)
-	end
-
-feature {NONE}-- mutator methods.
-
-	init_new_game_info_panel(lobby: G10_LOBBY_MAIN)
+	init_game_title_input_bar
 	do
 		-- create the two text bars
 		create title_input
 		title_input.align_text_center
+		title_input.set_text ("")
 
+		--add title text field to panel
+		extend_with_position_and_size (title_input, title_bar_start_width, title_bar_start_height,
+													title_bar_width, title_bar_height)
+	end
+
+	init_game_max_player_num_input_bar
+	do
 		create player_num_input
 		player_num_input.align_text_center
+		player_num_input.set_text ("")
 
+		--add player num text field to panel
+		extend_with_position_and_size (player_num_input, player_num_bar_start_width, player_num_bar_start_height,
+														 player_num_bar_width, player_num_bar_height)
+	end
+
+	init_start_game_button(lobby: G10_LOBBY_MAIN)
+	do
 		--create the start button
 		create start_button
 		set_simple_start_button
@@ -62,43 +76,25 @@ feature {NONE}-- mutator methods.
 		start_button.pointer_enter_actions.extend (agent set_highlighted_start_button)
 		start_button.pointer_leave_actions.extend (agent set_simple_start_button)
 
-		-- create the game's info panel
-		create info_area
-		--set size
-		info_area.set_minimum_size (new_game_info_panel_width, new_game_info_panel_height)
-		--create the pixmap for title and players' number
-		info_area.set_background_pixmap (pix_new_game_info_background)
-		--add title text field to panel
-		info_area.extend_with_position_and_size (title_input, title_bar_start_width, title_bar_start_height,
-													title_bar_width, title_bar_height)
-		--add player num text field to panel
-		info_area.extend_with_position_and_size (player_num_input, player_num_bar_start_width, player_num_bar_start_height,
-														 player_num_bar_width, player_num_bar_height)
-		--add the start button
-		info_area.extend_with_position_and_size (start_button, start_button_start_width, start_button_start_height,
+		--add the start button to panel
+		extend_with_position_and_size (start_button, start_button_start_width, start_button_start_height,
 													start_button_width, start_button_height)
-
 	end
 
-	init_empty_panel
-	do
-		create empty_area
-		empty_area.set_minimum_size (new_game_info_panel_width, new_game_info_panel_height)
-		empty_area.set_background_pixmap (pix_empty_background)
-	end
-
-	feature {NONE}-- button agents
+feature {NONE}-- button agents
 
 	start_game(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32 lobby : G10_LOBBY_MAIN)
 	require
 		lobby_not_null: lobby /= void
+	local
+		fault_dialog: EV_CONFIRMATION_DIALOG
 	do
-		if (lobby.get_game_window = void) then
-			lobby.launch_carcassonne_game_window
-			paint_empty_panel(lobby)
+		if ( input_is_valid(lobby) ) then
+				lobby.launch_as_host(title_input.text, player_num_input.text)
+		else
+			create fault_dialog.make_with_text ("Please insert a title and a valid maximum number players(2-6) !")
+			fault_dialog.show_modal_to_window (lobby)
 		end
-	ensure
-		game_ui_not_null: lobby.get_player.get_crsn_game_ui /= void
 	end
 
 	set_simple_start_button
@@ -111,44 +107,30 @@ feature {NONE}-- mutator methods.
 		start_button.set_background_pixmap (pix_highlighted_start_button)
 	end
 
-feature {G10_LOBBY_ALL_BUTTONS}
+feature {NONE} -- observer
 
-	paint_new_game_panel_info(lobby : G10_LOBBY_MAIN)
-	require
-		panel_not_void: current /= void
+	input_is_valid(lobby : G10_LOBBY_MAIN): BOOLEAN
 	do
-		if ( not identifier_name.is_equal("info_area") ) then
-			set_identifier_name ("info_area")
-			wipe_out
-			set_extend (info_area)
-			refresh_now
+		if ((lobby.get_game_window = void) and
+				(not title_input.text.is_empty) and (not player_num_input.text.is_empty) and
+				(player_num_input.text.is_integer) and
+				(player_num_input.text.to_integer >= 2) and (player_num_input.text.to_integer <= 6) )then
+			Result := true
+		else
+			Result := false
 		end
 	end
 
-	paint_empty_panel(lobby : G10_LOBBY_MAIN)
-	require
-		panel_not_void: current /= void
-	do
-		if ( not identifier_name.is_equal("empty_area") ) then
-			set_identifier_name ("empty_area")
-			wipe_out
-			set_extend (empty_area)
-			refresh_now
-		end
-	end
-
-feature {ANY}-- accesor methods.
+feature {G10_LOBBY_SOUTH_PANEL} -- accessors
 
 	get_title_input: EV_TEXT_FIELD
 	do
 		Result := title_input
 	end
-
 	get_player_num_input: EV_TEXT_FIELD
 	do
 		Result := player_num_input
 	end
-
 	get_start_button: EV_FIXED
 	do
 		Result := start_button

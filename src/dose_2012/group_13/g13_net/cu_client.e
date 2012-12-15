@@ -27,7 +27,6 @@ feature {NONE}
         do
         	create soc1.make_client_by_port (server_port, server_ip)
             soc1.connect
---            connect_to_server (soc1,  "192.168.0.102",2000)
             process (soc1) -- See below
             soc1.cleanup
 --	    ensure
@@ -50,6 +49,8 @@ feature {NONE}
             ip_id: STRING
         do
             create our_list.make
+
+            
             our_list.independent_store (soc1)
 
             if attached {CU_NET_MESSAGE} our_list.retrieved (soc1) as l_our_new_list then

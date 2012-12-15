@@ -1,6 +1,6 @@
 note
 	description: "Summary description for {DO_GRAPHIC_CARD}."
-	author: ""
+	author: "Team Rio Cuarto9"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -11,23 +11,34 @@ class
 	--DO_BOARD
 
 create
-	 make_card,make_supply
+	 make_card, make_supply, make_played
 
 feature {ANY} -- Initialization
 	make_card(name:STRING; board:DO_BOARD)
 		do
 			big_card_name:=name+".png"
-			card_name:=name+"Small.png"
-			buyable_card:=false
+			small_card_name:= name+"Small.png"
+			card_name:=name
 			father_board:= board
+			type:="play"
 		end
 
 	make_supply(name:STRING; buys:INTEGER; board:DO_BOARD)
 		do
 			big_card_name:=name+".png"
-			card_name:=name+"Supply.png"
+			small_card_name:=name+"Supply.png"
+			type:="buy"
+			card_name:=name
 			card_buys:=buys
-			buyable_card:=true
+			father_board:=board
+		end
+
+	make_played(name:STRING; board:DO_BOARD)
+		do
+			big_card_name:=name+".png"
+			small_card_name:=name+"Supply.png"
+			type:="clean"
+			card_name:=name
 			father_board:=board
 		end
 
@@ -35,12 +46,9 @@ feature {ANY} -- Initialization
 			-- Gives information about which button was pressed
 			-- How to know which card was selected?
 		do
-			if buyable_card and card_buys>0 then
-				buy_card
-				print(card_name+" - "+card_buys.out+" %N")
+			if father_board.game_phase.is_equal(current.type) then
 				father_board.aux_message.extend (card_name)
-			else
-				print(card_name+"%N")
+				father_board.on_update(father_board.game_reference.NotifyGameState(father_board.game_phase+"_"+card_name), current)
 			end
 		end
 
@@ -59,7 +67,7 @@ feature {ANY} -- Initialization
 	buy_card
 		do
 			card_buys:=card_buys-1
-			father_board.refresh_buy_zone(current)
+			father_board.refresh_buy_number(current)
 		end
 
 	set_card_pos_x_y(x:INTEGER;y:INTEGER)
@@ -77,9 +85,10 @@ feature {ANY} -- Initialization
 	number_of_buys: EV_LABEL
 	father_board:DO_BOARD
 	big_card_name:STRING
+	small_card_name:STRING
 	card_name:STRING
 	card_buys:INTEGER
-	buyable_card:BOOLEAN
+	type:STRING
 	buy_number_zone_x:INTEGER
 	buy_number_zone_y:INTEGER
 	pos_x:INTEGER

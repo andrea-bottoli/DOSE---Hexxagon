@@ -71,6 +71,9 @@ feature  -- Access
 		ensure
 			result_not_void: Result /= void
 		end
+
+	steps: LINKED_LIST[CU_SQUARE]
+		--The list of squares visited in the current turn
 feature -- Status
 
 	get_available_pawns: LINKED_LIST[INTEGER]
@@ -98,6 +101,9 @@ feature -- Status
 
 	player_can_suggest: BOOLEAN
 		--Checks if the current player can make a suggestion
+		local
+			l_i: INTEGER
+			l_is_blocked: BOOLEAN
 		do
 			result:=true
 			if current_status /= constants.game_states.suggesting then
@@ -107,6 +113,24 @@ feature -- Status
 			if result and then not attached {CU_ROOM} game_board.find_square(current_player.position) then
 				result:= false
 			end
+
+			if attached {CU_ROOM} game_board.find_square (current_player.position) as l_room then
+				l_is_blocked:=true
+				from
+					l_i:=1
+				until
+					l_i>l_room.doors.count or not l_is_blocked
+				loop
+					if attached {CU_CORRIDOR} game_board.find_square (l_room.doors.item (l_i)) as l_temp then
+						if l_temp.player_on = void then
+							l_is_blocked:=false
+						end
+					end
+				end
+			end
+			if result and then l_is_blocked  then
+				result:=false
+			end
 		end
 
 feature {CU_LOGIC,EQA_TEST_SET}--Procedures
@@ -115,10 +139,15 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		--goes to the next player
 		require
 			right_phase: current_status = constants.game_states.suggesting
+		local
+			l_total: INTEGER
 		do
 			n_turns:=n_turns+1
+			l_total:=active_players.count
+			active_players[(n_turns-2*l_total)\\l_total].set_suggestion_room (void)
 			current_player:=active_players[n_turns\\active_players.count]
 			next_game_state (false)
+			create steps.make
 			notify_observers (create{CU_MESSAGE}.make("new_turn", <<>>))
 		ensure
 			new_current_player: current_player /= old current_player
@@ -209,13 +238,51 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		end
 
 	board_setup
-		-- sets the gameboard
+		-- sets the gameboard	
 		require
 			right_phase: current_status = constants.game_states.starting
 			board_void: game_board = void
-			--Set initial player's position
+		local
+			l_i: INTEGER
 		do
 			create game_board.make
+			--Set initial player's position
+			from
+				l_i:=1
+			until
+				l_i>players.count
+			loop
+				inspect
+					players.item (l_i).pawn
+				when 0 then
+					if attached {CU_CORRIDOR} game_board.board.item(25, 8) as scarlet then
+						scarlet.player_moves_in (players.item (l_i))
+					end
+				when 1 then
+					if attached {CU_CORRIDOR} game_board.board.item(18, 1) as mustard then
+						mustard.player_moves_in (players.item (l_i))
+					end
+				when 2 then
+					if attached {CU_CORRIDOR} game_board.board.item(1, 10) as white then
+						white.player_moves_in (players.item (l_i))
+					end
+				when 3 then
+					if attached {CU_CORRIDOR} game_board.board.item(1, 15) as green then
+						green.player_moves_in (players.item (l_i))
+					end
+				when 4 then
+					if attached {CU_CORRIDOR} game_board.board.item(7, 24) as peacock then
+						peacock.player_moves_in (players.item (l_i))
+					end
+				when 5 then
+					if attached {CU_CORRIDOR} game_board.board.item(20, 24) as plum then
+						plum.player_moves_in (players.item (l_i))
+					end
+				else
+
+				end
+				l_i:=l_i+1
+			end
 		ensure
 			board_not_empty: game_board /= void
 		end
@@ -253,9 +320,8 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		require
 			active_player_exists: active_players.has(a_pl)
 			player_exists: players.has (a_pl)
-		local
-			new_current_turn: INTEGER
 		do
+			no_blocking_door(a_pl)
 			redistribute_cards(a_pl)
 			if attached {CU_CORRIDOR} a_pl.position as l_corridor then
 				l_corridor.player_moves_out
@@ -280,6 +346,7 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		local
 			l_i: INTEGER
 		do
+			no_blocking_door(a_pl)
 			l_i:=remove_players_from_array (a_pl, active_players)
 			notify_observers (create{CU_MESSAGE}.make("player_loses", <<a_pl>>))
 		ensure
@@ -332,6 +399,25 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 			changed_square: a_pl.position /= old a_pl.position
 		end
 
+	exit_room(a_corr: CU_CORRIDOR)
+		require
+			valid_corr: a_corr/= void
+		local
+			l_i: INTEGER
+			l_stop: BOOLEAN
+			l_coord: CU_COORDINATE
+		do
+			if attached {CU_ROOM} game_board.find_square (current_player.position) as l_room then
+				l_coord:=game_board.find_coordinate(a_corr)
+				if l_room.doors.has (l_coord) then
+					current_player.move_to_coordinate (l_coord)
+					notify_observers (create {CU_MESSAGE}.make("player_moved",<<current_player>>))
+				end
+			else
+				--Error!
+			end
+		end
+
 	player_teleport(a_suspect: INTEGER; a_room: INTEGER)
 		--Moves a player directly in a room, effect of a suggestion
 		require
@@ -369,38 +455,41 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 			l_exit: BOOLEAN
 		do
 			if attached {CU_ROOM} game_board.find_square (current_player.position) as l_room then
-				game_board.weapon_find_and_move (a_weapon.weapon, current_player.position)
-				notify_observers (create {CU_MESSAGE}.make("moved_weapon",<<>>))--We don't know what info observers may want, yet
+				if not current_player.last_sugg_room.is_equal (l_room) then
+					game_board.weapon_find_and_move (a_weapon.weapon, current_player.position)
+					notify_observers (create {CU_MESSAGE}.make("moved_weapon",<<>>))--We don't know what info observers may want, yet
 
-				player_teleport (a_suspect.suspect, l_room.room_id)
+					player_teleport (a_suspect.suspect, l_room.room_id)
+					current_player.set_suggestion_room (l_room)
 
-				--Generate a list of players who can reject a suggestion
-				from
-					l_i:=0
-				until
-					l_i>players.count or l_exit
-				loop
-					if players.item(l_i)=l_pl then
-						l_exit:=true
-					else
+					--Generate the first player who can reject a suggestion
+					from
+						l_i:=0
+					until
+						l_i>players.count or l_exit
+					loop
+						if players.item(l_i)=l_pl then
+							l_exit:=true
+						else
+							l_i:=l_i+1
+						end
+					end
+					from
+					until
+						players.item (l_i+1\\players.count)=current_player
+					loop
+						l_result:=false
+						l_pl:=players.item (l_i)
+						if l_pl.is_in_hand(l_room.room_id,1) or else l_pl.is_in_hand(a_suspect.suspect,2) or else l_pl.is_in_hand(a_weapon.weapon,3) then
+							l_rejecter:=players.item(l_i)
+						end
 						l_i:=l_i+1
 					end
-				end
-				from
-				until
-					players.item (l_i+1\\players.count)=current_player
-				loop
-					l_result:=false
-					l_pl:=players.item (l_i)
-					if l_pl.is_in_hand(l_room.room_id,1) or else l_pl.is_in_hand(a_suspect.suspect,2) or else l_pl.is_in_hand(a_weapon.weapon,3) then
-						l_rejecter:=players.item(l_i)
+					if l_rejecter=void then
+						notify_observers (create {CU_MESSAGE}.make("suggestion_is_correct'",<<>>))
+					else
+						notify_observers (create {CU_MESSAGE}.make("suggestion_can_be_rejected",<<l_rejecter, a_suspect, a_weapon,create{CU_ROOM_CARD}.make(l_room.room_id) >>))
 					end
-					l_i:=l_i+1
-				end
-				if l_rejecter=void then
-					notify_observers (create {CU_MESSAGE}.make("suggestion_is_correct'",<<>>))
-				else
-					notify_observers (create {CU_MESSAGE}.make("suggestion_can_be_rejected",<<l_rejecter, a_suspect, a_weapon,create{CU_ROOM_CARD}.make(l_room.room_id) >>))
 				end
 			end
 		end
@@ -414,7 +503,6 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 			right_phase: current_status=constants.game_states.suggesting
 		local
 			l_result: BOOLEAN
-			l_pl: CU_PLAYER
 		do
 			game_board.weapon_find_and_move (a_weapon.weapon, current_player.position)
 			notify_observers (create {CU_MESSAGE}.make("moved_weapon",<<>>))--We don't know what info observers may want, yet
@@ -471,14 +559,19 @@ feature {NONE}
 		local
 			l_square: CU_SQUARE
 		do
-			current_player.move_to_position (a_x,a_y)
 			l_square:=game_board.board.item (a_x,a_y)
-			if attached {CU_CORRIDOR} l_square as l_corridor then
-				l_corridor.player_moves_in(current_player)
-			else
-				if attached {CU_ROOM} l_square as l_room then
-					l_room.player_enters(current_player)
+			if not steps.has (l_square) then
+				current_player.move_to_position (a_x,a_y)
+				if attached {CU_CORRIDOR} l_square as l_corridor then
+					l_corridor.player_moves_in(current_player)
+				else
+					if attached {CU_ROOM} l_square as l_room then
+						l_room.player_enters(current_player)
+					end
 				end
+				steps.extend (l_square)
+			else
+				--Error
 			end
 	end
 
@@ -573,6 +666,26 @@ feature {NONE}
 				if active_players.item (l_i).pawn=a_pawn then
 					result:=active_players.item (l_i)
 					l_stop:=true
+				end
+			end
+		end
+
+	no_blocking_door(a_pl: CU_PLAYER)
+		require
+			valid_player: a_pl /= void
+		do
+			if attached {CU_CORRIDOR} game_board.find_square (a_pl.position) as l_pos then
+				if l_pos.n="door" then
+					move(a_pl,'u')
+				else if	 l_pos.s="door" then
+					move(a_pl,'d')
+				else if l_pos.e="door" then
+					move(a_pl,'r')
+				else if l_pos.w="door" then
+					move(a_pl,'l')
+				end
+				end
+				end
 				end
 			end
 		end

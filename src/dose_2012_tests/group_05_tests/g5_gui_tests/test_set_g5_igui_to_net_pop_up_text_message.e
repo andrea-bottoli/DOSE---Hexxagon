@@ -29,9 +29,6 @@ feature -- Preparation of Tests
 
 	on_prepare
 		-- Initializes the necessary elements
-		local
-			main_ui: MAIN_WINDOW
-			launcher: G5_LAUNCHER
 		do
 
 			create gui.make_test

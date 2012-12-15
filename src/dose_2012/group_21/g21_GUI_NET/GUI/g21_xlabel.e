@@ -36,7 +36,7 @@ feature {G21_XLABEL}
 
 	loadCard(UID : INTEGER) : EV_DRAWING_AREA
 	require
-		UID /= Void
+		UID > 0
 	do
 
 	ensure

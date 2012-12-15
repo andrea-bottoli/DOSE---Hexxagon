@@ -56,7 +56,8 @@ feature {NONE}	-- Attributes
 	panel_railway_four : EV_FIXED
 	panel_electric_company : EV_FIXED
     panel_water_works : EV_FIXED
-    panel_get_out_of_jail : EV_FIXED
+    panel_get_out_of_jail_community : EV_FIXED
+    panel_get_out_of_jail_chance : EV_FIXED
 
     player_id : INTEGER
     player_name : STRING
@@ -200,9 +201,6 @@ feature {NONE} -- Initialization
 			panel_water_works := set_background(mp_img_load("panel_utility_not_owned.png"),30,30);
 			extend_with_position_and_size (panel_water_works, 200, 190, 30, 30)
 
-			panel_get_out_of_jail := set_background(mp_img_load("panel_get_out_of_jail_community.png"),50,30);
-			extend_with_position_and_size (panel_get_out_of_jail, 300, 70, 50, 30)
-
 		end
 
 feature {ANY} -- Implementation features update
@@ -212,8 +210,24 @@ feature {ANY} -- Implementation features update
 
 	end
 
-	update_card_get_out_of_jail
+	update_card_get_out_of_jail_community(state : BOOLEAN)
 	do
+		if state then
+			panel_get_out_of_jail_community := set_background(mp_img_load("panel_get_out_of_jail_community.png"),50,30);
+			extend_with_position_and_size (panel_get_out_of_jail_community, 300, 70, 50, 30)
+		else
+			panel_get_out_of_jail_community.remove_background_pixmap
+		end
+	end
+
+	update_card_get_out_of_jail_chance(state : BOOLEAN)
+	do
+		if state then
+			panel_get_out_of_jail_chance := set_background(mp_img_load("panel_get_out_of_jail_chance.png"),50,30);
+			extend_with_position_and_size (panel_get_out_of_jail_chance, 300, 100, 50, 30)
+		else
+			panel_get_out_of_jail_chance.remove_background_pixmap
+		end
 
 	end
 

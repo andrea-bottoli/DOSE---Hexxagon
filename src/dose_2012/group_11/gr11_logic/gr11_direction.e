@@ -22,7 +22,30 @@ feature{NONE} --initialization
 		direction_is_right: direction = new_direction
 	end
 
+feature --modifiers
+
+	next
+	--modifies the iterator with the next direction
+	do
+		if iterator = direction5 then
+			exhausted := true
+		else
+			direction := direction + 1
+		end
+	end
+
 feature --status_access
+
+	start
+	--it begins iteration from direction0
+	do
+		exhausted := true
+		iterator := direction0
+	end
+
+	exhausted : BOOLEAN
+	--it says when iteration has terminated
+
 
 	direction : INTEGER
 	--represents the current direction
@@ -66,6 +89,8 @@ feature --status_access
 	once
 		Result := 5
 	end
+
+	iterator : INTEGER
 
 invariant
 		direction_is_in_the_range_from1_to_5 : direction >= 0 and then direction < 6

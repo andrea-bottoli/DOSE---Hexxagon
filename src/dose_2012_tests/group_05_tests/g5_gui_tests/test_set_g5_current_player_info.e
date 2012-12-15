@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {TEST_SET_G5_CURRENT_PLAYER_INFO}."
+	description: "Summary description for {TEST_SET_G5_CURRENT_PLAYER_AND_BOARD}."
 	author: "Team RioCuarto4- Vilma Ruth Tito"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -19,21 +19,14 @@ feature -- Test routines
 
 --	test_set_current_player_info_0
 --	local
---		current_player_info: G5_CURRENT_PLAYER_INFO
+--		current_player_info: G5_CURRENT_PLAYER_AND_BOARD
 --		point:INTEGER
 --	do
---		if not rescued then
---			point := -1
---		end
---		create current_player_info.make ("my_name")
---		current_player_info.set_action_points (point)
---		assert("instance of G5_CURRENT_PLAYER_INFO is correct",rescued)
---	rescue
---		if not rescued then
---			rescued := True
---			point := 2
---			retry
---		end
+--		point:= 3
+--		create current_player_info.make
+--	--	current_player_info.set_action_points (point)
+--	--	assert("instance of G5_CURRENT_PLAYER_INFO is correct", current_player_info.action_points = 3)
+--	assert("dsadsa", true)
 --	end
 
 --	test_set_current_player_info_1

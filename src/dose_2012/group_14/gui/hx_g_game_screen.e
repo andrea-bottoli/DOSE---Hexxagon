@@ -104,20 +104,20 @@ feature --Init
 						if l_place.exists then	-- if place exists
 							if l_place.is_empty then
 								l_pixmap := l_pixmap_empty
-							else if l_place.player.id = 1 then
+							else if l_place.player_id = 1 then
 								l_pixmap := l_pixmap_first_player
 							else
 								l_pixmap := l_pixmap_second_player
 							end
 					 	end
 					 		-- create the hexxagon with its pixmap
-							create l_tile.make_with_hex (l_pixmap, agent select_hex(l_x, l_y))
+					 		create l_tile.make_with_hex (l_pixmap, agent select_hex(l_x, l_y))
 							l_world.extend (l_tile)
 							if l_y.integer_remainder (2) = 1 then
 								l_tile.set_point_position (49 * l_y, 49 * l_x)
 								l_tile.disable_moving
 							else
-								l_tile.set_point_position (49 * l_y, 10 + 49 * l_x)
+								l_tile.set_point_position (49 * l_y, 25 + 49 * l_x)
 								l_tile.disable_moving
 							end
 							tiles.put (l_tile, l_x, l_y)
@@ -213,9 +213,6 @@ feature -- Access
 
 				if selection /= Void then
 					print("SELECTION NOT VOID") io.new_line
-						--TODO: diff move accordint the the to_x to_y coordinates
-						--if to_x,to_y is a close neighbor -> copy
-						--else -> jump
 						l_board.move_piece_and_continue (from_x, from_y, to_x, to_y)
 						repaint
 				end
@@ -244,6 +241,8 @@ feature -- Access
 				l_place: HX_L_IPLACE
 				l_x, l_y: INTEGER
 				l_pixmap: EV_PIXMAP
+				winner_window: HX_G_WINNER_SCREEN
+				msg: HX_L_IGAME_END_MESSAGE
 			do
 				print("REPAINT") io.new_line
 				from l_x := 1 until	l_x > l_board.height loop
@@ -254,12 +253,13 @@ feature -- Access
 						if l_place.exists then	-- if place exists
 							if l_place.is_empty then
 								l_pixmap := l_pixmap_empty
-							else if l_place.player.id = 1 then
+							else if l_place.player_id = 1 then
 								l_pixmap := l_pixmap_first_player
 							else
 								l_pixmap := l_pixmap_second_player
 							end
 					 	end
+
 					 		-- create the hexxagon with its pixmap
 							create l_tile.make_with_hex (l_pixmap, agent select_hex(l_x, l_y))
 							l_world.extend (l_tile)
@@ -267,15 +267,25 @@ feature -- Access
 								l_tile.set_point_position (49 * l_y, 49 * l_x)
 								l_tile.disable_moving
 							else
-								l_tile.set_point_position (49 * l_y, 10 + 49 * l_x)
+								l_tile.set_point_position (49 * l_y, 25 + 49 * l_x)
 								l_tile.disable_moving
 							end
-							tiles.put (l_tile, l_x, l_y)
-					 	end
-						l_y := l_y + 1
-				end
+						 	tiles.put (l_tile, l_x, l_y)
+						end
+					l_y := l_y + 1
+					end
 				l_x := l_x + 1
-			end
+				end
+
+				-- check if game is ended! -> show winner screen
+				if ( l_board.is_end) then
+			--		create msg
+			--		ui_manager.game_finished (l_message: [detachable] HX_L_IGAME_END_MESSAGE)
+					print("GAME ENDED") io.new_line
+					create winner_window.constructor_winner_window(main_ui, ui_manager)
+					winner_window.show
+					destroy
+				end
 			end
 
             clear()

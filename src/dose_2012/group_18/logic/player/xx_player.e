@@ -31,6 +31,7 @@ feature {ANY}
 		set_colour_piece(colour)
 		is_enabled := False
 		total_pieces := 3
+		ip_net:=""
 	ensure
 		ensure_id: (player_id.is_equal(id) = True)
 		ensure_colour: (colour_piece.is_equal(colour) = True)

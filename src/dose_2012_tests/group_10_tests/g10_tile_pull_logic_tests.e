@@ -39,7 +39,7 @@ feature -- Test routines
 		create pile.make()
 		create tile.make()
 
-		pile.initialize_pile()
+--		pile.initialize_pile()
 		assert ("pile generation failed",pile.generatenexttile() /= void)
 	end
 
@@ -67,7 +67,7 @@ feature -- Test routines
 		create pile.make()
 		create tile.make()
 
-		pile.initialize_pile()
+--		pile.initialize_pile()
 		assert ("invalid initialization of pile",pile.isempty = False)
 	end
 

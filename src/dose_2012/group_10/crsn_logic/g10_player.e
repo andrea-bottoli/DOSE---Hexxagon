@@ -8,7 +8,7 @@ class
 	G10_PLAYER
 
 create
-	make
+	make, make_with_name
 
 feature
 	Name:STRING
@@ -18,7 +18,14 @@ feature
 feature -- constructors.  -- we may need to add here port and ip strings
 	make
 	do
-		Name := "Player"
+		Name := ""
+		Score := 0
+		SpareChipsAmount := 10
+	end
+
+	make_with_name(some_name : STRING)
+	do
+		Name := some_name
 		Score := 0
 		SpareChipsAmount := 10
 	end

@@ -32,7 +32,7 @@ feature {NONE} -- Initialization
 			network_port_valid := True
 			host_valid := True
 
-			make_with_title("Join Exisiting Game")
+			make_with_title("Join existing game")
 		end
 
 	initialize
@@ -55,7 +55,7 @@ feature {NONE} -- Initialization
 			lbl_host.align_text_left
 			con_main.extend_with_position_and_size (lbl_host, 10, 10, 100, 20)
 
-			create txf_host.make_with_text ("hostname")
+			create txf_host.make_with_text ("localhost")
 			txf_host.change_actions.extend(agent validate_host)
 			con_main.extend_with_position_and_size (txf_host, 110, 10, 100, 20)
 
@@ -104,22 +104,25 @@ feature {BS_LOBBY_WINDOW} -- Interface to Lobby Window
 feature {NONE} -- User actions
 
 	try_connect_to_server
-		local
-			l_error_msg : EV_MESSAGE_DIALOG
-		do
-			disable_controls
-			lbl_please_wait.show
+	do
+		destroy
+	end
+--		local
+--			l_error_msg : EV_MESSAGE_DIALOG
+--		do
+--			disable_controls
+--			lbl_please_wait.show
 
-			-- TODO: really try to connect a few times
-			--sleep(1000000)
-			if False then
-				destroy
-			else
-				create l_error_msg.make_with_text ("Error connecting to server. Please check your input and connection.")
-				lbl_please_wait.hide
-				enable_controls
-			end
-		end
+--			-- TODO: really try to connect a few times
+--			--sleep(1000000)
+--			if False then
+--				destroy
+--			else
+--				create l_error_msg.make_with_text ("Error connecting to server. Please check your input and connection.")
+--				lbl_please_wait.hide
+--				enable_controls
+--			end
+--		end
 
 	cancel_dialog
 		do

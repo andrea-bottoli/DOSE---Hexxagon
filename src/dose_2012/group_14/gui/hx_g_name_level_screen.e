@@ -79,6 +79,7 @@ feature --Init
 		create join_game_radio_button
 		create save_button
 
+
 		-- Build widget structure.
 				extend (l_ev_fixed_1)
 				l_ev_fixed_1.extend (go_back_button)
@@ -166,7 +167,6 @@ feature --Init
 
 			--default
 			difficulty_level := 1
-
 
 		-- hide fields that appear on certain choices
 		name_text_field2.hide
@@ -259,9 +259,9 @@ feature --Init
 
 		--window settings
 		set_minimum_width (600)
-		set_minimum_height (580)
+		set_minimum_height (600)
 		set_maximum_width (600)
-		set_maximum_height (580)
+		set_maximum_height (600)
 		set_title ("Choose your name and game level")
 
 		-- Connect events.
@@ -364,7 +364,7 @@ feature -- interact with logic
 	do
 
 		logic:= ui_manager.logic
-		create template_path.default_create
+	--	create template_path.default_create
 
 	--	from i := 1
 	--	until i = logic.templates.count

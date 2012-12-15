@@ -14,7 +14,17 @@ feature
 	Pull:ARRAYED_LIST[G10_TILE]
 	IsTileTaken:ARRAYED_LIST[BOOLEAN]
 feature
-	-- generates next tile which is not taken
+	--method that allows you to get START TILE if you need it
+	--this 53th tile is with part of road and part of town
+	--it helps not to start game with random tile (that can fully
+	--consist from grass without town)! Only if it is really needed
+	get_start_tile():G10_TILE
+	do
+		IsTileTaken.at (53):=TRUE
+		Result:=Pull.at(53)
+	end
+	-- Allows to get next tile which is not taken
+	--next tile for current player
 	GenerateNextTile():G10_TILE
 	local
 		i: INTEGER
@@ -25,6 +35,8 @@ feature
 	 		if(IsTileTaken.at (i) = FALSE)
 	 		then
 	 			aNextTile := Pull.at (i)
+	 			IsTileTaken.at(i):=TRUE
+	 			i:=73
 	 		else
 	 			i := i + 1
 	 		end
@@ -47,10 +59,6 @@ feature
 		IsTileTaken.extend (FALSE)
 	end
 
-	initialize_pile() -- routine initializes the pile with all the tiles of the game.
-	do
-	end
-
 	get_pull():ARRAYED_LIST[G10_TILE]
 	do
 		Result:=Pull
@@ -68,6 +76,7 @@ feature
 	end
 
 -- constructors.
+--initialization of tile pool
 feature
 	make
 	local
@@ -81,52 +90,42 @@ feature
 	 			tile.setType(1)--"cherch"
 	 		elseif (j < 6) then
 	 			tile.setType(2)--"cherch+road")
-	 		elseif (j < 7) then
-	 			tile.setType(3)--"fulltown+shield")
 	 		elseif (j < 10) then
-	 			tile.setType(4)--"town+grass")
+	 			tile.setType(3)--"town+grass")
 	 		elseif (j < 11) then
-	 			tile.setType(5)--"town+shield+grass")
-	 		elseif (j < 12) then
-	 			tile.setType(6)--"town+road")
+	 			tile.setType(4)--"town+shield+grass")
 	 		elseif (j < 14) then
-	 			tile.setType(7)--"town+shield+road")
-	 		elseif (j < 17) then
-	 			tile.setType(8)--"town+diagonalgrass")
+	 			tile.setType(5)--"town+road")
 	 		elseif (j < 19) then
-	 			tile.setType(9)--"town+shield+diagonalgrass")
-	 		elseif (j < 22) then
-	 			tile.setType(10)--"town+diagonalroad")
+	 			tile.setType(6)--"town+diagonalgrass")
 	 		elseif (j < 24) then
-	 			tile.setType(11)--"town+shield+diagonalroad")
-	 		elseif (j < 25) then
-	 			tile.setType(12)--"town+doublegrass")
+	 			tile.setType(7)--"town+diagonalroad")
 	 		elseif (j < 27) then
-	 			tile.setType(13)--"town+shield+doublegrass")
+	 			tile.setType(8)--"town+doublegrass")
 	 		elseif (j < 29) then
-	 			tile.setType(14)--"town+town+grass")
+	 			tile.setType(9)--"town+town+grass")
 	 		elseif (j < 32) then
-	 			tile.setType(15)--"doubletown+grass")
+	 			tile.setType(10)--"doubletown+grass")
 	 		elseif (j < 37) then
-	 			tile.setType(16)--"grass+town")
+	 			tile.setType(11)--"grass+town")
 	 		elseif (j < 40) then
-	 			tile.setType(17)--"leftdiagonalroad+town+grass")
+	 			tile.setType(12)--"leftdiagonalroad+town+grass")
 	 		elseif (j < 43) then
-	 			tile.setType(18)--"rightdiagonalroad+town+grass")
+	 			tile.setType(13)--"rightdiagonalroad+town+grass")
 	 		elseif (j < 47) then
-	 			tile.setType(19)--"crossroad+town+grass")
+	 			tile.setType(14)--"crossroad+town+grass")
 	 		elseif (j < 50) then
-	 			tile.setType(20)--"horizontroad+town+grass")
+	 			tile.setType(15)--"horizontroad+town+grass")
 	 		elseif (j < 58) then
-	 			tile.setType(21)--"vertroad+grass")
+	 			tile.setType(16)--"vertroad+grass")
 	 		elseif (j < 67) then
-	 			tile.setType(22)--"diagonalroad+grass")
+	 			tile.setType(17)--"diagonalroad+grass")
 	 		elseif (j < 71) then
-	 			tile.setType(23)--"triplecrossroad+grass")
+	 			tile.setType(18)--"triplecrossroad+grass")
 	 		elseif (j < 72) then
-	 			tile.setType(24)--"qadrcrossroad+grass")
+	 			tile.setType(19)--"qadrcrossroad+grass")
 	 		end
-	 	Pull[j]:= tile
+	 	--Pull[j]:= tile															-- ERROR FROM G10_TILE OF SETTYPE FIX
 	 	j := j+1
 	 	end
 	end

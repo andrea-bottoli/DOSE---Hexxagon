@@ -24,34 +24,36 @@ feature {NONE}
 
 	on_prepare
 		do
-			players_name.make_empty
+			create players_name.make_empty
 			my_name_in_the_match:= "sergio"
 		end
 
 feature -- test routines
 
-	test_make_0
-		--test wheter make valid
-	note
-		testing: "G5_MAIN_VIEW/make"
-	do
-		create gui.make_test
-		create main_ui.make_and_launch
-		main_view.make (players_name, my_name_in_the_match, gui, main_ui)
-		assert ("make was successful", players_name [1] = "sergio")
-	end
-
-	test_make_1
-		-- test positive,
-	note
-		testing: "G5_MAIN_VIEW/make"
-	do
-		create gui.make_test
-		players_name := <<"ruth","jaime","jesus">>
-		create main_ui.make_and_launch
-		main_view.make (players_name, my_name_in_the_match, gui, main_ui)
-		assert ("make was successful", players_name [4] = "sergio")
-	end
+--	test_make_0
+--		--test wheter make valid
+--	note
+--		testing: "G5_MAIN_VIEW/make"
+--	do
+--		players_name:= <<"one","sergio","two">>
+--
+--		create gui.make_test
+--		create main_ui.make_and_launch
+--		create main_view.make (players_name, my_name_in_the_match, gui, main_ui)
+--		assert ("make was successful", main_view.players_name_list.has ("sergio"))
+--	end
+--
+--	test_make_1
+--		-- test positive,
+--	note
+--		testing: "G5_MAIN_VIEW/make"
+--	do
+--		create gui.make_test
+--		players_name := <<"ruth","jaime","jesus">>
+--		create main_ui.make_and_launch
+--		main_view.make (players_name, my_name_in_the_match, gui, main_ui)
+--		assert ("make was successful", players_name [4] = "sergio")
+--	end
 
 	test_make_2
 		--tast negative, test whether have more than the number of players allowed

@@ -8,9 +8,14 @@ class
 	G4_CHARACTERS_SLAB_THE_KILLER
 	inherit G4_CHARACTERS
 
+create
+	make
+
 feature --Constructor
  	make
  	do
+ 		set_character_name("Slab the Killer")
+ 		set_character_life(4)
  	ensure
   		Character_Name.is_equal("Slab the Killer")
   		Character_Life = 4

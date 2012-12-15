@@ -17,8 +17,12 @@ deferred class
 		nodes:LINKED_LIST[ZB_MAPCARD_SEGMENT]
 		arcs:LINKED_LIST[ZB_MAPCARD_SEG_CONNECTION]
 		type:INTEGER
+		zombieToPlace:INTEGER -- Number of zombie to be placed on the card
 
-
+		setZombieToPlace(int:INTEGER)
+		do
+			zombieToPlace:=int
+		end
 
 		rotate(clockwise:BOOLEAN)
 			local

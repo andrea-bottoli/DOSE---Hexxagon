@@ -58,7 +58,6 @@ feature {NONE} -- Initialization
 			pixmap.set_minimum_size (pixmap.width, pixmap.height)
 
 			create message_label
-			--message_label.align_text_left
 			create text_area
 			text_area.set_minimum_size (400, 300)
 			text_area.disable_edit

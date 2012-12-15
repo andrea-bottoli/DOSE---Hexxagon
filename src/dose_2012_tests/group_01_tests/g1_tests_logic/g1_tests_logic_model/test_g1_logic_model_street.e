@@ -40,12 +40,15 @@ feature -- Test routines
 			street_t: G1_STREET
 			rent_values: ARRAY [INTEGER]
 		do
-			create rent_values.make_filled (50, 1, 3) -- This is the error.
+			create rent_values.make_filled (0, 1, 6)
+			rent_values[1]:= 50
+			rent_values[2]:= 60
+			rent_values[3]:= 70
 			create street_t.make_street (5, "Pippo Street", 100, rent_values, 60)
 			assert ("Id is 5, Name is Pippo Street, Price is 100", street_t.id_cell.is_equal (5) and street_t.name_cell.is_equal ("Pippo Street") and street_t.price.is_equal (100))
 			assert ("Rent values is 50", street_t.l_rent_values [1].is_equal (50))
-			assert ("Rent values is 1", street_t.l_rent_values [2].is_equal (1))
-			assert ("Rent values is 3", street_t.l_rent_values [3].is_equal (3))
+			assert ("Rent values is 60", street_t.l_rent_values [2].is_equal (60))
+			assert ("Rent values is 70", street_t.l_rent_values [3].is_equal (70))
 			assert ("Mortgage value is 50, Mortgage is false, Sold is false, Initial number of houses is 0, Initial number of hotels is 0", street_t.mortgaged_value.is_equal (50) and not street_t.mortgage and not street_t.sold and street_t.l_number_of_houses.is_equal (0) and street_t.l_number_of_hotels.is_equal (0))
 		end
 
@@ -64,6 +67,7 @@ feature -- Test routines
 			street_t.set_owner (player_t)
 			street_t.build
 			assert ("Number of houses is 1", street_t.l_number_of_houses.is_equal (1))
+			street_t.build
 			street_t.build
 			street_t.build
 			street_t.build

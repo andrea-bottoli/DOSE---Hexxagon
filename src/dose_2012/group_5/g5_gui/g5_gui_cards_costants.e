@@ -19,45 +19,54 @@ feature {NONE} -- Access
 	Dominion_folder: STRING = "group5"
 	Cards_folder: STRING = "cards"
 
+	Main_view_folder: STRING = "main_view_images"
+
 	Zoomed_cards_folder: STRING = "zoomed_images"
 	Slim_cards_folder: STRING = "slim_images"
 	Mini_cards_folder: STRING = "mini_images"
+	Observer_cards_folder: STRING = "observer_images"
 
 
-	img_path_zoomed: KL_PATHNAME
-			-- Path were the images of zoomed cards
+	img_path: KL_PATHNAME
+			-- Path were the images of DOMINION GUI
 		do
 			create Result.make
 			Result.set_relative (True)
 			Result.append_name (Dose_folder)
 			Result.append_name (Image_folder)
 			Result.append_name (Dominion_folder)
-			Result.append_name (Cards_folder)
-			Result.append_name (Zoomed_cards_folder)
 		end
 
 -- ### image cards
 
+	img_path_zoomed: KL_PATHNAME
+			-- Path were the images of zoomed cards
+		do
+			Result := img_path
+			Result.append_name (Cards_folder)
+			Result.append_name (Zoomed_cards_folder)
+		end
+
 	img_path_slim: KL_PATHNAME
 			-- Path were the images of slim cards
 		do
-			create Result.make
-			Result.set_relative (True)
-			Result.append_name (Dose_folder)
-			Result.append_name (Image_folder)
-			Result.append_name (Dominion_folder)
+			Result := img_path
 			Result.append_name (Cards_folder)
 			Result.append_name (Slim_cards_folder)
+		end
+
+	img_path_observer: KL_PATHNAME
+			-- Path were the images of slim cards
+		do
+			Result := img_path
+			Result.append_name (Cards_folder)
+			Result.append_name (Observer_cards_folder)
 		end
 
 	img_path_mini: KL_PATHNAME
 			-- Path were the images of mini cards
 		do
-			create Result.make
-			Result.set_relative (True)
-			Result.append_name (Dose_folder)
-			Result.append_name (Image_folder)
-			Result.append_name (Dominion_folder)
+			Result := img_path
 			Result.append_name (Cards_folder)
 			Result.append_name (Mini_cards_folder)
 		end
@@ -70,6 +79,19 @@ feature {NONE} -- Access
 		end
 
 -- ### image cards END
+
+-- ### image background observer main_view
+
+	img_background_main_view_as_observer: KL_PATHNAME
+		-- Path to background image of the main view
+		do
+			Result := img_path
+			Result.append_name (Main_view_folder)
+			Result.append_name ("main_view_observer_background.png")
+		end
+
+-- ### image background observer main_view END
+
 
 -- ### cards name
 

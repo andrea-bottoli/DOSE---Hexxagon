@@ -12,55 +12,13 @@ create
 
 feature -- Measurement
 
-	ip: STRING
+	s: G6_SERVER
 
 feature -- Initialization
 
-	make (local_ip: STRING)
+	make ()
 			-- Initialize the logic_client.
-
-		do
-		end
-
-feature {NONE}
-
-	join_game
-			-- Sends the player information to the server, in order to create a player
-		do
-		end
-
-	new_game
-			-- Sends the player information to the server, in order to create a player
-		do
-		end
-
-	exit
-			-- Sends the player information to the server, in order to remove a player
-		do
-		end
-
-	roll_dice
-		do
-		end
-
-	buy_house () --ver parametros
-		do
-		end
-
-	buy_cell () --ver parametros
-		do
-		end
-
-	trade (id_player: INTEGER)
-		do
-		end
-
-	finish_turn
-		do
-		end
-
-	sell_house () --ver parametros
-			-- Sell
+			--inicialisate server
 		do
 		end
 
@@ -68,29 +26,35 @@ feature {NONE}
 
 	action_performed ()
 		do
-			if (true) then --Roll dice
-					--send message "roll_dice"
+			if (true) then --add player
+				--obtener datos de player desde interfaz de usuario y crearlo
+				--s.add_player (p)
+			elseif (true) then --Roll dice
+				s.roll_dice
 			elseif (true) then --Buy a cell if this can be selled where the player stands
-					-- send message "buy_a_cell"
+				s.buy_a_cell
 			elseif (true) then -- Finish the current turn
-					-- send message "finish_turn"
+				s.finish_turn
 			elseif (true) then --Mortage a property
-					-- send message "mortage_property (cell_num)"
+				--pedir numero de celda desde interfaz de usuario
+				s.mortgage_property (5)--cell
 			elseif (true) then -- Unmortage a property
-					-- send message "unmortage_property (cell_num)"
+				--pedir numero de celda desde interfaz de usuario
+				s.unmortgage_property (5)--cell
 			elseif (true) then -- Use a jail card
-					-- send message "use_jail_card"
-			elseif (true) then -- Decide how to pay the luxury tax (% or cash)
-					-- send mesagge "how_to_pay (% or cash)"
+				s.use_jail_card
 			elseif (true) then -- Tender in the auction
-					-- send message "tender (mount)"
+				--pedir monto desde interfaz de usuario
+				s.tender (500)--mount
 			elseif (true) then -- Buy house/s
-					-- send message "buy_house (numb)(cell)"
+				--pedir numero de celda desde interfaz de usuario
+				s.buy_house (5)--cell
 			elseif (true) then -- Sell house/s
-					-- send message "sell_house (numb)(cell)"
+				--pedir numero de celda desde interfaz de usuario
+				s.sell_house (5)--cell
 			elseif (true) then -- Transfer
-					-- send message "transfer (player) (item)"
+				--pedir player e item desde interfaz de usuario
+				--s.transfer (player, item)
 			end
 		end
-
 end

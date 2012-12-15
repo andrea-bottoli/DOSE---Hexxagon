@@ -13,10 +13,8 @@ create
 feature --Constructor
  	make
  	do
+ 		set_Name("Schofield")
  	ensure
   		Name.is_equal("Schofield")
-  		(CardNum >= 10) and (CardNum<=12)
-  		CardSymbol.is_equal ("Clubs")
-  		CardSymbol.is_equal ("Spades")
  	end
 end

@@ -36,31 +36,31 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	end_game0
-		-- end_game([[20,"JAIME"],[29,"SERGIO"],[29,"JESUS"]])
-		note
-			testing: "G5_IGUI_TO_NET/.end_game"
-		do
-			scores.make (3)
-			scores.put (20,"JAIME")
-			scores.put (29,"SERGIO")
-			scores.put (29,"JESUS")
-			class_test.end_game (scores)
-			assert ("end_game makes the punctuation is commensurate", class_test.a_pop_up_end.final_scores.is_equal(scores))
-		end
+--	end_game0
+--		-- end_game([[20,"JAIME"],[29,"SERGIO"],[29,"JESUS"]])
+--		note
+--			testing: "G5_IGUI_TO_NET/.end_game"
+--		do
+--			create scores.make (3)
+--			scores.put (20,"JAIME")
+--			scores.put (29,"SERGIO")
+--			scores.put (29,"JESUS")
+--			gui.end_game (scores)
+--			assert ("end_game makes the punctuation is commensurate", gui.a_pop_up_end.final_scores.is_equal(scores))
+--		end
 
-	end_game1
-		-- end_game([[31,"JAIME"],[38,"SERGIO"],[-5,"JESUS"]])
-		note
-			testing: "G5_IGUI_TO_NET/.end_game"
-		do
-			scores.make (3)
-			scores.put (31,"JAIME")
-			scores.put (38,"SERGIO")
-			scores.put (-5,"JESUS")
-			class_test.end_game (scores)
-			assert ("end_game makes the punctuation is commensurate", class_test.a_pop_up_end.final_scores.is_equal(scores))
-		end
+--	end_game1
+--		-- end_game([[31,"JAIME"],[38,"SERGIO"],[-5,"JESUS"]])
+--		note
+--			testing: "G5_IGUI_TO_NET/.end_game"
+--		do
+--			create scores.make (3)
+--			scores.put (31,"JAIME")
+--			scores.put (38,"SERGIO")
+--			scores.put (-5,"JESUS")
+--			gui.end_game (scores)
+--			assert ("end_game makes the punctuation is commensurate", gui.a_pop_up_end.final_scores.is_equal(scores))
+--		end
 
 feature -- Test negative
 
@@ -79,7 +79,7 @@ feature -- Test negative
 				scores.put (12,"LUCA")
 				scores.put (20,"GABRIELE")
 				scores.put (31,"RICARDO")
-				class_test.end_game (scores)
+				gui.end_game (scores)
 			end
 			assert ("end_game raised problem", rescued)
 			rescue
@@ -99,7 +99,7 @@ feature -- Test negative
 			if not rescued then
 				scores.make (1)
 				scores.put (60,VOID)
-				class_test.end_game (scores)
+				gui.end_game (scores)
 			end
 			assert ("end_game raised problem", rescued)
 			rescue

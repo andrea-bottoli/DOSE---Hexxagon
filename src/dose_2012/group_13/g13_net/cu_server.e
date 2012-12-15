@@ -17,6 +17,7 @@ create
 
 feature
 
+            soc1: detachable NETWORK_STREAM_SOCKET
     make
     		-- Accept communication with client and exchange messages
 --	    require
@@ -24,19 +25,19 @@ feature
 --			not_socket_in_use: not socket_in_use
 	   local
             count: INTEGER
-            soc1: detachable NETWORK_STREAM_SOCKET
         do
         	create ip_list.make_filled ("", 0, 5)
             create soc1.make_server_by_port (server_port)
-            from
-                soc1.listen (5)
-                count := 0
-            until
-                count = 50
-            loop
-                process (soc1) -- See below
-                count := count + 1
-            end
+--            io.put_string ("es inicializado")
+--            from
+                soc1.listen (1)
+--                count := 0
+--            until
+--                count = 50
+--            loop
+                process-- (soc1) -- See below
+--                count := count + 1
+--            end
             soc1.cleanup
 --		ensure
 --			socket_in_use: socket_in_use
@@ -47,7 +48,7 @@ feature
    		end
 
 
-    process (soc1: NETWORK_STREAM_SOCKET)
+    process --(soc1: NETWORK_STREAM_SOCKET)
 			-- Receive a message, extend it, and send it back
 		require
 	    	not_connection_refused: not soc1.connection_refused
@@ -61,6 +62,7 @@ feature
 				subscribe (l_soc2.address.host_address.host_address)
                 if attached {CU_NET_MESSAGE} retrieved (l_soc2) as l_our_new_list then
 					subscribe (l_soc2.peer_address.host_address.host_address)
+					set_state (l_our_new_list.return_state)
 --					from
 --						i := 0
 --					until
@@ -77,6 +79,11 @@ feature
 	    ensure
 	    	is_connnected: NOT soc1.is_closed
 		end
+
+	set_state (a_state: CU_GAME)
+	do
+		state := a_state
+	end
 
 	subscribe (new_ip: STRING)
 			-- Subscribe a new Ip on the ip list

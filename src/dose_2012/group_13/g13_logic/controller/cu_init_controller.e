@@ -13,7 +13,7 @@ create
 feature -- Access
 	logic: CU_LOGIC
 	--we miss here attributes for net and gui
-	gui: CU_WINDOWS
+	gui: CU_MAIN_LOBBY
 feature --constructor
 	make(mainUI:MAIN_WINDOW)
 		require

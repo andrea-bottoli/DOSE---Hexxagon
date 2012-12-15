@@ -80,7 +80,7 @@ feature {NONE} -- Button actions
 			if ( not username_button.identifier_name.is_equal ("pressed_usr") ) then
 
 				if (ip_button.identifier_name.is_equal ("pressed_ip") ) then
-					lobby_intro.set_ip (lobby_intro.get_input_bar.text)
+					lobby_intro.set_internal_ip (lobby_intro.get_input_bar.text)
 					set_simple_button(ip_button, true)
 				elseif (port_button.identifier_name.is_equal ("pressed_port") ) then
 					lobby_intro.set_port (lobby_intro.get_input_bar.text)
@@ -101,7 +101,7 @@ feature {NONE} -- Button actions
 					set_simple_button(port_button, true)
 				end
 				set_selected_button(ip_button)
-				lobby_intro.set_input_bar_text(lobby_intro.get_ip)
+				lobby_intro.set_input_bar_text(lobby_intro.get_internal_ip)
 			end
 		elseif a_button = port_button then
 
@@ -111,7 +111,7 @@ feature {NONE} -- Button actions
 					lobby_intro.set_username (lobby_intro.get_input_bar.text)
 					set_simple_button(username_button, true)
 				elseif (ip_button.identifier_name.is_equal ("pressed_ip") ) then
-					lobby_intro.set_ip (lobby_intro.get_input_bar.text)
+					lobby_intro.set_internal_ip (lobby_intro.get_input_bar.text)
 					set_simple_button(ip_button, true)
 				end
 				set_selected_button(port_button)
@@ -131,7 +131,7 @@ feature {NONE} -- Button actions
 		if (username_button.identifier_name.is_equal ("pressed_usr") ) then
 			lobby_intro.set_username (lobby_intro.get_input_bar.text )
 		elseif (ip_button.identifier_name.is_equal ("pressed_ip") ) then
-			lobby_intro.set_ip (lobby_intro.get_input_bar.text )
+			lobby_intro.set_internal_ip (lobby_intro.get_input_bar.text )
 		elseif (port_button.identifier_name.is_equal ("pressed_port") ) then
 			lobby_intro.set_port (lobby_intro.get_input_bar.text )
 		end

@@ -36,7 +36,7 @@ feature{NONE} -- Creation
 
 			new_card_not_changed: new_card=old new_card
 			new_position_not_changed: new_position=old new_position and then new_position.x=old new_position.x and then new_position.y=old new_position.y
-			card_set: card=new_card
+			card_set: card/=void and then card.bottom = new_card.bottom and then card.top = new_card.top and then card.left = new_card.left and then card.right = new_card.right and then card.cardname = new_card.cardname and then card.element = new_card.element
 			position_set: position.x=new_position.x and then position.y=new_position.y
 
 		end
@@ -50,11 +50,11 @@ feature{G21_AI, G21_MOVE} -- Setter Procedures
 
 		do
 
-			-- create card.make(new_card.top, new_card.left, new_card.right, new_card.bottom, new_card.element, new_card.cardName
+			card:=new_card.twin
 
 		ensure
 
-			card_set: card=new_card
+			card_set: card.top=new_card.top and then card.left=new_card.left and then card.bottom=new_card.bottom and then card.right=new_card.right and then card.cardname=new_card.cardname and then card.element=new_card.element
 			new_card_not_changed: new_card=old new_card
 
 		end

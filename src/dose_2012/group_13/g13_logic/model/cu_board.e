@@ -186,6 +186,36 @@ feature -- Access
 			valid_result: result /= void
 		end
 
+	find_coordinate(a_sq: CU_SQUARE): CU_COORDINATE
+		require
+			valid_sq: a_sq /= void
+		local
+			i: INTEGER
+			j: INTEGER
+			finish: BOOLEAN
+		do
+			from
+				i:=1
+			until
+				i>25 or finish=TRUE
+			loop
+				from
+					j:=1
+				until
+					j>24 or finish=TRUE
+				loop
+					if attached board.item (i, j) as l_item then
+						if	l_item=a_sq then
+							create result.make(i,j)
+							finish:=TRUE
+						end
+					end
+					j:=j+1
+				end
+				i:=i+1
+			end
+		end
+
 	find_weapon(a_weapon: INTEGER): CU_ROOM
 		require
 			valid_weapon: a_weapon>=0 and a_weapon<=5

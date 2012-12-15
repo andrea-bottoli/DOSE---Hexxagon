@@ -54,7 +54,7 @@ feature {ANY} -- constructor
 		lobby.get_background.extend_with_position_and_size (create_button, Buttons_Start_width, Create_start_height, Button_width, Button_height)
 		lobby.get_background.extend_with_position_and_size (join_button, Buttons_Start_width, Join_start_height, Button_width, Button_height)
 		lobby.get_background.extend_with_position_and_size (practice_button, Buttons_Start_width, Practice_start_height, Button_width, Button_height)
-		lobby.get_background.extend_with_position_and_size (return_button, Return_Start_width, Return_start_height, Button_height, Button_width)
+		lobby.get_background.extend_with_position_and_size (return_button, Buttons_Start_width, Return_start_height, Button_width, Button_height)
 
 	ensure
 		Lobby_Buttons_not_null: Current /= void
@@ -67,7 +67,7 @@ feature {NONE} -- Button actions
 	require
 		lobby_not_null: lobby /= void
 	do
-		lobby.get_new_game_info.paint_new_game_panel_info(lobby)
+		lobby.get_new_game_info.paint_new_game_info_panel(lobby)
 	ensure
 		--panel_updated: lobby.get_new_game_info /= old lobby.get_new_game_info
 	end
@@ -77,12 +77,12 @@ feature {NONE} -- Button actions
 		lobby_not_null: lobby /= void
 		game_info_panel_not_null: lobby.get_new_game_info /= void
 	do
-		lobby.get_new_game_info.paint_empty_panel(lobby)
+		lobby.get_new_game_info.paint_global_chat_panel(lobby)
 		if (lobby.get_game_window = void) then
-			lobby.launch_carcassonne_game_window
+			lobby.launch_as_joined_player("", "") -- auta 8a ta pairnw apo ta text field me kamia split h' apo to logic
 		end
 	ensure
-		game_ui_not_null: lobby.get_player.get_crsn_game_ui /= void
+		game_ui_not_null: lobby.get_crsn_game_ui /= void
 	end
 	----------------------------------
 	practice(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32 lobby : G10_LOBBY_MAIN)
@@ -90,19 +90,19 @@ feature {NONE} -- Button actions
 		lobby_not_null: lobby /= void
 		game_info_panel_not_null: lobby.get_new_game_info /= void
 	do
-		lobby.get_new_game_info.paint_empty_panel(lobby)
+		lobby.get_new_game_info.paint_global_chat_panel(lobby)
 		if (lobby.get_game_window = void) then
-			lobby.launch_carcassonne_game_window
+			lobby.launch_as_forever_alone
 		end
 	ensure
-		game_ui_not_null: lobby.get_player.get_crsn_game_ui /= void
+		game_ui_not_null: lobby.get_crsn_game_ui /= void
 	end
 	----------------------------------
 	return_to_main(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32 lobby : G10_LOBBY_MAIN)
 	require
 		lobby_not_null: lobby /= void
 	do
-		lobby.get_new_game_info.paint_empty_panel(lobby)
+		lobby.get_new_game_info.paint_global_chat_panel(lobby)
 		lobby.quit_lobby
 	end
 	----------------------------------
@@ -130,13 +130,13 @@ feature {NONE} -- Button actions
 		area_not_null: an_area /= void
 	do
 		if an_area = create_button then
-			create_button.set_background_pixmap (pix_create_button)
+			create_button.set_background_pixmap (pix_highlighted_create_button)
 		elseif an_area = join_button then
-			join_button.set_background_pixmap (pix_join_button)
+			join_button.set_background_pixmap (pix_highlighted_join_button)
 		elseif an_area = practice_button then
 			practice_button.set_background_pixmap (pix_highlighted_practice_button)
 		elseif an_area = return_button then
-			return_button.set_background_pixmap (pix_return_button)
+			return_button.set_background_pixmap (pix_highlighted_return_button)
 		else
 			print("Problem in pointer_leave_area -> lobby_all_buttons %N")
 		end

@@ -31,8 +31,12 @@ feature {NONE} -- Messages
 			-- Title of the trade popup
 	Popup_jail_title : STRING = "Jail"
 			-- Title of the prison popup
+	Popup_special_title : STRING = "Special Cell"
+			-- Title of the prison popup
 	Quit_dialog_message: STRING = "Do you really want to close?"
 			-- Message for the quit dialog box
+	Popup_auction_title : STRING = "Auction"
+			-- Title of the auction popup
 
 feature {NONE} -- Numerical Constants
 
@@ -59,7 +63,12 @@ feature {NONE} -- Numerical Constants
 	Popup_jail_width : INTEGER = 520
 			-- Initial width for the mortgage popup.
 	Popup_jail_height: INTEGER = 410
-            -- Initial height for the mortgage popup.		
+            -- Initial height for the mortgage popup.
+
+    Popup_auction_width : INTEGER = 420
+			-- Initial width for the auction popup.
+	Popup_auction_height: INTEGER = 520
+            -- Initial height for the auction popup.		
 
 	screen_height: INTEGER
 			-- Returns the screen heigt
@@ -153,26 +162,6 @@ feature {NONE} -- Common features
 				if attached a_main_ui_window then
 					a_main_ui_window.restore
 					a_main_ui_window.remove_reference_to_game (a_window)
-				end
-					-- Destroy the window
-				a_window.destroy
-			end
-		end
-
-	request_close_game(a_main_ui_window: MAIN_WINDOW; a_window: EV_TITLED_WINDOW; a_controller : G1_UI_CONTROLLER)
-			-- The user wants to close the game
-		local
-			question_dialog: EV_CONFIRMATION_DIALOG
-		do
-			create question_dialog.make_with_text (Quit_dialog_message)
-			question_dialog.show_modal_to_window (a_window)
-
-			if question_dialog.selected_button.is_equal ((create {EV_DIALOG_CONSTANTS}).ev_ok) then
-					-- Restore the main UI which is currently minimized
-				if attached a_main_ui_window then
-					a_main_ui_window.restore
-					a_main_ui_window.remove_reference_to_game (a_window)
-					a_controller.leave_game
 				end
 					-- Destroy the window
 				a_window.destroy

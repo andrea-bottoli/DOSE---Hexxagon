@@ -20,9 +20,9 @@ inherit
 create
 	make
 
-feature {G5_MAIN_VIEW}-- initialization
+feature {G5_MAIN_VIEW, EQA_TEST_SET}-- initialization
 
-	make
+	make(main_view: G5_MAIN_VIEW)
 		--this is the constructor
 		local
 			coins_string_version: STRING
@@ -90,8 +90,7 @@ feature {G5_MAIN_VIEW}-- initialization
 			supply_button_pixmap.set_with_named_file (file_system.pathname_to_string (img_path_supply_button))
 			supply_button.set_background_pixmap (supply_button_pixmap)
 			current.extend_with_position_and_size (supply_button, 578, 5, 120, 141)
-			--** NOTA ** SETTARE METODI BOTTONE
-			--supply_button.pointer_button_release_actions.extend (agent request_quitting(?, ?, ?, ?, ?, ?, ?, ?))
+			supply_button.pointer_button_release_actions.extend (agent main_view.show_pop_up_supply(?, ?, ?, ?, ?, ?, ?, ?))
 
 			-- create and set position of trash button
 			create trash_button
@@ -99,12 +98,11 @@ feature {G5_MAIN_VIEW}-- initialization
 			trash_button_pixmap.set_with_named_file (file_system.pathname_to_string (img_path_trash_button))
 			trash_button.set_background_pixmap (trash_button_pixmap)
 			current.extend_with_position_and_size (trash_button, 578, 154, 120, 141)
-			--** NOTA ** SETTARE METODI BOTTONE
-			--trash_button.pointer_button_release_actions.extend (agent request_quitting(?, ?, ?, ?, ?, ?, ?, ?))
+			trash_button.pointer_button_release_actions.extend (agent main_view.show_pop_up_trash(?, ?, ?, ?, ?, ?, ?, ?))
 		end
 
 
-feature {G5_MAIN_VIEW} -- Application
+feature {G5_MAIN_VIEW, EQA_TEST_SET} -- Application
 
 	set_current_player_name(a_name: STRING)
 		-- this feature sets the name of the current player when a new turn started

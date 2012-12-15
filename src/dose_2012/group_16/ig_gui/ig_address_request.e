@@ -34,9 +34,10 @@ feature -- IP Request
 		require
 			not_open: not is_open
 			not_initiated: not transfer_initiated
-		once
-
-			if Result = Void then		--Do no work if in retry
+		local
+			retried: BOOLEAN
+		do
+			if not retried then
 				set_read_mode
 				open
 				initiate_transfer
@@ -48,15 +49,17 @@ feature -- IP Request
 					Result.append (last_packet)
 				end
 				close
+			else
+				Result := "127.0.0.1"
 			end
-
 		ensure
 			no_packets_left: not is_packet_pending
 			closed: not is_open
 		rescue
-			--Something failed, probably no Internet access...
-			Result := "?.?.?.?"
-			retry
+			if not retried then
+				retried := True
+				retry
+			end
 		end
 
 end

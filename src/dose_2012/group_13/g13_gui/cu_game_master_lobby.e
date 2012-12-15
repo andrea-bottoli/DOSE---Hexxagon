@@ -10,13 +10,17 @@ class
 inherit
 
 	CU_WINDOWS
+	CU_INIT_CONTROLLER
+	undefine
+		default_create, copy
+	end
 
 create
-	make
+	make_master
 
 feature
 
-	make
+	make_master
 			-- Generates the window to the master of the game
 		local
 			array: ARRAY[STRING]
@@ -26,7 +30,8 @@ feature
 			array.put ("hola", 0)
 			array.put ("mundo", 1)
 
-
+--			start ("master")
+--			create server.make
 			create list_players.make_with_strings (array)
 
 			create remove_player_button.make_with_text ("Remove a player")
@@ -122,6 +127,6 @@ feature --Implementation/ Constants
 
     main_game: CU_MAIN_GAME
 
-    connected_players: CU_SERVER
+    server: CU_SERVER
 
 end

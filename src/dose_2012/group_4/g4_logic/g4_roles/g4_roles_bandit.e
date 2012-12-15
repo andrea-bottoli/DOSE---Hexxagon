@@ -15,6 +15,7 @@ create
 feature --Constructor
 	make
 	do
+		set_role_name("Bandit")
 	ensure
 		Role_Name.is_equal("Bandit")
 	end
@@ -23,13 +24,15 @@ feature --Special Function
 
 	victory_conditions(a_player_array: ARRAY[G4_PLAYER]): BOOLEAN
 	local i: INTEGER
+	flag : BOOLEAN
 	do
+		flag:=true
 		from i := a_player_array.lower until i = a_player_array.upper
 		loop
-			if (a_player_array[i].get_item_board.get_player_role.get_role_name = "Sheriff") = true then
-				Result := false
+			if (a_player_array[i].get_item_board.get_player_role.get_role_name.is_equal ("Sheriff")) = true then
+				flag := false
 			end
 		end
-		Result := true
+		Result := flag
 	end
 end

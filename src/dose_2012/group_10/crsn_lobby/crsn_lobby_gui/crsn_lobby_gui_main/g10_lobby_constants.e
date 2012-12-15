@@ -1,13 +1,13 @@
 note
-	description: "Summary description for {G10_LOBBY_CONSTANTS}."
+	description: "Containing all constants(sizes and pixmaps) for the lobby main screen"
 	author: "Angel Kyriako"
-	date: "$Date$"
-	revision: "$Revision$"
+	date: "20/11/2012"
+	revision: "1.0"
 
 class
 	G10_LOBBY_CONSTANTS
 inherit
-	G10_GUI_CONSTANTS
+	G10_CRSN_CONSTANTS
 
 feature{NONE} --folder path of lobby images
 	lobby_folder: STRING = "lobby"
@@ -39,14 +39,11 @@ feature{ANY} --component sizes
 	once
 		Result := lobby_window_width - button_width - distance_between_components
 	end
-	Return_Start_width: INTEGER
-	once
-		Result := lobby_window_width - button_height - distance_between_components
-	end
 	Create_Start_height: INTEGER
 	once
 		Result := lobby_title_height + distance_between_components
 	end
+	-- den einai ka8olou kakh idea na valoume edw ena start button !!!
 	Join_Start_height: INTEGER
 	once
 		Result := lobby_title_height + distance_between_components + button_height + distance_between_buttons
@@ -55,26 +52,51 @@ feature{ANY} --component sizes
 	once
 		Result := lobby_title_height + distance_between_components + 2*button_height +  2*distance_between_buttons
 	end
+
 	Return_Start_height: INTEGER
 	once
-		Result := lobby_window_height - ( button_width + distance_between_components)
+		Result := lobby_window_height - ( button_height + distance_between_components) --lobby_title_height + distance_between_components + 4*button_height +  3*distance_between_buttons
 	end
 
-	--new_game_info_panel
-	new_game_info_panel_width: INTEGER
+	--south_panel
+	south_panel_width: INTEGER
 	once
- 		Result := lobby_window_width - button_width - 2*distance_between_components - 2*distance_between_buttons
+ 		Result := lobby_window_width - button_width - 4*distance_between_components
 	end
-	new_game_info_panel_height: INTEGER = 200
+	south_panel_height: INTEGER = 200
 
-	new_game_info_panel_start_width: INTEGER
+	south_panel_start_width: INTEGER
 	once
 		Result := distance_between_components
 	end
-	new_game_info_panel_start_height: INTEGER
+	south_panel_start_height: INTEGER
 	once
 		Result := lobby_title_height + online_users_height + 2*distance_between_components
 	end
+
+		-- chat new message
+		chat_new_message_width: INTEGER = 150
+		chat_new_message_height: INTEGER = 25
+		chat_new_message_start_width: INTEGER
+		once
+			Result := distance_between_components
+		end
+		chat_new_message_start_height: INTEGER
+		once
+			Result := distance_between_components
+		end
+
+		-- chat log
+		chat_log_width: INTEGER = 650
+		chat_log_height: INTEGER = 170
+		chat_log_start_width: INTEGER
+		once
+			Result := distance_between_components
+		end
+		chat_log_start_height: INTEGER
+		once
+			Result := chat_new_message_start_height + chat_new_message_height + distance_between_components
+		end
 
 	-- text bars in game info panel
 		-- title input bar
@@ -94,18 +116,18 @@ feature{ANY} --component sizes
 		start_button_height: INTEGER = 104
 		start_button_start_width: INTEGER
 		do
-			Result := new_game_info_panel_width - start_button_width - 2*distance_between_components
+			Result := south_panel_width - start_button_width - 2*distance_between_components
 		end
 		start_button_start_height: INTEGER
 		do
-			Result := new_game_info_panel_height - start_button_height - 2*distance_between_components
+			Result := south_panel_height - start_button_height - 2*distance_between_components
 		end
 
 	--online users list
 	online_users_width: INTEGER = 200
 	online_users_height: INTEGER
 	once
-		Result := lobby_window_height - lobby_title_height - new_game_info_panel_height - 2*distance_between_components
+		Result := lobby_window_height - lobby_title_height - south_panel_height - 2*distance_between_components
 	end
 
 	online_users_Start_width: INTEGER
@@ -125,7 +147,7 @@ feature{ANY} --component sizes
 	end
 	hosted_games_height: INTEGER
 	once
-		Result := lobby_window_height - lobby_title_height - new_game_info_panel_height - 2*distance_between_components
+		Result := lobby_window_height - lobby_title_height - south_panel_height - 2*distance_between_components
 	end
 
 	hosted_games_start_width: INTEGER
@@ -199,35 +221,58 @@ feature{ANY} --PixMaps
 			end
 
 	-- all buttons
+
 		-- create
 	img_create_button: KL_PATHNAME
 		do
 			Result := lobby_img_path
-			Result.append_name ("create_button.png")
+			Result.append_name ("create_button_207_101.png")
 		end
 	pix_create_button: EV_PIXMAP
 		once
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string(img_create_button) )
 		end
+		-- highlighted create
+	img_highlighted_create_button: KL_PATHNAME
+		do
+			Result := lobby_img_path
+			Result.append_name ("highlighted_create_button_207_101.png")
+		end
+	pix_highlighted_create_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_create_button) )
+		end
 
 		-- join
 	img_join_button: KL_PATHNAME
 		do
 			Result := lobby_img_path
-			Result.append_name ("join_button.png")
+			Result.append_name ("join_button_207_101.png")
 		end
 	pix_join_button: EV_PIXMAP
 		once
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string(img_join_button) )
 		end
+		-- highlighted join
+	img_highlighted_join_button: KL_PATHNAME
+		do
+			Result := lobby_img_path
+			Result.append_name ("highlighted_join_button_207_101.png")
+		end
+	pix_highlighted_join_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_join_button) )
+		end
 
 		-- practice
 	img_practice_button: KL_PATHNAME
 		do
 			Result := lobby_img_path
-			Result.append_name ("practice_button.png")
+			Result.append_name ("Practice_button_207_101.png")
 		end
 	pix_practice_button: EV_PIXMAP
 		once
@@ -238,7 +283,7 @@ feature{ANY} --PixMaps
 	img_highlighted_practice_button: KL_PATHNAME
 		do
 			Result := lobby_img_path
-			Result.append_name ("highlighted_practice_button.png")
+			Result.append_name ("highlighted_Practice_button_207_101.png")
 		end
 	pix_highlighted_practice_button: EV_PIXMAP
 		once
@@ -246,21 +291,33 @@ feature{ANY} --PixMaps
 			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_practice_button) )
 		end
 
-		-- return
+		-- highlighted return
 	img_return_button: KL_PATHNAME
 		do
 			Result := lobby_img_path
-			Result.append_name ("return_button.png")
+			Result.append_name ("return_button_207_101.png")
 		end
 	pix_return_button: EV_PIXMAP
 		once
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string(img_return_button) )
 		end
+		-- return
+	img_highlighted_return_button: KL_PATHNAME
+		do
+			Result := lobby_img_path
+			Result.append_name ("highlighted_return_button_207_101.png")
+		end
+	pix_highlighted_return_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_return_button) )
+		end
 
 	feature {ANY}
 
 	lobby_id: STRING = "Lobby"
-	lobby_ip: STRING = "192.168.1.65"
-	lobby_port: STRING = "6666"
+	lobby_ip: STRING = "192.168.1.2"
+	--lobby_ip : STRING = "192.168.1.65"
+	lobby_port: STRING = "1234"
 end

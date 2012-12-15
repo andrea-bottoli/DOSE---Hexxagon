@@ -16,10 +16,10 @@ feature -- Initialization
 
 	make_msg(a_player_name:STRING; a_message:STRING)
 		require
-			player_name_not_void: player_name/=Void
-			player_name_not_empty: player_name/=""
-			message_not_void: message/=Void
-			message_not_empty: message/=""
+			player_name_not_void: a_player_name/=Void
+			player_name_not_empty: a_player_name/=""
+			message_not_void: a_message/=Void
+			message_not_empty: a_message/=""
 		do
 			player_name := a_player_name
 			message := a_message

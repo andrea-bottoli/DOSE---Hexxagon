@@ -40,16 +40,16 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	put_card0
-		-- put_cards("PLAY",["C1"])
-		note
-			testing: "G5_IGUI_TO_NET/.put_cards"
-		do
-			place := "PLAY"
-			cards := <<"C1">>
-			class_test.put_cards (place, cards)
-			assert ("put C1 card in PLAY inplies that last card played is equal to C1 ", class_test.main_view.last_played_card.is_equal(cards.item(1)))
-		end
+--	put_card0
+--		-- put_cards("PLAY",["C1"])
+--		note
+--			testing: "G5_IGUI_TO_NET/.put_cards"
+--		do
+--			place := "PLAY"
+--			cards := <<"C1">>
+--			class_test.put_cards (place, cards)
+--			assert ("put C1 card in PLAY inplies that last card played is equal to C1 ", class_test.main_view.last_played_card.is_equal(cards.item(1)))
+--		end
 
 feature -- Test negative
 

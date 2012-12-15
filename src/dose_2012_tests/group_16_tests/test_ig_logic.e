@@ -23,9 +23,13 @@ feature -- Test routines
 			l_game_setting: IG_GAME_SETTINGS
 		do
 			create l_game_setting
-			l_game_setting.set_host_address("192.168.000.001:5555")
-			l_logic.make_with_host_settings(l_game_setting, Void, Void, Void)
-			assert ("not_implemented", False) -- I still dont know what has to be checked in this routine
+			l_game_setting.set_host_address("192.168.000.001")
+			l_game_setting.set_user_name ("Wall-e")
+			l_game_setting.set_computer_level (1)
+			l_game_setting.set_total_players (4)
+			l_game_setting.set_computer_players (3)
+			create l_logic.make_with_host_settings(l_game_setting, Void, Void, Void)
+			assert ("User player created", l_logic.user_player.name.is_equal ("Wall-e"))
 		end
 
 	test_IG_LOGIC_make_with_join_settings
@@ -51,8 +55,15 @@ feature -- Test routines
 			testing: "user/IG"
 		local
 			l_logic: IG_LOGIC
+			l_settings: IG_GAME_SETTINGS
 		do
-			--create l_logic
+			create l_settings
+			l_settings.set_host_address ("127.0.0.1")
+			l_settings.set_user_name ("Eve")
+			l_settings.set_computer_players (2)
+			l_settings.set_total_players (3)
+			l_settings.set_computer_level (1)
+			create l_logic.make_with_host_settings (l_settings, Void, Void, Void)
 			assert ("Gameboard not empty", l_logic.gameboard/=Void)
 			assert ("Scoreboards not empty", l_logic.scoreboards/=Void)
 		end

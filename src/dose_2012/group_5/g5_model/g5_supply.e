@@ -53,7 +53,7 @@ feature -- State Report
 
 feature -- Initialization
 
-	init_supply (cards_kingdom: ARRAY [G5_CARD]; amount_estate: INTEGER; amount_duchy: INTEGER; amount_province: INTEGER; amount_curse: INTEGER)
+	init_supply (associated_table: G5_TABLE; cards_kingdom: ARRAY [G5_CARD]; amount_estate: INTEGER; amount_duchy: INTEGER; amount_province: INTEGER; amount_curse: INTEGER)
 		-- Initializes the supply with the "SET_DEFAULT"
 		require
 			supply_not_initialized: ((sub_supply_victory = Void) and (sub_supply_kingdom = Void) and (sub_supply_treasure = Void) and (sub_supply_curse = Void))
@@ -68,6 +68,8 @@ feature -- Initialization
 			command_curse: G5_CURSE
 			i : INTEGER
 		do
+			table := associated_table
+
 			-- Initialization sub_supply_victory		
 			create sub_supply_victory.make_filled (pile, 1, Victory_piles)
 			create command_victory.make(table.receiver)
@@ -88,7 +90,7 @@ feature -- Initialization
 			sub_supply_victory.put (pile, 3)
 
 			-- Initialization sub_supply_kingdom		
-			sub_supply_kingdom.make_filled (pile, 1, Kingdom_piles)
+			create sub_supply_kingdom.make_filled (pile, 1, Kingdom_piles)
 
 			from
 				i := 1
@@ -102,7 +104,7 @@ feature -- Initialization
 			end
 
 			pile := search_card("K9")
-			if (card /= Void) then
+			if (pile /= Void) then
 				pile.decrement()
 				pile.decrement()
 			end
@@ -153,7 +155,7 @@ feature -- Obtaining
 			pile.decrement()
 			if pile.amount_available = 0 then
 				amount_piles_exhausted := amount_piles_exhausted + 1
-				if pile.card.id.is_equal ("V3") then
+				if pile.card.id.is_equal ({G5_MACRO_CARDS}.province) then
 					province_exhausted := True
 				end
 			end
@@ -188,22 +190,20 @@ feature -- Obtaining
 		-- Gets of supply the cards with cost less than or equal to "cost"
 		require
 		local
-			cards: ARRAY [STRING]
 			cards_victory: ARRAY [STRING]
 			cards_treasure: ARRAY [STRING]
 			cards_curse: ARRAY [STRING]
 			cards_kingdom: ARRAY [STRING]
 		do
 			cards_victory := get_card_sub_supply_by_cost(sub_supply_victory, cost)
-			cards_treasure := get_card_sub_supply_by_cost(sub_supply_victory, cost)
-			cards_curse := get_card_sub_supply_by_cost(sub_supply_victory, cost)
-			cards_kingdom := get_card_sub_supply_by_cost(sub_supply_victory, cost)
-			cards.make_empty
-			cards := append_cards(cards,cards_victory)
-			cards := append_cards(cards,cards_treasure)
-			cards := append_cards(cards,cards_curse)
-			cards := append_cards(cards,cards_kingdom)
-			result := cards
+			cards_treasure := get_card_sub_supply_by_cost(sub_supply_treasure, cost)
+			cards_curse := get_card_sub_supply_by_cost(sub_supply_curse, cost)
+			cards_kingdom := get_card_sub_supply_by_cost(sub_supply_kingdom, cost)
+			create result.make_empty
+			result.grow (cards_treasure.count + cards_victory.count + cards_curse.count + cards_kingdom.count)
+			result := append_cards(cards_treasure,cards_victory)
+			result := append_cards(result,cards_curse)
+			result := append_cards(result,cards_kingdom)
 		ensure
 		end
 
@@ -276,17 +276,20 @@ feature {NONE} -- Auxiliary
 		-- Joins two arrays of STRING
 		require
 		local
-			cards: ARRAY [STRING]
 			i: INTEGER
 			j: INTEGER
 		do
 			from
-				j := array1.count
-				i := 0;
+				create result.make_empty
+				result.copy (array1)
+				result.grow (array1.count + array2.count)
+				j := array1.count + 1
+				i := 1;
 			until
 				i > array2.count
 			loop
-				array1.put (array2.item (i), j + i)
+				result.put (array2.item (i), j)
+				j := j + 1
 				i := i + 1
 			end
 		ensure
@@ -295,24 +298,25 @@ feature {NONE} -- Auxiliary
 	get_card_sub_supply_by_cost(sub_supply: ARRAY [G5_PILE_CARD_SUPPLY]; cost: INTEGER): ARRAY[STRING]
 		-- Gets of sub_supply the cards with cost less than or equal to "cost"
 		require
+			valid_arg: sub_supply.count > 0 and cost > -1
 		local
-			cards: ARRAY [STRING]
 			i: INTEGER
 			mayor_cost: BOOLEAN
 		do
 			from
-				i := 0
+				create result.make_empty
+				i := 1
 			until
 				i > sub_supply.count or mayor_cost
 			loop
 				if sub_supply.item (i).get_instance.cost > cost then
 					mayor_cost := True
 				else
-					cards.put (sub_supply.item (i).get_instance.id, i)
+					result.grow (i)
+					result.put (sub_supply.item (i).get_instance.id, i)
 					i := i + 1
 				end
 			end
-			result := cards
 		ensure
 		end
 

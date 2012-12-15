@@ -14,7 +14,7 @@ create
 	make
 
 feature {G21_NET}
-	make(msg_a : CHARACTER[]; socket : NETWORK_STREAM_SOCKET)
+	make(msg_a : CHARACTER[]; socket_a : NETWORK_STREAM_SOCKET)
 		do
 			thread_make
 			msg := msg_a
@@ -30,11 +30,12 @@ feature {G21_NET}
 			packet_out.put_element (msg, i)
 		end
 
-		--socket. write(packet_out)
+		socket.write(packet_out)
 	end
 
 feature {G21_SEND_THREAD}
 		msg : CHARACTER[]
 		packet_out : PACKET
+		socket : NETWORK_STREAM_SOCKET
 		i: INTEGER
 end

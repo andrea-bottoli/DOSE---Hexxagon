@@ -18,108 +18,75 @@ feature -- Implementation
 	launch (main_ui_window: MAIN_WINDOW)
 			-- shows a dummy output
 		local
+--		#########MILANO2 STUFF
 			l_net: XX_NET
-			co,port,number:INTEGER
-			ip,ip2,txt,choice: STRING --Ip to check
-			message: XX_NET_MESSAGE
+			co,port_temp,port,number:INTEGER
+			ip_temp,ip,txt,choice,message: STRING
 			board:XX_BOARD
-			i,j:INTEGER	--vavouris added this
-			t:TUPLE		--vavouris added this
+--		#########CRETE2 STUFF
+			i,j:INTEGER
+			t:TUPLE
 		do
-
-			ip2:= "127.0.0.1"
-			port:= 4321
-
-			io.put_string("Type:%Na to launch the GUI%Nb to launch an ip test%Nc for send a STRING%Nd for send an OBJECT%Ne for send a BOARD%Ns for launch the server%N")
+			io.put_string("Type:%Na to launch the GUI%N'client' to try the client%N'server' if you try the server%N")
 		 	io.read_line
 		 	choice:=io.last_string
 
+			create hexx.make_hexxagon
+		--########################## MAIN GAME
 		 	if (choice.is_equal ("a") or choice.is_equal ("A")) then
-		 		create hexx.make_hexxagon
+
 				hexx.create_gui (hexx, main_ui_window)
-		 	elseif (choice.is_equal ("b") or choice.is_equal ("B")) then --test Ip parser
-				 from
-				 	co:=0
-				 until
-				 	co>100
-				 loop
-				 	io.put_string("Give me an ip to check%N")
-				 	io.read_line
-				 	ip:= io.last_string
-					if(is_ip_valid (ip)) then
-						io.put_string ("%NIp "+ip+" is CORRECT%N%N")
-					else
-						io.put_string ("%NIp "+ip+" is NOT CORRECT%N%N")
-					end --if
-					co:=co+1
-				 end
---#####################################################
-elseif (choice.is_equal ("NET") or choice.is_equal ("net")) then --testNET
 
-				 create l_net.make
-				 	io.put_string("Give me an ip to check%N")
-				 	io.read_line
-				 	ip:= io.last_string
-					if(is_ip_valid (ip)) then
-						io.put_string ("%NIp "+ip+" is CORRECT%N%N")
-					else
-						io.put_string ("%NIp "+ip+" is NOT CORRECT%N%N")
-					end --if
-					co:=co+1
+		--########################### CLIENT
+			elseif (choice.is_equal ("c") or choice.is_equal ("client") or choice.is_equal ("CLIENT")) then
+				io.put_string ("Choose ip server%N")
+				io.read_line
+				create ip.make_from_string (io.last_string)
+				io.put_string ("Choose port server%N")
+				io.read_integer
+				port:=io.last_integer
+				create l_net.make_logic(hexx)
+				l_net.init_connection("pippo",ip, port)
 
+				io.put_string ("Write a command to send: ")
+				io.read_line
+				message:=io.last_string
 
-		--########################### CLIENT string
-			 elseif (choice.is_equal ("c") or choice.is_equal ("C")) then
-					init_connection (ip2, port)
-			 	from
-				 	co:=0
+				from
+--					message:=""
 				until
-				 	co>50
+					message.is_equal ("exit")
 				loop
-					print("%NTell me a string: ")
+					l_net.send(message)
+					io.put_string ("Write a command to send: ")
 					io.read_line
-					txt:=io.last_string
-					send(txt)
-				 	co:=co+1
-				 end
+					message:=io.last_string
+				end
 
-		--########################### client object	
-			elseif (choice.is_equal ("d") or choice.is_equal ("D")) then
-				init_connection (ip2, port)
-			 	from
-				 	co:=0
-				until
-				 	co>50
-				loop
-						print("%NTell me your name ")
-					 	io.read_line
-					 	txt:=io.last_string
-					 	io.put_string("%NTell me now a number: ")
-					 	io.read_integer
-					 	number:= io.last_integer
-					 	create message.make(txt,number)
-						send(message)
-						co:=co+1
-				 end--LOOP character co
-
---##################send board test
-				elseif (choice.is_equal ("e") or choice.is_equal ("E")) then
-					init_connection (ip2, port)
-					from
-						co:=0
-					until
-						co>50
-					loop
-						create board.make_board
-						send(board)
-						co:=co+1
-					end--LOOP character co
-		--########################### SERVER PART
+		--########################### SERVER
 			 elseif (choice.is_equal ("s") or choice.is_equal ("S") or choice.is_equal ("server")) then
-			 		init_connection(ip2,port)
-			 		init_listener (4321)
 
-			 		close_connection --When he's not listening, he must stops
+			 		io.put_string ("Choose port listener%N")
+					io.read_integer
+					port:=io.last_integer
+			 		create l_net.make_logic(hexx)
+			 		l_net.init_listener (port)
+
+					io.put_string ("Write a command to send: ")
+					io.read_line
+					message:=io.last_string
+
+			 		from
+--						message:=""
+					until
+						message.is_equal ("exit")
+					loop
+						l_net.send(message)
+						io.put_string ("Write a command to send: ")
+						io.read_line
+						message:=io.last_string
+					end
+
 		--########################### vavouris testing part	 		
 			 elseif (choice.is_equal ("v1") or choice.is_equal ("V1")) then
 					create board.make_board

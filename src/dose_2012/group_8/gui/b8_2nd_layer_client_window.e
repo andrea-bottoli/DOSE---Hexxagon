@@ -25,9 +25,10 @@ create
 	make
 
 feature {NONE}	-- Initialization
-	make
+	make(a_logic:B8_LOGIC)
 		do
 			make_with_title("Join a game")
+			logic:=a_logic
 		end
 
 initialize
@@ -129,20 +130,21 @@ pointer_leave (a_area: EV_FIXED)
 next_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
 		-- User klicked Next button
 	do
-		if port_number_text_box.text.is_integer  then
-				create client.make(ip_address_text_box.text,port_number_text_box.text.to_integer,1,0)
-			end
-		destroy
-		create l_3rd_layer.make(client)
-		l_3rd_layer.show
+		if port_number_text_box.text/=Void and ip_address_text_box.text/=Void and port_number_text_box.text.is_integer  then
+				create client.make(ip_address_text_box.text,port_number_text_box.text.to_integer,1,0,logic)
 
+		destroy
+		create l_3rd_layer.make(client,logic)
+		l_3rd_layer.show
+		end
+		-- else,Needs handling
 	end
 
 back_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
 		-- User klicked on Back button
 	do
 		destroy
-		create l_1st_layer.make(main_ui)
+		create l_1st_layer.make(main_ui,logic)
 		l_1st_layer.show
 	end
 
@@ -196,4 +198,5 @@ l_3rd_layer: B8_3RD_LAYER_WINDOW
 
 feature
 	client:B8_GAME_MODE
+	logic:B8_LOGIC
 end

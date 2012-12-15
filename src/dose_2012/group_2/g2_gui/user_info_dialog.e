@@ -1,8 +1,8 @@
 note
 	description	: "User Info Dialog Dialog Box"
 	author		: "rnnalborodo"
-	date		: "$Date: 2010/9/3 21:44:11 $"
-	revision	: "1.0.0"
+	date: " 2012/12/12  "
+	revision: "1.0.1"
 
 class
 	USER_INFO_DIALOG

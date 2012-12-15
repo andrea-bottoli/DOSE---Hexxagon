@@ -8,40 +8,33 @@ class
 	XX_NET
 
 inherit
-	INET_ADDRESS_FACTORY
-    INET_PROPERTIES
 	XX_INET
 	XX_CHAT_TO_NET_INTERFACE
 	XX_IP_VALIDATOR
+	XX_NET_CONSTANTS
 
 create
-	make,
 	make_logic
-
-feature{NONE}	--Attribute
-	chat_manager: XX_CHAT
-	logic_interface: XX_ILOGIC
-	socket,socket2: NETWORK_STREAM_SOCKET
-	listening,chat_ok: BOOLEAN
-	ip_reci:STRING
-	server_port: INTEGER
-    server_ip: INET_ADDRESS -- This is the net address where server player is placed
-
 
 feature {NONE} -- Constructors
 
 	-- Initialization for "Current".
-	make
-	do
-		listening:=false	--TODO
---		chat_
-	end
-
 	make_logic(a_logic: XX_ILOGIC)
 	do
 		default_create
 		set_ilogic(a_logic)
+		ready:=FALSE
 	end
+
+feature{NONE}	--Attribute
+	chat_manager: XX_CHAT
+	logic_interface: XX_ILOGIC
+	server_port: INTEGER
+	server_ip:STRING
+	client_ip:STRING
+	name_player: STRING
+	ready: BOOLEAN
+	socket_interface: XX_SOCKET_INTERFACE
 
 feature{NONE} --Initialization
 
@@ -52,135 +45,300 @@ feature{NONE} --Initialization
 		logic_interface:=a_logic
 	end
 
---######################################################################################
-feature	-- PUBLIC Methods inherited from XX_INET
+feature {XX_SERVER_LISTENER, XX_CLIENT_CONNECT} --Getters for server and client
 
-	--Client has to call this method in order to has the parameters of the server setted up.
-	init_connection(a_ip: STRING; a_port: INTEGER)
-
-		local
-			l_ip: detachable INET_ADDRESS
-		do
-			l_ip:=create_from_name(a_ip)
-			server_ip:= l_ip
-			server_port:= a_port
-		end
-
-	--Is going to be initialized a listener on a_port in order to receive all the request on it.
-	init_listener(a_port: INTEGER)
+	--Returns the ip address of the server
+	get_server_ip: STRING
 	do
-		create socket.make_server_by_port (a_port)
-		listening:=TRUE -- from now, a_port is listening
-		io.put_string ("Server is up NOW! %N")
-			from
-				socket.listen(3)
-			until
-				not listening -- until now, the only who can stop it is close_connection
-			loop
-				receive_soc(socket)
-
-			end
-			io.put_string ("Connection is ended")
-			socket.cleanup
-
+		Result:=server_ip
 	end
 
+	--Returns the port of the server
+	get_server_port: INTEGER
+	do
+		Result:=server_port
+	end
+
+	--Returns the player's name
+	get_name_player: STRING
+	do
+		Result:=name_player
+	end
+
+feature{XX_CLIENT_CONNECT}
+
+	--Returns the player's name
+	send_client_name_player
+	require else
+		socket_interface_not_void: socket_interface/=void
+		name_player_not_void: name_player/=Void
+		name_player_not_empty: not name_player.is_empty
+	local
+		l_s: STRING
+	do
+		l_s:=""
+		l_s.append (command_name_player)
+		l_s.append (name_player)
+		socket_interface.write (l_s)
+		ready:=TRUE
+	end
+
+feature{XX_SERVER_LISTENER}
+
+	--Returns the player's name
+	send_request_client_name_player
+	require else
+		socket_interface_not_void: socket_interface/=void
+	do
+		socket_interface.write (command_request_name_player)
+	end
+
+	--Used for notified that a client is connected
+	client_connected
+	do
+		logic_interface.client_connected (name_player, client_ip)
+	end
+
+	--Sets the ip address of the client
+	set_client_ip(a_client_ip: STRING)
+	do
+		client_ip:=a_client_ip
+	end
+
+feature{NONE} --Setters and getters
+
+	--Sets the name of the player
+	set_name_player(a_name_player: STRING)
+	do
+		name_player:=a_name_player
+		ready:=TRUE
+		client_connected
+	end
+
+	--Sets the ip address of the server
+	set_server_ip(a_server_ip: STRING)
+	do
+		server_ip:=a_server_ip
+	end
+
+	--Sets the port of the server
+	set_server_port(a_server_port: INTEGER)
+	do
+		server_port:=a_server_port
+	end
+
+feature{XX_SERVER_LISTENER, XX_CLIENT_CONNECT}	--PRIVATE Methods of XX_NET
+
+	--He receive object from the socket
+	parser(a_object: ANY)
+	require
+		a_object/= void
+	local
+		l_split_message: LIST[STRING]
+		l_command: STRING
+		l_content: STRING
+		l_i: INTEGER
+	do
+		if (not ready) then
+			if attached {STRING} a_object as message then
+
+				l_split_message:=message.split ('@')
+				l_command:=l_split_message.at (1)
+				l_command.append("@")
+				l_content:=""
+				from
+					l_i:=1
+				until
+					l_i>=l_split_message.count
+				loop
+					l_content.append (l_split_message.at (l_i+1))
+					l_i:=l_i+1
+				end
+				if (l_command.is_equal (command_request_name_player)) then
+					send_client_name_player
+				elseif (l_command.is_equal (command_name_player)) then
+					set_name_player (l_content)
+				end
+			end
+		else
+			if attached {STRING} a_object as message then
+
+				l_split_message:=message.split ('@')
+				l_command:=l_split_message.at (1)
+				l_command.append("@")
+				l_content:=""
+				from
+					l_i:=1
+				until
+					l_i>=l_split_message.count
+				loop
+					l_content.append (l_split_message.at (l_i+1))
+					l_i:=l_i+1
+				end
+
+				if (l_command.is_equal (command_switch_panel_game_to_menu)) then
+					logic_interface.receive_command_switch_panel_game_to_menu
+				elseif(l_command.is_equal (command_switch_panel_menu_to_game))then
+					logic_interface.receive_command_switch_panel_menu_to_game
+				elseif (l_command.is_equal (command_clean_game_windo)) then
+					logic_interface.receive_command_clean_game_window
+				elseif (l_command.is_equal (command_defeat))then
+					logic_interface.receive_defeat
+				elseif (l_command.is_equal (command_victory))then
+					logic_interface.receive_victory
+				elseif (l_command.is_equal (command_draw))then
+					logic_interface.receive_draw_status
+				elseif (l_command.is_equal (command_chat_message)) then
+					chat_manager.set_chat_message (l_content)
+				elseif (l_command.is_equal (command_chat_enable)) then
+					logic_interface.receive_chat_enable (l_content.to_boolean)
+				end
+
+			elseif attached {XX_BOARD} a_object as board then
+				logic_interface.receive_board (board)
+			elseif attached {XX_POSSIBLE_MOVES} a_object as possible_move then
+				logic_interface.other_move(possible_move)
+			elseif attached {XX_TIMER} a_object as timer then
+				logic_interface.receive_timer (timer)
+			elseif attached {XX_NET_GAME_STATUS} a_object as game_status then
+				logic_interface.receive_game_status (game_status.get_player1,game_status.get_player2,game_status.is_active)
+			end
+		end
+	end
+
+feature	-- PUBLIC Methods inherited from XX_INET
+
+	--creates the client connection to the server
+	init_connection(a_player_name:STRING; a_server_ip: STRING; a_server_port:INTEGER)
+	local
+		l_client_connect: XX_CLIENT_CONNECT
+	do
+		set_server_ip (a_server_ip)
+		set_server_port (a_server_port)
+		name_player:=a_player_name
+		create l_client_connect.make_client_thread (current)
+		socket_interface:=l_client_connect
+		socket_interface.launch
+	end
+
+
+	--Is going to be initialized a listener on a_port in order to receive all the request on it.
+	init_listener(a_server_port: INTEGER)
+	local
+		l_server_listener: XX_SERVER_LISTENER
+	do
+		set_server_port (a_server_port)
+		create l_server_listener.make_server_thread (current)
+		socket_interface:=l_server_listener
+		socket_interface.launch
+	end
 
 	--This method permits to close an open connection
 	close_connection
 	do
-		listening:= FALSE
+		socket_interface.close
 	end
 
 	-- This method sends the command that takes the game at the initial condition
 	send_command_clean_game_window
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send("clean")
+		socket_interface.write (command_clean_game_windo)
 	end
 
 	-- This method permits to send the command that switches from menu panel to game panel
 	send_command_switch_panel_menu_to_game
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send("switch_menu_to_game")
+		socket_interface.write (command_switch_panel_menu_to_game)
 	end
 
 	--This method permits to send the command that switches from game panel to menu panel
 	send_command_switch_panel_game_to_menu
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send("switch_game_to_menu")
+		socket_interface.write (command_switch_panel_game_to_menu)
 	end
 
 	-- This method permits to send the board of the game
 	send_board(a_board: XX_BOARD)
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send(a_board)
+		socket_interface.write (a_board)
 	end
 
 	-- This method permits to send the cell
-	send_cell(a_cell: XX_CELL)
+	send_possible_move(a_possible_move: XX_POSSIBLE_MOVES)
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send(a_cell)
+		socket_interface.write (a_possible_move)
 	end
 
 	-- This method permits to send the game status
 	send_game_status(a_player1, a_player2: XX_PLAYER;active:BOOLEAN)
+	require else
+		socket_interface_not_void: socket_interface/=void
 	local
-		l_pl1,l_pl2:XX_PLAYER
-		is_active:BOOLEAN
 		l_status: XX_NET_GAME_STATUS
 	do
-		is_active:=active
-		l_pl1:=a_player1
-		l_pl2:=a_player2
-		create l_status.make (l_pl1,l_pl2,is_active)
-		send(l_status)
+		create l_status.make (a_player1,a_player2,active)
+		socket_interface.write (l_status)
 	end
 
 	-- This method permits to send the command that enables the chat
 	send_chat_enable(a_condition: BOOLEAN)
+	require else
+		socket_interface_not_void: socket_interface/=void
+	local
+		l_string: STRING
 	do
-		if(a_condition) then
-			send("chat_enable")
-		elseif(not a_condition) then
-			send("chat_disable")
-		end
+		l_string:=command_chat_enable
+		l_string.append_boolean (a_condition)
+
+		socket_interface.write (l_string)
 	end
 
 	-- This method permits to send the timer
 	send_timer(a_timer: XX_TIMER)
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send(a_timer)
+		socket_interface.write (a_timer)
 	end
 
 	--This method permits to send the victory status
 	send_victory
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send("victory")
+		socket_interface.write (command_victory)
 	end
 
 	--This method permits to send the victory status
 	send_defeated
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send("defeat")
+		socket_interface.write (command_defeat)
 	end
 
 	--This method permits to send the draw status
 	send_draw_status
+	require else
+		socket_interface_not_void: socket_interface/=void
 	do
-		send("draw")
+		socket_interface.write (command_draw)
 	end
 
-	--useless method
-	other_move
-	do
-	-- HARIS PLEASE KILL ME. I'M USELESS BUT I HAVE TO EXIST BECAUSE I'M PART OF ILOGIC.
-	end
-
---######################################################################################
 feature{NONE} --Private Method Inherited from XX_INET
 
 	--Check if an address is valid
-	is_address_valid(a_ip: STRING a_port: INTEGER):BOOLEAN
+	is_address_valid(a_ip: STRING; a_port: INTEGER):BOOLEAN
 	do
 		if(is_ip_valid(a_ip) and is_port_valid(a_port))then
 			Result:=TRUE
@@ -202,14 +360,14 @@ feature{NONE} --Private Method Inherited from XX_INET
 	--Checks if the listener is initialized
 	is_listener_initialized:BOOLEAN
 	do
-		if listening  then
+		if (socket_interface/=Void)  then
 			result:= TRUE
 		else
 			result:= FALSE
 		end
 	end
 
---######################################################################################
+
 feature --PUBLIC Methods inherited from XX_CHAT_TO_NET_INTERFACE
 
 	--Allow to send a new chat message throught the net to the other host
@@ -217,17 +375,18 @@ feature --PUBLIC Methods inherited from XX_CHAT_TO_NET_INTERFACE
 	local
 		message:STRING
 	do
-		message:= prepare_to_chat(a_chat_message)
-		send(message)
+		message:=command_chat_message
+		message.append (a_chat_message)
+		socket_interface.write (message)
 	end
+
 	--Allow to set the chat manager
 	set_chat_manager(a_chat_manager: XX_CHAT)
 	do
 		chat_manager:=a_chat_manager
-		chat_ok:=TRUE
 	end
 
---######################################################################################
+
 feature{NONE} --Private Method Inherited from XX_CHAT_TO_NET_INTERFACE
 
 	--Checks if the message is Void
@@ -253,134 +412,23 @@ feature{NONE} --Private Method Inherited from XX_CHAT_TO_NET_INTERFACE
 	--Checks if the chat manager is setted
 	is_chat_manager_setted:BOOLEAN
 	do
-		if(chat_ok)then
+		if(chat_manager/=Void)then
 			Result:=TRUE
 		else
 			Result:=FALSE
 		end
 	end
 
---######################################################################################
-feature{NONE}	--PRIVATE Methods of XX_NET (DDD)
-
-	prepare_to_chat(a_str:STRING) :STRING
-	local
-		l_str:STRING
+--#############################
+--#############################
+--##						 ##
+--##	TEMPORANEAL METHOD   ##
+--##						 ##
+--#############################
+--#############################
+feature --TEMPORANEAL METHOD
+	send(a: ANY)
 	do
-		l_str:=a_str
-		l_str.prepend ("@")
-		result:=l_str
+		socket_interface.write (a)
 	end
-
-
-	send(obj:ANY) -- send from client to server
-	local
-			l_med:SED_MEDIUM_READER_WRITER
-		do
-			create socket.make_client_by_address_and_port (server_ip,server_port)
-	        socket.connect
-	        create l_med.make (socket)
-	        l_med.set_for_writing
-	        store(obj,l_med)
-		    socket.cleanup
-		end
-
-	tell(obj:ANY) -- respond from server sending something to client
-	local
-			l_ip:INET_ADDRESS
-			l_med:SED_MEDIUM_READER_WRITER
-		do
-			l_ip:= create_from_name(ip_reci)
-			create socket2.make_client_by_address_and_port (l_ip,server_port)
-			socket2.connect
-			create l_med.make (socket2)
-	        l_med.set_for_writing
-            store(obj,l_med)
-			socket2.cleanup
-	   	end
---	receive a connection
-	receive_soc(a_soc :NETWORK_STREAM_SOCKET)
-	require
-        	a_soc /= void -- it need a solution in case will be void? system can't stuck! TODO
-        local
-            l_med: SED_MEDIUM_READER_WRITER --SErialization/Deserialization stuff
-            l_object:ANY -- Anything is been passed on.
-            --From now are useful to construct the objects those are going to be send
-            l_player1,l_player2:XX_PLAYER
-            l_active:BOOLEAN
-            board:XX_BOARD
-
-		do
-			a_soc.accept --Socket accept the connection
-			if attached {NETWORK_STREAM_SOCKET} a_soc.accepted as soc then
-				ip_reci:= soc.peer_address.host_address.host_address --save in ip_reci the ip(String) of the peer connected.
-				io.put_string ("From "+ip_reci+":")
-				create l_med.make (soc)
-				l_med.set_for_reading
-				l_object:=retrieved (l_med, TRUE)
-
-				if attached {STRING} l_object as txt then
-					l_med.cleanup
-					io.put_string ("I've received string: "+txt+"%N")
-						if txt.is_equal ("switch_game_to_menu") then
-							logic_interface.receive_command_switch_panel_game_to_menu
-							io.put_string("I've to switch from game panel to menu panel%N'")
-						elseif txt.is_equal ("switch_menu_to_game") then
-							logic_interface.receive_command_switch_panel_menu_to_game
-							io.put_string("I've to switch from menu panel to game panel%N'")
-						elseif txt.is_equal ("clean") then
-							logic_interface.receive_command_clean_game_window
-							io.put_string("I've to clean%N'")
-						elseif txt.is_equal ("defeat") then
-							tell("REPLY STRING%N")
-							create board.make_board
-							tell(board)
-----						logic_interface.defeat
-							io.put_string ("You lose%N")
-						elseif txt.is_equal ("victory") then
-							logic_interface.victory
-							io.put_string("You win!%N'")
-						elseif txt.is_equal ("draw") then
-							logic_interface.receive_draw_status
-							io.put_string("Match is ended in draw!%N'")
-						elseif txt.at (1).is_equal ('@') then
-							txt.prune ('@')
-							chat_manager.set_chat_message (txt)
-						elseif txt.is_equal ("chat_enable") then
-							--TODO
-							io.put_string("Chat is going to be enabled%N'")
-						elseif txt.is_equal ("chat_disable") then
-							--TODO
-							io.put_string("Chat is going to be disabled%N'")
-						end
---				ONLY USED FOR SENDING AN OBJECT OVER THE NET
-				elseif attached {XX_NET_MESSAGE} l_object as obj then
-				io.put_string ("%NI've received an object XX_NET_MESSAGE with text: "+ obj.message +" and number: ")
-				io.put_integer (obj.num)
---				##################END TEST######################################
-
-				elseif attached {XX_BOARD} l_object as obj then
---				logic_interface.receive_board (obj)
-				io.put_string ("%NI've received a XX_BOARD")
-
-				elseif attached {XX_CELL} l_object as obj then
---				logic_interface.receive_cell (obj)
-				io.put_string ("%NI've received a XX_CELL")
-
-				elseif attached {XX_TIMER} l_object as obj then
---				logic_interface.receive_timer (obj)
-				io.put_string ("%NI've received a XX_TIMER")
-
-				elseif attached {XX_NET_GAME_STATUS} l_object as obj then
-					l_player1:=obj.get_pl1
-					l_player2:=obj.get_pl2
-					l_active:=obj.get_active
---					logic_interface.receive_game_status (l_player1,l_player2,l_active)
-					io.put_string ("%NI've received a XX_NET_GAME_STATUS")
-
-				end--if attached
-
-				soc.close --close the "fake" socket
-			end
-		end--do
 end

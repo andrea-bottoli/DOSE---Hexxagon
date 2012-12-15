@@ -23,7 +23,7 @@ feature	-- Implementation
 
 			create join_button.make_with_text ("Join a game")
 			join_button.set_minimum_size (80, 40)
-			join_button.select_actions.extend (agent set_name_and_ip (name_player_join))
+			join_button.select_actions.extend (agent set_name_and_ip (name_player_join,ip_address_match))
 
 
 			create cancel_button.make_with_text ("Cancel")
@@ -54,33 +54,44 @@ feature	-- Implementation
 
 feature
 
-	set_name_and_ip (name_match: EV_TEXT_FIELD)
+	set_name_and_ip (a_name_player, ip_address: EV_TEXT_FIELD)
 		-- Set a name of the match to join an exists game
 		require
-			name_match_not_empty: name_match /= void
+			name_player_not_empty: a_name_player /= void
+		local
+			error_dialog: EV_INFORMATION_DIALOG
 		do
-		if not (name_match.text.is_empty) then
-			io.put_string (name_match.text)
+		if not (a_name_player.text.is_empty) then
+			name_player := a_name_player.text
+			io.put_string (name_player)
+
 		else
-			io.put_string ("%N Put a valid name %N")
+			create error_dialog.make_with_text ("Name of player is empty")
+			error_dialog.set_title ("ERROR")
+			error_dialog.show
+--			error_dialog.show_modal_to_window (parent_window)
 		end
-		if not (ip_address_match.text.is_empty) then
-			io.put_string (ip_address_match.text)
+		if not (ip_address.text.is_empty) then
+			ip := ip_address.text
+			io.put_string (ip)
 		else
-			io.put_string ("%N Put a valid Ip %N")
+			create error_dialog.make_with_text ("Ip address is not valid")
+			error_dialog.set_title ("ERROR")
+			error_dialog.show
+--			error_dialog.show_modal_to_window (parent_window)
 		end
 		ensure
 --			name_match_updated: name_player_join.text = name_match
 		end
 
-	set_ip_address (ip_address: STRING)
-		-- Set a ip address to join an exists game
-		require
-			ip_address_not_empty: ip_address /= void
-		do
-		ensure
-			ip_address_updated: ip_address_match.text = ip_address
-		end
+--	set_ip_address (ip_address: STRING)
+--		-- Set a ip address to join an exists game
+--		require
+--			ip_address_not_empty: ip_address /= void
+--		do
+--		ensure
+--			ip_address_updated: ip_address_match.text = ip_address
+--		end
 
 
 feature	-- Implementation/ Constants
@@ -97,4 +108,10 @@ feature	-- Implementation/ Constants
 	name_entered: STRING
 
 	con_join: EV_FIXED
+
+	ip: STRING
+
+	name_player: STRING
+
+	parent_window: CU_MAIN_LOBBY
 end

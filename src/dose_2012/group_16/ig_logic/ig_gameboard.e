@@ -215,123 +215,56 @@ feature -- Status Setting
 			--Fbesser: Maybe some sort of gameboard.has(ig:move.tile)?
 		end
 
-feature -- find neighbour hexes with specific condition
-
-	find_neighbour_hexes(hex_x, hex_y:INTEGER; a_color : STRING) : ARRAY [ TUPLE[x:INTEGER;y:INTEGER]]
-		local
-			i:INTEGER
-			fit_positions : ARRAY[TUPLE[x:INTEGER;y:INTEGER]]
-			neighbour_hex:TUPLE[x:INTEGER;y:INTEGER]
-			rot:INTEGER
-		do
-			rot:=1
-			create fit_positions.make_filled ([0,0], 1, 6)
-			from i:=1
-			until i>6
-			loop
-
-				rot:=((i+3) \\ 6)+1
-
-				neighbour_hex:= position_from_coordinates_and_rotation(hex_x,hex_y, rot ) -- rotation4 = direction1
-				if (gameboard.item (neighbour_hex.x,neighbour_hex.y)/=Void)  then
-					if (gameboard.item (neighbour_hex.x,neighbour_hex.y).color.is_equal (a_color))
-					then fit_positions.put ([neighbour_hex.x,neighbour_hex.y], i)
-					else fit_positions.put ([-1, -1],i)
-					end
-			else fit_positions.put (Void,i)
-		--	else fit_positions.put ([-1, -1],i)
-			end
-			i:=i+1
-		end
-
-		Result := fit_positions
-	end
-
-
-feature
-
 	points_for_move (a_move: IG_MOVE): TUPLE[first_color, second_color: INTEGER]
 		-- The number of points for potentially making the given move.
 	require
 		valid_move: is_move_valid (a_move)
 	local
-		neighbors1 : ARRAY [ TUPLE[x:INTEGER;y:INTEGER]]
-		neighbors2 : ARRAY [ TUPLE[x:INTEGER;y:INTEGER]]
-		i:INTEGER
 		x:INTEGER
 		y:INTEGER
-		points:INTEGER
+		l_direction, l_opposite_direction: INTEGER
+		l_next: like position_from_coordinates_and_rotation
 	do
-		create	neighbors1.make_filled ([0,0], 1, 6)
-		create	neighbors2.make_filled ([0,0], 1, 6)
-		neighbors1 := find_neighbour_hexes (a_move.x_position, a_move.y_position, a_move.tile.first_hex.color)
-		points:=0
-		from i:=1
-		until i>6
-		loop
-			if(neighbors1.at (i)/=Void and neighbors1.at(i).x/=-1) then
-				points:=points+1
-				x:=neighbors1.at (i).x
-				y:=neighbors1.at (i).y
-				from
-				until neighbors2.at(i)=Void or neighbors2.at (i).x=-1 or not (gameboard.item (x,y).color.is_equal (a_move.tile.first_hex.color)) or x>gameboard.width or y>gameboard.height
-				loop
-					neighbors2:=find_neighbour_hexes (x,y, a_move.tile.first_hex.color)
-
-
-					if(neighbors2.at (i)/=Void and neighbors2.at (i).x/=-1) then
-						points:=points+1
-						x:=neighbors2.at (i).x
-						y:=neighbors2.at (i).y
-					end
-				end
-			end
-		i:=i+1
-		end --end loop
-
 		create Result
-		Result.first_color := points
-		print("Points for color ")
-		print(a_move.tile.first_hex.color)
-		print("= ")
-		print(points)
-		print("%N")
-
-
-		---for the second hex
-
-		neighbors1 := find_neighbour_hexes (a_move.x_position, a_move.y_position, a_move.tile.second_hex.color)
-		points:=0
-		from i:=1
-		until i>6
-		loop
-			if(neighbors1.at (i)/=Void and neighbors1.at(i).x/=-1) then
-				points:=points+1
-				x:=neighbors1.at (i).x
-				y:=neighbors1.at (i).y
-				from
-				until neighbors2.at(i)=Void or neighbors2.at (i).x=-1 or not (gameboard.item (x,y).color.is_equal (a_move.tile.first_hex.color)) or x>gameboard.width or y>gameboard.height
+		x := a_move.x_position
+		y := a_move.y_position
+			-- Compute the points for the first hex of the tile.
+		from l_direction := 1 until l_direction > 6 loop
+				-- Count points only if they are not in the direction of the second hex of the tile.
+			if l_direction /= a_move.rotation then
+				from l_next := position_from_coordinates_and_rotation (x, y, l_direction)
+				until not is_matching_color (l_next.x, l_next.y, a_move.tile.first_hex.color)
 				loop
-					neighbors2:=find_neighbour_hexes (x,y, a_move.tile.second_hex.color)
-
-
-					if(neighbors2.at (i)/=Void and neighbors2.at (i).x/=-1) then
-						points:=points+1
-						x:=neighbors2.at (i).x
-						y:=neighbors2.at (i).y
-					end
+					Result.first_color := Result.first_color + 1
+					l_next := position_from_coordinates_and_rotation (l_next.x, l_next.y, l_direction)
 				end
 			end
-		i:=i+1
-		end --end loop
+			l_direction := l_direction + 1
+		end
 
-		Result.second_color := points
-		print("Points for color ")
-		print(a_move.tile.second_hex.color)
-		print("= ")
-		print(points)
-		print("%N")
+			-- Compute the direction of the first tile's hex with respect to the second tile's hex
+		if a_move.rotation < 3 then
+			l_opposite_direction := a_move.rotation + 3
+		else
+			l_opposite_direction := a_move.rotation - 3
+		end
 
+		l_next := position_from_coordinates_and_rotation (x, y, a_move.rotation)
+		x := l_next.x
+		y := l_next.y
+			-- Compute the points for the second hex of the tile.
+		from l_direction := 1 until l_direction > 6 loop
+				-- Count points only if they are not in the direction of the second hex of the tile.
+			if l_direction /= l_opposite_direction then
+				from l_next := position_from_coordinates_and_rotation (x, y, l_direction)
+				until not is_matching_color (l_next.x, l_next.y, a_move.tile.second_hex.color)
+				loop
+					Result.second_color := Result.second_color + 1
+					l_next := position_from_coordinates_and_rotation (l_next.x, l_next.y, l_direction)
+				end
+			end
+			l_direction := l_direction + 1
+		end
 	ensure
 		non_negative_points: Result.first_color >= 0 and Result.second_color >= 0
 	end
@@ -339,14 +272,27 @@ feature
 	is_move_valid(ig_move:IG_MOVE): BOOLEAN
 		local
 			l_pos: like position_from_coordinates_and_rotation
+			rotation_fix:INTEGER
 			i_x, i_y, j_x, j_y: INTEGER
 			l_in_bounds: BOOLEAN
+			l_in_bounds_B:BOOLEAN
+			l_in_bounds_G:BOOLEAN
+			l_in_bounds_R:BOOLEAN
+			l_in_bounds_P:BOOLEAN
+			l_in_bounds_Y:BOOLEAN
+			l_in_bounds_O:BOOLEAN
 		do
 			i_x := ig_move.x_position
 			i_y := ig_move.y_position
 			l_pos := position_from_coordinates_and_rotation (i_x, i_y, ig_move.rotation)
 			j_x := l_pos.x
 			j_y := l_pos.y
+			l_in_bounds_B := True
+			l_in_bounds_G := True
+			l_in_bounds_R := True
+			l_in_bounds_P := True
+			l_in_bounds_Y := True
+			l_in_bounds_O := True
 
 			l_in_bounds := True
 				-- Check we are still within the matrix boundaries
@@ -357,266 +303,86 @@ feature
 				l_in_bounds := False
 			end
 
-			if l_in_bounds then
-				Result := (gameboard[i_x, i_y] = default_empty_hex) and (gameboard[j_x, j_y] = default_empty_hex)
-			else
-				Result := False
+
+			if l_in_bounds  then
+				if (gameboard[i_x, i_y] /= default_empty_hex) or (gameboard[j_x, j_y] /= default_empty_hex) then
+					l_in_bounds := False
+				end
 			end
 
---			if (moves_count = 0) then
---				if num_players = 2 then
---			    		--Default blue color
---			    		--2 players
---			    	if l_in_bounds then
---						Result := (((i_x = 7 or i_y = 3) or (i_x = 8 or i_y = 4) or (i_x = 9 or i_y = 3))
---						             and (ig_move.tile.first_hex.color = default_blue_hex.color)) or
---						             (((j_x = 7 or j_y = 3) or (j_x = 8 or j_y = 4) or (j_x = 9 or j_y = 3))
---						             and (ig_move.tile.second_hex.color = default_blue_hex.color))
+			-- If this is the first move, then the tile must be placed near
+			-- one of the initial hexes with a matching color.
 
---					else
---						Result := False
-
---					end
-
---					--Default green color
---					--2 players
---					if l_in_bounds then
---						Result := (((i_x = 4 or i_y = 5) or (i_x = 4 or i_y = 6) or (i_x = 3 or i_y = 6))
---								 and (ig_move.tile.first_hex.color = default_green_hex.color)) or
---									 (((j_x = 4 or j_y = 5) or (j_x = 4 or j_y = 6) or (j_x = 3 or j_y = 6))
---								and (ig_move.tile.second_hex.color = default_green_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default red color
---					--2 players
---					if l_in_bounds then
---						Result := (((i_x = 3 or i_y = 9) or (i_x = 4 or i_y = 10) or (i_x = 11 or i_y = 10))
---								 and (ig_move.tile.first_hex.color = default_red_hex.color)) or
---									 (((j_x = 3 or j_y = 9) or (j_x = 4 or j_y = 10) or (j_x = 11 or j_y = 10))
---								and (ig_move.tile.second_hex.color = default_red_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default pink color
---					--2 players
---					if l_in_bounds then
---						Result := (((i_x = 7 or i_y = 12) or (i_x = 8 or i_y = 12) or (i_x = 9 or i_y = 12))
---								 and (ig_move.tile.first_hex.color = default_pink_hex.color)) or
---									 (((j_x = 7 or j_y = 12) or (j_x = 8 or j_y = 12) or (j_x = 9 or j_y = 12))
---								and (ig_move.tile.second_hex.color = default_pink_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default yellow color
---					--2 players
---					if l_in_bounds then
---						Result := (((i_x = 12 or i_y = 11) or (i_x = 12 or i_y = 10) or (i_x = 13 or i_y = 9))
---								 and (ig_move.tile.first_hex.color = default_yellow_hex.color)) or
---									 (((j_x = 12 or j_y = 11) or (j_x = 12 or j_y = 10) or (j_x = 13 or j_y = 9))
---								and (ig_move.tile.second_hex.color = default_yellow_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default orange color
---					--2 players
---					if l_in_bounds then
---						Result := (((i_x = 13 or i_y = 6) or (i_x = 12 or i_y = 6) or (i_x = 12 or i_y = 5))
---								 and (ig_move.tile.first_hex.color = default_orange_hex.color)) or
---									 (((j_x = 13 or j_y = 6) or (j_x = 12 or j_y = 6) or (j_x = 12 or j_y = 5))
---								and (ig_move.tile.second_hex.color = default_orange_hex.color))
-
---					else
---						Result := False
-
---					end
-
---				elseif num_players = 3 then
-
---					--Default blue color
---			    		--3 players
---			    		if l_in_bounds then
---						Result := (((i_x = 7 or i_y = 2) or (i_x = 8 or i_y = 3) or (i_x = 9 or i_y = 2))
---						             and (ig_move.tile.first_hex.color = default_blue_hex.color)) or
---						             (((j_x = 7 or j_y = 2) or (j_x = 8 or j_y = 3) or (j_x = 9 or j_y = 2))
---						             and (ig_move.tile.second_hex.color = default_blue_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default green color
---					--3 players
---					if l_in_bounds then
---						Result := (((i_x = 2 or i_y = 6) or (i_x = 3 or i_y = 5) or (i_x = 3 or i_y = 4))
---								 and (ig_move.tile.first_hex.color = default_green_hex.color)) or
---									 (((j_x = 2 or j_y = 6) or (j_x = 3 or j_y = 5) or (j_x = 3 or j_y = 4))
---								and (ig_move.tile.second_hex.color = default_green_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default red color
---					--3 players
---					if l_in_bounds then
---						Result := (((i_x = 2 or i_y = 10) or (i_x = 3 or i_y = 10) or (i_x = 3 or i_y = 11))
---								 and (ig_move.tile.first_hex.color = default_red_hex.color)) or
---									 (((j_x = 2 or j_y = 10) or (j_x = 3 or j_y = 10) or (j_x = 3 or j_y = 11))
---								and (ig_move.tile.second_hex.color = default_red_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default pink color
---					--3 players
---					if l_in_bounds then
---						Result := (((i_x = 7 or i_y = 13) or (i_x = 8 or i_y = 13) or (i_x = 9 or i_y = 13))
---								 and (ig_move.tile.first_hex.color = default_pink_hex.color)) or
---									 (((j_x = 7 or j_y = 13) or (j_x = 8 or j_y = 13) or (j_x = 9 or j_y = 13))
---								and (ig_move.tile.second_hex.color = default_pink_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default yellow color
---					--3 players
---					if l_in_bounds then
---						Result := (((i_x = 13 or i_y = 11) or (i_x = 13 or i_y = 10) or (i_x = 14 or i_y = 10))
---								 and (ig_move.tile.first_hex.color = default_yellow_hex.color)) or
---									 (((j_x = 13 or j_y = 11) or (j_x = 13 or j_y = 10) or (j_x = 14 or j_y = 10))
---								and (ig_move.tile.second_hex.color = default_yellow_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default orange color
---					--3 players
---					if l_in_bounds then
---						Result := (((i_x = 13 or i_y = 4) or (i_x = 13 or i_y = 5) or (i_x = 14 or i_y = 6))
---								 and (ig_move.tile.first_hex.color = default_orange_hex.color)) or
---									 (((j_x = 13 or j_y = 4) or (j_x = 13 or j_y = 5) or (j_x = 14 or j_y = 6))
---								and (ig_move.tile.second_hex.color = default_orange_hex.color))
-
---					else
---						Result := False
-
---					end
-
-
---				else
---					--Default blue color
---			    		--4 players
---			    		if l_in_bounds then
---						Result := (((i_x = 7 or i_y = 1) or (i_x = 8 or i_y = 2) or (i_x = 9 or i_y = 1))
---						             and (ig_move.tile.first_hex.color = default_blue_hex.color)) or
---						             (((j_x = 7 or j_y = 1) or (j_x = 8 or j_y = 2) or (j_x = 9 or j_y = 1))
---						             and (ig_move.tile.second_hex.color = default_blue_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default green color
---					--4 players
---					if l_in_bounds then
---						Result := (((i_x = 2 or i_y = 4) or (i_x = 2 or i_y = 5) or (i_x = 1 or i_y = 5))
---								 and (ig_move.tile.first_hex.color = default_green_hex.color)) or
---									 (((j_x = 2 or j_y = 4) or (j_x = 2 or j_y = 5) or (j_x = 1 or j_y = 5))
---								and (ig_move.tile.second_hex.color = default_green_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default red color
---					--4 players
---					if l_in_bounds then
---						Result := (((i_x = 1 or i_y = 10) or (i_x = 2 or i_y = 11) or (i_x = 2 or i_y = 12))
---								 and (ig_move.tile.first_hex.color = default_red_hex.color)) or
---									 (((j_x = 1 or j_y = 10) or (j_x = 2 or j_y = 11) or (j_x = 2 or j_y = 12))
---								and (ig_move.tile.second_hex.color = default_red_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default pink color
---					--4 players
---					if l_in_bounds then
---						Result := (((i_x = 7 or i_y = 14) or (i_x = 8 or i_y = 14) or (i_x = 9 or i_y = 14))
---								 and (ig_move.tile.first_hex.color = default_pink_hex.color)) or
---									 (((j_x = 7 or j_y = 14) or (j_x = 8 or j_y = 14) or (j_x = 9 or j_y = 14))
---								and (ig_move.tile.second_hex.color = default_pink_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default yellow color
---					--4 players
---					if l_in_bounds then
---						Result := (((i_x = 14 or i_y = 12) or (i_x = 14 or i_y = 11) or (i_x = 15 or i_y = 10))
---								 and (ig_move.tile.first_hex.color = default_yellow_hex.color)) or
---									 (((j_x = 14 or j_y = 12) or (j_x = 14 or j_y = 11) or (j_x = 15 or j_y = 10))
---								and (ig_move.tile.second_hex.color = default_yellow_hex.color))
-
---					else
---						Result := False
-
---					end
-
---					--Default orange color
---					--4 players
---					if l_in_bounds then
---						Result := (((i_x = 14 or i_y = 4) or (i_x = 14 or i_y = 5) or (i_x = 15 or i_y = 5))
---								 and (ig_move.tile.first_hex.color = default_orange_hex.color)) or
---									 (((j_x = 14 or j_y = 4) or (j_x = 14 or j_y = 5) or (j_x = 15 or j_y = 5))
---								and (ig_move.tile.second_hex.color = default_orange_hex.color))
-
---					else
---						Result := False
-
---					end
-
-
---			end
-			--TODO: Remove when no longer necessary.
-
---	end
-
-
-				-- If this is the first move, then the tile must be placed near
-				-- one of the initial hexes with a matching color.
 			if moves_count < num_players then
-				-- TODO: find whether the tile has a neighbor with one matching color.
-			end
-				-- For debug purposes only
---			print ("(" + i_x.out + "," + i_y.out + ") - (" + j_x.out + "," + j_y.out + ") rotation: " + ig_move.rotation.out + " valid? " + Result.out + "%N")
+				if l_in_bounds then
+					-- TODO: find whether the tile has a neighbor with one matching color.
+					l_in_bounds := False
+
+					from
+					rotation_fix:=1
+					until
+					rotation_fix>6
+					loop
+						if (((ig_move.tile.first_hex.color.is_equal ("b")) and ((i_x = position_from_coordinates_and_rotation (8, 3, rotation_fix).x) and (i_y = position_from_coordinates_and_rotation (8, 3, rotation_fix).y))) or
+						   ((ig_move.tile.second_hex.color.is_equal ("b")) and ((j_x = position_from_coordinates_and_rotation (8, 3, rotation_fix).x) and (j_y = position_from_coordinates_and_rotation (8, 3, rotation_fix).y)))) then
+								if gameboard[position_from_coordinates_and_rotation (8, 3, rotation_fix).x, position_from_coordinates_and_rotation (8, 3, rotation_fix).y] /= default_empty_hex then
+									l_in_bounds_B := False
+								end
+								if l_in_bounds_B then
+									l_in_bounds := True
+								end
+
+						elseif (((ig_move.tile.first_hex.color.is_equal ("g")) and ((i_x = position_from_coordinates_and_rotation (3, 5, rotation_fix).x) and (i_y = position_from_coordinates_and_rotation (3, 5, rotation_fix).y))) or
+						       ((ig_move.tile.second_hex.color.is_equal ("g")) and ((j_x = position_from_coordinates_and_rotation (3, 5, rotation_fix).x) and (j_y = position_from_coordinates_and_rotation (3, 5, rotation_fix).y)))) then
+						    	if gameboard[position_from_coordinates_and_rotation (3, 5, rotation_fix).x, position_from_coordinates_and_rotation (3, 5, rotation_fix).y] /= default_empty_hex then
+									l_in_bounds_G := False
+								end
+								if l_in_bounds_G then
+									l_in_bounds := True
+								end
+						elseif (((ig_move.tile.first_hex.color.is_equal ("r")) and ((i_x = position_from_coordinates_and_rotation (3, 10, rotation_fix).x) and (i_y = position_from_coordinates_and_rotation (3, 10, rotation_fix).y))) or
+						       ((ig_move.tile.second_hex.color.is_equal ("r")) and ((j_x = position_from_coordinates_and_rotation (3, 10, rotation_fix).x) and (j_y = position_from_coordinates_and_rotation (3, 10, rotation_fix).y)))) then
+						    	if gameboard[position_from_coordinates_and_rotation (3, 10, rotation_fix).x, position_from_coordinates_and_rotation (3, 10, rotation_fix).y] /= default_empty_hex then
+									l_in_bounds_R := False
+								end
+								if l_in_bounds_R then
+									l_in_bounds := True
+								end
+						elseif (((ig_move.tile.first_hex.color.is_equal ("p")) and ((i_x = position_from_coordinates_and_rotation (8, 13, rotation_fix).x) and (i_y = position_from_coordinates_and_rotation (8, 13, rotation_fix).y))) or
+						       ((ig_move.tile.second_hex.color.is_equal ("p")) and ((j_x = position_from_coordinates_and_rotation (8, 13, rotation_fix).x) and (j_y = position_from_coordinates_and_rotation (8, 13, rotation_fix).y)))) then
+						    	if gameboard[position_from_coordinates_and_rotation (8, 13, rotation_fix).x, position_from_coordinates_and_rotation (8, 13, rotation_fix).y] /= default_empty_hex then
+									l_in_bounds_P := False
+								end
+								if l_in_bounds_P then
+									l_in_bounds := True
+								end
+						elseif (((ig_move.tile.first_hex.color.is_equal ("y")) and ((i_x = position_from_coordinates_and_rotation (13, 10, rotation_fix).x) and (i_y = position_from_coordinates_and_rotation (13, 10, rotation_fix).y))) or
+						       ((ig_move.tile.second_hex.color.is_equal ("y")) and ((j_x = position_from_coordinates_and_rotation (13, 10, rotation_fix).x) and (j_y = position_from_coordinates_and_rotation (13, 10, rotation_fix).y)))) then
+						    	if gameboard[position_from_coordinates_and_rotation (13, 10, rotation_fix).x, position_from_coordinates_and_rotation (13, 10, rotation_fix).y] /= default_empty_hex then
+									l_in_bounds_Y := False
+								end
+								if l_in_bounds_Y then
+									l_in_bounds := True
+								end
+						elseif (((ig_move.tile.first_hex.color.is_equal ("o")) and ((i_x = position_from_coordinates_and_rotation (13, 5, rotation_fix).x) and (i_y = position_from_coordinates_and_rotation (13, 5, rotation_fix).y))) or
+						       ((ig_move.tile.second_hex.color.is_equal ("o")) and ((j_x = position_from_coordinates_and_rotation (13, 5, rotation_fix).x) and (j_y = position_from_coordinates_and_rotation (13, 5, rotation_fix).y)))) then
+						    	if gameboard[position_from_coordinates_and_rotation (13, 5, rotation_fix).x, position_from_coordinates_and_rotation (13, 5, rotation_fix).y] /= default_empty_hex then
+									l_in_bounds_O := False
+								end
+								if l_in_bounds_O then
+									l_in_bounds := True
+								end
+					   end
+					   rotation_fix := rotation_fix+1
+				   end
+			 end
+		end
+
+	   if (l_in_bounds) then
+			Result := True
+		else
+			Result := False
+		end
 	end
 
 	can_add_tile: BOOLEAN
@@ -730,6 +496,13 @@ feature -- Access
 			end
 		end
 
+		is_valid_position (a_x, a_y: INTEGER): BOOLEAN
+				-- Is the given position within the game board boundaries?
+			do
+				Result := a_x > 0 and a_x <= gameboard.width and a_y > 0 and a_y <= gameboard.height
+			end
+
+
 feature {NONE} -- Implementation
 
 	place_initial_hexes
@@ -749,10 +522,14 @@ feature {NONE} -- Implementation
 			gameboard.put (default_orange_hex, 13, 5) -- Orange Hex at column 13, line 5
 		end
 
-	is_valid_position (a_x, a_y: INTEGER): BOOLEAN
-			-- Is the given position within the game board boundaries?
+
+
+	is_matching_color (a_x, a_y: INTEGER; a_color: STRING): BOOLEAN
+			-- Do the hexes at positions (a_x,a_y) have the color `a_color'?
 		do
-			Result := a_x > 0 and a_x <= gameboard.width and a_y > 0 and a_y <= gameboard.height
+			if is_valid_position (a_x, a_y) and then attached gameboard[a_x, a_y] as l_hex then
+				Result := l_hex.color.is_equal (a_color)
+			end
 		end
 
 end

@@ -27,10 +27,10 @@ feature {ANY}-- constructors
 		second_integer := -10
 	end
 
-	make_special_data_msg(an_id: STRING a_sender, a_receiver: G10_NET_PLAYER_INFO some_data: ANY a_first_integer, a_second_integer: INTEGER)
+	make_special_data_msg(an_id: STRING a_sender, a_receiver: G10_NET_INFO some_data: ANY a_first_integer, a_second_integer: INTEGER)
 	require-- might miss the require here if we need for some reason to create the object with void attributes
-		first_integer_not_null: first_integer /= void
-		second_integer_not_null: second_integer /= void
+		first_integer_not_negative: first_integer >= 0
+		second_integer_not_negative: second_integer >= 0
 	do
 		make_data_msg(an_id, a_sender, a_receiver, some_data)
 		first_integer := a_first_integer

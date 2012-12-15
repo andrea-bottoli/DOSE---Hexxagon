@@ -15,6 +15,7 @@ create
 feature --Constructor
 	make
 	do
+		set_role_name("Fugitive")
 	ensure
 		Role_Name.is_equal("Fugitive")
 	end

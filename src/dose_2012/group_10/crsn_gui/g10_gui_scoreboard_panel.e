@@ -10,7 +10,7 @@ inherit
 	G10_GAME_CONSTANTS
 
 create
-	make
+	make , make_first_player
 
 --attributes
 feature {NONE}
@@ -22,25 +22,59 @@ feature {ANY}
 	require
 		game_not_null : game /= void
 	local
-		red : G10_GUI_PLAYER_INFO
-		blue : G10_GUI_PLAYER_INFO
-		yellow : G10_GUI_PLAYER_INFO
+		player , temp : G10_GUI_PLAYER_INFO
+		players_num , iterator : INTEGER -- elpizo na dothei san orisma.
+		players_names : ARRAY[STRING] -- elpizo na dothei san orisma.
+
 	do
-		init_player_list
+		players_num := 6
+		create players_names.make_filled (void, 1, players_num)
+		players_names.put ("lefas", 1)
+		players_names.put ("antonistis", 2)
+		players_names.put ("kirios mpantourakis", 3)
+		players_names.put ("tzo", 4)
+		players_names.put ("sbob", 5)
+		players_names.put ("imidralio", 6)
 
-		create red.make(1)
-		create blue.make(2)
-		create yellow.make(3)
-		add_player_to_list(red)
-		add_player_to_list(blue)
-		add_player_to_list(yellow)
+		init_player_list(players_num)
+		from iterator := 1 until iterator > players_num
+		loop
+			create player.make (iterator , players_names.item (iterator))
+			add_player_to_list(player , players_num)
+			iterator := iterator + 1
+		end
+		-- print players array info
+		from iterator := 1 until iterator > players_num
+		loop
+			io.put_string ("player_name : " + players.item (iterator).get_player_name + " ,iterator : ")
+			io.put_integer (iterator)
+			io.put_new_line
+			iterator := iterator + 1
+		end
+		draw_player_list(game , players_num)
+	end
 
-		draw_player_list(game)
+	make_first_player(game : G10_GUI_GAME_MAIN player_name : STRING players_num : INTEGER) -- i idea me ayton ton constructor einai oi epomenes ekxoriseis paixton na ginontai me mia update
+	require
+		game_not_null : game /= void
+	local
+		player  : G10_GUI_PLAYER_INFO
+	do
+		create player.make (1 ,player_name)
+		init_player_list(players_num)
+
+		add_player_to_list(player , 1)
+
+		io.put_string ("player_name : " + player_name + " ,iterator : ")
+		io.put_integer (1)
+		io.put_new_line
+
+		draw_player_list(game , players_num)
 	end
 
 -- mutator methods.
 feature {G10_GUI_SCOREBOARD_PANEL}
-	init_player_list -- routine inits the player list
+	init_player_list(players_num : INTEGER) -- routine inits the player list indeced 1 to 6.
 	do
 		create players.make_filled (void, 1, 6)
 	end
@@ -68,7 +102,7 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 			player_contained_in_scoreboard_panel : background.has (p)
 	end
 
-	draw_player_list(game : G10_GUI_GAME_MAIN) -- routine draws the players vertically in the scoreboard panel
+	draw_player_list(game : G10_GUI_GAME_MAIN players_num : INTEGER) -- routine draws the players vertically in the scoreboard panel
 	require
 		game_not_null : game /= void
 		valid_player_list : players /= void
@@ -78,10 +112,10 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 	do
 		x := scoreboard_start_width
 		y := scoreboard_start_height
-		from iterator := 1 until iterator > 3
+		from iterator := 1 until iterator > players_num
 		loop
-			if(players.item (iterator) /= void )
-			then draw_player(game.get_background, players.item (iterator), x , y)
+			if(players.item (iterator) /= void ) then
+				draw_player(game.get_background, players.item (iterator), x , y)
 			end
 			iterator := iterator + 1
 			x := x + player_info_width + distance_between_info
@@ -101,19 +135,19 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 			valid_mutate : players /= void
 	end
 
-	add_player_to_list(p : G10_GUI_PLAYER_INFO) -- routine adds a player to the players list of this object.
+	add_player_to_list(p : G10_GUI_PLAYER_INFO players_num : INTEGER) -- routine adds a player to the players list of this object.
 	require
 		valid_player : p /= void
 		valid_list : players /= void
-		player_not_contained_in_list : not players.has (p)
 		list_not_full : players.has (void) = true
 	local
 		i : INTEGER
 	do
-		from i := 1 until i = 6
+		from i := 1 until i > 6
 		loop
-			if(players.item (i) = void and not players.has (p))
-			then players.put (p , i)
+			if( players.item (i) = void) then
+				players.put (p , i)
+				i := 7
 			end
 			i := i + 1
 		end
@@ -122,30 +156,6 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 			list_contains_player : players.has (p)
 			list_not_empty : players.is_empty = false
 	end
-
---	update_background(a_pixmap : EV_PIXMAP) -- routine sets the background of this object to arg pixmap
---	require
---		arg_pixmap_not_void : a_pixmap /= void
---	do
---		current.set_background_pixmap (a_pixmap)
---		ensure
---			background_changed_to_arg_pixmap : background_pixmap.is_equal (a_pixmap)
---	end
-
---	get_width() : INTEGER -- routine returns the width of this object
---	do
---		result := width
---		ensure
---			attr_not_mutated : width = old width
---	end
-
---	get_height() : INTEGER -- routine returns the height of this object
---	do
---		result := height
---		ensure
---			attr_not_mutated : height = old height
---	end
-
 -- accesor methods.
 feature {G10_GUI_GAME_MAIN}
 	get_follower_number(p : G10_GUI_PLAYER_INFO ) : INTEGER -- routine returns the number of followers of p player.

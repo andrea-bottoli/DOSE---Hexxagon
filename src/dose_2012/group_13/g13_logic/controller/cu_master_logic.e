@@ -81,12 +81,12 @@ feature -- Procedures
 		require
 			game_created: game /= void
 		do
-			game.next_game_state (false)
+			game.next_game_state (false)--From Initializing to Starting
 			game.generate_solution
 			game.sort_player_order
 			game.board_setup
 			game.distribute_cards
-			game.next_game_state (false)
+			game.next_turn--From Starting to the first throw dices
 		ensure
 			game_started: game.current_player= game.active_players[0]
 		end
@@ -126,23 +126,7 @@ feature --inherited methods
 
 	leave_room(a_corridor: CU_CORRIDOR)
 		-- allows to exit from the door using the chosen door
-		local
-			l_i: INTEGER
-			l_stop: BOOLEAN
 		do
-			if attached {CU_ROOM} game.current_player.position as l_room then
-				from
-					l_i:=1
-					l_stop:= false
-				until
-					l_i>l_room.doors.count or l_stop=true
-				loop
-					if l_room.doors.item (l_i)=a_corridor then
-						--game.current_player.move_to_position (a_x, a_y)
-					end
-				end
-			else
-				--Error!
-			end
+			game.exit_room(a_corridor)
 		end
 end

@@ -126,7 +126,7 @@ play_again_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_
 		-- User klisked on Exit button
 	do
 		destroy
-		create l_1st_layer.make (main_ui)
+		create l_1st_layer.make (main_ui,Void)
 		l_1st_layer.show
 	end
 

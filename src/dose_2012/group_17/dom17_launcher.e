@@ -17,6 +17,7 @@ feature -- Implemenation
 		local
 			main_window: DO_MAIN_WINDOW
 		do
+
 				--Creates the Dominon Main window
 			create main_window.make(main_ui_window)
 			main_window.show

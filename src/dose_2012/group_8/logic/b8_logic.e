@@ -41,6 +41,9 @@ feature {NONE} -- Attributes
 	game_mode:B8_MODE
 			-- the object responsable of the game mode
 
+	move_done:BOOLEAN
+			-- says if the move has been done in the current turn
+
 feature -- State
 
 	get_turn:INTEGER
@@ -87,6 +90,7 @@ feature -- Access
 			game_is_started:=True
 			current_color:=0
 			current_turn:=0
+			move_done:=False
 		ensure
 			game_is_started: game_is_started=True
 		end
@@ -122,6 +126,7 @@ feature -- Access
 							players[current_color+1].remove_tile(game_tile)
 							board.add_game_tile (game_tile)
 							players[current_color+1].set_last_placed (game_tile)
+							move_done:=True
 							Result:=True
 						else
 							game_tile.reset_position(1)
@@ -167,6 +172,15 @@ feature -- Access
 			correct_result: Result=game_mode
 		end
 
+	get_game_tile(a_color,a_type:INTEGER):B8_GAME_TILE
+			-- returns the game mode
+		require
+			check_type: 0<=a_type and a_type<=20
+			check_color: 0<=a_color and a_color<=3
+		do
+			Result:=players[a_color+1].get_tile(a_type)
+		end
+
 	set_player_id(id: like my_id)
 			-- sets the player id of the specific logic unit
 			-- id: the player id
@@ -191,6 +205,7 @@ feature -- Access
 		local
 			tile:B8_GAME_TILE
 		do
+			move_done:=False
 			tile:=players[current_color+1].get_last_placed
 			tile.reset_position (1)
 			board.remove_game_tile (tile)
@@ -198,12 +213,22 @@ feature -- Access
 			players[current_color+1].set_last_placed (Void)
 		end
 
-	confirm_last_move()
+	confirm_last_move():STRING
 			-- confirm the last move
+			-- return "player_id x y rotation color tile_type" if the player has done a move before
+			-- return Void if the player has not done a move before
 		require
 			game_is_started: game_is_started=True
+		local
+			last_placed:B8_GAME_TILE
 		do
-			next_turn
+			Result:=Void
+			if(move_done)then
+				last_placed:=players[current_color+1].get_last_placed
+				Result:=current_turn.out+" "+last_placed.get_monomini[1].get_x.out+" "+last_placed.get_monomini[1].get_y.out+" "+
+					last_placed.get_rotation.out+" "+last_placed.get_color.out+" "+last_placed.get_type.out
+				next_turn
+			end
 		end
 
 	next_turn()
@@ -211,6 +236,7 @@ feature -- Access
 		require
 			game_is_started: game_is_started=True
 		do
+			move_done:=False
 			game_mode.next_turn
 		end
 
@@ -251,10 +277,11 @@ feature -- Game mode
 		i:INTEGER
 	do
 		create Result.make (0)
-		from i:=0
-		until i>=4
+		from i:=1
+		until i>game_mode.get_num_players
 		loop
 			Result.force(game_mode.get_score(i))
+			i:=i+1
 		end
 	end
 

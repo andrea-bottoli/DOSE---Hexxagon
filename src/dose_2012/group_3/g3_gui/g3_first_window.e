@@ -184,8 +184,8 @@ feature{NONE}
 
 	play_game (a_a,a_b,a_c:INTEGER_32 b_a,b_b,b_c:REAL_64 c_a,c_b:INTEGER_32)
 		--calls when player push play button
-	local
-		window:G3_START_GAME
+
+
 
 	do
 		--destroy;
@@ -251,4 +251,6 @@ feature {NONE}	-- Attributes
 	comps:G3_COMPS
 
 	main_window:EV_TITLED_WINDOW
+
+	window:G3_START_GAME
 end

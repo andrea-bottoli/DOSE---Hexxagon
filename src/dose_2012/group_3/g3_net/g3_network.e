@@ -6,11 +6,15 @@ note
 
 class
 	G3_NETWORK
+	inherit
+		SED_STORABLE_FACILITIES
+		SOCKET_RESOURCES
+    --	STORABLE
+		G3_INETWORK
+			export
+				{NONE} controller
+			end
 
-inherit
-	SOCKET_RESOURCES
-	STORABLE
-	G3_INETWORK
 
 create
 	make
@@ -23,7 +27,7 @@ feature{NONE}
 
 	socs: LINKED_LIST[NETWORK_STREAM_SOCKET]
 
-	portId: INTEGER = 57452
+	portId: INTEGER = 2740
 
 	connectionStart: BOOLEAN
 
@@ -48,7 +52,12 @@ feature{ANY} -- Initialization
 feature{ANY} -- Server
 
 	run_server_mode 	-- set the component ready to receive conections
+	local
+		med: SED_MEDIUM_READER_WRITER
 		do
+
+			make(true)
+			create socs.make
 			create server_soc.make_server_by_port (portId)
 			server_soc.listen (3) --listen to 3 clients
 			from
@@ -56,8 +65,16 @@ feature{ANY} -- Server
 			until
 				socs.count=3
 			loop
+
 				server_soc.accept
+				io.putstring ("connected")
 				socs.extend (server_soc.accepted)
+				create med.make (server_soc.accepted)
+				med.set_for_reading
+				if attached {G3_MESSAGE} retrieved(med,true) as mess then
+					med.set_for_writing
+					store (controller.register_players (mess),med)
+				end
 				--send the player to logic
 			end
 		end
@@ -86,14 +103,27 @@ feature{ANY} -- Client
 
 	connect (ip : STRING ; message : G3_MESSAGE) : G3_MESSAGE -- this feature shall be called by client controller to register on the remote game
 	local
-		mess : G3_MESSAGE
+
+		med: SED_MEDIUM_READER_WRITER
 		do
-			if not server then
+
+			make(false)
+		--	if not server then
 				create server_soc.make_client_by_port (portId,ip)
+				server_soc.connect
+				create med.make (server_soc)
+				med.set_for_writing
+				store (message,med)
 				--create mess.make_with_parameters (receiver, sender: [detachable] G3_PLAYER_ID)
+		--	end
+		med.set_for_reading
+			if attached {G3_MESSAGE} retrieved(med,True) as msg then
+				Result:=msg
 			end
-			Result:=mess
+			med.set_for_writing
+
 			if not server_soc.is_connected then
+				io.putstring ("asdasdas")
 				Result:=void
 			end
 		end

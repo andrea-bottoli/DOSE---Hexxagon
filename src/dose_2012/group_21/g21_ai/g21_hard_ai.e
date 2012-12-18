@@ -50,7 +50,7 @@ feature{NONE} -- Creation
 			if rules.openrule.getison and then (rules.plusRule.getison or else rules.sameRule.getison or else rules.samewallRule.getison) then
 
 				use_fake_board:=TRUE
-				fake.make(game_board)
+				create fake.make(game_board)
 				create ai_rules.make
 
 				if game_rules.plusrule.getison then
@@ -117,7 +117,9 @@ feature{G21_BOARD, TEST_G21_HARD_AI_MAKE_A_MOVE} -- Interface Procedure
 			end
 
 			move_to_make:= choose_move.twin
+
 			remove_card(move_to_make.card)
+
 			remove_position_and_update(move_to_make.position, FALSE)
 			result:=move_to_make.twin
 
@@ -192,30 +194,43 @@ feature{NONE} -- Procedure
 
 		local
 
-			human_cards: ARRAYED_LIST[G21_CARD]
+			human_cards: ARRAY[G21_CARD]
 			positions: ARRAY[G21_POINT]
 			i: INTEGER
+			index: INTEGER
 
 		do
 
 			result:=FALSE
 			fake.make_fake_move (create{G21_MOVE}.make(ai_card, ai_position))
-			-- I copy the human player cards into human_cards by using the method of rules.open (when it will be implemented)
+			human_cards:= rules.openrule.carddeckplayer1.twin
 
-			positions.make_empty()
-			positions.put(create{G21_POINT}.make(ai_position.x-1, ai_position.y),1)
-			positions.put(create{G21_POINT}.make(ai_position.x+1, ai_position.y),2)
-			positions.put(create{G21_POINT}.make(ai_position.x, ai_position.y-1),3)
-			positions.put(create{G21_POINT}.make(ai_position.x, ai_position.y+1),4)
-
+			create positions.make_empty()
+			index:=1
+			if ai_position.x-1>=1 then
+				positions.force(create{G21_POINT}.make(ai_position.x-1, ai_position.y),index)
+				index:=index+1
+			end
+			if ai_position.x+1<=3 then
+				positions.force(create{G21_POINT}.make(ai_position.x+1, ai_position.y),index)
+				index:=index+1
+			end
+			if ai_position.y-1>=1 then
+				positions.force(create{G21_POINT}.make(ai_position.x, ai_position.y-1),index)
+				index:=index+1
+			end
+			if ai_position.y+1<=3 then
+				positions.force(create{G21_POINT}.make(ai_position.x, ai_position.y+1),index)
+				index:=index+1
+			end
 
 			from
 
-				human_cards.start
+				index:=1
 
 			until
 
-				human_cards.off or else result=TRUE
+				index>human_cards.count or else result=TRUE
 
 			loop
 
@@ -231,19 +246,19 @@ feature{NONE} -- Procedure
 
 					if positions[i].x>=1 and then positions[i].x<=3 and then positions[i].y>=1 and then positions[i].y<=3 and then fake.fake_board.item(positions[i].x, positions[i].y).isoccupied=FALSE  then
 
-						if ai_rules.plusRule.getison and then ai_rules.plusRule.ismakechange(positions[i].x, positions[i].y, human_cards.item) then
+						if ai_rules.plusRule.getison and then ai_rules.plusRule.ismakechange(positions[i].x, positions[i].y, human_cards[index]) then
 
 							result:=TRUE
 
 						end
 
-						if ai_rules.sameRule.getison and then ai_rules.sameRule.ismakechange(positions[i].x, positions[i].y, human_cards.item) then
+						if ai_rules.sameRule.getison and then ai_rules.sameRule.ismakechange(positions[i].x, positions[i].y, human_cards[index]) then
 
 							result:=TRUE
 
 						end
 
-						if ai_rules.samewallRule.getison and then ai_rules.samewallRule.ismakechange(positions[i].x, positions[i].y, human_cards.item) then
+						if ai_rules.samewallRule.getison and then ai_rules.samewallRule.ismakechange(positions[i].x, positions[i].y, human_cards[index]) then
 
 							result:=TRUE
 
@@ -255,12 +270,13 @@ feature{NONE} -- Procedure
 
 				end
 
-				human_cards.forth
+				index:= index+1
 
 			end
 
 
 			fake.remove_fake_move (ai_position)
+
 
 		ensure
 
@@ -278,3 +294,4 @@ invariant
 	rules_valid: rules /= void
 
 end
+

@@ -42,7 +42,7 @@ feature -- Execute
 		end
 		io.put_string ("BS_GAME_CONNECTION_LISTENER thread cleanly terminated.%N")
 	rescue
-		if not game_connection.is_connected() then
+		if game_connection.has_byebyed or game_connection.has_been_kicked then
 			-- Then it probably failed because the connection has been closed.
 			sweet_fail := true
 			retry

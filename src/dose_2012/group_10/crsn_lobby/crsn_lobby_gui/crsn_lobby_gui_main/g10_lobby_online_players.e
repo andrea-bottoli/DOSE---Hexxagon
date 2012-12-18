@@ -48,7 +48,7 @@ feature {NONE} -- mutators
 	enter_online_players_notify(lobby: G10_LOBBY_MAIN) -- updates lobby
 	do
 		-- latest update		
-		lobby.update_lobby
+		lobby.update_lobby(void)
 	end
 
 feature{G10_LOBBY_MAIN}

@@ -17,10 +17,8 @@ feature -- Initialization
 		do
 			ip_server := a_ip_server
 			controller := a_controller
-			create l_player.make (1, "Player")
-			create board.make_with_player (l_player)
-			create net_client.make_client (ip_server, Current)
-				--net_client.connect (ip_server, 9190)
+			create board.make
+			create net_client.make_client (Current)
 		end
 
 feature -- Attributes
@@ -43,8 +41,9 @@ feature -- Attributes
 	ip_server: STRING
 			-- Ip address of server.
 
-	l_dice_value: INTEGER
-			-- Values of the last roll dice.
+	dice_1: G1_DICE
+
+	dice_2: G1_DICE
 
 feature -- Procedures
 
@@ -269,11 +268,20 @@ feature -- Procedures
 			valid_player: a_player /= Void
 		local
 			message: G1_MESSAGE_ADD_PLAYER
+			players: G1_MESSAGE_NUMBER_PLAYER
 		do
 			board.add_player (a_player)
 			board.withdraw_bank (1500)
 			create message.make_add_player (a_player.id_player, a_player.name)
 			net_client.send_message_to_network (message)
+			create players.make_players(TRUE)
+			net_client.send_message_to_network (players)
+		end
+
+	set_server_info (serverIP: STRING; serverPort: INTEGER)
+		do
+			ip_server := serverIP
+			net_client.connect (serverIP, serverPort)
 		end
 
 	game_rules (): STRING
@@ -287,16 +295,16 @@ feature -- Procedures
 		require
 			valid_roll_dice_a_player: a_player /= Void
 		local
-			dice_1: G1_DICE
-			dice_2: G1_DICE
 			message: G1_MESSAGE_MOVE
+			message_dice : G1_MESSAGE_DICE
 		do
 			create dice_1.make_dice
 			create dice_2.make_dice
+			create message_dice.make_dice(dice_1.get_value_dice,dice_2.get_value_dice)
 			board.move_player (a_player, dice_1.get_value_dice + dice_2.get_value_dice)
-			l_dice_value := dice_1.get_value_dice + dice_2.get_value_dice
 			Result := board.cells [a_player.position]
 			create message.make_move (a_player.id_player, a_player.position)
+			net_client.send_message_to_network (message_dice)
 			net_client.send_message_to_network (message)
 		end
 
@@ -314,7 +322,7 @@ feature -- Procedures
 			a_player.add_property (a_deed)
 			a_player.decrement_money (a_deed.get_price)
 			board.deposit_bank (a_deed.get_price)
-			create message.make_buy (a_player.id_player, True)
+			create message.make_buy (a_player.id_player, True, a_deed.id_cell)
 			net_client.send_message_to_network (message)
 		ensure
 			valid_player: a_player.id_player > 0
@@ -370,44 +378,73 @@ feature -- Procedures
 			valid_deed: a_deed.is_mortgaged = False
 		end
 
-	trade (a_player1: G1_PLAYER; a_p1_deed: G1_DEED; a_p1_card: G1_CARD; a_player2: G1_PLAYER; a_p2_deed: G1_DEED; a_p2_card: G1_CARD)
-			-- Trade from player1 to player2
+	trade (a_p1_id: INTEGER; a_p1_deed: INTEGER; a_p1_card: INTEGER; a_p2_id: INTEGER; a_p2_deed: INTEGER; a_p2_card: INTEGER)
+			-- Trade from player1(p1) to player2(p2)
 		require
-			valid_players_id: a_player1.id_player > 0 and a_player2.id_player > 0
-			valid_items_player1: a_p1_deed /= Void or a_p1_card /= Void
-			valid_items_player2: a_p2_deed /= Void or a_p2_card /= Void
+			valid_players_id: a_p1_id > 0 and a_p2_id > 0
+			valid_id_deed_p1: a_p1_deed > 0 and a_p1_deed <= 39
+			valid_id_deed_p2: a_p2_deed > 0 and a_p2_deed <= 39
+			valid_id_card_p1: a_p1_card = 3 or a_p1_card = 22
+			valid_id_card_p2: a_p2_card = 3 or a_p2_card = 22
 		local
+			player1: G1_PLAYER
+			player2: G1_PLAYER
 			message: G1_MESSAGE_TRADE
 		do
-			if (a_p1_deed /= Void) then
-				a_player1.delete_property (a_p1_deed)
-				a_player2.add_property (a_p1_deed)
+			player1 := get_player_board (a_p1_id)
+			player2 := get_player_board (a_p2_id)
+			if (a_p1_deed /= 0) then
+				if attached {G1_DEED} board.cells [a_p1_deed] as deed1 then
+					player1.delete_property (deed1)
+					player2.add_property (deed1)
+				end
 			end
-			if (a_p1_card /= Void) then
-				a_player1.decrement_jail_cards
-				a_player2.increment_jail_cards
+			if (a_p1_card = 3 or a_p1_card = 22) then
+				player1.decrement_jail_cards
+				player2.increment_jail_cards
 			end
-			if (a_p2_deed /= Void) then
-				a_player2.delete_property (a_p2_deed)
-				a_player1.add_property (a_p2_deed)
+			if (a_p2_deed /= 0) then
+				if attached {G1_DEED} board.cells [a_p2_deed] as deed2 then
+					player2.delete_property (deed2)
+					player1.add_property (deed2)
+				end
 			end
-			if (a_p2_card /= Void) then
-				a_player2.decrement_jail_cards
-				a_player1.increment_jail_cards
+			if (a_p2_card = 3 or a_p2_card = 22) then
+				player2.decrement_jail_cards
+				player1.increment_jail_cards
 			end
-			create message.make_trade (a_player1.id_player, a_p1_deed.id_cell, a_p1_card.id, a_player2.id_player, a_p2_deed.id_cell, a_p2_card.id, True)
+			create message.make_trade (a_p1_id, a_p1_deed, a_p1_card, a_p2_id, a_p2_deed, a_p2_card, True)
 			net_client.send_message_to_network (message)
 		ensure
-			valid_players_id: a_player1.id_player > 0 and a_player2.id_player > 0
+			valid_players_id: a_p1_id > 0 and a_p2_id > 0
+			valid_id_deed_p1: a_p1_deed > 0 and a_p1_deed <= 39
+			valid_id_deed_p2: a_p2_deed > 0 and a_p2_deed <= 39
+			valid_id_card_p1: a_p1_card = 3 or a_p1_card = 22
+			valid_id_card_p2: a_p2_card = 3 or a_p2_card = 22
 		end
+
+	trade_request (a_player1_id: INTEGER; a_p1_deed_id: INTEGER; a_p1_card_id: INTEGER; a_player2_id: INTEGER; a_p2_deed_id: INTEGER; a_p2_card_id: INTEGER)
+ 		local
+ 			msg_trade : G1_MESSAGE_TRADE
+ 		do
+ 			create msg_trade.make_trade (a_player1_id, a_p1_deed_id, a_p1_card_id, a_player2_id, a_p2_deed_id, a_p2_card_id, False)
+ 			net_client.send_message_to_network (msg_trade)
+ 		end
 
 	finish_turn (a_player: G1_PLAYER)
 			-- Finish the turn of the current player
 		local
 			message: G1_MESSAGE_FINISH
+			in_jail: BOOLEAN
 		do
-			create message.make_finish (a_player.id_player)
+			if a_player.position = 10 then
+				in_jail := True
+			else
+				in_jail := False
+			end
+			create message.make_finish (a_player.id_player, True, in_jail)
 			net_client.send_message_to_network (message)
+			controller.set_turn (message)
 		end
 
 	build (a_player: G1_PLAYER; a_street: G1_STREET)
@@ -491,7 +528,7 @@ feature -- Procedures
 						current_rent := railway.rent_value
 					else
 						if attached {G1_UTILITY} rent_deed as utility then
-							current_rent := utility.l_rent_value (l_dice_value)
+							current_rent := utility.l_rent_value (dice_1.get_value_dice+dice_2.get_value_dice)
 						end
 					end
 				end
@@ -504,6 +541,124 @@ feature -- Procedures
 			else
 				print ("ERROR!  no deed cell")
 			end
+		end
+
+	update_state (a_message: G1_MESSAGE)
+		local
+			player: G1_PLAYER
+			--deed: G1_DEED
+		do
+			if attached {G1_MESSAGE_ADD_PLAYER} a_message as msg_add_player then
+				create player.make (msg_add_player.id_player, msg_add_player.name)
+				board.add_player (player)
+			end
+			if attached {G1_MESSAGE_AUCTION} a_message as msg_auction then
+			end
+			if attached {G1_MESSAGE_BUILDING} a_message as msg_building then
+				player := get_player_board (msg_building.id_player)
+				if msg_building.id_deed_build /= 0 then
+					if attached {G1_STREET} board.cells [msg_building.id_deed_build] as street then
+						street.build
+						player.decrement_money (street.l_house_cost)
+						board.deposit_bank (street.l_house_cost)
+					else
+						if attached {G1_STREET} board.cells [msg_building.id_deed_sell] as street then
+							street.sell_building
+							player.increment_money (street.l_house_cost.integer_quotient (2))
+							board.bank.withdraw_money (street.l_house_cost.integer_quotient (2))
+						end
+					end
+				end
+			end
+			if attached {G1_MESSAGE_BUY} a_message as msg_buy then
+				player := get_player_board (msg_buy.player_id)
+				if attached {G1_DEED} board.cells [get_player_board (msg_buy.player_id).position] as deed then
+					if (msg_buy.buy) then
+						deed.sell_deed
+						deed.set_owner (player)
+						player.add_property (deed)
+						player.decrement_money (deed.get_price)
+						board.deposit_bank (deed.get_price)
+					end
+				end
+			end
+			if attached {G1_MESSAGE_CASH} a_message as msg_cash then
+				player := get_player_board (msg_cash.id_player)
+				if (msg_cash.action) then --Se le tiene que sumar platita
+					player.increment_money (msg_cash.price)
+					board.deposit_bank (msg_cash.price)
+				else
+					player.decrement_money (msg_cash.price)
+					board.withdraw_bank (msg_cash.price)
+				end
+			end
+			if attached {G1_MESSAGE_FINISH} a_message as msg_finish then
+				controller.set_turn (msg_finish)
+			end
+			if attached {G1_MESSAGE_NUMBER_PLAYER} a_message as number_players then
+				l_player.set_id_player (number_players.get_number_players)
+			end
+			if attached {G1_MESSAGE_MORTGAGE} a_message as msg_mortgage then
+				player := get_player_board (msg_mortgage.id_player)
+				if attached {G1_DEED} board.cells [get_player_board (msg_mortgage.id_player).position] as deed then
+					if (msg_mortgage.mortgage) then
+						deed.mortgage_deed
+						player.increment_money (deed.get_morgaged_value)
+						board.withdraw_bank (deed.get_morgaged_value)
+					else
+						deed.unmortgage_deed
+						player.decrement_money (deed.get_morgaged_value + 10)
+						board.withdraw_bank (deed.get_morgaged_value + 10)
+					end
+				end
+			end
+			if attached {G1_MESSAGE_MOVE} a_message as msg_move then
+				board.move_player (get_player_board (msg_move.id_player), msg_move.position)
+			end
+			if attached {G1_MESSAGE_TRADE} a_message as msg_trade then
+			end
+			if attached {G1_MESSAGE_DICE} a_message as msg_dice then
+				dice_1.set_value_dice1 (msg_dice.dice_1)
+				dice_2.set_value_dice1 (msg_dice.dice_2)
+			end
+		end
+
+	get_player_board (a_id: INTEGER): G1_PLAYER
+			-- Returns a player.
+		local
+			player_t: G1_PLAYER
+			j: INTEGER
+		do
+			from
+				j := 1
+			until
+				j < board.players.count
+			loop
+				if (board.players.i_th (j).id_player = a_id) then
+					result := board.players.i_th (j)
+				end
+				j := j + 1
+			end
+		end
+
+	pay_income_tax10 (a_player: G1_PLAYER)
+		local
+			mount: INTEGER
+			message: G1_MESSAGE_CASH
+		do
+			mount := (a_player.money * 10).integer_quotient (100)
+			a_player.decrement_money (mount)
+			create message.make (a_player.id_player, False, mount)
+			net_client.send_message_to_network (message)
+		end
+
+	pay_income_tax200 (a_player: G1_PLAYER)
+		local
+			message: G1_MESSAGE_CASH
+		do
+			a_player.decrement_money (200)
+			create message.make (a_player.id_player, False, 200)
+			net_client.send_message_to_network (message)
 		end
 
 invariant

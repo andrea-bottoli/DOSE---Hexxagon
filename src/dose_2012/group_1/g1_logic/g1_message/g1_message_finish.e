@@ -16,16 +16,24 @@ create
 
 feature -- Initialization
 
-	make_finish (a_player_id: INTEGER)
+	make_finish (a_player_id: INTEGER; a_finish_turn: BOOLEAN; a_i_am_in_jail: BOOLEAN)
 		require
 			valid_id_player: a_player_id > 0
 		do
 			player_id := a_player_id
+			finish_turn := a_finish_turn
+			i_am_in_jail := a_i_am_in_jail
 		end
 
 feature --Measurent
 
 	player_id: INTEGER
 			-- Id of the player who finish turn
+
+	finish_turn: BOOLEAN
+			-- Is the player finishing his turn?
+
+	i_am_in_jail: BOOLEAN
+			-- Is the player in jail?
 
 end

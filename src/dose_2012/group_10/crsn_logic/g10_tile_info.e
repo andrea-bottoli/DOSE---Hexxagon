@@ -7,9 +7,9 @@ note
 class
 	G10_TILE_INFO
 feature
-	Tile:G10_TILE
+	Tile:G10_LOGIC_TILE
 	PossiblePositions:LIST[G10_POSITION]
 feature
-	Generate(TheTile:G10_TILE TheMap:G10_MAP ThePlayer:G10_PLAYER):BOOLEAN
+	Generate(TheTile:G10_LOGIC_TILE TheMap: G10_LOGIC_TERRAIN ThePlayer:G10_LOGIC_PLAYER):BOOLEAN
 	do  end
 end

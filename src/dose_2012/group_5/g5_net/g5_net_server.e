@@ -35,11 +35,21 @@ feature -- Status report
 			-- When this boolean is set to true it means that a match is over and a rematch choice
 			-- was not taken, so the all system should be shutted down and the sockets must be close.
 
-	end_game_condition: BOOLEAN
-			-- This boolean is set on true when a game is ended.
+	no_rematch_taken: BOOLEAN
+			-- This boolean is set on true when a game is ended and the players don't take the rematch.
+			-- It makes the server terminate its execution.
+
+	critical_disconnection: BOOLEAN
+			-- This boolean is set on true when a player leaves the current game and (s)he is the host
+			-- or the remaining number of players becomes 1.
+			-- It makes the server terminate its execution.
 
 	is_ready_to_start: BOOLEAN
 			-- When this boolean is true, server can start to accept clients.
+
+	rematch_choice_was_called: BOOLEAN
+			-- When this boolean is set on true the result of the rematch evaluation by the LOGIC
+			-- has just been obtained.
 
 	host_thread_as_client: G5_CLIENT_THREAD
 			-- The host_thread is used to make the host connect as a client to its own game.
@@ -55,7 +65,7 @@ feature -- Status report
 
 	incoming_messages: LINKED_LIST[G5_MESSAGE]
 			-- This list contains all the messages received by the server from the different clients,
-			-- that needs to be forwarded to the LOGIC component
+			-- that needs to be forwarded to the LOGIC component.
 
 feature {ANY} -- Initialization performed by G5_LAUNCHER
 
@@ -82,8 +92,10 @@ feature {ANY} -- Initialization performed by G5_LAUNCHER
 			correct_initialization:
 				max_connections = number_max_clients and
 				clean_up_condition = false and
-				end_game_condition = false and
+				no_rematch_taken = false and
+				critical_disconnection = false and
 				is_ready_to_start = false and
+				rematch_choice_was_called = false and
 				host_thread_as_client = void and
 				reception_socket /= void and
 				incoming_messages.is_empty and
@@ -142,7 +154,11 @@ feature {G5_LAUNCHER,EQA_TEST_SET} -- Game Start: Inherited methods from G5_INET
 			incoming_messages.force (start_message)
 
 			-- After all the initializaion steps are ended, the game can actually start.
-			manage_game_phase
+			-- In the rematch case the manage_game_phase is already active and so it
+			-- must not be called.
+			if not(rematch_choice_was_called) then
+				manage_game_phase
+			end
 		end
 
 feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods from G5_INET_TO_LOGIC
@@ -166,6 +182,10 @@ feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods f
 	end_game (scores: HASH_TABLE[INTEGER, STRING])
 			-- When this feature is invoked scores must be sent through
 			-- the NET. Then the game phase must be ended.
+		require else
+			scores_players_are_in_the_game:
+				scores.current_keys.for_all (agent (player_in_scores: STRING): BOOLEAN
+			do Result := (client_sockets.has (player_in_scores) and message_containers_to_clients.has (player_in_scores)) end )
 		local
 			keys: ARRAY [STRING]
 			end_message: G5_MESSAGE_END_GAME
@@ -178,12 +198,6 @@ feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods f
 			-- Create a new end message and enque it in all players message containers.
 			create end_message.make ("SERVER", keys, "end", scores)
 			enque_message_into_containers (end_message)
-
-			end_game_condition := true
-
-		ensure then
-
-			end_game_condition_is_on: end_game_condition = true
 
 		end
 
@@ -214,7 +228,13 @@ feature {G5_ITABLE,EQA_TEST_SET} -- Server Logic Management: Inherited methods f
 
 	rematch_choice(do_a_rematch: BOOLEAN)
 		do
+			no_rematch_taken := not(do_a_rematch)
 
+			-- Here it is set that the evaluation process for the rematch will be taken
+			rematch_choice_was_called := true
+		ensure then
+			rematch_condition:
+				no_rematch_taken = not(do_a_rematch) and rematch_choice_was_called = true
 		end
 
 	update (received_messages: LINKED_LIST[G5_MESSAGE])
@@ -252,7 +272,8 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 			-- In this extract the client thread of the host is launched to make it connect to its own game..
 			if client_sockets.is_empty then
 				host_thread_as_client.lock_mutex
-				-- THIS FEATURE STILL NOT WORK PROPERLY!!!
+				-- This feature doesn't work properly since the Eiffel Garbage Collector
+				-- terminates this thread at run time..
 --				host_thread_as_client.launch
 				host_thread_as_client.unlock_mutex
 			end
@@ -351,17 +372,27 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 		do
 			from
 			until
-				-- When the table with the result of the game is obtained and no other
-				-- messages must be sent to the clients then a game is ended.
-				end_game_condition
+				-- When after the end of a game the choice of not taking a rematch is
+				-- performed this condition is verified. It may be also verified if a
+				-- player decides to leave the game and the match can't continue.
+				no_rematch_taken or critical_disconnection
 			loop
+				if rematch_choice_was_called and not(no_rematch_taken) then
+					-- In this case a new game is started because the rematch result
+					-- was true.
+					start_game (server_logic.get_player_names)
+					rematch_choice_was_called := false
+				end
+
 				send_messages_to_logic
 				send_messages_to_clients
 			end
 
-				-- Rematch choice routine
+				-- In this feature the server sends the last messages to the clients
+				-- before closing them.
+				inform_clients_on_termination
 
-				-- If rematch is not taken
+				-- Here all sockets are closed so that server can terminate..
 				cleaning_procedure
 
 		end
@@ -371,22 +402,24 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 			-- If this event is verified, all the received messages are forwarded to the LOGIC
 			-- component, which will use their information.
 		do
-			server_logic.set_respose (incoming_messages)
-			incoming_messages.wipe_out
+			if(not(incoming_messages.is_empty)) then
+				server_logic.set_respose (incoming_messages)
+				incoming_messages.wipe_out
+			end
 		ensure
 			all_messages_are_redirected: incoming_messages.is_empty
 		end
 
 	enque_message_into_containers(socket_message: G5_MESSAGE)
 			-- This feature receives a G5_MESSAGE and by looking at its attribute "targets",
-			-- it put a copy of this message into the G5_MESSAGES_CONTAINERS of
+			-- it puts a copy of this message into the G5_MESSAGES_CONTAINERS of
 			-- every involved player.
 		require
 			valid_message: socket_message /= void
 			consistent_source: socket_message.source /= void and not(socket_message.source.is_empty)
 			consistent_targets:
 				socket_message.targets.for_all (agent (name: STRING): BOOLEAN
-					do Result := (not(name.is_equal ("SERVER"))) end)
+					do Result := (not(name.is_equal ("SERVER")) and not(name.is_equal (" ")) and not(name.is_empty)) end)
 		local
 			index: INTEGER
 			current_player: STRING
@@ -394,7 +427,8 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 			from
 				index := 1
 			until
-				index > socket_message.targets.count
+				-- If a critical disconnection is performed, then we can avoid send the other messages to the clients.
+				index > socket_message.targets.count or critical_disconnection
 			loop
 				-- For all the sockets associated to a name in the array "targets"
 				-- an instance of socket_message is enqued into its container.
@@ -481,13 +515,44 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 						from
 							response_list.start
 						until
-							response_list.off
+							response_list.off or critical_disconnection
 						loop
 
 							-- Only messeges with action different from response should be
 							-- forwarded to the LOGIC component.
 							if not(response_list.item.action.is_equal ("response")) then
-								incoming_messages.force (response_list.item)
+
+								-- Here the case in which a player has left is managed
+								if(response_list.item.action.is_equal ("leave")) then
+									-- Now the LOGIC is informed about the disconnection of a player
+									-- DISCONNECTION FEATURE!!! Needs disconnect to return a correct BOOLEAN!
+									if server_logic.disconnect (response_list.item.source) then
+
+										-- Here the disconnection is not critical so the game can continue.
+										-- Only this client and all its correlated objects are removed.
+										remove_a_player (response_list.item.source)
+
+										-- Here a message to inform the other clients of the exit of this
+										-- player is generated.
+										enque_message_into_containers (create {G5_MESSAGE_TEXTUAL}.make
+											(response_list.item.source, client_sockets.current_keys, "has_left", void))
+
+									else
+										-- Here the disconnection is critical and the game can't continue
+										-- without the outgoing player. The match must be terminated.
+										critical_disconnection := true
+									end
+
+								else
+
+									-- In this case all the clients who don't want to have a rematch are immediately disconnected.
+									if (response_list.item.action.is_equal ("rematch_choice:not_taken")) then
+										remove_a_player (response_list.item.source)
+									end
+
+									-- The message is enqueed to be sent to the LOGIC component.
+									incoming_messages.force (response_list.item)
+								end
 							end
 
 							response_list.forth
@@ -499,6 +564,81 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 					raise ("EXCEPTION")
 				end
 			end
+		end
+
+	remove_a_player(player_name: STRING)
+			-- This feature removes the current player from the network management if it exists.
+		require
+			valid_player: message_containers_to_clients.has (player_name) and client_sockets.has (player_name)
+		do
+			-- Only this client and all its correlated objects are removed.
+			message_containers_to_clients.remove (player_name)
+			client_sockets.search (player_name)
+			client_sockets.found_item.close
+			client_sockets.remove (player_name)
+
+			-- The maximum number of accepted connections must be decreased.
+			max_connections := max_connections - 1
+		ensure
+			decrement_of_connections: max_connections = old max_connections - 1
+			player_has_been_erased_on_sockets:
+				not(client_sockets.has (player_name))
+				and client_sockets.count = old client_sockets.count - 1
+			player_has_been_erased_on_message_containers:
+				not(message_containers_to_clients.has (player_name))
+				and message_containers_to_clients.count = old message_containers_to_clients.count - 1
+		end
+
+	inform_clients_on_termination
+			-- This feature will inform the clients on the reason why the server will stop its activity.
+			-- There are two main reason: no rematch was taken or a critical disconnection was performed.
+		local
+			index: INTEGER
+			current_player: STRING
+			current_players: ARRAY [STRING]
+			final_message: G5_MESSAGE_TEXTUAL
+		do
+			-- The final message is generated depending on the exit reason from the game phase.
+			if no_rematch_taken then
+				create final_message.make("SERVER", current_players, "terminate_game", "no_rematch_taken")
+			elseif critical_disconnection then
+				create final_message.make("SERVER", current_players, "terminate_game", "critical_disconnection")
+			end
+
+			current_players := message_containers_to_clients.current_keys
+
+			-- The list of messages in all the containers are erased..
+			from
+				index := 1
+			until
+				index > message_containers_to_clients.count
+			loop
+				current_player := current_players.item (index)
+
+				message_containers_to_clients.search (current_player)
+
+				-- Check and send messages only for those containers which have messages..
+				if not(message_containers_to_clients.found_item.is_empty) then
+					-- Some messages must be sent to the current player through
+					-- its socket..
+					client_sockets.search (current_player)
+
+					if client_sockets.found then
+						-- The previous stored messages of this container are erased..
+						message_containers_to_clients.found_item.wipe_out
+
+						-- ..while the final message, which informs the clients, is enqueed.
+						enque_message_into_containers (final_message)
+
+						-- The message container is stored on the correct socket.
+						message_containers_to_clients.found_item.independent_store (client_sockets.found_item)
+					end
+
+				end
+
+				index := index + 1
+			end
+
 		end
 
 	cleaning_procedure
@@ -525,6 +665,7 @@ feature {G5_NET_SERVER} -- Server Internal Operations
 
 			-- Finally the initial listening socket is closed
 			reception_socket.cleanup
+
 		end
 
 

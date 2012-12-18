@@ -21,7 +21,8 @@ feature -- Implementation
 
 			temp : INTEGER
 		do
-			print ( "H klhsh sas prow8eitai...%NType 1 to play the game:  %NType 2 to create a new root server:%N")
+			ipconf_script_call
+			print ( "Type 1 to play the game:  %NType 2 to create a new root server:%N")
 			io.read_integer
 			temp := io.last_integer
 			if temp = 1 then
@@ -31,6 +32,19 @@ feature -- Implementation
 			end
 
 		end
+
+
+ipconf_script_call
+--	local
+--		my_proc : PROCESS
+--		proc_run : PROCESS_FACTORY
+	once
+--		create proc_run
+--		my_proc := proc_run.process_launcher (file_system.pathname_to_string(ipconfig_script_path),
+--		void,"")
+--		my_proc.launch
+--		print("log created in path: "+file_system.pathname_to_string(group_10_path)+"%N")
+	end
 
 
 end

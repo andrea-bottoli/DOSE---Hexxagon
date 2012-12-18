@@ -80,12 +80,17 @@ feature {NONE} -- Implementation
 		local
 --			l_tile_view: IG_TILE_VIEW
 		do
-				-- Clear any existing tile
-			prune_all (Current)
+			-- Clear any existing tile
+			--prune_all (Current)
 
 			across Current as l_cursor loop
 				check attached {IG_TILE_VIEW} l_cursor.item as l_tile_view then
-					l_tile_view.set_tile (logic.user_player.tiles[l_cursor.cursor_index])
+					if logic.user_player.tiles.valid_index (l_cursor.cursor_index) then
+						l_tile_view.set_tile (logic.user_player.tiles[l_cursor.cursor_index])
+					else
+						l_tile_view.set_tile (default_empty_tile)
+					end
+
 					l_tile_view.set_tile_number (l_cursor.cursor_index)
 				end
 			end
@@ -102,5 +107,15 @@ feature {NONE} -- Implementation
 				end
 			end
 		end
+
+	default_empty_tile: IG_TILE
+		local
+			l_hex1, l_hex2: IG_HEX
+		do
+			create l_hex1.make ("")
+			create l_hex2.make ("")
+			create Result.make_with_hexes(l_hex1, l_hex2)
+		end
+
 
 end

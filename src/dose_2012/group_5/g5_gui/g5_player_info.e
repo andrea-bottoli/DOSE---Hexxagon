@@ -30,7 +30,7 @@ feature -- initialization
 		do
 			player_name := my_name
 			zoomed_card_box:= zoom_box
-			number_of_cards_deck:= 10
+			number_of_cards_deck:= 5
 			number_of_cards_hand:= 5
 			top_card_discard_pile:= "NONE"
 

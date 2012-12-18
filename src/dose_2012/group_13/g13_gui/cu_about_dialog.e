@@ -9,9 +9,7 @@ class
 
 inherit
     EV_DIALOG
---        redefine
---            initialize
---        end
+
 	CU_GUI_CONSTANTS
 		export
 			{NONE} all
@@ -21,13 +19,6 @@ inherit
 
 create
     make
-
-feature {NONE} -- Initialization
-
---    initialize
---	    do
---	    end
-
 
 feature -- Access
 
@@ -44,7 +35,8 @@ feature -- Access
 		create con_main_about
 		con_main_about.extend_with_position_and_size (button, 210, 100, 80, 30)
 		con_main_about.extend_with_position_and_size (message_label, 250, 10, 350, 90)
---		con_main_about.extend_with_position_and_size (pix_about, 10, 10, 197, 69)
+		con_main_about.extend_with_position_and_size (set_pixmap(img_about), 10, 10, 197, 69)
+
 
 
 		make_with_title (Default_title)
@@ -89,10 +81,5 @@ feature {NONE} -- Implementation / Constants
 
 	con_main_about: EV_FIXED
 
-	pix_about: EV_PIXMAP
-			-- returns the background for the active game
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (Img_about))
-		end
+
 end

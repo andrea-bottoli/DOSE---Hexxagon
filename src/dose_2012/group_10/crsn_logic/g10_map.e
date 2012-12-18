@@ -114,6 +114,128 @@ feature
 		end
 	end
 
+	--finds possible positions for a follower on a tile for a certain position
+	find_places_for_chip(thePosition: G10_POSITION theTile: G10_TILE thePlayer: G10_PLAYER): ARRAYED_LIST[TUPLE[part_x: INTEGER; part_y: INTEGER; type: INTEGER]]
+	local
+		aTileParts: ARRAY2[G10_TILE_PART]
+		i: INTEGER
+		j: INTEGER
+		aTmpPart: G10_TILE_PART
+		aTmpTuple: TUPLE[part_x: INTEGER; part_y: INTEGER; type: INTEGER]
+		aTmpResult: ARRAYED_LIST[TUPLE[part_x: INTEGER; part_y: INTEGER; type: INTEGER]]
+	do
+		if(thePlayer.get_sparechipsamount() /= 0)
+		then
+			aTileParts := theTile.get_parts()
+			from i := 0 until i < 3
+			loop
+				from j := 0 until j < 3
+				loop
+					aTmpPart := aTileParts.item (i, j)
+					if(aTmpPart.gettexture() = 0)
+					-- grass = 0
+					then
+						aTmpTuple.part_x := i
+						aTmpTuple.part_y := j
+						aTmpTuple.type := 2 --2 = peasant
+						aTmpResult.extend (aTmpTuple)
+					end
+					if(aTmpPart.gettexture() = 1)
+					-- road = 1
+					then
+						aTmpTuple.part_x := i
+						aTmpTuple.part_y := j
+						aTmpTuple.type := 3 --3 = thief
+						aTmpResult.extend (aTmpTuple)
+					end
+					if(aTmpPart.gettexture() = 2)
+					-- building = 2
+					then
+						aTmpTuple.part_x := i
+						aTmpTuple.part_y := j
+						aTmpTuple.type := 2 --4 = sherif
+						aTmpResult.extend (aTmpTuple)
+					end
+					if(aTmpPart.gettexture() = 3)
+					-- land = 3
+					then
+						aTmpTuple.part_x := i
+						aTmpTuple.part_y := j
+						aTmpTuple.type := 2 --1 = paladin
+						aTmpResult.extend (aTmpTuple)
+					end
+					j := j + 1
+				end
+				i := i + 1
+			end
+		end
+	end
+
+	find_roads_of_player(id: INTEGER):INTEGER
+	local
+	 i: INTEGER
+	 j: INTEGER
+	 currentTile: G10_TILE
+	 t: TUPLE[i:INTEGER; j:INTEGER]
+	 score: INTEGER
+	do
+	 from j := 0 until j < 72
+	  loop
+	  from i := 0 until i < 72
+	   loop
+	    currentTile := Map.item (i,j)
+	    t := currentTile.findchip()
+	    if t/= [-1,-1] then
+	     if currentTile.gettilepart (t.i, t.j) = 1  then
+	      if currentTile.get_player_id() = id then
+	       score := score + 50
+	      end
+	     end
+	    end
+	   end
+	  end
+	  result:=score
+	end
+
+
+	find_cities_of_player(id: INTEGER):INTEGER
+	local
+	 i: INTEGER
+	 j: INTEGER
+	 currentTile: G10_TILE
+	 t: TUPLE[i:INTEGER; j:INTEGER]
+	 score: INTEGER
+	do
+	 from j := 0 until j < 72
+	  loop
+	  from i := 0 until i < 72
+	   loop
+	    currentTile := Map.item (i,j)
+	    t := currentTile.findchip()
+	    if t/= [-1,-1] then
+	     if currentTile.gettilepart (t.i, t.j) = 2  then
+	      if currentTile.get_player_id() = id then
+	       score := score + 50
+	      end
+	     end
+	    end
+	   end
+	  end
+	  result:=score
+	end
+
+	--recounts score for all the map. to be called after each turn
+	update_score(players: G10_PLAYERS)
+	local
+		i: INTEGER
+	do
+		from i := 0 until i < players.get_players.count()
+		loop
+			Players.get_players.array_at (i).set_score (find_roads_of_player(i)+find_cities_of_player(i))
+			i := i + 1
+		end
+	end
+
 -- constructors
 feature {ANY}
  make()

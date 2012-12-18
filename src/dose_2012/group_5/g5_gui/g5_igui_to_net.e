@@ -31,7 +31,9 @@ feature {ANY} --NET CLIENT
 		do
 
 			if(place.is_equal ("HAND")) then
+
 				main_view.create_and_assign_card(place,cards)
+				main_view.refresh_now
 			else
 				-- check if i'm the current player or not
 				if (current_player_name.is_equal (my_name_in_the_game)) then
@@ -81,7 +83,7 @@ feature {ANY} --NET CLIENT
 				from
 					i:=1
 				until
-					i>1500
+					i>10000000
 				loop
 					i:=i+1
 				end
@@ -96,7 +98,7 @@ feature {ANY} --NET CLIENT
 				from
 					i:=1
 				until
-					i>1500
+					i>10000000
 				loop
 					i:=i+1
 				end
@@ -123,10 +125,13 @@ feature {ANY} --NET CLIENT
 		ensure
 			-- the GUI will display the pop-up with cards passed as parameter
 			-- the player can choose only a valid number of cards
-			a_pop_up_selection.list_of_cards.is_equal(cards)
-			a_pop_up_selection.place.is_equal(cards_are_from)
-			a_pop_up_selection.min_selection = min_choice
-			a_pop_up_selection.max_selection = max_choice
+			(cards_are_from.is_equal ("hand")) implies( a_pop_up_selection.list_of_cards.is_equal(cards) and
+			(a_pop_up_selection.place.is_equal(cards_are_from)) and
+			(a_pop_up_selection.min_selection = min_choice) and
+			(a_pop_up_selection.max_selection = max_choice))
+
+			(cards_are_from.is_equal ("supply")) implies( a_pop_up_supply_selection.list_of_cards.is_equal(cards) and
+			(a_pop_up_supply_selection.max_selection = max_choice))
 		end
 
 	pop_up_thief (player_that_played_thief: STRING; cards_revealed_by_players: HASH_TABLE[STRING, STRING]; pop_up_type: STRING)
@@ -151,6 +156,10 @@ feature {ANY} --NET CLIENT
 		require
 			valid_arg: new_current_player /= void and not(new_current_player.is_equal (""))
 			valid_name: main_view.check_players_name (new_current_player)
+		local
+			deck_value: INTEGER
+			hand_value: INTEGER
+			i: INTEGER
 		do
 			current_player_name:= new_current_player
 
@@ -158,11 +167,34 @@ feature {ANY} --NET CLIENT
 				main_view.new_turn_update (new_current_player)
 				main_view.refresh_now
 				main_view.raise
+
+				-- hide de fake main_view if exists
+				if (main_view_as_observer /= void) then
+					main_view_as_observer.hide
+				end
 			else
 				create main_view_as_observer.make
 				main_view_as_observer.set_current_player (new_current_player)
 
-				-- ** NOTA ** aggiungere sistema per recuperare carte nel mazzo e nella mano
+				main_view_as_observer.set_action_points (1)
+				main_view_as_observer.set_buy_points (1)
+				main_view_as_observer.set_coin (0)
+
+				-- find deck and hand value of the current player
+				from
+					i:=1
+				until
+					i> (main_view.amount_of_players -1)
+				loop
+					if (main_view.players[i].player_name.is_equal (new_current_player)) then
+						deck_value:= main_view.players[i].number_of_cards_deck
+						hand_value:= main_view.players[i].number_of_cards_hand
+					end
+					i := i + 1
+				end
+
+				main_view_as_observer.set_deck (deck_value)
+				main_view_as_observer.set_hand (hand_value)
 
 				main_view_as_observer.refresh_now
 				main_view_as_observer.raise
@@ -171,10 +203,8 @@ feature {ANY} --NET CLIENT
 		ensure
 			-- The GUI blocks actions to other players and will enable buttons of the new_current_player
 			(current_player_name.is_equal (my_name_in_the_game)) implies (
-				main_view.board.current_player_name.is_equal (new_current_player) and
-				(main_view.board.action_points = 1) and
-				(main_view.board.buy_points = 1) and
-				(main_view.board.coins = 0))
+				main_view.board.current_player_name.is_equal (new_current_player))
+
 		end
 
 	new_phase (new_phase_name: STRING)
@@ -188,10 +218,6 @@ feature {ANY} --NET CLIENT
 				main_view.refresh_now
 			else
 				main_view_as_observer.set_current_phase (new_phase_name)
-				main_view_as_observer.set_action_points (1)
-				main_view_as_observer.set_buy_points (1)
-				main_view_as_observer.set_coin (0)
-
 				main_view_as_observer.refresh_now
 			end
 		ensure
@@ -215,7 +241,7 @@ feature {ANY} --NET CLIENT
 				from
 					i:=1
 				until
-					i>1500
+					i>10000000
 				loop
 					i:=i+1
 				end
@@ -230,7 +256,7 @@ feature {ANY} --NET CLIENT
 				from
 					i:=1
 				until
-					i>1500
+					i>10000000
 				loop
 					i:=i+1
 				end
@@ -259,7 +285,7 @@ feature {ANY} --NET CLIENT
 			main_view.refresh_now
 
 			-- update also the second view
-			if (current_player_name.is_equal (target_player)) then
+			if (current_player_name.is_equal (target_player) and (not(my_name_in_the_game.is_equal (target_player)))) then
 				main_view_as_observer.set_action_points (update_info.at ("ACTION"))
 				main_view_as_observer.set_buy_points (update_info.at ("BUY"))
 				main_view_as_observer.set_coin (update_info.at ("COIN"))
@@ -278,10 +304,19 @@ feature {ANY} --NET CLIENT
 		require
 			valide_arg: supply_state /= void
 		do
-			-- ** NOTA ** SISTEMARE UNA VOLTA CREATI I POP-UP
-			--main_view.set_supply_state(supply_state)
+			main_view.update_state_of_supply (supply_state)
 		ensure
 			main_view.supply_state.is_equal(supply_state)
+		end
+
+	update_trash (trash_state: ARRAY[STRING])
+		-- this feature is invoked when the number of supply cards changes (after a purchase or a card effect)
+		require
+			valide_arg: trash_state /= void
+		do
+			main_view.update_state_of_trash (trash_state)
+		ensure
+			main_view.trash_state.is_equal(trash_state)
 		end
 
 	keep_or_not_card(card: STRING)
@@ -344,6 +379,7 @@ feature {G5_INET_TO_GUI, EQA_TEST_SET}
 		require
 			valid_arg: a_net_component/= void
 		do
+			net_component := a_net_component
 		ensure
 			net_component = a_net_component
 		end
@@ -358,6 +394,7 @@ feature {G5_INET_TO_GUI, EQA_TEST_SET}
 
 			create player_waiting_room.make
 			player_waiting_room.show
+			player_waiting_room.refresh_now
 
 		ensure
 			-- the pop-up of the waiting room with a "please wait" message is opened
@@ -450,6 +487,9 @@ feature -- GUI variable
 
 	a_pop_up_selection: G5_POP_UP_WITH_SELECTION
 		-- an instance of a pop-up of type selection
+
+	a_pop_up_supply_selection: G5_POP_UP_SUPPLY_WITH_SELECTION
+		-- an instance of a pop-up of type supply selection
 
 	a_pop_up_thief: G5_POP_UP_THIEF
 		-- an instance of a pop-up of type thief

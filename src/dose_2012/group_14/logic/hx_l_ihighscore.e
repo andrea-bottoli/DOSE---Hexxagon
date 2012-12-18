@@ -24,4 +24,12 @@ feature -- Access
 			new_high_score_set: high_score = new_high_score
 		end
 
+	player_name: STRING
+		deferred
+		end
+
+	set_player_name(new_player_name: STRING)
+		deferred
+		end
+
 end

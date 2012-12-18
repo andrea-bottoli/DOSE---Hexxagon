@@ -41,6 +41,7 @@ feature {ANY} -- Initialization by G5_LAUNCHER
 			existent_GUI: associated_GUI /= void
 		do
 			client_GUI:= associated_GUI
+			client_GUI.add_gui_controller (Current)
 			create still_not_processed_messages.make
 		ensure
 			valid_GUI_component: client_GUI = associated_GUI
@@ -71,10 +72,6 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 			-- as an attribute is received from the Server. The client will now be able to take
 			-- part in the selected game.
 
---	final_exit_condition: BOOLEAN
-			-- This boolean is set on true when a game is ended and not enough players have chosen
-			-- to play a rematch.
-
 	input_from_GUI_is_needed: BOOLEAN
 			-- This boolean will be set on true every time an input from the user is needed before
 			-- continue the game_phase
@@ -93,23 +90,12 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 			-- This feature will be effective only if one or more new messages have been just received by
 			-- the messenger object.
 			-- It will make the observer retrieve the new messages saved in the G5_NET_MESSENGER_CLIENT instance.
---		local
---			l_messages: LINKED_LIST[G5_MESSAGE]
+
 		do
 			if messeges_from_server_were_received then
---				l_messages := client_messenger.get_and_clean_message_list
-
+				-- Messages are retrieved only if new ones are present.
 				still_not_processed_messages := client_messenger.get_and_clean_message_list
-
 				messeges_from_server_were_received := false
-
---				from l_messages.start
---				until l_messages.off
---				loop
---					cast_message(l_messages.item)
---					l_messages.forth
---				end
-
 			end
 		end
 
@@ -139,8 +125,9 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 				execute_thief(l_message_thief)
 			elseif attached {G5_MESSAGE_END_GAME} a_message as l_message_end_game then
 				execute_end_game(l_message_end_game)
-
-				--Maybe we should throw an exception
+			else
+				-- No message should arrive at this part of the code..
+				(create {DEVELOPER_EXCEPTION}).raise
 			end
 
 		ensure
@@ -148,7 +135,8 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 
 
 	execute_update(a_message_update: G5_MESSAGE_UPDATE)
-
+			-- This subroutine checks the action of every message of type "update"
+			-- and perform the correct updates and requests on the GUI and on the NET_CONTROLLER.
 		require
 		do
 			if a_message_update.action.is_equal ("update_state") then
@@ -167,7 +155,8 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 
 
 	execute_action(a_message_action: G5_MESSAGE_ACTION)
-
+			-- This subroutine checks the action of every message of type "action"
+			-- and perform the correct updates and requests on the GUI and on the NET_CONTROLLER.
 		require
 		local
 			thief_map_cards: STRING
@@ -235,13 +224,18 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 
 				-- This message will be received only by the current player
 				input_from_gui_is_needed := true
+
+			elseif a_message_action.action.is_equal ("cards_in_trash") then
+
+				client_gui.update_trash (a_message_action.involved_cards)
 			end
 		ensure
 		end
 
 
 	execute_textual(a_message_textual: G5_MESSAGE_TEXTUAL)
-
+			-- This subroutine checks the action of every message of type "textual"
+			-- and perform the correct updates and requests on the GUI and on the NET_CONTROLLER.
 		require
 		do
 			if a_message_textual.action.is_equal ("new_phase") then
@@ -297,28 +291,41 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 					client_gui.joined_player_waiting_room
 				elseif a_message_textual.textual_message.starts_with ("refused:") then
 					if a_message_textual.textual_message.ends_with (":no_server_found") then
-						-- MUST BE CHANGED TO USE STRING!
---						client_gui.connection_failed("Connection failed: It was impossile to reach the Server!\nCheck that your Internet connection is working and that the IP and port of the Server are correct.")
+						-- The connection procedure fails.
+						client_gui.connection_failed("Impossible to reach the Server! Check that your Internet connection is working and that the IP and port of the Server are correct.")
 					elseif a_message_textual.textual_message.ends_with (":max_player") then
-						-- MUST BE CHANGED TO USE STRING!
---						client_gui.connection_failed ("Connection failed: the maximum number of player has been already reached!")
+						-- The connection procedure fails.
+						client_gui.connection_failed ("The maximum number of players has been already reached! You can't join this game.")
 						-- The previously open socket is closed.
 						client_messenger.close_communication
 					elseif a_message_textual.textual_message.ends_with (":invalid_name") then
-						-- MUST BE CHANGED TO USE STRING!
---						client_gui.connection_failed ("Connection failed: the name you chose was already taken by another connected player! Please change it and retry the connection process.")
+						-- The connection procedure fails.
+						client_gui.connection_failed ("The name you chose has been already taken by another connected player! Please change it and retry the connection process.")
 						-- The previously open socket is closed.
 						client_messenger.close_communication
 					end
 				end
+			elseif a_message_textual.action.is_equal ("has_left") then
+				-- The following player is removed
+				client_gui.remove_player (a_message_textual.source)
+			elseif a_message_textual.action.is_equal ("terminate") then
+				-- Game is ended after that a pop up with the reason of the termination is shown.
+				if a_message_textual.textual_message.is_equal ("no_rematch_taken") then
+					client_gui.terminate_game ("Game was terminted since the players didn't choose to have a rematch!")
+				elseif a_message_textual.textual_message.is_equal ("critical_disconnection") then
+					client_gui.terminate_game ("Game was terminated since a client has left the game and it's the host or there aren't enough players left!")
+				end
 
+				-- The control must be returned to the GUI element.
+				input_from_gui_is_needed := true
 			end
 		ensure
 		end
 
 
 	execute_thief(a_message_thief: G5_MESSAGE_THIEF)
-
+			-- This subroutine checks the action of every message of type "thief"
+			-- and perform the correct updates and requests on the GUI and on the NET_CONTROLLER.
 		require
 		local
 			i: INTEGER
@@ -388,7 +395,8 @@ feature {G5_NET_CONTROLLER_CLIENT} -- Internal feature
 		end
 
 	execute_end_game(a_message_end_game: G5_MESSAGE_END_GAME)
-
+			-- This subroutine checks the action of every message of type "end_game"
+			-- and perform the correct updates and requests on the GUI and on the NET_CONTROLLER.
 		require
 		do
 			if a_message_end_game.action.is_equal ("end") then
@@ -413,11 +421,6 @@ feature {G5_LAUNCHER} -- implementation of the G5_INET_TO_GUI deferred feature (
 			player_name := my_name
 			create client_messenger.make (Current, player_name, server_ip, server_port)
 			check_for_incoming_messages
---			if connection_is_valid then
---				-- If the connection is valid the Server is informed that the previous
---				-- messages has been correctly received and the client is ready.
---				client_messenger.send_response_to_server
---			end
 
 			-- Here the first message with action "connect_result" is evaluated.
 			still_not_processed_messages.start
@@ -433,28 +436,8 @@ feature {G5_LAUNCHER} -- implementation of the G5_INET_TO_GUI deferred feature (
 				not(connection_is_valid) implies client_messenger.communication_socket.is_closed
 		end
 
---	game_phase
---			-- This feature will manage all the operations of the client after that it was able to connect properly.
---			-- In particular every time a new list of messages is received by the net messenger, that list is
---			-- retrieved, its messages are analysed and eventually answers to the messages are sent back to the Server.
---			-- Every time a new list of messages is received, after it has been procesed, an ack message is sent to the Server.
---		require
---			connection_is_valid
---		do
---			from
---			until
---				final_exit_condition
---			loop
---				client_messenger.wait_for_messages
---				check_for_incoming_messages
---				client_messenger.send_response_to_server
---			end
 
---			-- Here the socket of the client messenger is closed
---			client_messenger.close_communication
-
-
-feature {G5_LAUNCHER, G5_NET_CONTROLLER_CLIENT}
+feature {G5_LAUNCHER, G5_NET_CONTROLLER_CLIENT} -- Game Management
 
 	game_phase
 			-- This feature will be invokable only after that the client was able to connect properly to the Server.
@@ -515,12 +498,27 @@ feature {G5_LAUNCHER, G5_NET_CONTROLLER_CLIENT}
 
 feature {G5_IGUI_TO_NET} -- Implementation of G5_INET_TO_GUI deferred features
 
-	rematch(my_name: STRING)
-			-- this feature is invoked to inform the host that the player with name "my_name" would like to play
-			-- another match with the same players and the same cards set.
+	rematch(agreed_on_rematch: BOOLEAN)
+			-- This feature is invoked to inform the host if this player would like to play
+			-- another match with the same players, if possible, and the same cards set.
 		do
-			-- The NET CONTROLLER must regain controll of the client's application
-			game_phase
+			if agreed_on_rematch then
+				create textual_response.make (player_name, <<"SERVER">>, "rematch_choice:taken", void)
+				client_messenger.enque_message_to_server (textual_response)
+
+				-- The NET CONTROLLER must regain the control of the client's application to understand if
+				-- the rematch will or won't be performed.
+				game_phase
+			else
+				create textual_response.make (player_name, <<"SERVER">>, "rematch_choice:not_taken", void)
+				client_messenger.enque_message_to_server (textual_response)
+
+				-- The message with action "rematch_choice" and negative answer is sent back to the Server
+				-- and then the client leaves the game.
+				client_messenger.send_response_to_server
+				client_messenger.close_communication
+			end
+
 		end
 
 	play_card(card: STRING)
@@ -543,7 +541,7 @@ feature {G5_IGUI_TO_NET} -- Implementation of G5_INET_TO_GUI deferred features
 			game_phase
 		end
 
-	select_from_hand(cards: ARRAY[STRING])
+	selected_from_hand(cards: ARRAY[STRING])
 			-- this feature is invoked by the GUI to inform the NET about cards chosen from a pop-up
 		do
 			create action_response.make (player_name, <<"SERVER">>, "selected_from_hand", cards, 0, 0, FALSE)
@@ -557,7 +555,7 @@ feature {G5_IGUI_TO_NET} -- Implementation of G5_INET_TO_GUI deferred features
 	next_phase()
 			-- this feature is invoked when the player expresses his/her intention to move to the next phase of the turn
 		do
-			create textual_response.make (player_name, <<"SERVER">>, "next_phase", "")
+			create textual_response.make (player_name, <<"SERVER">>, "next_phase", void)
 			client_messenger.enque_message_to_server (textual_response)
 
 			-- The NET CONTROLLER must regain the control of the client's application
@@ -567,7 +565,7 @@ feature {G5_IGUI_TO_NET} -- Implementation of G5_INET_TO_GUI deferred features
 	pass_turn()
 			-- this feature is invoked when the player expresses his/her intention to pass the turn
 		do
-			create textual_response.make (player_name, <<"SERVER">>, "pass_turn", "")
+			create textual_response.make (player_name, <<"SERVER">>, "pass_turn", void)
 			client_messenger.enque_message_to_server (textual_response)
 
 			-- The NET CONTROLLER must regain the control of the client's application
@@ -579,6 +577,13 @@ feature {G5_IGUI_TO_NET} -- Implementation of G5_INET_TO_GUI deferred features
 		do
 			number_of_players := number_of_players - 1
 			-- Disconnection feature
+			create textual_response.make (player_name, <<"SERVER">>, "leave", void)
+			client_messenger.enque_message_to_server (textual_response)
+
+			-- Outgoing messages are sent and then the client leaves the game
+			client_messenger.send_response_to_server
+			client_messenger.close_communication
+
 		end
 
 	trashed_by_thief(thief_map: HASH_TABLE[ARRAY[STRING],STRING])

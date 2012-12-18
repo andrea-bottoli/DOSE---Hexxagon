@@ -190,7 +190,105 @@ feature {NONE} -- Access
 			end
 		end
 
--- ### cards name
+-- ### END cards name
 
+-- ### cards cost
+
+	cost_of_a_card(a_card_id: STRING): INTEGER
+		-- return the name of a card from its ID
+		local
+			substring: STRING
+		do
+			if(a_card_id.at (1)= 'K') then
+
+				if (a_card_id.count = 2) then
+
+					if (a_card_id.at (2)= '1') then
+						Result:= 6
+					elseif (a_card_id.at (2)= '2') then
+						Result:= 4
+					elseif (a_card_id.at (2)= '3') then
+						Result:= 2
+					elseif (a_card_id.at (2)= '4') then
+						Result:= 3
+					elseif (a_card_id.at (2)= '5') then
+						Result:= 2
+					elseif (a_card_id.at (2)= '6') then
+						Result:= 5
+					elseif (a_card_id.at (2)= '7') then
+						Result:= 4
+					elseif (a_card_id.at (2)= '8') then
+						Result:= 5
+					elseif (a_card_id.at (2)= '9') then
+						Result:= 4
+					end
+
+				else
+					substring:= a_card_id.substring (2, 3)
+
+					if (substring.is_equal ("10")) then
+						Result:= 5
+					elseif (substring.is_equal ("11")) then
+						Result:= 5
+					elseif (substring.is_equal ("12")) then
+						Result:= 5
+					elseif (substring.is_equal ("13")) then
+						Result:= 4
+					elseif (substring.is_equal ("14")) then
+						Result:= 5
+					elseif (substring.is_equal ("15")) then
+						Result:= 2
+					elseif (substring.is_equal ("16")) then
+						Result:= 4
+					elseif (substring.is_equal ("17")) then
+						Result:= 4
+					elseif (substring.is_equal ("18")) then
+						Result:= 4
+					elseif (substring.is_equal ("19")) then
+						Result:= 4
+					elseif (substring.is_equal ("20")) then
+						Result:= 4
+					elseif (substring.is_equal ("21")) then
+						Result:= 4
+					elseif (substring.is_equal ("22")) then
+						Result:= 3
+					elseif (substring.is_equal ("23")) then
+						Result:= 5
+					elseif (substring.is_equal ("24")) then
+						Result:= 3
+					elseif (substring.is_equal ("25")) then
+						Result:= 3
+					end
+				end
+
+			elseif (a_card_id.at (1)= 'T') then
+
+				-- check which treasure cards is
+				if (a_card_id.at (2)= '1') then
+					Result:= 0
+				elseif (a_card_id.at (2)= '2') then
+					Result:= 3
+				elseif (a_card_id.at (2)= '3') then
+					Result:= 6
+				end
+
+			elseif (a_card_id.at (1)= 'V') then
+
+				-- check which victory cards is
+				if (a_card_id.at (2)= '1') then
+					Result:= 2
+				elseif (a_card_id.at (2)= '2') then
+					Result:= 5
+				elseif (a_card_id.at (2)= '3') then
+					Result:= 8
+				end
+
+			elseif (a_card_id.at (1)= 'C') then
+				Result:= 0
+
+			end
+		end
+
+-- ### END cards cost
 
 end

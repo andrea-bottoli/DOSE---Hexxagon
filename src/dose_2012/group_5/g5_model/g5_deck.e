@@ -16,7 +16,7 @@ create
 feature -- Operations
 
 	shuffle()
-		-- Shuffles the cards the deck
+		-- Shuffle the elements of deck
 		require
 			(linear_representation /= Void) and (not is_empty)
 		local

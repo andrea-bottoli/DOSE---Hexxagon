@@ -20,12 +20,7 @@ inherit
 		undefine
 			default_create, copy
 		end
---EXECUTION_ENVIRONMENT
---	export
---		{NONE} all
---	undefine
---		default_create,put
---	end
+
 
 create
 	make
@@ -66,20 +61,16 @@ create_container_2nd_layer_server
 			create two_radio_button
 			two_radio_button.set_text("2")
 			two_radio_button.set_background_color (create {EV_COLOR}.make_with_8_bit_rgb (255, 128, 0))
-			con_2nd_layer_server.extend_with_position_and_size(two_radio_button, 180, 50, 32, 25)
+			con_2nd_layer_server.extend_with_position_and_size(two_radio_button, 180, 55, 32, 25)
 			two_radio_button.pointer_button_press_actions.extend (agent on_button_two_press(?, ?, ?, ?, ?, ?, ?, ?))
-			-- add three_radio_button
-			create three_radio_button
-			three_radio_button.set_text("3")
-			three_radio_button.set_background_color (create {EV_COLOR}.make_with_8_bit_rgb (255, 128, 0))
-			con_2nd_layer_server.extend_with_position_and_size(three_radio_button, 180, 70, 32, 25)
-			three_radio_button.pointer_button_press_actions.extend (agent on_button_three_press(?, ?, ?, ?, ?, ?, ?, ?))
+
 			-- add four_radio_button
 			create four_radio_button
 			four_radio_button.set_text("4")
 			four_radio_button.set_background_color (create {EV_COLOR}.make_with_8_bit_rgb (255, 128, 0))
-			con_2nd_layer_server.extend_with_position_and_size(four_radio_button, 180, 90, 32, 25)
+			con_2nd_layer_server.extend_with_position_and_size(four_radio_button, 180, 75, 32, 25)
 			four_radio_button.pointer_button_press_actions.extend (agent on_button_four_press(?, ?, ?, ?, ?, ?, ?, ?))
+
 			-- add text box port_number
 			create port_number_text_box
 			con_2nd_layer_server.extend_with_position_and_size(port_number_text_box, 180, 130, 100, 24)
@@ -113,18 +104,17 @@ create_container_2nd_layer_server
 
 
 feature {NONE} -- Implementation / Agents
+
 on_button_two_press(a_x, a_y, a_button: INTEGER; a_x_tilt, a_y_tilt, a_pressure: DOUBLE; a_screen_x, a_screen_y: INTEGER)
 		do
 			players:=2
 		end
-on_button_three_press(a_x, a_y, a_button: INTEGER; a_x_tilt, a_y_tilt, a_pressure: DOUBLE; a_screen_x, a_screen_y: INTEGER)
-		do
-			players:=3
-		end
+
 on_button_four_press(a_x, a_y, a_button: INTEGER; a_x_tilt, a_y_tilt, a_pressure: DOUBLE; a_screen_x, a_screen_y: INTEGER)
 		do
 			players:=4
 		end
+
 request_close_window
 			-- The user wants to close the window using X button
 		local
@@ -166,8 +156,6 @@ pointer_leave (a_area: EV_FIXED)
 
 next_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
 		-- User klicked Next button
---		local
---			i:INTEGER   --Stefano: this local variable is not used
 	do
 		server_message_board.set_text ("Please wait for other players to connect...")
 
@@ -175,9 +163,9 @@ next_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INT
 
 			--sleep(100000000)
 			--io.putint (players)
-		--	io.putstring (port_number_text_box.text)
+			--	io.putstring (port_number_text_box.text)
 			port_number := port_number_text_box.text.to_integer
-			create server.make(Void,port_number,0,players,logic)
+			create server.make(Void,port_number,0,players,logic,l_3rd_layer)
 			destroy
 			create l_3rd_layer.make(server,logic)
 			l_3rd_layer.show
@@ -250,9 +238,6 @@ l_3rd_layer: B8_3RD_LAYER_WINDOW
 
 	-- two radio button
 	two_radio_button: EV_RADIO_BUTTON
-
-	-- three radio button
-	three_radio_button: EV_RADIO_BUTTON
 
 	-- four radio button
 	four_radio_button: EV_RADIO_BUTTON

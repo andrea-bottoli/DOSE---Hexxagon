@@ -27,7 +27,7 @@ feature{ANY} --component sizes
 
 	--window
 	lobby_window_width: INTEGER = 1024
-	lobby_window_height: INTEGER = 768
+	lobby_window_height: INTEGER = 600
 	lobby_title_height: INTEGER = 130
 
 	--All Buttons
@@ -43,16 +43,10 @@ feature{ANY} --component sizes
 	once
 		Result := lobby_title_height + distance_between_components
 	end
-	-- den einai ka8olou kakh idea na valoume edw ena start button !!!
 	Join_Start_height: INTEGER
 	once
 		Result := lobby_title_height + distance_between_components + button_height + distance_between_buttons
 	end
-	Practice_Start_height: INTEGER
-	once
-		Result := lobby_title_height + distance_between_components + 2*button_height +  2*distance_between_buttons
-	end
-
 	Return_Start_height: INTEGER
 	once
 		Result := lobby_window_height - ( button_height + distance_between_components) --lobby_title_height + distance_between_components + 4*button_height +  3*distance_between_buttons
@@ -74,8 +68,20 @@ feature{ANY} --component sizes
 		Result := lobby_title_height + online_users_height + 2*distance_between_components
 	end
 
+		-- send button
+		send_button_width: INTEGER = 100
+		send_button_height: INTEGER = 43
+		send_button_start_width: INTEGER
+		once
+			Result := chat_new_message_width + 2*distance_between_components
+		end
+		send_button_start_height: INTEGER
+		once
+			Result := chat_log_height +  distance_between_components
+		end
+
 		-- chat new message
-		chat_new_message_width: INTEGER = 150
+		chat_new_message_width: INTEGER = 350
 		chat_new_message_height: INTEGER = 25
 		chat_new_message_start_width: INTEGER
 		once
@@ -83,7 +89,7 @@ feature{ANY} --component sizes
 		end
 		chat_new_message_start_height: INTEGER
 		once
-			Result := distance_between_components
+			Result := chat_log_height + 2* distance_between_components
 		end
 
 		-- chat log
@@ -95,7 +101,7 @@ feature{ANY} --component sizes
 		end
 		chat_log_start_height: INTEGER
 		once
-			Result := chat_new_message_start_height + chat_new_message_height + distance_between_components
+			Result := distance_between_components
 		end
 
 	-- text bars in game info panel
@@ -185,6 +191,40 @@ feature{ANY} --PixMaps
 			Result.set_with_named_file (file_system.pathname_to_string(img_empty_background) )
 		end
 
+		-- send button
+		img_send_button: KL_PATHNAME
+			do
+				Result := lobby_img_path
+				Result.append_name ("send_100_43.png")
+			end
+		pix_send_button: EV_PIXMAP
+			once
+				create Result
+				Result.set_with_named_file (file_system.pathname_to_string(img_send_button) )
+			end
+		-- highlighted send button
+		img_highlighted_send_button: KL_PATHNAME
+			do
+				Result := lobby_img_path
+				Result.append_name ("highlighted_send_100_43.png")
+			end
+		pix_highlighted_send_button: EV_PIXMAP
+			once
+				create Result
+				Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_send_button) )
+			end
+		-- selected send button
+		img_selected_send_button: KL_PATHNAME
+			do
+				Result := lobby_img_path
+				Result.append_name ("selected_send_100_43.png")
+			end
+		pix_selected_send_button: EV_PIXMAP
+			once
+				create Result
+				Result.set_with_named_file (file_system.pathname_to_string(img_selected_send_button) )
+			end
+
 	-- new_game_info_panel
 	img_new_game_info_background: KL_PATHNAME
 		do
@@ -268,29 +308,6 @@ feature{ANY} --PixMaps
 			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_join_button) )
 		end
 
-		-- practice
-	img_practice_button: KL_PATHNAME
-		do
-			Result := lobby_img_path
-			Result.append_name ("Practice_button_207_101.png")
-		end
-	pix_practice_button: EV_PIXMAP
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_practice_button) )
-		end
-		-- highlighted practice
-	img_highlighted_practice_button: KL_PATHNAME
-		do
-			Result := lobby_img_path
-			Result.append_name ("highlighted_Practice_button_207_101.png")
-		end
-	pix_highlighted_practice_button: EV_PIXMAP
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_practice_button) )
-		end
-
 		-- highlighted return
 	img_return_button: KL_PATHNAME
 		do
@@ -317,7 +334,9 @@ feature{ANY} --PixMaps
 	feature {ANY}
 
 	lobby_id: STRING = "Lobby"
+	--lobby_ip: STRING = "192.168.1.1"
 	lobby_ip: STRING = "192.168.1.2"
 	--lobby_ip : STRING = "192.168.1.65"
 	lobby_port: STRING = "1234"
+
 end

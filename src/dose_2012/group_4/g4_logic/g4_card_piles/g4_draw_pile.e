@@ -23,55 +23,35 @@ feature --Constructor
 	do
 		create Card_Pile.make
 
-		create bang.make
-		create miss.make
-		create panic.make
-		create catbalou.make
-		create duell.make
-		create gatling.make
-		create indians.make
-		create generalstore.make
-		create stagecoach.make
-		create welsfar.make
-		create beer.make
-		create saloon.make
-		create jail.make
-		create dynamite.make
-		create barrel.make
-		create mustang.make
-		create scope.make
-		create schofield.make
-		create volcanic.make
-		create remington.make
-		create carbine.make
-		create winchester.make
-
-		from i := 1 until i = 4
+		from i := 1 until i = 5
 		loop
 			if i = 1 then a_symbol := "Diamonds"
-				from j := 2 until j = 14
+				from j := 2 until j = 15
 				loop
+					create bang.make
 					bang.set_symbol (a_symbol)
 					bang.set_number (j)
 					Card_Pile.force (bang)
-					--print(a_symbol)
-					--j := j + 1
 					if j = 8 then
+						create panic.make
 						panic.set_symbol (a_symbol)
 						panic.set_number (j)
 						Card_Pile.force (panic)
 					end
-					if j >= 9 and j <= 11 then
+					if j = 9 or j = 10 or j = 11 then
+						create catbalou.make
 						catbalou.set_symbol (a_symbol)
 						catbalou.set_number (j)
 						Card_Pile.force (catbalou)
 					end
 					if j = 12 then
+						create duell.make
 						duell.set_symbol (a_symbol)
 						duell.set_number (j)
 						Card_Pile.force (duell)
 					end
 					if j = 13 or j = 14 then
+						create indians.make
 						indians.set_symbol (a_symbol)
 						indians.set_number (j)
 						Card_Pile.force (indians)
@@ -80,135 +60,172 @@ feature --Constructor
 				end
 			end
 			if i = 2 then a_symbol := "Clubs"
-				from j := 2	until j = 9
+				from j := 2	until j = 10
 				loop
+					create bang.make
 					bang.set_symbol (a_symbol)
 					bang.set_number (j)
 					Card_pile.force (bang)
 					if j = 8 then
+						create duell.make
 						duell.set_symbol (a_symbol)
 						duell.set_number (j)
 						Card_pile.force (duell)
 					end
 					if j = 9 then
+						create generalstore.make
 						generalstore.set_symbol (a_symbol)
 						generalstore.set_number (j)
 						Card_pile.force (generalstore)
 					end
 					j := j + 1
 				end
-				from j := 10 until j = 14
+				from j := 10 until j = 15
 				loop
+					create miss.make
 					miss.set_symbol (a_symbol)
 					miss.set_number (j)
 					Card_pile.force (miss)
 					if j = 11 or j = 12 then
+						create schofield.make
 						schofield.set_symbol (a_symbol)
 						schofield.set_number (j)
 						Card_pile.force (schofield)
 					end
 					j := j + 1
 				end
+				create volcanic.make
 				volcanic.set_symbol (a_symbol)
 				volcanic.set_number (10)
 				Card_pile.force (volcanic)
+				create remington.make
 				remington.set_symbol (a_symbol)
 				remington.set_number (13)
 				Card_pile.force (remington)
+				create carbine.make
 				carbine.set_symbol (a_symbol)
 				carbine.set_number (14)
 				Card_pile.force (carbine)
 			end
 			if i = 3 then a_symbol := "Spades"
-				from j := 2	until j = 8
+				from j := 2	until j = 9
 				loop
+					create miss.make
 					miss.set_symbol (a_symbol)
 					miss.set_number (j)
 					Card_pile.force (miss)
 					j := j + 1
 				end
+				create winchester.make
 				winchester.set_symbol (a_symbol)
 				winchester.set_number (j)
 				Card_pile.force (winchester)
+				create stagecoach.make
 				stagecoach.set_symbol (a_symbol)
 				stagecoach.set_number (9)
 				Card_pile.force (stagecoach)
+				create stagecoach.make
+				stagecoach.set_symbol (a_symbol)
+				stagecoach.set_number (9)
 				Card_pile.force (stagecoach)
+				create volcanic.make
 				volcanic.set_symbol (a_symbol)
 				volcanic.set_number (10)
 				Card_pile.force (volcanic)
+				create jail.make
 				jail.set_symbol (a_symbol)
 				jail.set_number (10)
 				Card_pile.force (jail)
+				create jail.make
+				jail.set_symbol (a_symbol)
 				jail.set_number (11)
 				Card_pile.force (jail)
+				create duell.make
 				duell.set_symbol (a_symbol)
 				duell.set_number (11)
 				Card_pile.force (duell)
+				create generalstore.make
 				generalstore.set_symbol (a_symbol)
 				generalstore.set_number (12)
 				Card_pile.force (generalstore)
+				create barrel.make
 				barrel.set_symbol (a_symbol)
 				barrel.set_number (12)
 				Card_pile.force (barrel)
+				create barrel.make
+				barrel.set_symbol (a_symbol)
 				barrel.set_number (13)
 				Card_pile.force (barrel)
+				create schofield.make
 				schofield.set_symbol (a_symbol)
 				schofield.set_number (13)
 				Card_pile.force (schofield)
+				create bang.make
 				bang.set_symbol (a_symbol)
 				bang.set_number (14)
 				Card_pile.force (bang)
+				create scope.make
 				scope.set_symbol (a_symbol)
 				scope.set_number (14)
 				Card_pile.force (scope)
 			end
 			if i = 4 then a_symbol := "Hearts"
+				create dynamite.make
 				dynamite.set_symbol (a_symbol)
 				dynamite.set_number (2)
 				Card_pile.force (dynamite)
+				create welsfar.make
 				welsfar.set_symbol (a_symbol)
 				welsfar.set_number (3)
 				Card_pile.force (welsfar)
+				create jail.make
 				jail.set_symbol (a_symbol)
 				jail.set_number (4)
 				Card_pile.force (jail)
+				create saloon.make
 				saloon.set_symbol (a_symbol)
 				saloon.set_number (5)
 				Card_pile.force (saloon)
-				from j := 6	until j = 11
+				from j := 6	until j = 12
 				loop
+					create beer.make
 					beer.set_symbol (a_symbol)
 					beer.set_number (j)
 					Card_pile.force (beer)
 					if j = 8 or j = 9 then
+						create mustang.make
 						mustang.set_symbol (a_symbol)
 						mustang.set_number (j)
 						Card_pile.force (mustang)
 					end
 					if j = 10 then
+						create gatling.make
 						gatling.set_symbol (a_symbol)
 						gatling.set_number (j)
 						Card_pile.force (gatling)
 					end
 					if j = 11 then
+						create panic.make
 						panic.set_symbol (a_symbol)
 						panic.set_number (j)
 						Card_pile.force (panic)
 					end
 					j := j + 1
 				end
-				from j := 12 until j = 14
+				from j := 12 until j = 15
 				loop
+					create bang.make
 					bang.set_symbol (a_symbol)
 					bang.set_number (j)
 					Card_pile.force (bang)
 					if j = 12 or j = 14 then
+						create panic.make
 						panic.set_symbol (a_symbol)
 						panic.set_number (j)
 						Card_pile.force (panic)
 					end
 					if j = 13 then
+						create catbalou.make
 						catbalou.set_symbol (a_symbol)
 						catbalou.set_number (j)
 						Card_pile.force (catbalou)
@@ -231,9 +248,21 @@ feature --Player's Actions
 --		Result = Card_Pile.first -- Raise error(not the same first)
 	end
 
+	pick_a_card(a_card_id:INTEGER) : G4_CARDS --Pick a card with an integer (implementation for command line)
+	do
+		--Implemented for terminal
+		if(a_card_id < Card_Pile.count) then
+			Card_Pile.go_i_th (a_card_id)
+			Result := Card_Pile.item
+			Card_Pile.remove
+		else
+			print("Invalid choice")
+		end
+	end
+
 feature --Getter
 
-	get_is_empty(): BOOLEAN
+	get_is_empty: BOOLEAN
 	do
 		Result := Card_Pile.is_empty
 	end

@@ -62,7 +62,7 @@ feature --Rest functions
 	player_pick(a_card_id : INTEGER):G4_CHARACTERS --Each Player picks a card
 	do
 		--Implemented for terminal
-		if(a_card_id < Character_Pile.count) then
+		if(a_card_id <= Character_Pile.count) then
 			Character_Pile.go_i_th (a_card_id)
 			Result := Character_Pile.item
 			Character_Pile.remove
@@ -79,7 +79,7 @@ feature
 		i : INTEGER
 	do
 		i := 1
-		from Character_Pile.start until Character_Pile.item = Character_Pile.last
+		from Character_Pile.start until Character_Pile.after = true
 			loop
 				io.new_line
 				io.put_string (Character_Pile.item.get_character_name + " ")

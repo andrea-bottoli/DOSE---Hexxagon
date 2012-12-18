@@ -16,10 +16,12 @@ feature {NONE}
 	num_actions : INTEGER
 	num_buys : INTEGER
 	num_gold : INTEGER
+	num_discard : INTEGER
 	draw_pile : DO_DRAW_PILE
 	discard_pile : DO_DISCARD_PILE
 	hand : ARRAYED_LIST[DO_CARD]
 	points : INTEGER
+	message : STRING
 	make
 	do
 		create hand.make (5)
@@ -66,7 +68,6 @@ feature {ANY}
 
 	get_num_gold () : INTEGER
 		do
-			count_gold(hand)
 			Result := num_gold
 		ensure
 			name_num_gold : Result = num_gold
@@ -91,6 +92,14 @@ feature {ANY}
 			Result := hand
 		ensure
 			name_hand : Result = hand
+		end
+
+	get_message () : STRING
+		do
+			if message = void then
+				message := "Init OK"
+			end
+			Result := message
 		end
 
 		-- SETTERS --
@@ -144,9 +153,9 @@ feature {ANY}
 		require
 			arg_is_integer : a_num_gold >= 0
 		do
-			num_gold := a_num_gold
-		ensure
-			num_gold_set : num_gold = a_num_gold
+			count_gold (hand)
+--		ensure
+--			num_gold_set : num_gold = a_num_gold
 		end
 
 	set_draw_pile (a_draw_pile : DO_DRAW_PILE)
@@ -174,6 +183,10 @@ feature {ANY}
 		ensure
 			hand_set : hand = a_hand
 		end
+	set_message(msg : STRING)
+		do
+			message:=msg
+		end
 
 	-- METHODS --
 		count_points () : INTEGER
@@ -186,7 +199,7 @@ feature {ANY}
 			loop
 				discard_pile.add_top_card(draw_pile.remove_top_card())
 			end
-			from i := 0	until i = 1 --discard_pile.is_empty() = TRUE
+			from i := 0	until discard_pile.isempty = TRUE
 			loop
 				type := discard_pile.get_top_card().gettype()
 				if type.is_equal("Victory") = TRUE then
@@ -204,12 +217,14 @@ feature {ANY}
 
 		count_gold(p_hand : ARRAYED_LIST[DO_CARD])
 		do
+			num_gold:=0
 			across p_hand
 			as i
 			loop
 				if i.item.gettype.is_equal("Coin") then
 					if attached {DO_COIN_CARD} i.item as card then
 						num_gold := num_gold + card.getgolds
+
 					end
 				end
 			end
@@ -228,21 +243,13 @@ feature {ANY}
 					from i := 1
 					until i = hand.count + 1
 					loop
---						print("%N" + "MALAKA " + hand.at(i).getname + "%N")
---						io.putint (i)
---						print("%N")
 						if hand.at(i).getname.is_equal(p_card.getname) and y = TRUE then
---							--print(p_card.getname+"%N")
---							discard_pile.add_top_card (hand.at (i))
---							hand.go_i_th (i-1)
---							--print ("%N"+hand.at(i).getname+"%N")
---							hand.remove_right
---							hand.go_i_th (i)
 							remove := i
 							y:= FALSE
 						end
 						i:=i+1
 					end
+					--add p_card to discard
 					if y = FALSE then
 						discard_pile.add_top_card (hand.at (remove))
 						hand.go_i_th (remove-1)
@@ -253,35 +260,59 @@ feature {ANY}
 					num_gold := num_gold + card.getplus_gold
 					num_actions := num_actions + card.getactions - 1
 					num_buys := num_buys + card.getbuys
-					from i := card.getdiscard until i = 0
-					loop
-						-- hand trash card(s)
-						-- mporei na rwtaei ton player an thelei na kanei trash me mia if kai na kanoume to i := 0 an dn thelei na petaksei alli
-						i := i - 1
-					end
+					num_discard := num_discard + card.getdiscard
 					from i := card.getpluscards until i = 0
 					loop
 						if draw_pile.is_empty then
 							draw_pile.refill_draw (discard_pile)
 							if draw_pile.is_empty and i >0 then
-						--		print ("a")
 								i :=1
 							else
-							--	print("TROMPA")
-							--  na milate pio omorfa alliws 8a sas diagrapsw apo to DOSE
-							--  me pollh agaph
-							--  amoustakos programmatisths
 								hand.force (draw_pile.remove_top_card)
 							end
 						else
 							hand.force (draw_pile.remove_top_card)
 						end
-					--	print ("kati")
 						i := i - 1
 					end
-
+					message := "Action Done."
 				end
-				--add p_card to discard
+			elseif num_actions < 1 then
+				message := "Not enough actions."
+			else
+				message := "Not an action card please select an action card instead."
+			end
+		end
+
+		discard_card(d_card : DO_CARD) : DO_CARD
+		local
+			i : INTEGER
+			remove : INTEGER
+			y : BOOLEAN
+		do
+			if num_discard > 1 then
+				from i := 1
+				until i = hand.count + 1
+				loop
+					if hand.at(i).getname.is_equal(d_card.getname) and y = TRUE then
+						remove := i
+						y:= FALSE
+					end
+					i:=i+1
+				end
+				--add d_card to trash
+				if y = FALSE then
+					Result := hand.at (remove)
+					--discard_pile.add_top_card (hand.at (remove))
+					hand.go_i_th (remove-1)
+					hand.remove_right
+				end
+				hand.go_i_th (1)
+				num_discard := num_discard - 1
+				message := "Card trashed succesfully."
+			else
+				Result := void
+				message := "Can't trash the card."
 			end
 		end
 
@@ -293,9 +324,11 @@ feature {ANY}
 				num_buys := num_buys - 1
 				--add b_card to discard
 				discard_pile.add_top_card (b_card)
-				discard_pile.emfanise
+				message := "Buy Succesfull."
+			elseif num_buys < 1 then
+				message := "No more buys available."
 			else
-				print("POULO")
+				message := "Not enough gold."
 			end
 		end
 

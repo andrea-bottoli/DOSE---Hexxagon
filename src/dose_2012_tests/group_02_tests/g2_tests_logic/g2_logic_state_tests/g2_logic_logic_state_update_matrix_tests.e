@@ -27,6 +27,7 @@ feature -- Test routines
 			if not rescued then
 				create logic_state.make()
 				logic_state.update_matrix(e_matrix)
+				rescued:= logic_state.g2_matrix.is_equal (void)
 			end
 			assert ("e_matrix is void", rescued)
 			rescue

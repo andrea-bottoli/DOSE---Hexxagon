@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_PLAYER_STATUS_PANEL}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "it's the player panel status."
+	author: "Team Milano2"
+	date: "07-12-2012"
+	revision: "0.3"
 
 class
 	XX_PLAYER_STATUS_PANEL

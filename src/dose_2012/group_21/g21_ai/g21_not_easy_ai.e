@@ -6,6 +6,7 @@ note
 
 -- ALMOST COMPLETE (waiting for logic methods)
 
+
 deferred class
 
 	G21_NOT_EASY_AI -- It is an G21_AI descendent and it is the father of MEDIUM and HARD difficult level AI. It is a deferred class
@@ -17,9 +18,9 @@ inherit
 feature{G21_NOT_EASY_AI} -- Attributes
 
 	valuated_moves: ARRAYED_LIST[G21_VALUATED_MOVE] -- An ARRAYED_LIST of G21_VALUATED_MOVE used to store all possible moves
-	frozen flip_value: INTEGER = 3
+	frozen flip_value: INTEGER = 6
 	frozen not_flip_value: INTEGER = 2
-	frozen border_value: INTEGER = 10
+	frozen border_value: INTEGER = 3
 
 feature{G21_NOT_EASY_AI} -- Procedures
 
@@ -208,7 +209,7 @@ feature{G21_NOT_EASY_AI} -- Procedures
 
 			result_not_void:result/=void
 			card_valid: result.card/=void
-			result_in_list: cards.has(result.card) = true
+		--	result_in_list: cards.index_of(result.card,1)/=0
 			valid_position: result.position.x>=1 and then result.position.x<=3 and then result.position.y>=1 and then result.position.y<=3
 
 		end

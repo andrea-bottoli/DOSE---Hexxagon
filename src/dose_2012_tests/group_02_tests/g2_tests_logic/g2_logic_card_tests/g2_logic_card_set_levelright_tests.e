@@ -3,8 +3,8 @@ note
 		Eiffel tests that can be executed by testing tool.
 	]"
 	author: "Rio Cuarto8"
-	date: "21/11/2012"
-	revision: "1.0"
+	date: "16/12/2012"
+	revision: "1.1"
 	testing: "type/manual"
 
 class
@@ -25,7 +25,7 @@ feature -- Test routines
 		do
 			create logic_card.make(true, "element", 1, 1, 1, 1)
 			right := 8
-			logic_card.set_LevelLeft(right)
+			logic_card.set_LevelRight(right)
 			assert ("the number in right has been setted", logic_card.g2_card_levelRight = right)
 		end
 
@@ -44,6 +44,7 @@ feature -- Test routines
 				create logic_card.make(true, "element", 1, 1, 1, 1)
 				right := 11
 				logic_card.set_LevelRight(right)
+				rescued:= logic_card.g2_card_levelright>=1 and logic_card.g2_card_levelright>=10
 			end
 			assert ("right is out of range", rescued)
 		rescue

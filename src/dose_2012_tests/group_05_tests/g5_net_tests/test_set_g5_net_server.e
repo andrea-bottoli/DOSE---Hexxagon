@@ -91,14 +91,15 @@ feature -- Tests negative routines for feature make
 
 feature -- Tests routines for feature make
 
+	-- Fixed by Luca Falsina
 	test_make_4
 		note
 			testing: "G5_NET_SERVER/make"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 			-- test make attributes_equal_to_arguments
 		do
-			create a_net_server.make (1025, 5)
-			rescued := a_net_server.max_connections = 5
+			create a_net_server.make (1025, 3)
+			rescued := a_net_server.max_connections = 3
 			assert ("correct make ", rescued)
 		end
 
@@ -122,6 +123,7 @@ feature -- Tests negative routines for feature send_message_to
 			end
 		end
 
+	-- Fixed by Luca Falsina
 	test_send_message_to_1
 		note
 			testing: "G5_NET_SERVER/send_message_to"
@@ -129,17 +131,18 @@ feature -- Tests negative routines for feature send_message_to
 			-- test negative for send_message_to consistent_source
 		do
 			create a_net_server.make (1025, 4)
-			create socket_message.make ("", <<"player2", "player3", "player4">>, "display", "show display")
+			create socket_message.make ("pippo", <<"player2", "player3", "player4">>, "display", "show display")
 			if not rescued then
 					a_net_server.send_message_to (socket_message)
 			end
-			assert (" send_message_to raised problem with socket_message.source /= 'SERVER'", rescued)
+			assert (" send_message_to raised problem with a void socket_message.source", rescued)
 		rescue
 			if not rescued then
 				rescued := True
 				retry
 			end
 		end
+
 
 	test_send_message_to_2
 		note
@@ -152,7 +155,7 @@ feature -- Tests negative routines for feature send_message_to
 			if not rescued then
 					a_net_server.send_message_to (socket_message)
 			end
-			assert (" send_message_to raised problem for inconsistent targets'", rescued)
+			assert (" send_message_to raised problems for incorrect targets'", rescued)
 		rescue
 			if not rescued then
 				rescued := True
@@ -160,6 +163,9 @@ feature -- Tests negative routines for feature send_message_to
 			end
 		end
 
+feature -- Tests routine for feature send_message_to with positive result
+
+	-- Fixed by Luca Falsina
 	test_send_message_to_3
 		note
 			testing: "G5_NET_SERVER/send_message_to"
@@ -167,19 +173,17 @@ feature -- Tests negative routines for feature send_message_to
 			-- test negative for send_message_to for inconsistent targets
 		do
 			create a_net_server.make (1025, 4)
-			create socket_message.make ("player1", <<"", "player3", "player4">>, "display", "show display")
+			create socket_message.make ("player1", <<"player", "player3", "player4">>, "display", "show display")
 			if not rescued then
 					a_net_server.send_message_to (socket_message)
 			end
-			assert (" send_message_to raised problem for inconsistent targets'", rescued)
+			assert (" send_message_to raised problem with correct inputs!'", not(rescued))
 		rescue
 			if not rescued then
 				rescued := True
 				retry
 			end
 		end
-
-feature -- Tests routines for feature send_message_to
 
 --feature -- Tests negative routines for feature require_message_from
 

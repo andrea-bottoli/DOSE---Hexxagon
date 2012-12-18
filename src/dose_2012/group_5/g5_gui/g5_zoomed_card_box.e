@@ -44,7 +44,7 @@ feature -- application
 		do
 			if(not(an_id.is_equal ("NONE"))) then
 				path_name:= file_system.pathname_to_string (img_path_zoomed)
-				path_name.append_string ("\")
+				path_name.append_string ("/")
 				path_name.append_string (an_id)
 				path_name.append_string (".png")
 				zoomed_card.set_with_named_file (path_name)

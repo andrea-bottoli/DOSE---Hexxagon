@@ -32,7 +32,7 @@
 7 21 wall corridor corridor corridor
 7 22 wall corridor corridor corridor
 7 23 wall corridor corridor corridor
-7 20 wall wall wall corridor
+7 24 wall wall wall corridor
 8 1 wall corridor wall wall
 8 2 wall corridor corridor corridor
 8 3 wall corridor corridor corridor
@@ -90,7 +90,7 @@
 12 18 corridor wall corridor corridor
 13 9 corridor corridor corridor door
 13 10 corridor wall corridor corridor
-13 16 coridor corridor corridor wall
+13 16 corridor corridor corridor wall
 13 17 corridor corridor corridor corridor
 13 18 corridor wall corridor corridor
 14 9 corridor corridor corridor wall

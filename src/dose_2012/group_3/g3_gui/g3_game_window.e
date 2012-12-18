@@ -15,23 +15,29 @@ feature{G3_START_GAME}
 	intialize_game_window(wind:EV_FIXED port:STRING name:STRING is_server:BOOLEAN)
 		--intialize game window
 		local
+
+
 				internal_pixmap: EV_PIXMAP
 				pix_back: EV_PIXMAP
 				pix2:EV_PIXMAP
 				pix:EV_PIXMAP
 				pix3:EV_PIXMAP
+				pix4:EV_PIXMAP
 				what_tip: STRING
 		do
+			dragon:="left"
 			create pix_back.default_create
 			create pix.default_create
 			create pix2.default_create
 			create pix3.default_create
+			create pix4.default_create
 
 			pix_back.set_with_named_file ("dose_2012/images/group_03/black.png")
 			pix.set_with_named_file ("dose_2012/images/group_03/table_font.png")
 			pix2.set_with_named_file ("dose_2012/images/group_03/cards_font.png")
 			what_tip := "dose_2012/images/group_03/tip1.png"
 			pix3.set_with_named_file (what_tip)
+			pix4.set_with_named_file ("dose_2012/images/group_03/dr_con_image.png")
 
 			create bomb_but.make_with_text ("Bomb")
 			create pass_but.make_with_text ("Pass")
@@ -47,15 +53,17 @@ feature{G3_START_GAME}
 			wind.set_background_pixmap (pix_back)
 			create internal_pixmap
 			internal_pixmap.set_with_named_file ("dose_2012/images/group_03/font1.png")
-			create game_con
-			create cards_con
-			create points_con
-			create turn_con
-			create tip_con
+			create game_con.default_create
+			create cards_con.default_create
+			create points_con.default_create
+			create turn_con.default_create
+			create tip_con.default_create
+			create dragon_con.default_create
 			create cards_but.make
 			game_con.set_background_pixmap (pix)
 			cards_con.set_background_pixmap (pix2)
 			tip_con.set_background_pixmap (pix3)
+			dragon_con.set_background_pixmap (pix4)
 			wind.extend_with_position_and_size (game_con,0, 0, 840, 400)
 			wind.extend_with_position_and_size (points_con,840, 0, 160, 200)
 			wind.extend_with_position_and_size (turn_con,840,150, 160, 200)
@@ -63,19 +71,25 @@ feature{G3_START_GAME}
 			wind.extend_with_position_and_size (tip_con,840,320,160,280)
 			game_con.extend_with_position_and_size (play_but,700 ,350, 100, 50)
 			game_con.extend_with_position_and_size (pass_but,600 ,350, 100, 50)
+			game_con.extend_with_position_and_size (dragon_con,0,250,350,150)
 			pass_but.select_actions.extend (agent press_pass)
 			game_con.extend_with_position_and_size (tichu_but,500 ,350, 100, 50)
 			tichu_but.select_actions.extend (agent say_tichu)
 			game_con.extend_with_position_and_size (bomb_but,400 ,350, 100, 50)
 			bomb_but.select_actions.extend (agent press_bomb)
 			play_but.select_actions.extend (agent try_drop_cards(cards_down))
-			intialize_logic(is_server,port,name)
+
 			is_bomb_button_enable :=true
 			is_tichu_button_enable :=true
 			is_grand_tichu_button_enable :=true
+			play_but.disable_sensitive
+			bomb_but.disable_sensitive
+			tichu_but.disable_sensitive
+			pass_but.disable_sensitive
+
 			change_player_turn
 			change_points( ["","",0,0],["","",0,0])
-		--	give_dragon
+			intialize_logic(is_server,port,name)
 		end
 
 
@@ -83,10 +97,8 @@ feature{G3_START_GAME}
 	do
 		control_logic:=control
 	end
-	set_model(mod:G3_MODEL)
-	do
-		model:=mod
-	end
+
+
 	intialize_menu
 		-- intialize menu
 		do
@@ -94,48 +106,76 @@ feature{G3_START_GAME}
 		end
 	intialize_logic(is_server:BOOLEAN port:STRING name:STRING)
 	local
-		player:G3_PLAYER
+		
 
 	do
-		create id.make
-		create model.make
-		create control_logic.make
-		create player.make
+--		create id.make
+--		create model.make
+--		create player.make
 		if is_server then
 			control_logic.run_in_server_mode (name)
 		else
-			control_logic.connect_to_game (port, name.to_string_8)
+			control_logic.connect_to_game (port, name)
 		end
 
+	end
+
+
+feature {G3_CONTROLLER,G3_START_GAME}
+	set_model(mod:G3_MODEL)
+	do
+		model:=mod
 	end
 
 feature
 	on_update
 
 		do
-			dragon:="none"
+
+
+
+			dragon:="left"
 			id:=control_logic.my_id
-			if(model.error_message.is_empty) then
-				if model.number_of_players=4 then
-					if control_logic.passing_cards_stage then
-						change_tip("tip2.png")
-						show_all_cards(model.get_player (id).cards)
+			if(model.game_over) then
+				game_end(model.team_info (1),model.team_info(2))
+			end
+			if( not model.has_error_message) then
+				print (" I HERE !!!! in window")
 
-					elseif model.number_of_players=4 and control_logic.playing_round_stage then
-						change_player_turn
-						update_tichu_table(model.top_play.cards)
-						show_all_cards(model.get_player (id).cards)
-						change_points(model.team_info (1),model.team_info (2))
-					elseif control_logic.before_9_cards then
-						change_tip("tip1.png")
-						show_fist_cards(model.get_player (id).cards)
-						ask_for_grand
-					end
+				if control_logic.passing_cards_stage then
+					play_but.disable_sensitive
+					bomb_but.disable_sensitive
+					tichu_but.disable_sensitive
+					pass_but.disable_sensitive
+					change_tip("tip2.png")
+					show_all_cards(model.get_player (id).cards)
 
+				elseif model.number_of_players=4 and control_logic.playing_round_stage then
+					play_but.enable_sensitive
+					bomb_but.enable_sensitive
+					tichu_but.enable_sensitive
+					pass_but.enable_sensitive
+					change_player_turn
+					update_tichu_table(model.top_play.cards)
+					show_all_cards(model.get_player (id).cards)
+					change_points(model.team_info (1),model.team_info (2))
+				elseif control_logic.before_9_cards then
+					play_but.disable_sensitive
+					bomb_but.disable_sensitive
+					tichu_but.disable_sensitive
+					pass_but.disable_sensitive
+					change_tip("tip1.png")
+					show_fist_cards(model.get_player (id).cards)
+					ask_for_grand
 				end
+
 			else
 				io.putstring (model.error_message)
 			end
+
+
+
+
 
 		end
 
@@ -143,36 +183,12 @@ feature{ANY}
 
 	give_dragon:G3_PLAYER_ID
 	local
-		label : EV_LABEL
-		but1,but2 :EV_BUTTON
-		color1,color2:EV_COLOR
+
 		send:INTEGER
 	do
 		send:=control_logic.my_id.id
-		create label.make_with_text ("Where you want the Dragon to be given?")
-		create color1.make_with_8_bit_rgb (0,0, 0)
-		create color2.make_with_8_bit_rgb (250,0, 0)
-		label.set_foreground_color (color2)
-		label.set_background_color (color1)
-		create but1.make_with_text ("Left opponent")
-		create but2.make_with_text ("Right opponent")
-		but1.set_foreground_color (color2)
-		but1.set_background_color (color1)
-		but2.set_foreground_color (color2)
-		but2.set_background_color (color1)
-		but1.select_actions.extend (agent choose_for_dragon("left"))
-		but2.select_actions.extend (agent choose_for_dragon("right"))
-		game_con.extend_with_position_and_size (label, 280, 200, 150, 30)
-		game_con.extend_with_position_and_size (but1, 200, 250, 150, 30)
-		game_con.extend_with_position_and_size (but2, 350 , 250, 150, 30)
-		from
 
-		until
-			not dragon.is_equal ("none")
-		loop
-
-		end
-		if dragon="left" then
+		if dragon.is_equal ("left") then
 			send:=send+3
 				if send >4 then
 					send:=send-4
@@ -377,6 +393,7 @@ feature{ANY}
 				pix : EV_PIXMAP
 			do
 				game_con.wipe_out
+				game_con.extend_with_position_and_size (dragon_con,0,250,350,150)
 				game_con.extend_with_position_and_size (play_but,700 ,350, 100, 50)
 				game_con.extend_with_position_and_size (pass_but,600 ,350, 100, 50)
 				game_con.extend_with_position_and_size (tichu_but,400 ,350, 100, 50)
@@ -460,10 +477,138 @@ feature{ANY}
 
 feature {NONE}
 
+	dragon_feature
+	local
+		pix: EV_PIXMAP
+	do
+		create pix.default_create
+		create left_but.make_with_text ("Left")
+		create right_but.make_with_text ("Right")
+		create close_but.make_with_text ("Close")
+		pix.set_with_named_file ("dose_2012/images/group_03/dragon_give.png")
+		dragon_con.wipe_out
+		dragon_con.extend_with_position_and_size (pix, 0, 0, 350,150)
+		dragon_con.extend_with_position_and_size (left_but, 50, 75, 60,60)
+		dragon_con.extend_with_position_and_size (right_but, 150, 75, 60,60)
+		dragon_con.extend_with_position_and_size (close_but, 250, 75, 60,60)
+		left_but.select_actions.extend (agent choose_for_dragon("left"))
+		right_but.select_actions.extend (agent choose_for_dragon("right"))
+		close_but.select_actions.extend (agent close_above)
+	end
+
+	game_end(team1: TUPLE [player1, player2: STRING; score_global, score_partial: INTEGER] team2: TUPLE [player1, player2: STRING; score_global, score_partial: INTEGER])
+				-- change team points in points_con
+			local
+				score :EV_LABEL
+				sco:STRING
+				color:EV_COLOR
+			do
+				create color.make_with_8_bit_rgb (190,50, 50)
+				create sco.make_empty
+				sco.append ("team 1 : ")
+				sco.append_integer(team1.score_global)
+				sco.append (" ------ team 2 : ")
+				sco.append_integer(team2.score_global)
+				sco.append ("%NThe game is over ")
+				if team1.score_global>team2.score_global then
+					sco.append ("%N!!!!WINNER IS TEAM 1!!!!!")
+				else
+					sco.append ("%N!!!!WINNER IS TEAM 2!!!!!")
+				end
+				create score.make_with_text (sco)
+				score.set_background_color (color)
+				game_con.wipe_out
+
+
+				game_con.extend_with_position_and_size (score ,0, 0, 840,400)
+			end
+
+
+	close_above
+	local
+		pix: EV_PIXMAP
+	do
+		create pix.default_create
+		pix.set_with_named_file ("dose_2012/images/group_03/dr_con_image.png")
+		dragon_con.wipe_out
+		dragon_con.extend_with_position_and_size (pix, 0, 0, 350,150)
+	end
+
+
 	choose_for_dragon(where:STRING)
 	do
 		dragon:=where
 	end
+
+	mahjong_feature
+	local
+		pix: EV_PIXMAP
+		fix: EV_FIXED
+		cards: LINKED_LIST [EV_FIXED]
+		i: INTEGER
+		tmpstr,name: STRING
+	do
+		change_tip("tip7.png")
+		create pix.default_create
+		create cards.make
+		tmpstr := ""
+		from
+			i:=2
+		until
+			i=15
+		loop
+			create name.make_empty
+			name.append_integer (i)
+			create pix.default_create
+			create fix.default_create
+			create tmpstr.make_empty
+			tmpstr.append_integer (i)
+			pix.set_with_named_file (comps.path+"/cards/mahjong"+name+".png")--+i.to_hex_string+
+			fix.set_background_pixmap (pix)
+			if(i=11) then
+				fix.pointer_button_release_actions.extend (agent choosen_one("J",?,?,?,?,?,?,?,?))
+			elseif(i=12) then
+				fix.pointer_button_release_actions.extend (agent choosen_one("Q",?,?,?,?,?,?,?,?))
+			elseif(i=13) then
+				fix.pointer_button_release_actions.extend (agent choosen_one("K",?,?,?,?,?,?,?,?))
+			elseif(i=14) then
+				fix.pointer_button_release_actions.extend (agent choosen_one("A",?,?,?,?,?,?,?,?))
+			else
+				fix.pointer_button_release_actions.extend (agent choosen_one(tmpstr,?,?,?,?,?,?,?,?))
+			end
+			cards.extend (fix)
+			i:=i+1
+		end
+		from
+			cards.start
+		until
+			cards.off
+		loop
+			game_con.extend_with_position_and_size (cards.item, (cards.index-1)*60+15, 100, 60,90)
+			cards.forth
+		end
+
+
+	end
+
+	choosen_one(str_id: STRING a,b,c :INTEGER_32  d,e,f :REAL_64  g,h : INTEGER_32) -- The mahjong chosen card
+	do
+		io.putstring (str_id)
+		from
+			cards_down.start
+		until
+			cards_down.off
+		loop
+			if(cards_down.item.is_the_mahjongg) then
+				cards_down.item.make (str_id, cards_down.item.kind, true ,0, cards_down.item.value)
+
+			end
+			cards_down.forth
+		end
+
+	end
+
+
 
 	change_tip(name_tip: STRING)
 	local
@@ -504,7 +649,7 @@ feature {NONE}
 	local
 		send:INTEGER
 	do
-		send:=0
+		change_tip("tip2.png")
 		player_cards.start
 		from
 			cards_but.start
@@ -534,6 +679,12 @@ feature {NONE}
 				else
 					cards_con.set_item_position_and_size (cards_but.item,cards_play.count*60 ,100, 60, 90)
 					cards_play.extend (cards_but.item)
+					if(player_cards.item.is_the_mahjongg) then
+						mahjong_feature
+					end
+					if(player_cards.item.is_the_dragon) then
+						dragon_feature
+					end
 					cards_down.extend (player_cards.item)
 				end
 				player_cards.remove
@@ -542,10 +693,7 @@ feature {NONE}
 				cards_but.forth
 				player_cards.forth
 			end
-
 		end
-
-
 	end
 
 	player_cards:LINKED_LIST [G3_CARD]
@@ -603,5 +751,8 @@ feature {NONE}
 	id:G3_PLAYER_ID
 
 	dragon:STRING
+
+	dragon_con: EV_FIXED
+	left_but,right_but,close_but: EV_BUTTON
 
 end

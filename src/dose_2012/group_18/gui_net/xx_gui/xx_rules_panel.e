@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_RULES_PANEL}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "panel that contains the rule of the game."
+	author: "Team Milano2"
+	date: "11-12-2012"
+	revision: "0.1"
 
 class
 	XX_RULES_PANEL

@@ -78,12 +78,12 @@ feature -- creators
 			ok_button.select_actions.extend(agent ok_request)
 
 			-- set and add label
-			create label_cards_to_select_min.make_with_text ("You had to chose at least:")
+			create label_cards_to_select_min.make_with_text ("You have to chose at least:")
 			temporary_string:= min.out
 			temporary_string.append (" card(s)")
 			create label_number_of_cards_to_select_min.make_with_text (temporary_string)
 
-			create label_cards_to_select_max.make_with_text ("You had to chose at most:")
+			create label_cards_to_select_max.make_with_text ("You have to chose at most:")
 			temporary_string:= max.out
 			temporary_string.append (" card(s)")
 			create label_number_of_cards_to_select_max.make_with_text (temporary_string)

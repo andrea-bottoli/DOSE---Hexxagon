@@ -6,16 +6,18 @@ note
 
 class
     B8_SERVER
-inherit
-	SOCKET_RESOURCES
-	THREAD_CONTROL
+--inherit
+--	SOCKET_RESOURCES
+--	THREAD_CONTROL
 --	B8_GAME_MODE
+inherit
+	SED_STORABLE_FACILITIES
 create
     make_server
 
 feature
 
-    make_server(a_players:INTEGER;a_port_number:INTEGER;a_logic:B8_LOGIC)
+    make_server(a_players:INTEGER;a_port_number:INTEGER;a_logic:B8_LOGIC;l_3rd_layer: B8_3RD_LAYER_WINDOW)
             -- Accept communication with client and exchange messages
         local
             --count: INTEGER
@@ -24,7 +26,7 @@ feature
             thread:B8_MY_THREAD_SERVER --the created thread
             soc2:NETWORK_STREAM_SOCKET
             thread_available:INTEGER --the position available to put a thread in the array
-
+			l_medium: SED_MEDIUM_READER_WRITER
         do
 			logic:=a_logic
 			players:=a_players
@@ -35,7 +37,7 @@ feature
 				port_number:=a_port_number
 				--create sockets.make(1,players) Stefano: there was a warning which says that this is an Obsolete Call
 				create sockets.make_filled(Void,1,players) --create the array which contains the sockets that the server handles
-				--create soc.make_server_by_port(port_number)
+				create soc.make_server_by_port(port_number)
         		logic.set_player_id (0) --Start the game
 
         		if players=4 then
@@ -45,27 +47,43 @@ feature
       			end
         		logic.start_game
 				from
-        			--soc.listen(5)
+        			soc.listen(5)
         			id:=1
         		until
         			id=players
         		loop
-        			--soc.accept
-        			--soc2:=soc.accepted
+        			soc.accept
+        			soc2:=soc.accepted
+        			create l_medium.make (soc2)
         			thread_available:=thread_available+1
-        			create thread.make(id,players,soc2)
+        			create thread.make(id,players,l_medium,l_3rd_layer,Current,logic)
         			threads.put (thread, thread_available)
-        			sockets.put(soc2,id)--put the socket in the array
+        			sockets.put(l_medium,id)--put the socket in the array
         			thread.launch
 					id:=id+1
 
         		end
 
         end
+      send_message(mesg:STRING)
+      	local
+      		l_i:INTEGER
+		do
+			from
+				l_i:=1
+			until
+				l_i=players
+			loop
+
+			sockets.at (l_i).set_for_writing
+			store (mesg, sockets.at (l_i))
+			l_i:=l_i+1
+			end
+		end
 
 feature
 	threads:ARRAY[B8_MY_THREAD_SERVER] --Array of the threads the server uses
-	sockets:ARRAY[NETWORK_STREAM_SOCKET]
+	sockets:ARRAY[SED_MEDIUM_READER_WRITER]
 	players:INTEGER
 	port_number:INTEGER
 	logic:B8_LOGIC

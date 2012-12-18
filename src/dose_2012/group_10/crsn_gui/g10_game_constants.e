@@ -70,6 +70,11 @@ feature {ANY} -- event constants.
 		result := "rotate"
 	end
 
+	put_tile_to_terrain_event : STRING
+	once
+		result := "put_tile_to_terrain"
+	end
+
 feature{ANY} --component sizes
 	--window
 	game_window_width : INTEGER = 1024
@@ -474,6 +479,9 @@ feature{ANY} --component sizes
 
 -- followers - pixmap/paths
 	-- clickable point.
+	small_follower_width : INTEGER = 22
+	small_folower_height : INTEGER = 22
+
 	img_clickable_point: KL_PATHNAME
 	do
 		Result := game_img_path
@@ -498,6 +506,79 @@ feature{ANY} --component sizes
 		create Result
 		Result.set_with_named_file (file_system.pathname_to_string(img_red_follower) )
 	end
+
+	img_small_red_follower: KL_PATHNAME
+	do
+		Result := game_followers_img_path
+		Result.append_name ("red_small_follower.png")
+	end
+
+	pix_small_red_follower : EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_small_red_follower) )
+	end
+
+	img_small_blue_follower: KL_PATHNAME
+	do
+		Result := game_followers_img_path
+		Result.append_name ("blue_small_follower.png")
+	end
+
+	pix_small_blue_follower : EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_small_blue_follower) )
+	end
+
+	img_small_green_follower: KL_PATHNAME
+	do
+		Result := game_followers_img_path
+		Result.append_name ("green_small_follower.png")
+	end
+
+	pix_small_green_follower : EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_small_green_follower) )
+	end
+
+	img_small_yellow_follower: KL_PATHNAME
+	do
+		Result := game_followers_img_path
+		Result.append_name ("yellow_small_follower.png")
+	end
+
+	pix_small_yellow_follower : EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_small_yellow_follower) )
+	end
+
+	img_small_grey_follower: KL_PATHNAME
+	do
+		Result := game_followers_img_path
+		Result.append_name ("grey_small_follower.png")
+	end
+
+	pix_small_grey_follower : EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_small_grey_follower) )
+	end
+
+	img_small_purple_follower: KL_PATHNAME
+	do
+		Result := game_followers_img_path
+		Result.append_name ("purple_small_follower.png")
+	end
+
+	pix_small_purple_follower : EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_small_purple_follower) )
+	end
+
 
 -- tiles
 
@@ -524,6 +605,19 @@ feature{ANY} --component sizes
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string(img_available_tile) )
 		end
+
+	-- not available tile
+	img_not_available_tile: KL_PATHNAME
+	do
+		Result := game_tiles_img_path
+		Result.append_name ("not_available_tile_47_47.png")
+	end
+	
+	pix_not_available_tile: EV_PIXMAP
+	once
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string(img_not_available_tile) )
+	end
 
 	-- drawed tile
 	img_drawed_tile: KL_PATHNAME

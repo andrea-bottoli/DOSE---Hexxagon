@@ -17,6 +17,7 @@ feature --attributes
 	main_ui : MAIN_WINDOW
 	game: HX_L_LOGIC
 	ui_manager: HX_G_UIMANAGER
+	winner_window: HX_G_WINNER_SCREEN
 
 	main_container: EV_VERTICAL_BOX
 	l_world: EV_MODEL_WORLD
@@ -27,12 +28,34 @@ feature --attributes
 	l_pixmap_move_copy: EV_PIXMAP
 	l_pixmap_move_jump: EV_PIXMAP
 
+	go_back_tile: HX_G_HEX
+	help_tile	: HX_G_HEX
+	player1_tile: HX_G_HEX
+	player2_tile: HX_G_HEX
+
+	help_pic	:EV_PIXMAP
+	go_back_pic: EV_PIXMAP
+
+	player1_pic: EV_PIXMAP
+	player1_bg: EV_MODEL_PICTURE
+
+	player2_pic: EV_PIXMAP
+	player2_bg: EV_MODEL_PICTURE
+
+
+	player1_label_score: EV_LABEL
+	player2_label_score: EV_LABEL
+
+	internal_pixmap: EV_PIXMAP
+
+	---		
 	tiles: ARRAY2[HX_G_HEX]
 	l_tile: HX_G_HEX
 	wrap_board: ARRAY2[HX_L_IPLACE]
 
 	l_board: HX_L_IBOARD
 
+	list_highlight_pieces: LINKED_LIST[HX_L_IMOVE]
 
 feature --Init
 
@@ -54,6 +77,8 @@ feature --Init
 			game := ui_manager.logic
 			l_board := game.board
 
+			create list_highlight_pieces.make()
+
 			-- Store the main_ui object. We want to restore it later on (it's currently minimized).
 			main_ui := a_main_ui
 			-- Create the window.
@@ -69,31 +94,56 @@ feature --Init
 
 			create main_container
 			create l_world
+			create go_back_pic
+			create help_pic
 			create l_pixmap_empty
 			create l_pixmap_first_player
 			create l_pixmap_second_player
 			create l_bg
-			create l_world
 			create area
 			create l_pixmap_move_copy
 			create l_pixmap_move_jump
+			create internal_pixmap
 
 			l_pixmap_empty.set_with_named_file ("dose_2012/images/group14/cell.png")
-			l_pixmap_first_player.set_with_named_file ("dose_2012/images/group14/cell1.png")
-			l_pixmap_second_player.set_with_named_file ("dose_2012/images/group14/cell6.png")
+
+			--IF PREFERENCES NOT CHANGED THEN BY DEFAULT:
+			--if (ui_manager.preferences_changed = false) then
+			--	l_pixmap_first_player.set_with_named_file ("dose_2012/images/group14/cell1.png")
+			--	l_pixmap_second_player.set_with_named_file ("dose_2012/images/group14/cell6.png")
+			--	l_bg.set_with_named_file ("dose_2012/images/group14/background151.png")
+			--else --IF PREFERENCES CHANGED THEN:
+				l_pixmap_first_player.set_with_named_file(game.preferences.player1_piece_image_path)
+				l_pixmap_second_player.set_with_named_file(game.preferences.player2_piece_image_path)
+				l_bg.set_with_named_file(game.preferences.board_image_path)
+			--end
+
 			l_pixmap_move_copy.set_with_named_file ("dose_2012/images/group14/cell_copy.png")
 			l_pixmap_move_jump.set_with_named_file ("dose_2012/images/group14/cell_jump.png")
 
 
 			-- Add background to the world. The last extended model is the one on the front!
 			-- Therefore add the background first, and the other things later
-			l_bg.set_with_named_file ("dose_2012/images/group14/background151.png")
-		 	create l_bg_pic.make_with_pixmap (l_bg)
+		 	create l_bg_pic.make_with_pixmap(l_bg)
 	 		l_world.extend (l_bg_pic)
 
+			--Go Back button
+			go_back_pic.set_with_named_file ("dose_2012/images/group14/back_tiled.png")
+		 	create go_back_tile.make_with_hex (go_back_pic, agent go_back_action)
+			go_back_pic.pointer_enter_actions.extend(agent pointer_enter_area_back)
+			go_back_pic.pointer_leave_actions.extend(agent pointer_leave_area_back)
+			go_back_tile.set_point_position (20,15)
+		 	l_world.extend(go_back_tile)
 
-	--		wrap_board := wrap_to_GUI(l_board)
-	--	 	io.new_line print("wrap_board: ")print(wrap_board) io.new_line
+		 	--Help Screen
+		 	help_pic.set_with_named_file ("dose_2012/images/group14/help_transp.png")
+		 	create help_tile.make_with_hex (help_pic, agent help_action)
+			help_pic.pointer_enter_actions.extend(agent pointer_enter_area_back)
+			help_pic.pointer_leave_actions.extend(agent pointer_leave_area_back)
+			help_tile.set_point_position (500,15)
+		 	l_world.extend(help_tile)
+
+
 			create tiles.make_filled (Void, l_board.height, l_board.width)
 
 			from l_x := 1 until	l_x > l_board.height loop
@@ -127,8 +177,22 @@ feature --Init
 				l_x := l_x + 1
 			end
 
+
+
 			-- Create the drawing area and assign a model projector to it
 			create l_projector.make (l_world, area)
+
+			create player1_pic
+			player1_pic.set_with_named_file ("dose_2012/images/group14/player1_hover.png")
+		 	create player1_bg.make_with_pixmap (player1_pic)
+		 	player1_bg.set_point_position (100,500)
+		 	l_world.extend(player1_bg)
+
+			create player2_pic
+			player2_pic.set_with_named_file ("dose_2012/images/group14/player2_.png")
+		 	create player2_bg.make_with_pixmap (player2_pic)
+		 	player2_bg.set_point_position (400,500)
+		 	l_world.extend (player2_bg)
 
 			main_container.extend (area)
 
@@ -146,79 +210,75 @@ feature --Init
 
 
 
-feature -- convert arrays of Logic and GUI
-
-	--takes logic board and translates its coordinates into gui board's coordinates
-	wrap_to_GUI(a_l_board : HX_L_IBOARD): ARRAY2[HX_L_IPLACE]
-	local
-		l_x, l_y, i,tmp_x	: INTEGER
-		l_place		: HX_L_IPLACE
-		board		: HX_L_IBOARD
-		g_board		: ARRAY2[HX_L_IPLACE]
-	do
-		board := a_l_board
-		create g_board.make_filled (Void, 17, 9)
-
-		from l_x := 1 until l_x > board.height loop
-			from l_y := 1 until l_y > board.width loop
-
-				tmp_x := l_x
-				if tmp_x.integer_remainder (2) = 0 then			--if odd line
-					i := (l_x*2)
-					l_place := board.place(l_x, l_y)
-					g_board.put (l_place, i, l_y)
-				else if tmp_x.integer_remainder (2) /= 0 then 	--if even line
-						i := (l_x*2)-1
-						l_place := board.place(l_x, l_y)
-						g_board.put (l_place, i, l_y)
-					end
-				end
-				l_y := l_y + 1
-			end
-			l_x := l_x + 1
-		end
-		io.new_line print("WRAPPER: g_board: ")print(g_board) io.new_line
-		Result := g_board
-	end
-
-
-
 feature -- Access
 
 			select_hex(x, y: INTEGER)
 				--when hex with coordinates x,y is selected -> draw the neighbors
 			local
-				l_to_x, l_to_y: INTEGER
+				l_to_x, l_to_y : INTEGER
 			do
+				if ( list_highlight_pieces.is_empty = false) then
+					unselect_highlight_list()
+				end
 				-- check if this piece can be selected
 				if l_board.is_piece_selectable (x, y) then
-					print("PIECE SELECTABLE VOID") print(x) print("")print(y)io.new_line
 
-					across l_board.possible_moves ( x, y) as move	--loop all possible moves and draw them
+					-- first grade neighbors
+					across l_board.possible_duplications ( x, y) as move	--loop all possible moves and draw them
 					loop
+						list_highlight_pieces.extend(move.item)	--add neighbor to list
+
 						l_to_x := move.item.destination.x
 						l_to_y := move.item.destination.y
-						-- TODO: diff pic for distant hexxes
-						tiles.item(l_to_x, l_to_y).click_hex (l_pixmap_move_copy, agent click_hex_action(x, y, l_to_x, l_to_y))
+
+
+						tiles.item(l_to_x, l_to_y).click_hex(l_pixmap_move_copy, agent click_hex_action(x, y, l_to_x, l_to_y))
+
+					end	--loop ends	
+
+					-- second grade neighbors
+					across l_board.possible_jumps (x, y) as jump
+					loop
+						list_highlight_pieces.extend (jump.item)	-- add neighbor to list
+
+						l_to_x := jump.item.destination.x
+						l_to_y := jump.item.destination.y
+
+
+						tiles.item(l_to_x, l_to_y).click_hex(l_pixmap_move_jump, agent click_hex_action(x, y, l_to_x, l_to_y))
 					end
-				end
+
+				end--if ends
 			end
 
 			click_hex_action(from_x, from_y , to_x, to_y: INTEGER)
+				--called when a highlighted piece is selected to make a move/jump
 			local
 				selection: HX_L_LOCATION
 			do
-				print("CLICKED!") print(to_x) print(" ") print(to_y) io.new_line
 				create selection.make( to_x , to_y)
 
 				if selection /= Void then
-					print("SELECTION NOT VOID") io.new_line
-						l_board.move_piece_and_continue (from_x, from_y, to_x, to_y)
-						repaint
+					l_board.move_piece_and_continue (from_x, from_y, to_x, to_y)
+					list_highlight_pieces.wipe_out
 				end
-
-
 			end
+
+			unselect_highlight_list
+				--called when multiple pieces are selected -> undraw neighbors of x,y
+			local
+					l_to_x, l_to_y : INTEGER
+			do
+
+					across list_highlight_pieces as piece	--loop all possible moves and draw them
+					loop
+						l_to_x := piece.item.destination.x
+						l_to_y := piece.item.destination.y
+
+				 		tiles.item(l_to_x, l_to_y).set_empty_pic(l_pixmap_empty)
+					end	--loop ends	
+			end
+
 
             getPlayer1() : INTEGER
             do
@@ -241,10 +301,7 @@ feature -- Access
 				l_place: HX_L_IPLACE
 				l_x, l_y: INTEGER
 				l_pixmap: EV_PIXMAP
-				winner_window: HX_G_WINNER_SCREEN
-				msg: HX_L_IGAME_END_MESSAGE
 			do
-				print("REPAINT") io.new_line
 				from l_x := 1 until	l_x > l_board.height loop
 					from l_y := 1 until l_y > l_board.width	loop
 
@@ -260,35 +317,93 @@ feature -- Access
 							end
 					 	end
 
-					 		-- create the hexxagon with its pixmap
-							create l_tile.make_with_hex (l_pixmap, agent select_hex(l_x, l_y))
-							l_world.extend (l_tile)
-							if l_y.integer_remainder (2) = 1 then
-								l_tile.set_point_position (49 * l_y, 49 * l_x)
-								l_tile.disable_moving
-							else
-								l_tile.set_point_position (49 * l_y, 25 + 49 * l_x)
-								l_tile.disable_moving
-							end
-						 	tiles.put (l_tile, l_x, l_y)
-						end
+				 		-- set the hexxagon with its new pixmap
+				 		tiles[l_x,l_y].change_pixmap(l_pixmap, agent select_hex(l_x, l_y))
+					end
 					l_y := l_y + 1
 					end
 				l_x := l_x + 1
 				end
 
-				-- check if game is ended! -> show winner screen
-				if ( l_board.is_end) then
-			--		create msg
-			--		ui_manager.game_finished (l_message: [detachable] HX_L_IGAME_END_MESSAGE)
-					print("GAME ENDED") io.new_line
-					create winner_window.constructor_winner_window(main_ui, ui_manager)
-					winner_window.show
-					destroy
+				if( ui_manager.logic.is_running = true) then --to prevent Logic runtime error!
+					--highlight the turn of each player
+					if (game.board.active_player.id =1) 	then
+						player1_pic.set_with_named_file ("dose_2012/images/group14/player1_hover.png")
+						player2_pic.set_with_named_file ("dose_2012/images/group14/player2_.png")
+					elseif (game.board.active_player.id =2) then
+						player2_pic.set_with_named_file ("dose_2012/images/group14/player2_hover.png")
+						player1_pic.set_with_named_file ("dose_2012/images/group14/player1_.png")
+					end
 				end
+
 			end
 
             clear()
             do
 			end
+
+			show_winner_screen
+			do
+				print("GAME ENDED") io.new_line
+				create winner_window.constructor_winner_window(main_ui, ui_manager)
+				winner_window.show
+			end
+
+
+
+feature -- Implementation pointer events
+
+			pointer_enter_area_back
+			-- the pointer is entering the area used as a button
+			do
+				go_back_pic.set_with_named_file ("dose_2012/images/group14/back.png")
+			end
+
+			pointer_leave_area_back
+			-- the pointer is leaving the area used as a button
+			do
+				go_back_pic.set_with_named_file ("dose_2012/images/group14/back_hover.png")
+			end
+
+
+feature -- click actions
+
+			go_back_action
+			-- Called by `select_actions' of `go_back_btn'.
+			local
+				window:  HX_G_MAIN_MENU_SCREEN
+			do
+				--TODO: call logic to stop game
+				create window.make(main_ui)
+				window.show
+				destroy
+			end
+
+			help_action
+				-- Called by `select_actions' of `help_pic'.
+			local
+				help_screen: HX_G_HELP_SCREEN
+			do
+				create help_screen.make (main_ui,500,550)
+				help_screen.show
+
+			end
+
+
+feature --photos
+
+			pix_go_back_button: EV_PIXMAP
+					-- returns the go_back_button for the active game
+			once
+					create Result
+					Result.set_with_named_file ("dose_2012/images/group14/back.png")--go_back_button_2))
+			end
+
+			pix_go_back_hover: EV_PIXMAP
+			-- returns the go_back_button for the active game
+			once
+					create Result
+					Result.set_with_named_file ("dose_2012/images/group14/back_hover.png")--go_back_button_2))
+			end
+
 end

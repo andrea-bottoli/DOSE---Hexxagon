@@ -292,8 +292,8 @@ feature {NONE} -- Attributes
 			Result.extend (["Dominion 17", "group17.rtf", {DOM17_LAUNCHER}])
 			Result.extend (["Hexxagon (Group 18)", "hexxagon_group18.rtf", {XX_LAUNCHER}])
 			Result.extend (["Kingdom Builder", "dummy_description.rtf", {KINGDOM_BUILDER_LAUNCHER}])
-			Result.extend (["Ingenious 20", "group_20.rtf", {G20_LAUNCHER}])
-			Result.extend (["Triple Triad Gold", "group_21.rtf", {DUMMY_LAUNCHER}])
+			Result.extend (["Super Ingenious", "group_20.rtf", {G20_LAUNCHER}])
+			Result.extend (["Triple Triad Gold", "group_21.rtf", {G21_LAUNCHER}])
 			Result.extend (["TicTacToe", "ttt_description.rtf", {TTT_LAUNCHER}])
 		end
 

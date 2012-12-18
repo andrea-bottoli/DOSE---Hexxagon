@@ -13,80 +13,87 @@ inherit
 
     STORABLE
 
-creation
+create
     make
 
-feature {NONE}
+feature
 
-    make
-    		-- Establish communication with server, and exchange messages
---	    require
---	    	socket_ok: socket_ok
+	soc1: detachable NETWORK_STREAM_SOCKET
+
+    make(master_server: STRING; master_port: INTEGER)
+    	--create a new client
 		local
-            soc1: detachable NETWORK_STREAM_SOCKET
-        do
-        	create soc1.make_client_by_port (server_port, server_ip)
-            soc1.connect
-            process (soc1) -- See below
-            soc1.cleanup
---	    ensure
---			socket_in_use: socket_in_use
-        rescue
-            if soc1 /= Void then
-                soc1.cleanup
-            end
-        end
-
-
-    process (soc1: NETWORK_STREAM_SOCKET)
-            -- Build a message to server, receive answer, build
-            -- modified message from that answer, and print it.
-	    require
-	    	not_connection_refused: not soc1.connection_refused
-		local
-            our_list: CU_NET_MESSAGE
-            message: LINKED_LIST [STRING]
-            ip_id: STRING
-        do
-            create our_list.make
-
-            
-            our_list.independent_store (soc1)
-
-            if attached {CU_NET_MESSAGE} our_list.retrieved (soc1) as l_our_new_list then
-            	io.put_string ("Connection established")
-            	io.new_line
-            end
-
---	    ensure
---	    	is_connnected:
-	    end
-
-
-    retrive_state (a_state: CU_GAME)
-    		-- Recibe un estado proveniente del cliente que esta modificando el juego corriente
-    	require
-    		a_state_not_empty: a_state /= void
-	    do
-	    	state := a_state
-		ensure
-			update_state: state = a_state
-	    end
-
-	send_state: CU_GAME
+			message: CU_NET_MESSAGE
 		do
-			--obtener_ip
-			--state.current_player.obtener_ip
-			--Subir estado de juego desde este ip
-		ensure
-			send_state: state /= void
+			create soc1.make_client_by_port (master_port, master_server)
+			soc1.connect
+			create message.make
+			io.putstring ("Please don't close this window.%N")
+			message.extend ("I want to connect to the game.%N")
+			process(message)
+			if attached {CU_NET_MESSAGE} retrieved (soc1) as new_msg then
+				io.putstring (new_msg.last)
+			end
+			connected:=True
+		rescue
+			if soc1 /= Void then
+				soc1.cleanup
+				connected:= False
+			end
 		end
 
-feature {NONE}
-	state: CU_GAME
-		-- Represents the current state of the game
+feature --process the information
 
-	server_port: INTEGER = 2000
+    process(msg: CU_NET_MESSAGE)
+        require
+        	soc1/=Void
+		do
+			msg.independent_store (soc1)
+			if attached {CU_NET_MESSAGE} retrieved (soc1) as new_msg then
+				from
+					new_msg.start
+				until
+					new_msg.off
+				loop
+					io.putstring (new_msg.item)
+					io.new_line
+					new_msg.forth
+				end
+				io.new_line
+			end
+		end
 
-	server_ip: STRING =  "192.168.0.101"
+	listen
+		do
+			if attached {CU_NET_MESSAGE} retrieved (soc1) as new_msg then
+				from
+					new_msg.start
+				until
+					new_msg.off
+				loop
+					io.putstring (new_msg.item)
+					io.new_line
+					new_msg.forth
+				end
+			end
+		end
+
+feature
+
+	connected: BOOLEAN
+		--is the connection established?
+
+	turn: BOOLEAN
+		--is the players turn?
+
+feature {ANY}
+
+	append(msg: CU_NET_MESSAGE)
+		require
+			msg /= Void
+		do
+			process(msg)
+			listen
+		end
+
 end

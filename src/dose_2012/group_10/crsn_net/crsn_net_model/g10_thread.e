@@ -12,15 +12,17 @@ inherit
 	rename
 		make as thread_make
 	end
-
+	G10_NET_COM_PROTOCOL
+	export
+	{NONE} message_DISCONNECT
+	end
 create
-	dflt_make, make_host, make_lobby, old_make
+	dflt_make,make
 
 feature
 	msg			: STRING
 	soc			: NETWORK_STREAM_SOCKET
-	host 		: G10_HOST
-	lobby 		: G10_LOBBY_SERVER
+	object 		: ANY
 	id			: INTEGER
 
 feature
@@ -28,95 +30,59 @@ feature
 	do
 
 	end
-	old_make (a_soc: NETWORK_STREAM_SOCKET; a_msg: STRING) -- apla yparxei
-	do
-		thread_make
-		soc		:= a_soc
-		msg		:= a_msg
-	end
 
-	make_host (a_soc : NETWORK_STREAM_SOCKET  a_host : G10_HOST  t_id :INTEGER)
-	require
-	not_void: a_host /= void
+
+	make (a_soc : NETWORK_STREAM_SOCKET  an_obj : ANY  t_id :INTEGER)
 	do
 			thread_make
-			host := a_host
+			object := an_obj
 			soc := a_soc
 			id := t_id
 
-	ensure
-		update_host : host = a_host
-	end
-
-	make_lobby (a_soc : NETWORK_STREAM_SOCKET a_lobby : G10_LOBBY_SERVER t_id :INTEGER)
-	require
-		not_void : a_lobby /= void
-	do
-
-			thread_make
-			id := t_id
-			lobby := a_lobby
-			soc := a_soc
-
-	ensure
-		update_lobby : lobby = a_lobby
 	end
 
 feature
 	execute
+	do
+		print ("hello from thread  " + id.out + "%N")
+		if attached {G10_HOST} object as host_server
+		then
+			execute_host_server (host_server)
+		end
+
+		if attached{G10_LOBBY_SERVER} object as lobby_server
+		then
+			execute_lobby_server (lobby_server)
+		end
+
+	end
+
+	execute_lobby_server(lobby : G10_LOBBY_SERVER)
 	local
 		i : INTEGER
 		str : STRING
 	do
-		print ("hello from thread  " + id.out + "%N")
-		from
-			str := ""
-		until
-			str = "Disconect"
+		from  str := ""
+		until str = message_DISCONNECT
 		loop
-
 			  str := lobby.msg_handler (soc)
 		end
-		if str = "Disconnect"
-		then
-			--soc.close
-		end
 
---	from
---		i := 0; str := ""
---	until
---		str.is_equal ("stop") = true
---	loop
---		print ("In loop%N")
---		if soc.ready_for_reading = true
+--		if str = "Disconnect"
 --		then
---			print("Ready for reading true %N")
---			if attached {STRING} soc.retrieved as l_msg then
---				str  := l_msg
---				print ("Retrieved ok%N")
---					io.putstring (l_msg + "%N")
---					io.new_line
---					soc.independent_store (l_msg + "%N" )
---				end
---				i := i + 1
---				--soc.close
---			end
---		end
---		if str.is_equal("stop") = true
---		then
---			--soc.close	
+--			--soc.close
 --		end
 	end
-
-
-	get_lobby_server : G10_LOBBY_SERVER
+	execute_host_server( host : G10_HOST)
+	local
+		i : INTEGER
+		str  : STRING
 	do
-		Result := lobby
+
+		print ("EEEEEEEEEEEEEEEEEEEEEEEEEEEEE %N")
+	str:=	host.host_msg_handler (soc)
 	end
-	get_host_server : G10_HOST
-	do
-		Result := host
-	end
+
 	get_thread_id : INTEGER
 	do
 		Result := id

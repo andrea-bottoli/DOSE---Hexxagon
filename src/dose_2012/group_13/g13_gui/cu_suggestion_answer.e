@@ -29,7 +29,9 @@ feature
 		create reject_sugg.make
 		reject_button.select_actions.extend (agent reject_sugg.show)
 
+		create horizontal_separator
 		create con_suggestion
+		con_suggestion.extend_with_position_and_size (horizontal_separator, 0, 0, 260, 5)
 		con_suggestion.extend_with_position_and_size (accept_button, 50, 100, 80, 40)
 		con_suggestion.extend_with_position_and_size (reject_button, 160, 100, 80, 40)
 

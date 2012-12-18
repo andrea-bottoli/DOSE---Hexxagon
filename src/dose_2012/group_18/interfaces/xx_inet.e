@@ -61,6 +61,11 @@ feature -- Deferred methods to use hexxagon through the net
 	deferred
 	end
 
+	-- This method permits to send the timer
+	send_board_sensitive(a_cond: BOOLEAN)
+	deferred
+	end
+
 	--This method permits to open a connection to a host
 	init_connection(a_client_name:STRING a_server_ip: STRING a_server_port: INTEGER)
 	require

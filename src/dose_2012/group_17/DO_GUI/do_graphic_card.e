@@ -47,7 +47,6 @@ feature {ANY} -- Initialization
 			-- How to know which card was selected?
 		do
 			if father_board.game_phase.is_equal(current.type) then
-				father_board.aux_message.extend (card_name)
 				father_board.on_update(father_board.game_reference.NotifyGameState(father_board.game_phase+"_"+card_name), current)
 			end
 		end
@@ -66,8 +65,10 @@ feature {ANY} -- Initialization
 
 	buy_card
 		do
-			card_buys:=card_buys-1
-			father_board.refresh_buy_number(current)
+			if 0<card_buys then
+				card_buys:=card_buys-1
+				father_board.refresh_buy_number(current)
+			end
 		end
 
 	set_card_pos_x_y(x:INTEGER;y:INTEGER)

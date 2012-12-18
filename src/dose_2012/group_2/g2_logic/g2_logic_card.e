@@ -37,6 +37,11 @@ feature {ANY} --creator
 
 feature {ANY} --Setter of Level and color
 
+	set_color(a_card_color: BOOLEAN)
+	do
+		g2_card_color := a_card_color
+	end
+
 	change_color ()
 		--changes color between blue and red.if TRUE its red,if FALSE its blue
 		do

@@ -84,17 +84,18 @@ feature {NONE} -- Initialization
 				create lbl.make_with_text (get_player_name (get_player_of_color(i)))
 				lbl.align_text_left
 				lbl.font.set_height_in_points (12)
-				con.extend_with_position_and_size (lbl, 0, 0, 60, 20)
+				con.extend_with_position_and_size (lbl, 0, 0, 140, 20)
 				lbl_player_name.put (lbl, i)
 				create lbl.make_with_text ("0")
 				lbl.align_text_right
 				lbl.font.set_height_in_points (12)
-				con.extend_with_position_and_size (lbl, 70, 0, 60, 20)
+				con.extend_with_position_and_size (lbl, 150, 0, 40, 20)
 				lbl_score.put (lbl, i)
 				create lbl
 				lbl.align_text_left
 				lbl.font.set_height_in_points (10)
-				con.extend_with_position_and_size (lbl, 130, 0, 150, 20)
+				lbl.set_foreground_color (col_brown)
+				con.extend_with_position_and_size (lbl, 200, 0, 150, 20)
 				lbl_remaining_time.put (lbl, i)
 				con_main.extend_with_position_and_size (con, 400, 90 + 30*i, 480, 40)
 				con_color_info.put (con, i)
@@ -110,8 +111,18 @@ feature {NONE} -- Initialization
 			con_main.extend_with_position_and_size (btn_pass, 400, 300, 80, 20)
 			create btn_surrender.make_with_text_and_action ("Surrender", agent surrender)
 			con_main.extend_with_position_and_size (btn_surrender, 500, 300, 80, 20)
+			create btn_rematch.make_with_text_and_action ("Request Rematch", agent request_rematch)
+			con_main.extend_with_position_and_size (btn_rematch, 600, 300, 100, 20)
 			btn_pass.disable_sensitive
 			btn_surrender.disable_sensitive
+			btn_rematch.hide
+
+			create lbl_winner
+			lbl_winner.font.set_height_in_points (22)
+			lbl_winner.set_foreground_color (col_brown)
+			lbl_winner.set_background_color (col_light_blue)
+			con_main.extend_with_position_and_size (lbl_winner, 400, 500, 420, 60)
+			lbl_winner.hide
 
 			put (con_main)
 
@@ -157,7 +168,7 @@ feature {NONE} -- Initialization
 			init_unplayed_pieces
 
 			create game_area
-			create projector.make (game_world, game_area)
+			create projector.make_with_buffer (game_world, create {EV_PIXMAP}.make_with_size (360, 600), game_area)
 			con_main.extend_with_position_and_size (game_area, 0, 0, 360, 600)
 			projector.project
 		end
@@ -220,6 +231,13 @@ feature {BS_LOBBY_WINDOW} -- Game connection. Needs to be available to the lobby
 					when command_getmove then
 						enable_draggable_tiles
 						add_log_entry ("You may play now!")
+						if not last_move_bad then
+							seconds_remaining := 60
+							create play_timeout.make_with_interval (1000)
+						end
+						play_timeout.actions.extend (agent timer_thread_action)
+						lbl_remaining_time.at (current_color).set_text (seconds_remaining.out + " seconds remaining")
+						last_move_bad := False
 					when command_playermakesmove then
 						if l_command.move.get_action = 1 then
 							draw_move(l_command.move)
@@ -231,10 +249,11 @@ feature {BS_LOBBY_WINDOW} -- Game connection. Needs to be available to the lobby
 					when command_removetilefromplayer then
 						remove_tile(l_command.color_id, l_command.tile)
 					when command_badmove then
+						last_move_bad := True
 						add_log_entry ("This move is not allowed! Please try again.")
 						tile_of_last_move.reset_position_to_initial
 						tile_of_last_move.set_draggable
-						enable_draggable_tiles
+						--enable_draggable_tiles
 					when command_updatescores then
 						update_scores(l_command.score_list)
 					when command_printlogmessage then
@@ -418,6 +437,7 @@ feature {NONE} -- User actions
 			elseif (l_pos.x + a_tile.get_tile.get_state.width - 1 > 20) Or (l_pos.y + a_tile.get_tile.get_state.height - 1 > 20) then
 				a_tile.reset_position_to_initial
 			else
+				play_timeout.actions.wipe_out
 				-- note: only temporary (might be an invalid move!)
 				a_tile.set_position_and_set_fixed (16*l_pos.x, 16*l_pos.y)
 
@@ -450,6 +470,7 @@ feature {NONE} -- User actions
 		local
 			l_pass_move: BS_MOVE
 		do
+			play_timeout.actions.wipe_out
 			disable_draggable_tiles
 			create l_pass_move.make_with_action (2, Void, Void) -- 2 = pass
 			game_connection.send_move (l_pass_move)
@@ -459,9 +480,17 @@ feature {NONE} -- User actions
 		local
 			l_surrender_move: BS_MOVE
 		do
+			play_timeout.actions.wipe_out
 			create l_surrender_move.make_with_action (3, Void, Void) -- 3 = surrender
 			game_connection.send_move (l_surrender_move)
 			disable_draggable_tiles
+		end
+
+	request_rematch
+		do
+			btn_rematch.disable_sensitive
+			game_connection.send_rematch
+			add_log_entry ("You requested a rematch. Waiting for the other players...")
 		end
 
 feature {NONE} -- General Implementation
@@ -470,10 +499,11 @@ feature {NONE} -- General Implementation
 		local
 			l_dlg_confirm: EV_QUESTION_DIALOG
 		do
-			create l_dlg_confirm.make_with_text ("Are you sure you want to abort the game and return to the game lobby?")
+			create l_dlg_confirm.make_with_text ("Are you sure you want to quit this game?")
 			l_dlg_confirm.show_modal_to_window (Current)
 
 			if l_dlg_confirm.selected_button.is_equal((create {EV_DIALOG_CONSTANTS}).ev_yes) then
+				game_connection.send_bye_and_close()
 				quit_to_lobby
 			end
 		end
@@ -586,10 +616,10 @@ feature {NONE} -- General Implementation
 					j := j + 1
 				end
 			elseif player_list.count = 2 then
-				lbl_score.at (1).set_text (a_scores.at (1).out)
-				lbl_score.at (3).set_text (a_scores.at (1).out)
-				lbl_score.at (2).set_text (a_scores.at (2).out)
-				lbl_score.at (4).set_text (a_scores.at (2).out)
+				lbl_score.at (1).set_text (a_scores.at (1).score.out)
+				lbl_score.at (3).set_text (a_scores.at (1).score.out)
+				lbl_score.at (2).set_text (a_scores.at (2).score.out)
+				lbl_score.at (4).set_text (a_scores.at (2).score.out)
 			end
 		end
 
@@ -606,18 +636,25 @@ feature {NONE} -- General Implementation
 	announce_victory(a_player_id: INTEGER)
 
 		local
-			l_dlg_confirm: EV_QUESTION_DIALOG
+--			l_dlg_confirm: EV_QUESTION_DIALOG
 		do
 			add_log_entry (get_player_name(a_player_id) + " has won the game! Congratulations!")
+			lbl_winner.set_text (get_player_name(a_player_id) + " has won!")
+			lbl_winner.show
+			btn_rematch.show
+			btn_rematch.enable_sensitive
 
-			create l_dlg_confirm.make_with_text (get_player_name(a_player_id) + " has won the game! Do you want a rematch?")
-			l_dlg_confirm.show_modal_to_window (Current)
+			current_color := 0
 
-			if l_dlg_confirm.selected_button.is_equal((create {EV_DIALOG_CONSTANTS}).ev_yes) then
-				game_connection.send_rematch
-			else
-				quit_to_lobby
-			end
+--			create l_dlg_confirm.make_with_text (get_player_name(a_player_id) + " has won the game! Do you want a rematch?")
+
+--			l_dlg_confirm.show_relative_to_window (Current)
+
+--			if l_dlg_confirm.selected_button.is_equal((create {EV_DIALOG_CONSTANTS}).ev_yes) then
+--				game_connection.send_rematch
+--			else
+--				quit_to_lobby
+--			end
 		end
 
 	-- only for rematch !
@@ -638,6 +675,9 @@ feature {NONE} -- General Implementation
 				lbl_score.at (j).set_text ("0")
 				j := j + 1
 			end
+
+			btn_rematch.hide
+			lbl_winner.hide
 		end
 
 	closing_command_received
@@ -646,7 +686,7 @@ feature {NONE} -- General Implementation
 		do
 			add_log_entry ("The server has closed the game.")
 			create l_dlg.make_with_text ("The server has closed the game. You will return to the main menu.")
-			l_dlg.show_modal_to_window (Current)
+			l_dlg.show_relative_to_window (Current)
 			quit_to_lobby
 		end
 
@@ -678,15 +718,14 @@ feature {NONE} -- General Implementation
 		end
 
 	timer_thread_action
-		local
-			l_now: DATE_TIME
-			l_seconds: INTEGER_64
 		do
 			if active_turn then
-				create l_now.make_now
-				l_seconds := l_now.relative_duration (time_of_set_turn).seconds_count
-				lbl_remaining_time.at (current_color).set_text (l_seconds.out + " seconds remaining.")
-				if l_seconds < 0 then
+				seconds_remaining := seconds_remaining - 1
+				lbl_remaining_time.at (current_color).set_text (seconds_remaining.out + " seconds remaining")
+				if seconds_remaining = 0 then
+					-- remove this action handler:
+					play_timeout.actions.wipe_out
+
 					add_log_entry ("Your time is up!")
 					confirm_or_pass
 				end
@@ -712,6 +751,11 @@ feature -- Fields
 	tile_of_last_move : BS_DRAGGABLE_TILE
 	time_of_set_turn: DATE_TIME
 
+	-- timing
+	seconds_remaining: INTEGER
+	play_timeout: EV_TIMEOUT
+	last_move_bad: BOOLEAN
+
 	-- other windows
 	lobby : BS_LOBBY_WINDOW
 	-- containers
@@ -726,7 +770,10 @@ feature -- Fields
 	lbl_log : EV_LABEL
 	btn_pass : EV_BUTTON
 	btn_surrender : EV_BUTTON
+	btn_rematch: EV_BUTTON
 	field_atoms : ARRAY2[BS_TILE_ATOM]
+
+	lbl_winner: EV_LABEL
 
 	abstract_tiles: ARRAY[LINKED_LIST[BS_TILE]]
 	unplayed_tiles : LINKED_LIST[BS_DRAGGABLE_TILE]

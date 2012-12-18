@@ -23,8 +23,8 @@ feature {NONE} -- Initialization
 
 	make(a_x,a_y: INTEGER)
 		require
-			valid_x: a_x>0 and a_x<25
-			valid_y: a_y>0 and a_y<24
+			valid_x: a_x>0 and a_x<=25
+			valid_y: a_y>0 and a_y<=24
 		do
 			x:=a_x
 			y:=a_y

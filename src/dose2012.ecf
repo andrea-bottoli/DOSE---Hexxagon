@@ -30,7 +30,11 @@
 			<cluster name="group_5" location=".\dose_2012\group_5\" recursive="true"/>
 			<cluster name="group_6" location=".\dose_2012\group_6\" recursive="true"/>
 			<cluster name="group_7" location=".\dose_2012\group_7\" recursive="true"/>
-			<cluster name="group_8" location=".\dose_2012\group_8\" recursive="true"/>
+			<cluster name="group_8" location=".\dose_2012\group_8\" recursive="true">
+				<option>
+					<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+				</option>
+			</cluster>
 			<cluster name="group_9" location=".\dose_2012\group_9\" recursive="true">
 				<file_rule>
 					<exclude>^/ri_gui$</exclude>
@@ -76,6 +80,12 @@
 				<file_rule>
 					<exclude>^/crsn_net$</exclude>
 				</file_rule>
+				<file_rule>
+					<exclude>^/crsn_crete3_logic$</exclude>
+				</file_rule>
+				<file_rule>
+					<exclude>^/g10_crete3_logic$</exclude>
+				</file_rule>
 				<cluster name="crsn_lobby" location=".\dose_2012\group_10\crsn_lobby\">
 					<cluster name="crsn_lobby_gui" location=".\dose_2012\group_10\crsn_lobby\crsn_lobby_gui\">
 						<cluster name="crsn_lobby_gui_entrance" location=".\dose_2012\group_10\crsn_lobby\crsn_lobby_gui\crsn_lobby_gui_entrance\"/>
@@ -89,6 +99,7 @@
 					<cluster name="crsn_net_messages" location=".\dose_2012\group_10\crsn_net\crsn_net_messages\"/>
 					<cluster name="crsn_net_model" location=".\dose_2012\group_10\crsn_net\crsn_net_model\"/>
 				</cluster>
+				<cluster name="g10_crete3_logic" location=".\dose_2012\group_10\g10_crete3_logic\"/>
 			</cluster>
 			<cluster name="group_11" location=".\dose_2012\group_11\" recursive="true"/>
 			<cluster name="group_12" location=".\dose_2012\group_12\" recursive="true"/>

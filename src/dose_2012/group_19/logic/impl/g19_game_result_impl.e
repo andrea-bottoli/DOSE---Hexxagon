@@ -11,16 +11,19 @@ feature{NONE}
 	current_winners: LINKED_SET[G19_PLAYER_INFO]
 	current_scores: HASH_TABLE[INTEGER, G19_PLAYER_INFO]
 	current_game: G19_GAME
+
 feature
 	make(game: G19_GAME)
 		local
 			player: G19_PLAYER_INFO
 			result_counter: G19_RESULT_COUNTER
 			i: INTEGER
+			max_points: INTEGER
 		do
 				current_game := game
 				create current_winners.make()
 				create current_scores.make (16)
+				max_points := 0
 				from
 					i := 1
 				until
@@ -28,19 +31,23 @@ feature
 				loop
 					create result_counter.make(current_game.get_map(), current_game.get_players.at (i))
 					current_scores.extend(result_counter.get_score(), current_game.get_players.at (i))
+					if max_points < result_counter.get_score() then
+						max_points := result_counter.get_score()
+					end
 					i := i + 1
 				end
 
 				from
-					current_scores.start
+					i := 1
 				until
-					current_scores.after
+					i > current_game.get_players.count
 				loop
-					if current_scores.item_for_iteration = get_max_points() then
-						current_winners.put(current_scores.key_for_iteration)
+					if current_scores.item (current_game.get_players.at (i)) = max_points then
+						current_winners.extend (current_game.get_players.at (i))
 					end
-					current_scores.forth
+					i := i + 1
 				end
+
 
 		end
 
@@ -56,28 +63,7 @@ feature
 
 		get_game(): G19_GAME
 			do
-
+				result := current_game
 			end
-
-feature {NONE}
-
-	get_max_points(): INTEGER
-		local
-			i: INTEGER
-		once
-			result := 0
-
-			from
-				current_scores.linear_representation.start
-			until
-				current_scores.linear_representation.exhausted
-			loop
-				if result < current_scores.linear_representation.item then
-					result := current_scores.linear_representation.item
-				end
-
-				current_scores.linear_representation.forth
-			end
-		end
 
 end

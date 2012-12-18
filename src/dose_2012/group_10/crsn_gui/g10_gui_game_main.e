@@ -46,14 +46,15 @@ feature {NONE}
 		disable_user_resize()
 	end
 
-	make_2(a_player: G10_LOBBY_USER first_player_name : STRING players_num : INTEGER ) -- Build the interface for this window i test here connection with logic things.
+	make_2(a_player: G10_LOBBY_USER first_player_name : STRING players_num : INTEGER  ) -- Build the interface for this window i test here connection with logic things.
 	require
 		player_not_null: a_player /= void
 		window_title_not_null: crsn_game_title /= void
 	local
-		drawed_tile_id : INTEGER -- na to balo orisma!
+		drawed_tile_id : STRING -- na to balo orisma!
 	do
 		player := a_player
+		drawed_tile_id := a_player.get_crsn_game_logic.get_tile_id (a_player.get_crsn_game_logic.get_terrain_item (20 ,20 )) -- get starting tile id
 			-- Create the Lobby window.			
 		make_with_title (crsn_game_title)
 		set_position ((screen_width // 2) - (game_window_width // 2), (screen_height // 2) - (game_window_height // 2))
@@ -100,7 +101,7 @@ feature {NONE} -- Initialization
 		player_action_panel_initialized : player_action_panel /= void
 	end
 
-	init_player_action_panel_tileid(tile_id : INTEGER) -- routine initializes the player action panel.
+	init_player_action_panel_tileid(tile_id : STRING) -- routine initializes the player action panel.
 	do
 		create player_action_panel.make_with_id(Current , tile_id)
 
@@ -158,28 +159,149 @@ feature {NONE} -- Initialization
 	end
 
 feature {ANY} -- events
-
-	notify(an_event: STRING)
+	remove_followers_from_tile(x , y : INTEGER) -- routine removes the follower from the tile of the terrain with (x,y) coordinates.
+	require
+		terrain_panel_not_void : terrain_panel /= void
+	local
+		a_tile : G10_GUI_TILE
+		temp : EV_WIDGET
+		i : INTEGER
 	do
-		player.fire_event (an_event)
+		from i := 1 until i >= terrain_panel.get_background.count
+		loop
+			if attached {G10_GUI_TILE} terrain_panel.get_background.i_th (i) as tile
+			then
+				 a_tile :=  tile
+			end
+			if(a_tile /= void ) then
+				if(a_tile.get_follower /= void and (a_tile.get_column = y and a_tile.get_row = x)) then
+					io.put_string ("brika kai to follower!<<<<<<<")
+					io.put_new_line
+					a_tile.destroy_follower
+				end
+			end
+			i := i + 1
+		end
+	end
+
+	set_followers_num(player_num , num : INTEGER) -- routine sets the followers num of player with player num id to num.
+	do
+		scoreboard_panel.set_follower_number (player_num, num)
+	end
+
+	draw_terrain_from_logic(logic : G10_LOGIC_GAME_MAIN) -- routine draws the terrain based to logic array
+	local
+		logic_terrain: ARRAY2[G10_LOGIC_TILE]
+		a_tile : G10_LOGIC_TILE
+		i , j : INTEGER
+		id : STRING
+		undescore_index : INTEGER
+	do
+		destroy_terrain_panel
+		init_terrain_panel
+
+		logic_terrain := logic.get_terrain
+
+		from i := 1 until i > 40
+		loop
+			from j := 1 until j > 40
+			loop
+				a_tile := logic_terrain.item (i, j)
+				if(a_tile /= void) then
+					if(logic.is_available (a_tile) = false) then
+						io.put_string ("tile id sti redraw :"+logic.get_tile_id (a_tile))
+						io.put_new_line
+						id := logic.get_tile_id (a_tile)
+						undescore_index := id.index_of ('_', 1)
+
+						current.draw_tile_to_terrain ( id.substring (1, undescore_index - 1) , logic.get_tile_state(a_tile) , i, j)
+					end
+				end
+			j := j + 1
+			end
+			i := i + 1
+		end
+	end
+
+
+	decrement_followers(i : INTEGER) -- routine decrements the players followers.
+	do
+		io.put_string ("player score : ")
+		io.put_integer (scoreboard_panel.get_follower_number (i))
+		scoreboard_panel.decrement_followers(i)
+		io.put_new_line
+	end
+
+	set_score(player_num , score : INTEGER)	-- routine sets the score of player with player num id to score
+	do
+		scoreboard_panel.set_score_number(player_num , score)
+	end
+
+	update_scores(players_scores : ARRAY[INTEGER]) -- routine updates scores of players based to the array
+	local
+		i : INTEGER
+	do
+		from i := 1 until i > players_scores.count
+		loop
+			scoreboard_panel.set_score_number(i , players_scores.item (i))
+			i := i + 1
+		end
+	end
+
+	draw_tile_to_terrain( id : STRING rotation_state : STRING row : INTEGER col : INTEGER ) -- routine draws a tile with id and rotation_state to (row,col) position in terrain.
+	local
+		a_tile : G10_GUI_TILE
+		follower_id : INTEGER
+		player_id : INTEGER
+	do
+		create a_tile.make_certain_tile (row, col, id, rotation_state ,player.get_crsn_game_logic.get_followers_part (player.get_crsn_game_logic.get_terrain_item (row, col)),player.get_crsn_game_logic.get_followers_id (player.get_crsn_game_logic.get_terrain_item (row, col))  )
+
+		a_tile.draw_tile_to_terrain (current, current.get_terrain_panel, row, col , player.get_crsn_game_logic.get_followers_part (player.get_crsn_game_logic.get_terrain_item (row, col)),player.get_crsn_game_logic.get_followers_id (player.get_crsn_game_logic.get_terrain_item (row, col))  )
+		current.get_terrain_panel.add_empty_tiles_in_perimeter(current , current.get_terrain_panel, a_tile)
+	end
+
+	notify(an_event: STRING  row , col : INTEGER)
+	do
+		player.fire_event (an_event , row , col)
 	end
 
 -- Lefaaaaaaaaaaaaaaaaaaaaaa... ola ta parakatw 8a einai events pou 8a ulopoiountai sthn fire_event (auth vrisketai sthn lobby_user<practice>, host<create game>, joined_player<join game>)
-	rotate_current_player_tile() -- routine rotates the current players tile
+	rotate_current_player_tile(degrees : STRING) -- routine rotates the current players tile
 	require
 		 valid_player_actions_panel : player_action_panel /= void
 	do
-		player_action_panel.rotate_current_player_tile
+		player_action_panel.rotate_current_player_tile(degrees)
 	ensure
 		valid_player_actions_panel : player_action_panel /= void
 		--player_action_panel.get_current_player_tile /= old player_action_panel.get_current_player_tile
 	end
 
-	update_current_player_tile(src : STRING) -- routine updates the source of current players tile to src
+	update_current_player_tile(id : STRING) -- routine updates the source of current players tile to src
+	require
+		valid_player_actions_panel : player_action_panel /= void
+		id_not_void : id /= void
+	local
+		temp : STRING
+	do
+		create temp.make_empty
+		temp.copy (id)
+		player_action_panel.update_current_player_tile (current , temp)
+	ensure
+		valid_player_actions_panel : player_action_panel /= void
+	end
+
+	destroy_terrain_panel -- routine destroys terrain panel
+	do
+		terrain_panel.destroy
+		terrain_panel := void
+	end
+
+	destroy_current_player_tile() -- routine updates the source of current players tile to src
 	require
 		valid_player_actions_panel : player_action_panel /= void
 	do
-		ensure
+		player_action_panel.destroy_current_player_tile
+	ensure
 		valid_player_actions_panel : player_action_panel /= void
 	end
 
@@ -207,18 +329,26 @@ feature {ANY} -- events
 			valid_terrain_panel : terrain_panel = old terrain_panel
 	end
 
-	add_lplayer(p : G10_GUI_PLAYER_INFO) -- routine add player p to the game
+	add_player(player_name : STRING players_num : INTEGER) -- routine add player with player_name to the game.
 	require
-		valid_player : p /= void
+		player_name_void : player_name /= void
+	local
 	do
-		ensure
-			scoreboard_panel.contains_player (p.get_player_name()) = true
+		scoreboard_panel.add_player_to_list_name (player_name, players_num , current)
+	ensure
+		scoreboard_panel.contains_player (player_name) = true
 	end
 
 -- accesor methods.
 feature {ANY}
+	get_drawed_tile_follower_id : INTEGER -- routine returns the follower position (1-9)
+	do
+		result := player_action_panel.get_current_player_tile.get_follower_id
+	ensure
+		valid_result : result > 0 and result <= 9
+	end
 
-	get_game_logic: G10_GAME
+	get_game_logic: G10_LOGIC_GAME_MAIN
 	do
 		Result := player.get_crsn_game_logic
 	end
@@ -283,6 +413,20 @@ feature {ANY}
 		player_list_unmutated : scoreboard_panel.get_players = old scoreboard_panel.get_players
 	end
 
+	get_player_user : G10_LOBBY_USER
+	do
+		result := player
+	end
+
+-- observer methods
+	has_drawed_tile_follower : BOOLEAN
+	require
+		drawed_tile_not_void : player_action_panel.get_current_player_tile /= void
+	do
+		result := player_action_panel.get_current_player_tile.has_follower
+	ensure
+		drawed_tile_unmutated : player_action_panel.get_current_player_tile = old player_action_panel.get_current_player_tile
+	end
 
 -- class invariants.
 invariant

@@ -38,7 +38,7 @@ feature -- Test routines
 		do
 			create controller.make
 			create logic.make_with_controller (controller, "190.191.54.89")
-			create net.make_client ("190.191.54.81",logic)
+			create net.make_client (logic)
 			assert ("Connect", true)
 		end
 

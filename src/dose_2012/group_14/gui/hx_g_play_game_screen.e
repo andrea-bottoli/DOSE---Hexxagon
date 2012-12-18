@@ -16,7 +16,7 @@ create
 feature --Access
 
 	main_ui								: MAIN_WINDOW
-	l_ev_vertical_box_1					: EV_VERTICAL_BOX
+	l_ev_fixed_1						: EV_FIXED
 	play_game_vs_pc_button 				: EV_BUTTON
     play_game_vs_player_button 			: EV_BUTTON
     play_game_vs_network_player_button 	: EV_BUTTON
@@ -42,46 +42,55 @@ feature --Init
 		-- disable user resizing for the window
 		disable_user_resize
 
-		create l_ev_vertical_box_1
+		create l_ev_fixed_1
 	    create play_game_vs_pc_button
 	    create play_game_vs_player_button
 	    create play_game_vs_network_player_button
 	    create go_back_button
 
     	-- Build widget structure.
-		extend (l_ev_vertical_box_1)
-		l_ev_vertical_box_1.set_background_pixmap (pix_background)
+		extend (l_ev_fixed_1)
+		l_ev_fixed_1.set_background_pixmap (pix_background)
 
-		l_ev_vertical_box_1.extend (play_game_vs_pc_button)
-		l_ev_vertical_box_1.extend (play_game_vs_player_button)
-		l_ev_vertical_box_1.extend (play_game_vs_network_player_button)
-		l_ev_vertical_box_1.extend (go_back_button)
+		l_ev_fixed_1.extend (play_game_vs_pc_button)
+		l_ev_fixed_1.extend (play_game_vs_player_button)
+		l_ev_fixed_1.extend (play_game_vs_network_player_button)
+		l_ev_fixed_1.extend (go_back_button)
 
-		l_ev_vertical_box_1.set_padding (10)
-		l_ev_vertical_box_1.set_border_width (160)
+		l_ev_fixed_1.set_item_x_position (play_game_vs_pc_button, 0150)
+		l_ev_fixed_1.set_item_y_position (play_game_vs_pc_button, 0140)
+		l_ev_fixed_1.set_item_height (play_game_vs_pc_button, 0025)
 
---		play_game_vs_pc_button.set_text ("Play Game vs Pc ")
-		play_game_vs_pc_button.set_minimum_width (86)
-		play_game_vs_pc_button.set_minimum_height (25)
+		l_ev_fixed_1.set_item_x_position (play_game_vs_player_button, 0150)
+		l_ev_fixed_1.set_item_y_position (play_game_vs_player_button, 0220)
+		l_ev_fixed_1.set_item_height (play_game_vs_player_button, 0025)
+
+		l_ev_fixed_1.set_item_x_position (play_game_vs_network_player_button, 0150)
+		l_ev_fixed_1.set_item_y_position (play_game_vs_network_player_button, 0300)
+		l_ev_fixed_1.set_item_height (play_game_vs_network_player_button, 0025)
+
+		l_ev_fixed_1.set_item_x_position (go_back_button, 0150)
+		l_ev_fixed_1.set_item_y_position (go_back_button, 0380)
+		l_ev_fixed_1.set_item_height (go_back_button, 0025)
+
+		play_game_vs_pc_button.set_minimum_width (270)
+		play_game_vs_pc_button.set_minimum_height (60)
 		internal_pixmap:= pix_play_game_vs_pc
 		play_game_vs_pc_button.set_pixmap(internal_pixmap)
 
----		play_game_vs_player_button.set_text ("Play Game vs Player on same Pc")
-		play_game_vs_player_button.set_minimum_width (86)
-		play_game_vs_player_button.set_minimum_height (25)
+		play_game_vs_player_button.set_minimum_width (270)
+		play_game_vs_player_button.set_minimum_height (60)
 		internal_pixmap:= pix_play_game_vs_player
 		play_game_vs_player_button.set_pixmap(internal_pixmap)
 
---		play_game_vs_network_player_button.set_text ("Play Game vs Player on network")
-		play_game_vs_network_player_button.set_minimum_width (86)
-		play_game_vs_network_player_button.set_minimum_height (25)
+		play_game_vs_network_player_button.set_minimum_width (270)
+		play_game_vs_network_player_button.set_minimum_height (60)
 		internal_pixmap:= pix_play_game_vs_network_player
 		play_game_vs_network_player_button.set_pixmap(internal_pixmap)
 
-	--	go_back_button.set_text ("Go Back")
 		-- go_back_button
-		go_back_button.set_minimum_width (86)
-		go_back_button.set_minimum_height (25)
+		go_back_button.set_minimum_width (270)
+		go_back_button.set_minimum_height (60)
 		internal_pixmap:= pix_go_back_button_2
 		go_back_button.set_pixmap(internal_pixmap)
 
@@ -95,10 +104,19 @@ feature --Init
 		play_game_vs_network_player_button.select_actions.extend (agent play_game_vs_network_player_action)
 		go_back_button.select_actions.extend (agent go_back_action)
 
-		-- Close the application when an interface close
-		-- request is recieved on `Current'. i.e. the cross is clicked.
-		close_request_actions.extend (agent destroy_and_exit_if_last)
 
+		--Mouse over actions
+		play_game_vs_pc_button.pointer_enter_actions.extend (agent pointer_enter_area(play_game_vs_pc_button))
+		play_game_vs_pc_button.pointer_leave_actions.extend (agent pointer_leave_area(play_game_vs_pc_button))
+
+		play_game_vs_player_button.pointer_enter_actions.extend (agent pointer_enter_area(play_game_vs_player_button))
+		play_game_vs_player_button.pointer_leave_actions.extend (agent pointer_leave_area(play_game_vs_player_button))
+
+		play_game_vs_network_player_button.pointer_enter_actions.extend (agent pointer_enter_area(play_game_vs_network_player_button))
+		play_game_vs_network_player_button.pointer_leave_actions.extend (agent pointer_leave_area(play_game_vs_network_player_button))
+
+		go_back_button.pointer_enter_actions.extend (agent pointer_enter_area(go_back_button))
+		go_back_button.pointer_leave_actions.extend (agent pointer_leave_area(go_back_button))
 	end
 
 
@@ -115,8 +133,6 @@ feature -- action events
 			-- store num of players	
 			create ui_manager.make
 		 	ui_manager.set_one_player
-		 	print("PLAY_GAME: numplayers:")
-		 	print(ui_manager.numplayers)
 
 			create name_level_screen.make(main_ui,ui_manager)
 			name_level_screen.show
@@ -166,6 +182,45 @@ feature -- action events
 			destroy
 		end
 
+feature -- Implementation pointer events
+
+
+	pointer_enter_area (a_area: EV_BUTTON)
+			-- the pointer is entering the area used as a button
+		do
+			if a_area = play_game_vs_pc_button then
+				internal_pixmap:=pix_play_game_vs_pc_hover
+		   		play_game_vs_pc_button.set_pixmap(internal_pixmap)
+			elseif a_area = play_game_vs_player_button then
+				internal_pixmap:=pix_play_game_vs_player_hover
+		   		play_game_vs_player_button.set_pixmap(internal_pixmap)
+			elseif a_area = play_game_vs_network_player_button then
+				internal_pixmap := pix_play_game_vs_network_player_hover
+		  		play_game_vs_network_player_button.set_pixmap(internal_pixmap)
+			elseif a_area = go_back_button then
+				internal_pixmap:= pix_go_back_hover
+		  		go_back_button.set_pixmap(internal_pixmap)
+			end
+		end
+
+	pointer_leave_area (a_area: EV_BUTTON)
+			-- the pointer is leaving the area used as a button
+		do
+			if a_area = play_game_vs_pc_button then
+				internal_pixmap:=pix_play_game_vs_pc
+		   		play_game_vs_pc_button.set_pixmap(internal_pixmap)
+			elseif a_area = play_game_vs_player_button then
+				internal_pixmap:=pix_play_game_vs_player
+		   		play_game_vs_player_button.set_pixmap(internal_pixmap)
+			elseif a_area = play_game_vs_network_player_button then
+				internal_pixmap := pix_play_game_vs_network_player
+		  		play_game_vs_network_player_button.set_pixmap(internal_pixmap)
+			elseif a_area = go_back_button then
+				internal_pixmap:= pix_go_back_button_2
+		  		go_back_button.set_pixmap(internal_pixmap)
+			end
+		end
+
 
 feature -- images
 
@@ -202,6 +257,36 @@ feature -- images
 	once
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string (img_play_game_vs_network_player))
+	end
+
+	------Hover-----
+
+	pix_go_back_hover: EV_PIXMAP
+			-- returns the go_back_button for the active game
+	once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_back_to_menu_hover))--go_back_button_2))
+	end
+
+	pix_play_game_vs_pc_hover: EV_PIXMAP
+			-- returns the go_back_button for the active game
+	once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_play_game_vs_pc_hover))
+	end
+
+	pix_play_game_vs_player_hover: EV_PIXMAP
+			-- returns the go_back_button for the active game
+	once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_play_game_vs_player_hover))
+	end
+
+	pix_play_game_vs_network_player_hover: EV_PIXMAP
+			-- returns the go_back_button for the active game
+	once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_play_game_vs_network_player_hover))
 	end
 
 end

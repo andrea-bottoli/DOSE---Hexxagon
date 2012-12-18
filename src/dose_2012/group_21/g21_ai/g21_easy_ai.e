@@ -35,9 +35,10 @@ feature{G21_BOARD} -- Creation
 			ai_cards_valid: ai_cards/=void
 
 		do
-			create free_positions.make (3*3)
+
 			board:=game_board
 			cards:=ai_cards
+			create free_positions.make (3*3)
 
 		ensure
 
@@ -60,10 +61,12 @@ feature{G21_BOARD, TEST_G21_EASY_AI_MAKE_A_MOVE} -- Procedures
 		local
 
 			move: G21_MOVE
-
+			card_choosen:G21_CARD
+			position_choosen: G21_POINT
 		do
-
-			create move.make(random_card, random_position)
+			card_choosen:=random_card
+			position_choosen:=random_position
+			create move.make(card_choosen,position_choosen)
 			result:= move.twin
 
 		--ensure
@@ -85,10 +88,8 @@ feature{NONE} -- Procedures
       		random_sequence: RANDOM
       		l_time: TIME
       		l_seed: INTEGER
-      		temp:INTEGER
-
+			temp:INTEGER
     	do
-
       		create l_time.make_now
       		l_seed := l_time.hour
       		l_seed := l_seed * 60 + l_time.minute
@@ -96,9 +97,12 @@ feature{NONE} -- Procedures
       		l_seed := l_seed * 1000 + l_time.milli_second
       		create random_sequence.set_seed (l_seed)
       		random_sequence.forth
-      		temp:=random_sequence.item\\cards.count
-			result:= cards.at (temp)
-			cards.start
+			temp:=random_sequence.item\\cards.count
+			if(temp=0) then
+				temp:=1
+			end
+			result:= cards.i_th (temp)
+		--	cards.start
 
 
 		ensure
@@ -117,6 +121,7 @@ feature{NONE} -- Procedures
 			random_sequence: RANDOM
       		l_time: TIME
       		l_seed: INTEGER
+      		temp:INTEGER
 
 		do
 
@@ -128,7 +133,11 @@ feature{NONE} -- Procedures
       		l_seed := l_seed * 1000 + l_time.milli_second
       		create random_sequence.set_seed (l_seed)
       		random_sequence.forth
-			result:= free_positions.at (random_sequence.item\\free_positions.count)
+			temp:=(random_sequence.item)\\cards.count
+			if(temp=0) then
+				temp:=1
+			end
+			result:= free_positions.at (temp)
 			free_positions.start
 
 		ensure
@@ -150,45 +159,30 @@ available_positions --it fills the variable free_positions with POINT objects. I
 			position: G21_POINT
 
 		do
-
 			from
-
-				column:=1
-
+				row:=1
 			until
-
-				column>3
-
+				row>3
 			loop
-
 				from
-
-					row:=1
-
+					column:=1
 				until
-
-					row>3
-
+					column>3
 				loop
-
-					if board.item(row,column)/=void and then board.item(row, column).isOccupied=FALSE
-
-					then
-
+					if (board[row,column]/=void and then board[row, column].isOccupied=FALSE) then
 						create position.make(row, column)
-					    free_positions.put( position )
-
+					    free_positions.sequence_put(position.twin)
 					end
-
+					column:=column+1
 				end
-
+				row:=row+1
 			end
 
 
 		ensure
 
 			valid_free_positions: free_positions/=void and free_positions.count>0
-			updated_free_positions: old free_positions/=void implies free_positions.count<=old free_positions.count
+		--	updated_free_positions: (old free_positions/=void or else old free_positions.count/=0) implies free_positions.count<=old free_positions.count
 
 		end
 

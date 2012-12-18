@@ -2,7 +2,7 @@ note
 	description: "Summary description for {G5_PILE_CARD_SUPPLY}."
 	author: "Team: Rio Cuarto 4"
 	date: "$24/11/2012$"
-	revision: "$0.1$"
+	revision: "$0.3$"
 
 class
 	G5_PILE_CARD_SUPPLY
@@ -16,7 +16,7 @@ feature
 		-- Indicates the type of letter of this stack
 
 	amount_available: INTEGER
-		-- Indicates the amount of cards remaining in the stack
+		-- Indicates the amount of cards remaining of this stack
 
 feature -- Initialization
 

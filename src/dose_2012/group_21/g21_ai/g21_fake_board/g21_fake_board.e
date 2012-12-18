@@ -6,6 +6,7 @@ note
 
 -- ALMOST COMPLETE (waiting for logic methods)
 
+
 class
 	G21_FAKE_BOARD 	-- This class is used by G21_HARD_AI when the rule "OPEN" and one of the rules "PLUS", "SAME", or "SAME-WALL" are on.
 					--The G21_HARD_AI uses it to see if an AI possible move can be used by the human player to make "PLUS", "SAME", or "SAME-WALL".
@@ -55,9 +56,10 @@ feature{G21_HARD_AI} -- Creation
 				loop
 
 					fake_board.item(row, column):=logic_board.item (row, column).twin
-
+					column:=column+1
 				end
 
+				row:= row+1
 			end
 
 		ensure
@@ -152,7 +154,11 @@ feature{G21_HARD_AI} -- Procedures
 
 					end
 
+					column:=column+1
+
 				end
+
+				row:= row+1
 
 			end
 
@@ -172,7 +178,7 @@ feature{G21_HARD_AI} -- Procedures
 
 		require
 
-			fake_board_position_available: fake_board.item (fake_move.position.x, fake_move.position.y).isoccupied=FALSE and then fake_board.item (fake_move.position.x, fake_move.position.y).card=void
+			fake_board_position_available: fake_board.item (fake_move.position.x, fake_move.position.y).isoccupied=FALSE --and then fake_board.item (fake_move.position.x, fake_move.position.y).card=void
 			card_valid: fake_move.card/=void
 			position_valid: fake_move.position/=void and then fake_move.position.x>=1 and then fake_move.position.x<=3 and then fake_move.position.y>=1 and then fake_move.position.y<=3
 
@@ -211,7 +217,7 @@ feature{G21_HARD_AI} -- Procedures
 
 			fake_board_valid: fake_board/=void
 			position_as_before: fake_position.equals_position (old fake_position) and then fake_position = old fake_position
-			card_removed: fake_board.item(fake_position.x, fake_position.y).card=void and then fake_board.item (fake_position.x, fake_position.y).isoccupied=FALSE
+			card_removed: fake_board.item (fake_position.x, fake_position.y).isoccupied=FALSE --fake_board.item(fake_position.x, fake_position.y).card=void
 
 		end
 

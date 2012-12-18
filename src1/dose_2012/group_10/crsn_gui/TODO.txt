@@ -1,0 +1,2 @@
+1. discuss about the max size of the game screen.
+2. talk about the resize issue.

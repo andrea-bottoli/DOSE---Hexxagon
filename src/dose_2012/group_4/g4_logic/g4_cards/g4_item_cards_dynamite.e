@@ -25,7 +25,7 @@ feature --Constructor
 	end
 
 feature
-	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE;DiscardPile : G4_DISCARD_PILE) --Set the action move of the card
 	local
 		card : G4_CARDS
 	do
@@ -34,6 +34,7 @@ feature
 		if(((card.get_number >= 2)and(card.get_number < 9)) and (card.get_symbol = "Spades")) then
 			a_Player_array[a_player_id].get_item_board.discard_life (3)
 			a_Player_array[a_player_id].get_item_board.discard_item (current)
+			set_destroy(true)
 		--else if (circle_count < a_Player_array.c) then
 
 		--end

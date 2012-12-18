@@ -74,6 +74,12 @@ feature -- application
 			end
 		end
 
+	cost_of_the_card: INTEGER
+		-- return the cost of the card
+		do
+			Result:= cost_of_a_card(card_id)
+		end
+
 
 feature {NONE} -- Sets images
 
@@ -83,7 +89,7 @@ feature {NONE} -- Sets images
 			path_name: STRING
 		do
 			path_name:= file_system.pathname_to_string (img_path_slim)
-			path_name.append_string ("\")
+			path_name.append_string ("/")
 			path_name.append_string (card_id)
 			path_name.append_string (".png")
 			card_image.set_with_named_file (path_name)
@@ -97,7 +103,7 @@ feature {NONE} -- Sets images
 			path_name: STRING
 		do
 			path_name:= file_system.pathname_to_string (img_path_mini)
-			path_name.append_string ("\")
+			path_name.append_string ("/")
 			path_name.append_string (card_id)
 			path_name.append_string (".png")
 			card_image.set_with_named_file (path_name)

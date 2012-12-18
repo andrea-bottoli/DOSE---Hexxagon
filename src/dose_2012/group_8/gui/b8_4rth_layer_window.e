@@ -25,8 +25,9 @@ create
 	make
 
 feature {NONE}	-- Initialization
-	make
+	make (a_logic: B8_LOGIC)
 		do
+			logic := a_logic
 			make_with_title("Winner!")
 		end
 
@@ -52,6 +53,8 @@ create_container_4rth_layer
 		create winner_label
 		winner_label.set_background_color (create {EV_COLOR}.make_with_8_bit_rgb (255, 128, 0))
 		con_4rth_layer.extend_with_position_and_size(winner_label, 121, 160, 220, 40)
+		set_board
+
 
 		-- Set play_again_button
 		create play_again_button
@@ -149,6 +152,62 @@ exit_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INT
 			end
 		end
 
+set_board
+	-- Sets the result
+	local
+		i,j,n :INTEGER
+		temp_s, temp_id: INTEGER
+	do
+ 		n := logic.get_scores.count
+
+		-- Sorting the scores
+ 		from
+ 			i:= n-2
+ 		until
+ 			i >= 1
+ 		loop
+
+ 			from
+ 				j := 1
+ 			until
+ 				j <= i
+ 			loop
+ 				if
+ 					logic.get_scores.i_th (j) < logic.get_scores.i_th (j+1)
+ 				then
+ 					temp_s := logic.get_scores.i_th (j)
+ 					logic.get_scores.i_th (j) := logic.get_scores.i_th (j+1)
+ 					logic.get_scores.i_th (j+1) := temp_s
+ 				end
+
+ 				j := j+1
+ 			end
+ 			i := i-1
+ 		end
+
+ 		from
+ 			i := 1
+ 		until
+ 			i > n
+ 		loop
+
+ 			-- Matching player ID with score
+ 			from
+ 				j:=1
+ 			until
+ 				j>n
+ 			loop
+ 				if logic.get_players.i_th(j).get_score = logic.get_scores.i_th (i) then
+					res.append_string ("Player: ")
+					res.append_integer (j)
+					res.append_string ("  score: ")
+ 				end
+ 			end
+ 			res.append_integer (logic.get_scores.i_th (i))
+ 			res.append_string ("%N")
+ 		end
+ 		winner_label.set_text (res)
+	end
 
 feature {NONE}	-- Attributes
 
@@ -193,5 +252,11 @@ l_1st_layer: B8_1ST_LAYER_WINDOW
 	-- Winner label
 		winner_label: EV_LABEL
 
+-- String
+
+	res: STRING
+
+feature
+	logic: B8_LOGIC
 
 end

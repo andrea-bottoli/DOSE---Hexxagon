@@ -313,7 +313,7 @@ feature -- Status Report
 			card_position := (rand.i_th (2) \\ 15)
 			Result := cards_chance [card_position]
 		ensure
-			get_next_card: Result.id >= 0 and Result.id <= 15
+			get_next_card: Result.id >= 16 and Result.id <= 31
 		end
 
 	get_next_card_community (): G1_CARD

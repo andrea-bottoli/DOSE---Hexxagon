@@ -84,9 +84,9 @@ feature{G3_FIRST_WINDOW}
 feature{NONE}
 	--actions
 	create_a_game (a_a,a_b,a_c:INTEGER_32 b_a,b_b,b_c:REAL_64 c_a,c_b:INTEGER_32)
-	local window:G3_GAME_WINDOW
+
 		do
-			if  port.text.is_empty or port.text.is_integer=false then
+			if  port.text.is_empty then
 				port.set_text ("Put the server port here")
 			elseif name.text.is_empty then
 				name.set_text ("Put your name here")
@@ -97,14 +97,13 @@ feature{NONE}
 				create control.make_with_model (model)
 				control. set_tichu_game_window(window)
 				window.set_contoller(control)
-
 				window.intialize_game_window (wind, port.text, name.text,true)
 			end
 		end
 
 	join_a_game(a_a,a_b,a_c:INTEGER_32 b_a,b_b,b_c:REAL_64 c_a,c_b:INTEGER_32)
 
-	local window:G3_GAME_WINDOW
+
 		do
 			if  port.text.is_empty or port.text.is_integer then
 				port.set_text ("Put the server ip here")
@@ -117,12 +116,16 @@ feature{NONE}
 				control. set_tichu_game_window(window)
 				window.set_contoller(control)
 				window.intialize_game_window (wind, port.text, name.text,false)
+
 			end
 		end
 	--	ensure		port_number>0
 
 
 feature{NONE}
+
+	window:G3_GAME_WINDOW
+
 	control:G3_CONTROLLER
 
 	model:G3_MODEL

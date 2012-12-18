@@ -39,6 +39,7 @@ feature {NONE} -- Initialization
 		do
 			Precursor {EV_TITLED_WINDOW}
 			create board.default_create
+			board.show
 			board.set_main_menu (Current)
 
 				--create main_conteiner
@@ -56,9 +57,8 @@ feature {NONE} -- Initialization
 			set_title (Window_title)
 
 				-- Set the initial size of the window
+			disable_user_resize
 			set_size (Window_width, Window_height)
-			set_maximum_size (Window_width, Window_height)
-			set_minimum_size (Window_width, Window_height)
 		end
 
 	is_in_default_state: BOOLEAN
@@ -183,6 +183,12 @@ feature -- events buttons
 
 feature --basic operation
 
+	set_window (window_1: MAIN_WINDOW)
+			--save one instance main_ui
+		do
+			window := window_1
+		end
+
 	set_logic (logic_1: G2_LOGIC_LOGIC)
 			--save logic
 		do
@@ -196,12 +202,10 @@ feature --basic operation
 			card_new: G2_GUI_CARD
 			row, col: INTEGER
 			matriz: ARRAY2 [G2_GUI_CELL]
-			id: STRING
 			player_1, player_2: ARRAY [G2_GUI_CARD]
 		do
-				--or rules[7]
-			board.unblock_board
-			if (amount > 0) then
+				--set the board game
+			if (amount > 0 or logic.g2_elemental) then
 
 					--convert matriz the G2_LOGIC_MATRIX to matriz the G2_GUI_CELL
 				create matriz.make_filled (Void, 3, 3)
@@ -215,13 +219,12 @@ feature --basic operation
 					until
 						col > 3
 					loop
-						create cell_new.make_gui_cell (row, col)
-						id := state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelleft.out + state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelup.out + state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelright.out + state.g2_matrix.item (row, col).g2_matrix_card.g2_card_leveldown.out
-						create card_new.make_gui_card (id.to_integer, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelup, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_leveldown, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelleft, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelright, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_element)
-						card_new.set_board_game (board)
-						cell_new.set_card (card_new)
-						cell_new.set_element (state.g2_matrix.item (row, col).g2_matrix_element)
-						matriz.put (cell_new, row, col)
+						if (state.g2_matrix.item (row, col).g2_matrix_card /= Void) then
+							create card_new.make_gui_card (state.g2_matrix.item (row, col).g2_matrix_card.g2_card_color, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelup, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_leveldown, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelleft, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_levelright, state.g2_matrix.item (row, col).g2_matrix_card.g2_card_element)
+							card_new.set_board_game (board)
+							create cell_new.make_gui_cell_1 (row, col, card_new, state.g2_matrix.item (row, col).g2_matrix_element)
+							matriz.put (cell_new, row, col)
+						end
 						col := col + 1
 					end
 					row := row + 1
@@ -229,8 +232,7 @@ feature --basic operation
 				board.set_board_game (matriz)
 			end
 
-				-- parte aquien le toca primero jugar state.g2_player= true and master soy player 1 sino player 2
-
+				--set the game players
 			if (master) then
 				create player_1.make_filled (Void, 1, 5)
 					--convert card G2_LOGIC_CARD to card G2_GUI_CARD
@@ -239,15 +241,15 @@ feature --basic operation
 				until
 					row > 5
 				loop
-					id := state.g2_player1.at (row).g2_card_levelleft.out + state.g2_player1.at (row).g2_card_levelup.out + state.g2_player1.at (row).g2_card_levelright.out + state.g2_player1.at (row).g2_card_leveldown.out
-					create card_new.make_gui_card (id.to_integer, state.g2_player1.at (row).g2_card_levelup, state.g2_player1.at (row).g2_card_leveldown, state.g2_player1.at (row).g2_card_levelleft, state.g2_player1.at (row).g2_card_levelright, state.g2_player1.at (row).g2_card_element)
-					card_new.set_board_game (board)
-					player_1.put (card_new, row)
+					if (state.g2_player1.at (row) /= Void) then
+						create card_new.make_gui_card (state.g2_player1.at (row).g2_card_color, state.g2_player1.at (row).g2_card_levelup, state.g2_player1.at (row).g2_card_leveldown, state.g2_player1.at (row).g2_card_levelleft, state.g2_player1.at (row).g2_card_levelright, state.g2_player1.at (row).g2_card_element)
+						card_new.set_board_game (board)
+						player_1.put (card_new, row)
+					end
 					row := row + 1
 				end
 				board.set_card_player1 (player_1)
 				board.set_score_player_1 (state.g2_player1_number_cards)
-
 				if (logic.g2_open) then
 					create player_2.make_filled (Void, 1, 5)
 						--convert card G2_LOGIC_CARD to card G2_GUI_CARD
@@ -256,19 +258,18 @@ feature --basic operation
 					until
 						row > 5
 					loop
-						id := state.g2_player2.at (row).g2_card_levelleft.out + state.g2_player2.at (row).g2_card_levelup.out + state.g2_player2.at (row).g2_card_levelright.out + state.g2_player2.at (row).g2_card_leveldown.out
-						create card_new.make_gui_card (id.to_integer, state.g2_player2.at (row).g2_card_levelup, state.g2_player2.at (row).g2_card_leveldown, state.g2_player2.at (row).g2_card_levelleft, state.g2_player2.at (row).g2_card_levelright, state.g2_player2.at (row).g2_card_element)
-						card_new.set_board_game (board)
-						player_2.put (card_new, row)
+						if (state.g2_player2.at (row) /= Void) then
+							create card_new.make_gui_card (state.g2_player2.at (row).g2_card_color, state.g2_player2.at (row).g2_card_levelup, state.g2_player2.at (row).g2_card_leveldown, state.g2_player2.at (row).g2_card_levelleft, state.g2_player2.at (row).g2_card_levelright, state.g2_player2.at (row).g2_card_element)
+							card_new.set_board_game (board)
+							player_2.put (card_new, row)
+						end
 						row := row + 1
 					end
 					board.set_card_player2 (player_2)
-					board.set_score_player_2 (state.g2_player2_number_cards)
 				end
-
+				board.set_score_player_2 (state.g2_player2_number_cards)
 				board.block_card_player_2
 			else
-
 				create player_2.make_filled (Void, 1, 5)
 					--convert card G2_LOGIC_CARD to card G2_GUI_CARD
 				from
@@ -276,15 +277,15 @@ feature --basic operation
 				until
 					row > 5
 				loop
-					id := state.g2_player2.at (row).g2_card_levelleft.out + state.g2_player2.at (row).g2_card_levelup.out + state.g2_player2.at (row).g2_card_levelright.out + state.g2_player2.at (row).g2_card_leveldown.out
-					create card_new.make_gui_card (id.to_integer, state.g2_player2.at (row).g2_card_levelup, state.g2_player2.at (row).g2_card_leveldown, state.g2_player2.at (row).g2_card_levelleft, state.g2_player2.at (row).g2_card_levelright, state.g2_player2.at (row).g2_card_element)
-					card_new.set_board_game (board)
-					player_2.put (card_new, row)
+					if (state.g2_player2.at (row) /= Void) then
+						create card_new.make_gui_card (state.g2_player2.at (row).g2_card_color, state.g2_player2.at (row).g2_card_levelup, state.g2_player2.at (row).g2_card_leveldown, state.g2_player2.at (row).g2_card_levelleft, state.g2_player2.at (row).g2_card_levelright, state.g2_player2.at (row).g2_card_element)
+						card_new.set_board_game (board)
+						player_2.put (card_new, row)
+					end
 					row := row + 1
 				end
 				board.set_card_player2 (player_2)
 				board.set_score_player_2 (state.g2_player2_number_cards)
-
 				if (logic.g2_open) then
 					create player_1.make_filled (Void, 1, 5)
 						--convert card G2_LOGIC_CARD to card G2_GUI_CARD
@@ -293,21 +294,22 @@ feature --basic operation
 					until
 						row > 5
 					loop
-						id := state.g2_player1.at (row).g2_card_levelleft.out + state.g2_player1.at (row).g2_card_levelup.out + state.g2_player1.at (row).g2_card_levelright.out + state.g2_player1.at (row).g2_card_leveldown.out
-						create card_new.make_gui_card (id.to_integer, state.g2_player1.at (row).g2_card_levelup, state.g2_player1.at (row).g2_card_leveldown, state.g2_player1.at (row).g2_card_levelleft, state.g2_player1.at (row).g2_card_levelright, state.g2_player1.at (row).g2_card_element)
-						card_new.set_board_game (board)
-						player_1.put (card_new, row)
+						if (state.g2_player1.at (row) /= Void) then
+							create card_new.make_gui_card (state.g2_player1.at (row).g2_card_color, state.g2_player1.at (row).g2_card_levelup, state.g2_player1.at (row).g2_card_leveldown, state.g2_player1.at (row).g2_card_levelleft, state.g2_player1.at (row).g2_card_levelright, state.g2_player1.at (row).g2_card_element)
+							card_new.set_board_game (board)
+							player_1.put (card_new, row)
+						end
 						row := row + 1
 					end
 					board.set_card_player1 (player_1)
-					board.set_score_player_1 (state.g2_player1_number_cards)
 				end
+				board.set_score_player_1 (state.g2_player1_number_cards)
 				board.block_card_player_1
 			end
 			amount := 1
---			board.set_score_player_1 (state.g2_player1_number_cards)
---			board.set_score_player_2 (state.g2_player2_number_cards)
-			board.show
+			board.set_turn_player_1 (state.g2_player)
+			board.set_turn_player_2 (not state.g2_player)
+			board.refresh_now
 		end
 
 	get_inform_disconnect
@@ -319,19 +321,21 @@ feature --basic operation
 	get_inform_game
 			-- return info the play card
 		do
-			logic.play_card (create {G2_LOGIC_CARD}.make (true, card.element.element, card.north, card.south, card.east, card.west), row_x, col_y)
+			logic.play_card (create {G2_LOGIC_CARD}.make (card.color, card.element.element, card.north, card.south, card.east, card.west), row_x, col_y)
 		end
 
 	get_inform_new_game
 			-- return info the connection host
 		do
 			logic.create_new_game (true)
+			logic.run_game
 		end
 
 	get_inform_join_game
 			-- return info the connection join
 		do
 			logic.create_new_game (false)
+			logic.run_game
 		end
 
 	on_win
@@ -341,6 +345,7 @@ feature --basic operation
 		do
 			create win_dialog.make ({INTERFACE_NAMES}.Path_main_menu_win, "WIN", " You are a Win!")
 			win_dialog.show_modal_to_window (current)
+			board.hide
 		end
 
 	on_lose
@@ -350,6 +355,7 @@ feature --basic operation
 		do
 			create lose_dialog.make ({INTERFACE_NAMES}.Patch_main_menu_loser, "LOSER", " You are a Loser!")
 			lose_dialog.show_modal_to_window (current)
+			board.hide
 		end
 
 	on_draw
@@ -364,11 +370,13 @@ feature --basic operation
 feature {G2_GUI_JOIN_GAME, G2_GUI_HOST_GAME} -- Implementation the info_connectioni
 
 	set_ip (ip_1: STRING)
+			--set ip
 		do
 			ip := ip_1
 		end
 
 	set_port (port_1: INTEGER)
+			--set port
 		do
 			port := port_1
 		end
@@ -376,13 +384,33 @@ feature {G2_GUI_JOIN_GAME, G2_GUI_HOST_GAME} -- Implementation the info_connecti
 feature {ANY}
 
 	set_rules (rules_1: ARRAY [BOOLEAN])
+			--set rules
 		do
 			rules := rules_1
+		end
+
+	block_board
+			-- blocks the board game
+		do
+			board.block_board
+		end
+
+	unblock_board
+			-- unblocks the board game
+		do
+			board.unblock_board
+		end
+
+	resfresh_board
+			--resfressh the board
+		do
+			board.refresh_now
 		end
 
 feature {G2_GUI_BOARD_GAME} -- implementation play card
 
 	set_move (card_1: G2_GUI_CARD; row_1, col_1: INTEGER)
+			--save the move
 		do
 			card := card_1
 			row_x := row_1
@@ -417,11 +445,13 @@ feature {NONE} -- Implementation
 
 	w_help_game: G2_GUI_HELP_GAME
 
-	logic: G2_LOGIC_LOGIC
-
 	board: G2_GUI_BOARD_GAME
 
+	logic: G2_LOGIC_LOGIC
+
 	master: BOOLEAN
+
+	window: MAIN_WINDOW
 
 feature {NONE} -- Implementation / Constants
 

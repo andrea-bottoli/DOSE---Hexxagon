@@ -19,11 +19,11 @@ feature
 
 	make()
 		do
-			print("<< nickname: ")
+			print("Enter nickname: ")
 			io.read_line
 			current_nickname := io.last_string + ""
 
-			print("<< age: ")
+			print("Enter age: ")
 			io.read_integer_32
 			current_age := io.last_integer_32
 		end

@@ -38,6 +38,11 @@ feature -- Procedures
 			result := dice
 		end
 
+	set_value_dice1 (a_dice_1 :INTEGER)
+		do
+			dice := a_dice_1
+		end
+
 invariant
 	valid_dice: dice > 0 and dice < 7
 

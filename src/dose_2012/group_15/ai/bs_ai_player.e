@@ -951,7 +951,7 @@ feature {NONE} -- Implementation
 				tiles.remove
 				update_max_x_y (return)
 			else
-				create return.make_with_action (2, Void, Void)
+				create return.make_with_action (3, Void, Void)
 			end
 			Result := return
 		end
@@ -984,7 +984,7 @@ feature {NONE} -- Implementation
 				tiles.remove
 				update_max_x_y (return)
 			else
-				create return.make_with_action (2, Void, Void)
+				create return.make_with_action (3, Void, Void)
 			end
 			Result := return
 		end
@@ -1019,7 +1019,7 @@ feature {NONE} -- Implementation
 				update_max_x_y (return)
 				Result := return
 			else
-				create return.make_with_action (2, Void, Void)
+				create return.make_with_action (3, Void, Void)
 			end
 			Result := return
 		end

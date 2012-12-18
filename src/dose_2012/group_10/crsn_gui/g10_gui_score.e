@@ -39,12 +39,12 @@ feature {G10_GUI_PLAYER_INFO , G10_GUI_GAME_MAIN}
 	get_score_number_display() : STRING -- routine returns the score attribute of this object
 	do
 		result := score_number_display
-		ensure
-			score_not_mutated : score_number_display = old score_number_display
+	ensure
+		score_not_mutated : score_number_display = old score_number_display
 	end
 
 -- mutator methods.
-feature {G10_GUI_PLAYER_INFO}
+feature {G10_GUI_PLAYER_INFO , G10_GUI_SCOREBOARD_PANEL  }
 	update_score(num : STRING) -- routine ipdates the score attribute of this object to num
 	require
 		valid_arg : num /= void

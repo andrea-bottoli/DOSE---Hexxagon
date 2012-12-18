@@ -43,7 +43,7 @@ feature{G19_GAME_BUILDER}
 			create current_map.make("map1", "map2", "map3", "map4", current_terrain_card_manager)
 
 			create current_step_checker.make()
-			create current_avaible_actions_count.make_filled(5 -- todo 20
+			create current_avaible_actions_count.make_filled(18 -- todo 20
 			, 1, current_players.count)
 
 
@@ -57,6 +57,7 @@ feature
 			last_step: G19_STEP
 			i, changes_count, actions_counter: INTEGER
 			game_result: G19_GAME_RESULT_IMPL
+			current_winners: SET[G19_PLAYER_INFO]
 		do
 			emit_on_game_start(current)
 			emit_on_terrain_card_recieve(current, current_terrain_card_manager)
@@ -94,8 +95,22 @@ feature
 				end
 			end
 			create game_result.make(current)
-
 			emit_on_game_end(current, game_result)
+
+			current_winners := game_result.get_winners()
+			io.put_string ("Winners: %N")
+
+			from
+				current_winners.linear_representation.start()
+			until
+				current_winners.linear_representation.after()
+			loop
+				io.put_character ('%T')
+				io.put_string (current_winners.linear_representation.item_for_iteration.get_nickname())
+				io.put_character ('%N')
+				current_winners.linear_representation.forth()
+			end
+
 		end
 
 	get_avaible_actions_count(player: G19_PLAYER_INFO): TABLE[INTEGER, STRING]

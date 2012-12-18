@@ -115,10 +115,10 @@ feature -- Access
 		require
 			game_is_started: game_is_started=True
 			id_is_valid: 0<=id and id<=3 --and id=current_turn
-			check_position: 0<=x and x<board.get_width and 0<=y and y<board.get_height
+			--check_position: 0<=x and x<board.get_width and 0<=y and y<board.get_height
 			--check_game_tile_belonging: players.item(id).has_a_game_tile(game_tile)
 		do
-			if(game_tile/=Void)then
+			if(game_tile/=Void and 0<=x and x<board.get_width and 0<=y and y<board.get_height)then
 				if(id=current_turn and game_tile.get_color=current_color and game_mode.the_player_has_this_color (id, current_color)) then
 					if(players[current_color+1].has_a_game_tile (game_tile)) then
 						game_tile.place (x, y,1)

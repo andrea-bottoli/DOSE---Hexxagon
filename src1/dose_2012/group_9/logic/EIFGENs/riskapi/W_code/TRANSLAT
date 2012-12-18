@@ -1,0 +1,7 @@
+riskapi	PLAYER	id	F837_6523	C1\pl837.c
+riskapi	PLAYER	name	F837_6524	C1\pl837.c
+riskapi	PLAYER	color	F837_6525	C1\pl837.c
+riskapi	PLAYER	turn_token	F837_6526	C1\pl837.c
+riskapi	PLAYER	make	F837_6527	C1\pl837.c
+riskapi	APPLICATION	ap	F838_6528	C1\ap838.c
+riskapi	APPLICATION	make	F838_6529	C1\ap838.c

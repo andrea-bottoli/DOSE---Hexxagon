@@ -27,9 +27,8 @@ feature {NONE} -- Initialization
 			print("%N IN AI")
 			from_to:=all_calculation.call_intial_game(the_board)
 			--test if work
-			print("%N move from")
 			print(from_to.at (0))
-			print("%N move to")
+			print("%N")
 			print(from_to.at(1))
 			create move.make_possible_moves
 			logic.other_move (move)

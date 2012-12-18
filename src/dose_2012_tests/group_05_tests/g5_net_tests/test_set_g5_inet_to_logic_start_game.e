@@ -39,17 +39,26 @@ feature -- Preparation of Test
 			create players.make_empty
 		end
 
-feature -- Test positive
-
+feature -- Test negative: too many players
+	-- Fixed by Luca Falsina
 	start_game0
-		-- start_game(<<"JAIME","SERGIO","JESUS">>)
+		-- start_game(<<"JAIME","SERGIO","JESUS","LUCA","GABRIELE","BINO">>)
 		note
 			testing: "G5_INET_TO_LOGIC/.start_game"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
+		local
+			rescued: BOOLEAN
 		do
-			players := <<"JAIME","SERGIO","JESUS">>
-			class_test.start_game (players)
-			assert ("start_game was successful", True)
+			if not rescued then
+				players := <<"JAIME","SERGIO","JESUS","LUCA","GABRIELE","BINO">>
+				class_test.start_game (players)
+			end
+			assert ("start_game raised problem", rescued)
+			rescue
+				if not rescued then
+					rescued := True
+					retry
+				end
 		end
 
 feature -- Test negative

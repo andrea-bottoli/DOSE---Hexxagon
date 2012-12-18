@@ -13,19 +13,8 @@ inherit
     	is_equal, copy
     end
 
-	CU_GAME
+	LINKED_LIST [STRING]
 
 create
 	make
-feature
-	set_state (a_state: CU_GAME)
-	do
-		state := a_state
-	end
-	return_state: CU_GAME
-	do
-		Result := state
-	end
-feature {NONE}
-	state : CU_GAME
 end

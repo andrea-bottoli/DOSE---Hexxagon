@@ -21,8 +21,6 @@ feature
 
 	receive_defeat() deferred end	--Receive defeat signal over net client mode only
 
-	receive_draw() deferred end	--Receive draw signal over net client mode only
-
 	abort_game() deferred end  -- Abort game signal via method server/client
 
 	exit_game() deferred end	-- Exit game signal via method server/client
@@ -31,15 +29,9 @@ feature
 
 	defeat() deferred end   -- A player has lost and so the defeat method is needed server/client
 
-	draw() deferred end		---- there is draw and we have to print draw on screen server/client
-
-	-- It will be deleted as soon as test cases will be removed in order no compilation errors exist
+	draw() deferred end		-- there is draw and we have to print draw on screen server/client
 
 	set_single_player(name: STRING; colour: STRING) deferred end  -- Set the appropriate single player settings (gui)
-
-	set_multi_player(server: BOOLEAN; name: STRING; colour: STRING; IP: STRING; port: INTEGER) deferred end   -- Set the appropriate multi player settings (gui)
-
-	-- New methods about init seetings of multiplayer game
 
 	set_server_setup(name: STRING; ip: STRING; port: INTEGER) deferred end   -- Set the appropriate multi player settings at server
 
@@ -49,8 +41,6 @@ feature
 
 	receive_game_start() deferred end  -- Receive game start signal client mode only
 
-	other_player(name: STRING; IP: STRING) deferred end   -- Receive other's player information server only
-
 	client_connected(name: STRING; ip: STRING) deferred end
 
 	receive_command_clean_game_window() deferred end --receive a command to clear the game window from net client mode only
@@ -59,9 +49,9 @@ feature
 
 	receive_command_switch_panel_menu_to_game() deferred end --equals receive game start (simone)
 
-	receive_draw_status() deferred end	--simone
+	receive_draw_status() deferred end	-- receive the daw status about game result
 
-	receive_cell(a_cell: XX_CELL) deferred end	--simone
+	receive_board_sensitive (a_condition: BOOLEAN) deferred end  -- the state of board, sensitive or insensitive
 
 	receive_timer(a_timer: XX_TIMER) deferred end -- receive timer from net client mode only
 

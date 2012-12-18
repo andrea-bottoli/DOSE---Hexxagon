@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_IP_VALIDATOR}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Class that check if an ip is valid."
+	author: "Team Milano2"
+	date: "15-11-2012"
+	revision: "0.5"
 
 class
 	XX_IP_VALIDATOR

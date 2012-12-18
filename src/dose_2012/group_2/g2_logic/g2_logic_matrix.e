@@ -34,4 +34,13 @@ feature
 		ensure
 			non_void:g2_matrix_card=a_card
 	end
+	set_element (a_element: STRING)
+		require
+			non_void: a_element /= void
+		do
+			g2_matrix_element := a_element
+		ensure
+			non_void: g2_matrix_element = a_element
+		end
+
 end

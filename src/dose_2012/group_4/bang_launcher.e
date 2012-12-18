@@ -21,10 +21,9 @@ feature	-- Implementation
 				-- creates the tictactoe window
 				-- gives the main_ui as argument so we can restore when tictactoe closes
 			print("Bang! Game")
-			create turn.make
 			create window.make (main_ui_window)
 			window.show
-			--turn.tsampis_test
+			create turn.make --Crete12 add
 				-- we inform the Main-UI about the game window; otherwise, the game window might get garbage collected
 			main_ui_window.add_reference_to_game (window)
 		end

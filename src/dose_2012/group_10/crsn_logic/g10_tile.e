@@ -1,8 +1,8 @@
 note
  description: "Summary description for {TILE_PART}."
- author: "Anastasia"
- date: "$Date$"
- revision: "$Revision$"
+ author: "Anastasia, Angel Kyriako"
+ date: "15/12/2012"
+ revision: "3.0"
 
 class
  G10_TILE
@@ -17,6 +17,8 @@ feature{ANY}
 
  PlayerID: INTEGER
  Rotation: INTEGER --  0-0, 1-90, 2-180, 3-270
+ degrees_rotated : STRING
+ tile_id : STRING
  Parts: ARRAY2[G10_TILE_PART] -- 9 numbers to describe groung of tile in 4 corners, 4 edges and center
 
 
@@ -25,24 +27,12 @@ feature{ANY}
  do
  end
 
- -- rotate tile
- Rotate -- routine rotates the tile.
- do
- 	if (rotation = 0) then
- 		rotation := 90
- 	elseif((rotation = 90)) then
- 		rotation := 180
- 	elseif((rotation = 180)) then
- 		rotation := 270
- 	elseif((rotation = 270)) then
- 		rotation := 0
- 	end
- end
+
 
 --Description of this tile part texture(grass = 0, road = 1, building = 2)
- setType(type: INTEGER)														-- ERROR FIX
+ setType(type: INTEGER)
  do
--- 	inspect type
+-- 	inspect type						ERROR try to run it.
 -- 	 when 1-- cherch
 -- 	 	then
 --			Parts.item (0,0).make(0)
@@ -87,18 +77,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(0)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 5--town+shield+grass
--- 	 	then
--- 	 		Parts.item (0,0).make(2)
--- 	 		Parts.item (0,1).make(2)
--- 	 		Parts.item (0,2).make(2)
--- 	 		Parts.item (1,0).make(2)
--- 	 		Parts.item (1,1).make(2)
--- 	 		Parts.item (1,2).make(2)
--- 	 		Parts.item (2,0).make(0)
--- 	 		Parts.item (2,1).make(0)
--- 	 		Parts.item (2,2).make(0)
--- 	 when 6--town+road
+-- 	 when 5--town+road
 -- 	 	then
 -- 	 		Parts.item (0,0).make(2)
 -- 	 		Parts.item (0,1).make(2)
@@ -109,18 +88,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 7--town+shield+road
--- 	 	then
--- 	 		Parts.item (0,0).make(2)
--- 	 		Parts.item (0,1).make(2)
--- 	 		Parts.item (0,2).make(2)
--- 	 		Parts.item (1,0).make(2)
--- 	 		Parts.item (1,1).make(2)
--- 	 		Parts.item (1,2).make(2)
--- 	 		Parts.item (2,0).make(0)
--- 	 		Parts.item (2,1).make(1)
--- 	 		Parts.item (2,2).make(0)
--- 	 when 8--town+diagonalgrass
+-- 	 when 6--town+diagonalgrass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(2)
 -- 	 		Parts.item (0,1).make(2)
@@ -131,18 +99,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(0)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 9--town+shield+diagonalgrass
--- 	 	then
--- 	 		Parts.item (0,0).make(2)
--- 	 		Parts.item (0,1).make(2)
--- 	 		Parts.item (0,2).make(0)
--- 	 		Parts.item (1,0).make(2)
--- 	 		Parts.item (1,1).make(0)
--- 	 		Parts.item (1,2).make(0)
--- 	 		Parts.item (2,0).make(0)
--- 	 		Parts.item (2,1).make(0)
--- 	 		Parts.item (2,2).make(0)
--- 	 when 10--town+diagonalroad
+-- 	 when 7--town+diagonalroad
 -- 	 	then
 -- 	 		Parts.item (0,0).make(2)
 -- 	 		Parts.item (0,1).make(2)
@@ -153,18 +110,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 11--town+shield+diagonalroad
--- 	 	then
--- 	 		Parts.item (0,0).make(2)
--- 	 		Parts.item (0,1).make(2)
--- 	 		Parts.item (0,2).make(0)
--- 	 		Parts.item (1,0).make(2)
--- 	 		Parts.item (1,1).make(1)
--- 	 		Parts.item (1,2).make(1)
--- 	 		Parts.item (2,0).make(0)
--- 	 		Parts.item (2,1).make(1)
--- 	 		Parts.item (2,2).make(0)
--- 	 when 12--town+doublegrass
+-- 	 when 8--town+doublegrass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -175,18 +121,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(2)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 13--town+shield+doublegrass
--- 	 	then
--- 	 		Parts.item (0,0).make(0)
--- 	 		Parts.item (0,1).make(2)
--- 	 		Parts.item (0,2).make(0)
--- 	 		Parts.item (1,0).make(0)
--- 	 		Parts.item (1,1).make(0)
--- 	 		Parts.item (1,2).make(0)
--- 	 		Parts.item (2,0).make(0)
--- 	 		Parts.item (2,1).make(2)
--- 	 		Parts.item (2,2).make(0)
--- 	 when 14--town+town+grass
+-- 	 when 9--town+town+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -197,7 +132,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(0)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 15--doubletown+grass
+-- 	 when 10--doubletown+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -208,7 +143,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(2)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 16--grass+town
+-- 	 when 11--grass+town
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -219,7 +154,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(0)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 17--leftdiagonalroad+town+grass
+-- 	 when 12--leftdiagonalroad+town+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -230,7 +165,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 18--rightdiagonalroad+town+grass
+-- 	 when 13--rightdiagonalroad+town+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -241,7 +176,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 19--crossroad+town+grass
+-- 	 when 14--crossroad+town+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -252,7 +187,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 20--horizontroad+town+grass
+-- 	 when 15--horizontroad+town+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(2)
@@ -263,7 +198,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(0)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 21--vertroad+grass
+-- 	 when 16--vertroad+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(1)
@@ -274,7 +209,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 22--diagonalroad+grass
+-- 	 when 17--diagonalroad+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(0)
@@ -285,7 +220,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 23--triplecrossroad+grass
+-- 	 when 18--triplecrossroad+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(0)
@@ -296,7 +231,7 @@ feature{ANY}
 -- 	 		Parts.item (2,0).make(0)
 -- 	 		Parts.item (2,1).make(1)
 -- 	 		Parts.item (2,2).make(0)
--- 	 when 24--qadrcrossroad+grass
+-- 	 when 19--qadrcrossroad+grass
 -- 	 	then
 -- 	 		Parts.item (0,0).make(0)
 -- 	 		Parts.item (0,1).make(1)
@@ -371,25 +306,19 @@ feature
   end
   Result:=t
  end
--- constructors.
-feature{ANY}
+
+feature
+
  make()
  local
- 	i:INTEGER
- 	j:INTEGER
+ 	DefaultPart:G10_TILE_PART
  do
 	PlayerID:=0
 	Rotation:=0
---	create Parts.make_filled (void,3,3)
---	from i:=0 until i>=3
---	loop
---		from j:=0 until j>=3
---		loop
---			Parts.item (i, j).make (0) --in the beginning all is grass
---			i:=i+1
---		end
---		j:=j+1
---	end
+	degrees_rotated := "0"
+	tile_id := "1"
+	create DefaultPart.make (0)
+	create Parts.make_filled (DefaultPart, 3, 3)
  end
 
-end --TILE
+end

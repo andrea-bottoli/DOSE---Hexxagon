@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {CP_CHAT_RECEIVER}."
-	author: ""
+	description: "CP_CHAT_SENDER_RECEIVER is responsible for listening and sending new chat messages"
+	author: "Jim Darivas"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -44,7 +44,7 @@ feature
 			end
 		end
 
-	set_receive_action (a_action: PROCEDURE[ANY, TUPLE[STRING, STRING]])
+	set_receive_action (a_action: PROCEDURE [ANY, TUPLE])
 		do
 			action := a_action
 		end
@@ -66,6 +66,6 @@ feature {NONE}
 	id: INTEGER
 	reader: SED_MEDIUM_READER_WRITER
 	writer: SED_MEDIUM_READER_WRITER
-	action: PROCEDURE[ANY, TUPLE[STRING, STRING]]
+	action: PROCEDURE [ANY, TUPLE]
 
 end

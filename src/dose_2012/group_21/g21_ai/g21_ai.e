@@ -15,21 +15,22 @@ feature{G21_AI} -- Attributes
 	board: ARRAY2[G21_CELL] -- a link to the board used by the Logic component
 	cards: ARRAYED_LIST[G21_CARD] -- a link to the AI deck stored in Logic component
 
-feature{G21_AI} -- Interface Procedures, the only method the Logic component can use to call the AI
+feature{G21_AI,G21_BOARD} -- Interface Procedures, the only method the Logic component can use to call the AI
 
 	make_a_move (card_position: G21_POINT): G21_MOVE --it returns and object move that the Logic will use to make AI move
 
 		require
 
-			position_enemy_card: card_position=void or else board.item(card_position.y, card_position.x).isOccupied=TRUE
+		--	position_enemy_card: card_position=void or else board[card_position.y, card_position.x].isOccupied=TRUE
 
 		deferred
 
 		ensure
 
 			result_valid: result/=void
-			free_position: board.item(result.position.x, result.position.y)/=void and then board.item(result.position.x, result.position.y).isoccupied=FALSE
-			card_in_deck: cards.has(result.card)=TRUE
+		--	free_position: board.item(result.position.x, result.position.y)/=void
+			free_position: board.item(result.position.x, result.position.y).isoccupied=FALSE
+		--	card_in_deck: cards.index_of (result.card,1)/=0
 			card_position_not_changed: card_position=old card_position and then card_position.x=old card_position.x and then card_position.y=old card_position.y
 			deck_not_changed: cards=old cards and then cards.count = old cards.count
 			board_not_changed_first_row: board.item(1, 1) = old board.item(1, 1) and then board.item(1, 2) = old board.item(1, 2) and then board.item(1, 3) = old board.item(1, 3)

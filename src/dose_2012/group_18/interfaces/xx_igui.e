@@ -32,6 +32,11 @@ feature	--Deferred Methods for change the gui view
 		chat_is_enabled: is_chat_displayed=a_condition
 	end
 
+	--Blocks and un-blocks the board	
+	set_board_sensitive(a_condition: BOOLEAN)
+	deferred
+	end
+
 	--Allow to set the view of the timer in the gui
 	set_timer(a_timer: XX_TIMER)
 	require
@@ -105,22 +110,16 @@ feature	--Deferred Methods for change the gui view
 	--Allow to inform the player about his victory
 	victory
 	deferred
-	ensure
-		victory_message_displayed: is_victory_message_displayed=TRUE
 	end
 
 	--Allow to inform the player about his defeat
 	defeat
 	deferred
-	ensure
-		defeat_message_displayed: is_defeat_message_displayed=TRUE
 	end
 
 	--Allow to inform the player aboout a draw status
 	draw_status
 	deferred
-	ensure
-		defeat_message_displayed: is_draw_status_message_displayed=TRUE
 	end
 
 feature{NONE}	--Private Methods
@@ -179,21 +178,5 @@ feature{NONE}	--Private Methods
 	is_net_manager_setted(a_net_manager: XX_CHAT_TO_NET_INTERFACE):BOOLEAN
 	deferred
 	end
-
-	--Allow to check if victory message is displayed
-	is_victory_message_displayed:BOOLEAN
-	deferred
-	end
-
-	--Allow to check if defeat message is displayed
-	is_defeat_message_displayed:BOOLEAN
-	deferred
-	end
-
-	--Allow to check if draw status message is displayed
-	is_draw_status_message_displayed:BOOLEAN
-	deferred
-	end
-
 end
 

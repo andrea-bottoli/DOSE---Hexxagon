@@ -12,27 +12,27 @@ inherit
 	G1_MESSAGE
 
 create
-	make, make_dice
+	make_dice
 
 feature -- Initialization
 
-	make
-			-- Initialize the message whit default value
-		do
-			dice := 0
-		end
 
-	make_dice (a_dice: INTEGER)
+	make_dice (a_dice_1: INTEGER; a_dice_2: INTEGER)
 			-- Initialize the message with a valid value of dice
 		require
-			valid_dice: a_dice > 0 and a_dice < 7
+			valid_dice_1: a_dice_1 > 0 and a_dice_1 < 7
+			valid_dice_2: a_dice_2 > 0 and a_dice_2 < 7
 		do
-			dice := a_dice
+			dice_1 := a_dice_1
+			dice_2 := a_dice_2
 		end
 
 feature --Measurent
 
-	dice: INTEGER
-			-- Value of the dice
+	dice_1: INTEGER
+			-- Value of the dice 1
+
+	dice_2: INTEGER
+			-- Value of the dice 2
 
 end

@@ -158,7 +158,7 @@ feature -- Test routines
 				create test_card.make ({G5_MACRO_CARDS}.market, 5 , {G5_MACRO_CARDS}.action)
 
 				-- Here it is set the correct phase where the tested feature should be called
-				phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_action)
+			--	phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_action)
 
 				test_receiver_command.set_card_current (test_card)
 
@@ -194,7 +194,7 @@ feature -- Test routines
 				create test_card.make ({G5_MACRO_CARDS}.market, 5 , {G5_MACRO_CARDS}.action)
 
 				-- Here it is set the correct phase where the tested feature should be called
-				phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_action)
+			--	phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_action)
 
 				-- When the feature is called, no card has been set as the current one yet so the procedure shall fail.
 				test_receiver_command.action_adventurer
@@ -229,7 +229,7 @@ feature -- Test routines
 				create test_card.make ({G5_MACRO_CARDS}.adventurer, 6 , {G5_MACRO_CARDS}.action)
 
 				-- Here it is set a wrong match phase.
-				phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_buy)
+			--	phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_buy)
 
 				-- When the feature is called, we are in the wrong phase of the match so a rescue procedure must be raised.
 				test_receiver_command.action_adventurer
@@ -267,7 +267,7 @@ feature -- Test routines
 				create test_card.make ({G5_MACRO_CARDS}.adventurer, 6 , {G5_MACRO_CARDS}.action)
 
 				-- Here it is set the correct phase where the tested feature should be called
-				phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_action)
+			--	phase_string := test_table.next_phase ({G5_MACRO_CARDS}.phase_action)
 
 				-- When the feature is called, it should not launch any rescue procedure.
 				test_receiver_command.action_adventurer

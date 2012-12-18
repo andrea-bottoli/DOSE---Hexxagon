@@ -2,7 +2,7 @@ note
 	description: "[
 		Eiffel tests that can be executed by testing tool.
 	]"
-	author: "EiffelStudio test wizard"
+	author: "Nikos Sourligas, Theocharis Vavouris"
 	date: "$Date$"
 	revision: "$Revision$"
 	testing: "type/manual"

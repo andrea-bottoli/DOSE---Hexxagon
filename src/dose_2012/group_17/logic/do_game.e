@@ -27,8 +27,8 @@ feature{NONE}
 	gold : DO_DRAW_PILE --x30
 
 	--Victory
-	estates : DO_DRAW_PILE --x24
-	duchies : DO_DRAW_PILE --x12
+	estate : DO_DRAW_PILE --x24
+	duchy : DO_DRAW_PILE --x12
 	province : DO_DRAW_PILE --x12
 	curse : DO_DRAW_PILE --x30
 
@@ -73,12 +73,6 @@ feature
 				Player_deleted : PlayersList.count() = old PlayersList.count() - 1
 		end
 
-	Is_Winner() : BOOLEAN
-		do
-			ensure
-				Winner : Result = True or Result = False
-		end
-
 	Valid_Move() : BOOLEAN
 		do
 			ensure
@@ -92,29 +86,76 @@ feature
 		do
 			numberofplayers := number_of_players
 			currentplayer := 1
---			make()
---			io.putstring ("Give Game Name:")
---			io.readline
---			GameName:=io.laststring
---			io.putstring ("Give Number of Players (must be 2-4):")
---			io.read_integer
---			NumberOfPlayers:=io.last_integer
---			io.putstring ("Game name is: "+GameName)
---			io.new_line
---			io.putstring ("Number Of Players is: ")
---			io.put_integer (NumberOfPlayers)
---			io.new_line
 
 			init_card_list()
 			Init_Deck_Piles()
 			Init_Players()
 
-
-
 		end
 
 	Is_End_Game() : BOOLEAN
+		local
+			num_empty_piles : INTEGER
 		do
+			if province.is_empty then
+				Result :=TRUE
+			else
+				num_empty_piles:=0
+				if copper.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if silver.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if gold.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if estate.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if duchy.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if curse.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if chapel.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if festival.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if laboratory.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if market.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if oasis.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if salvager.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if smithy.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if stables.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if village.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+				if woodcutter.is_empty then
+					num_empty_piles:=num_empty_piles+1
+				end
+
+				if num_empty_piles>=3 then
+					Result :=TRUE
+				else
+					Result :=FALSE
+				end
+			end
 			ensure
 				game_end : Result = True or Result = False
 		end
@@ -130,64 +171,95 @@ feature
 			Action : STRING
 			Card : STRING
 			message : STRING
+			delete : DO_CARD
 		do
+			if a_message.is_equal ("init")then
+				create message.make_empty
+			elseif a_message.is_equal ("change_player") then -- eisai piwmenos
+				--reset_hand (playerslist.at(currentplayer))
+				currentplayer := (currentplayer\\playerslist.count)+1
+				reset_hand (playerslist.at(currentplayer))
+				--playerslist.at (currentplayer).set_num_gold (0)
+				create message.make_empty
+			else
 
-			Action_ind := a_message.index_of ('_', 1)
-			create Action.make_filled (' ', Action_ind-1)
-			create Card.make_filled (' ', a_message.count - Action_ind)
-			create message.make_empty
+				Action_ind := a_message.index_of ('_', 1)
+				create Action.make_filled (' ', Action_ind-1)
+				create Card.make_filled (' ', a_message.count - Action_ind)
+				create message.make_empty
 
 
-			Action.subcopy(a_message, 1, Action_ind-1, 1)
-			Card.subcopy (a_message, Action_ind+1, a_message.count, 1)
+				Action.subcopy(a_message, 1, Action_ind-1, 1)
+				Card.subcopy (a_message, Action_ind+1, a_message.count, 1)
 
 
-			if Action.is_equal ("play") then
-				playerslist.at(currentplayer).play_card(cardmap.at(Card))
-				across playerslist.at(currentplayer).get_hand
-				as i
-				loop
-					message := message + i.item.getname + " "
+				if Action.is_equal ("play") then
+					playerslist.at(currentplayer).play_card(cardmap.at(Card))
+				elseif Action.is_equal ("buy") then
+					playerslist.at(currentplayer).buy_card(cardmap.at(Card))
+					if playerslist.at(currentplayer).get_message.is_equal ("Buy Succesfull.") then
+						if Card.is_equal ("Copper") then
+							delete:=copper.remove_top_card
+						elseif Card.is_equal ("Silver") then
+							delete:=silver.remove_top_card
+						elseif Card.is_equal ("Gold")then
+							delete:=gold.remove_top_card
+						elseif Card.is_equal ("Estate")then
+							delete:=estate.remove_top_card
+						elseif Card.is_equal ("Duchy")then
+							delete:=duchy.remove_top_card
+						elseif Card.is_equal ("Province")then
+							delete:=province.remove_top_card
+						elseif Card.is_equal ("Curse")then
+							delete:=curse.remove_top_card
+						elseif Card.is_equal ("Chapel")then
+							delete:=chapel.remove_top_card
+						elseif Card.is_equal ("Festival")then
+							delete:=festival.remove_top_card
+						elseif Card.is_equal ("Laboratory")then
+							delete:=laboratory.remove_top_card
+						elseif Card.is_equal ("Market")then
+							delete:=market.remove_top_card
+						elseif Card.is_equal ("Oasis")then
+							delete:=oasis.remove_top_card
+						elseif Card.is_equal ("Salvager")then
+							delete:=salvager.remove_top_card
+						elseif Card.is_equal ("Smithy")then
+							delete:=smithy.remove_top_card
+						elseif Card.is_equal ("Stables")then
+							delete:=stables.remove_top_card
+						elseif Card.is_equal ("Village")then
+							delete:=village.remove_top_card
+						elseif Card.is_equal ("Woodcutter")then
+							delete:=woodcutter.remove_top_card
+						elseif Card.is_equal ("Duchy")then
+							delete:=duchy.remove_top_card
+						end
+					end
+				elseif Action.is_equal ("clean") then
+					delete := playerslist.at(currentplayer).discard_card(cardmap.at(Card))
+					trash_pile.add_card (delete)
 				end
-				message := message + "_"
-				message := message + playerslist.at(currentplayer).get_num_actions.out + "/"
-				message := message + playerslist.at(currentplayer).get_num_buys.out + "/"
-				message := message + playerslist.at(currentplayer).get_num_gold.out
-				message := message + "_"
-				message := message + "play OK"
-			elseif Action.is_equal ("buy") then
-				playerslist.at(currentplayer).buy_card(cardmap.at(Card))
-				across playerslist.at(currentplayer).get_hand
-				as i
-				loop
-					message := message + i.item.getname + " "
-				end
-				message := message + "_"
-				message := message + playerslist.at(currentplayer).get_num_actions.out + "/"
-				message := message + playerslist.at(currentplayer).get_num_buys.out + "/"
-				message := message + playerslist.at(currentplayer).get_num_gold.out
-				message := message + "_"
-				message := "buy OK"
-			elseif Action.is_equal ("clean") then
-				across playerslist.at(currentplayer).get_hand
-				as i
-				loop
-					message := message + i.item.getname + " "
-				end
-				message := message + "_"
-				message := message + playerslist.at(currentplayer).get_num_actions.out + "/"
-				message := message + playerslist.at(currentplayer).get_num_buys.out + "/"
-				message := message + playerslist.at(currentplayer).get_num_gold.out
-				message := message + "_"
-				message := "clean NOT READY"
 			end
+
+			across playerslist.at(currentplayer).get_hand
+			as i
+			loop
+				message := message + i.item.getname + " "
+			end
+			message := message + "_"
+			message := message + playerslist.at(currentplayer).get_num_actions.out + "/"
+			message := message + playerslist.at(currentplayer).get_num_buys.out + "/"
+			message := message + playerslist.at(currentplayer).get_num_gold.out
+			message := message + "_"
+			message := message + playerslist.at(currentplayer).get_message
 
 			Result := message
 		--	reset_hand (playerslist.at (currentplayer))
 		--	playerslist.at (currentplayer).set_num_actions (1)
 		--	playerslist.at (currentplayer).set_num_buys (1)
 		--	playerslist.at (currentplayer).set_num_gold (0)
-			print ( message)
+		--	print ( message)
 
 			ensure
 				arg_deciphered : Result /= void
@@ -226,55 +298,39 @@ feature --Initialization
 			draw : ARRAYED_LIST[DO_CARD]
 			d_pile :DO_DRAW_PILE
 			discard : DO_DISCARD_PILE
-			malakas : DO_CARD
 			count : INTEGER
 		do
 			--Create pile
 			create discard.make
 			create draw.make (10)
 
-			--Draw 7 copper   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!prepei na allaksei to remove o marios!!!!!!!!!!!!!!!
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
---			draw.force (laboratory.get_top_card)
---			malakas := laboratory.remove_top_card
---			draw.force (laboratory.get_top_card)
---			malakas := laboratory.remove_top_card
---			draw.force (laboratory.get_top_card)
---			malakas := laboratory.remove_top_card
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
-			draw.force (copper.get_top_card)
-			malakas:=copper.remove_top_card
+			--Draw 7 copper
+			draw.force (copper.remove_top_card)
+			draw.force (copper.remove_top_card)
+			draw.force (copper.remove_top_card)
+			draw.force (copper.remove_top_card)
+			draw.force (copper.remove_top_card)
+			draw.force (copper.remove_top_card)
+			draw.force (copper.remove_top_card)
 
 			--Draw 3 Estate
-			draw.force (estates.get_top_card)
-			malakas:=estates.remove_top_card
-			draw.force (estates.get_top_card)
-			malakas:=estates.remove_top_card
-			draw.force (estates.get_top_card)
-			malakas:=estates.remove_top_card
-
+			draw.force (estate.remove_top_card)
+			draw.force (estate.remove_top_card)
+			draw.force (estate.remove_top_card)
+			draw:=shuffle (draw)
 			--Add piles to player
 			create d_pile.make_init (10, draw)
 			player.set_discard_pile (discard)
 			player.set_draw_pile (d_pile)
+
+
 
 			from
 					count:=0
 				until
 					count=5
 				loop
-					player.get_hand.force (player.get_draw_pile.get_top_card)
-					malakas:=player.get_draw_pile.remove_top_card
+					player.get_hand.force (player.get_draw_pile.remove_top_card)
 					count:=count+1
 				end
 		end
@@ -294,10 +350,10 @@ feature --Initialization
 		create coin_card.make ("Gold", "Coin", 6, 3)
 		cardmap.put (coin_card, "Gold")
 		--victory
-		create victory_card.make ("Estates", "Victory", 2, 1)
-		cardmap.put (victory_card,"Estates")
-		create victory_card.make ("Duchies", "Victory", 5, 3)
-		cardmap.put (victory_card,"Duchies")
+		create victory_card.make ("Estate", "Victory", 2, 1)
+		cardmap.put (victory_card,"Estate")
+		create victory_card.make ("Duchy", "Victory", 5, 3)
+		cardmap.put (victory_card,"Duchy")
 		create victory_card.make ("Province", "Victory", 8, 6)
 		cardmap.put (victory_card,"Province")
 		create victory_card.make ("Curse", "Victory", 0, -1)
@@ -401,7 +457,7 @@ feature --Initialization
 			until
 				counter=24
 			loop
-				create victory_card.make ("Estates", "Victory", 2, 1)
+				create victory_card.make ("Estate", "Victory", 2, 1)
 				a_estates.force (victory_card)
 				counter:=counter+1
 			end
@@ -412,7 +468,7 @@ feature --Initialization
 			until
 				counter=12
 			loop
-				create victory_card.make ("Duchies", "Victory", 5, 3)
+				create victory_card.make ("Duchy", "Victory", 5, 3)
 				a_duchies.force (victory_card)
 				counter:=counter+1
 			end
@@ -554,8 +610,8 @@ feature --Initialization
 			create copper.make_init (60, a_copper)
 			create silver.make_init (40, a_silver)
 			create gold.make_init (30, a_gold)
-			create estates.make_init (24, a_estates)
-			create duchies.make_init (12, a_duchies)
+			create estate.make_init (24, a_estates)
+			create duchy.make_init (12, a_duchies)
 			create province.make_init (12, a_province)
 			create curse.make_init (30, a_curse)
 			create chapel.make_init (10, a_chapel)
@@ -593,7 +649,7 @@ feature --Setters
 
 
 
-feature{} --Getters
+feature{ANY} --Getters
 
 	Get_Player() : DO_PLAYER
 		do
@@ -603,75 +659,117 @@ feature{} --Getters
 				get_player : Result /= void
 		end
 
-	Get_Winner() : DO_PLAYER
+	Get_Winner() : STRING
+		local
+			vp1 : INTEGER
+			vp2 : INTEGER
+			msg : STRING
 		do
-			ensure
-				get_player : Result /= void
+--			max_points:=0
+
+--			across playerslist
+--				 as i
+--			loop
+--				if i.item.count_points >= max_points then
+--					max_points:=i.item.count_points
+--					Result :=i.item
+--				end
+--			end
+			create msg.make_empty
+			vp1:=playerslist.at (1).count_points
+			vp2:=playerslist.at (2).count_points
+
+			msg:=vp1.out+"_"+vp2.out
+			Result := msg
+--			ensure
+--				Winner : Result /=void
+		end
+
+	Get_Current() : INTEGER
+		do
+			Result :=currentplayer
 		end
 
 feature{NONE}
 
-	Empty_Players_Hand(player : DO_PLAYER)
+	Reset_hand(player : DO_PLAYER)
 		local
 			hand : ARRAYED_LIST[DO_CARD]
 			count : INTEGER
 		do
-			from
-				count:=0
-			until
-				count=player.get_hand.count
-			loop
-				player.get_discard_pile.add_top_card (player.get_hand.at (count+1))
-				count:=count+1
-			end
+				from
+					count:=0
+				until
+					count=player.get_hand.count
+				loop
+					player.get_discard_pile.add_top_card (player.get_hand.at (count+1))
+					count:=count+1
+				end
 
-			create hand.make (5)
-			player.set_hand (hand)
-		end
+		  		create hand.make (5)
+				player.set_hand (hand)
 
-	Reset_hand(player : DO_PLAYER)
-		local
-			count : INTEGER
-		--	player : DO_PLAYER
-			paparas : DO_CARD
-		do
---			from
---				CurrentPlayer:=1
---			until
---				
---				--Is_End_Game()=TRUE
---			loop
---				player:=PlayersList.at (CurrentPlayer)
-				Empty_Players_Hand(player)
 --Each player draw 5 cards
 				from
 					count:=0
 				until
 					count=5
 				loop
-					player.get_hand.force (player.get_draw_pile.get_top_card)
-					paparas:=player.get_draw_pile.remove_top_card
+					if player.get_draw_pile.is_empty then
+						player.get_draw_pile.refill_draw (player.get_discard_pile)
+					end
+					player.get_hand.force (player.get_draw_pile.remove_top_card)
 					count:=count+1
 				end
 
---				print(player.get_name+" plays:")
---				io.new_line
-----Print the hand
---				from
---					count:=0
---				until
---					count=5
---				loop
---					print("["+player.get_hand.at (count+1).getname+"] ")
---					count:=count+1
---				end
---				io.new_line
---				io.readchar
---				CurrentPlayer:=(CurrentPlayer\\NumberOfPlayers)+1
--- Empty players hand in the end of the round
+				player.set_num_actions (1)
+				player.set_num_buys (1)
+				player.set_num_gold (0)
+				player.set_message (void)
 
 
 		end
+
+	random_sequence : RANDOM
+	Shuffle(a_pile : ARRAYED_LIST[DO_CARD]) : ARRAYED_LIST[DO_CARD]
+	local
+      	l_time: TIME
+      	l_seed: INTEGER
+      	i,fswap,toswap:INTEGER
+
+    do
+	      create l_time.make_now
+	      l_seed := l_time.hour
+	      l_seed := l_seed * 60 + l_time.minute
+	      l_seed := l_seed * 60 + l_time.second
+	      l_seed := l_seed * 1000 + l_time.milli_second
+	      create random_sequence.set_seed (l_seed)
+			--io.put_integer (new_random \\ numberofcards+1)
+			from i:=1
+			until a_pile.count = i
+			loop
+
+				fswap:=new_random \\ (a_pile.count-1) +1
+				toswap :=new_random \\ (a_pile.count-1) + 1
+
+				a_pile.move(fswap)
+				a_pile.swap (toswap)
+				a_pile.start
+				i :=i+1
+			end
+			Result :=a_pile
+
+	ensure
+	--	shuffled_pile_new : pile.count() = a_pile.count()
+	end
+
+	new_random: INTEGER
+	  do
+	    random_sequence.forth
+	    Result := random_sequence.item
+	  end
+
+
 
 
 end

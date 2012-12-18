@@ -45,6 +45,6 @@ feature --Setters and Getters
 	end
 
 feature --Action
-	action(a_Player_array : ARRAY[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE)
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;Draw_Pile: G4_DRAW_PILE)
 	do	end
 end

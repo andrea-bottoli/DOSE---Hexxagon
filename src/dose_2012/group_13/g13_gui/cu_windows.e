@@ -21,46 +21,15 @@ inherit
 		undefine
 			default_create, copy
 		end
---create
---	make_window--, make_window_with_controller
 
 feature -- make and Initialize
 
---	make_window (a_main_ui_window: MAIN_WINDOW)
---			-- Creation procedure
---		do
---				-- Store the main_ui object. We want to restore it later on (it's currently minimized).
---			main_ui := a_main_ui_window
+	pawn_selected: INTEGER
 
-----				-- Create the Cluedo window.
---			set_title_window ("Cluedo - Main Lobby")
---			set_width_window (1100)
---			set_height_window (650)
---			make_with_title (window_title)
---			set_size (window_width,window_height)
---			create horizontal_separator
---			create con_main
---			create main_lobby
---			create mode.make_empty
---			con_main := main_lobby.make
-----			mode := main_lobby.return_mode_game
-----			io.put_string (main_lobby.return_mode_game)
---			con_main.extend_with_position_and_size (horizontal_separator, 0, 0, 1100, 5)
---			put (con_main)
---			disable_user_resize
---		end
-
---	make_window_with_controller (controller:CU_INIT_CONTROLLER)
---	do
---		set_window_controller(controller)
---		default_create
---	end
-
---	return_mode: STRING
---	do
---		Result := mode
---	end
-
+	set_pawn (a_pawn: INTEGER)
+	do
+		pawn_selected := a_pawn
+	end
 
 	set_title_window (new_title: STRING)
 			-- Set title of the window
@@ -111,52 +80,7 @@ feature -- make and Initialize
 			Result := is_initialized
 		end
 
-----------------------------feature {ANY} -- Implementation
-
-----------------------------	standard_menu_bar: EV_MENU_BAR
-----------------------------			-- Standard menu bar for this window.
-
-----------------------------	file_menu: EV_MENU
-----------------------------			-- "File" menu for this window (contains Create Game, Join Game, Quit Game)
-
-----------------------------	help_menu: EV_MENU
-----------------------------			-- "Help" menu for this window (contains Show Rules, About)
-
-----------------------------	build_standard_menu_bar
-----------------------------			-- Create and populate `standard_menu_bar'.
-----------------------------		do
-----------------------------		end
-
-----------------------------	build_file_menu
-----------------------------			-- Create and populate `file_menu'.
-----------------------------		do
-----------------------------		end
-
-----------------------------	build_help_menu
-----------------------------			-- Create and populate `help_menu'.
-----------------------------		do
-----------------------------		end
 feature{CU_MAIN_LOBBY}
-
---------------request_close_window
---------------			-- The user wants to close the window
---------------		local
---------------			question_dialog: EV_CONFIRMATION_DIALOG
---------------		do
---------------			create question_dialog.make_with_text (Quit_dialog_message)
---------------			question_dialog.show_modal_to_window (Current)
-
---------------			if question_dialog.selected_button.is_equal ((create {EV_DIALOG_CONSTANTS}).ev_ok) then
---------------					-- Restore the main UI which is currently minimized
---------------				if attached main_ui then
---------------					main_ui.restore
---------------					main_ui.remove_reference_to_game (Current)
---------------				end
---------------					-- Destroy the window
---------------				destroy
---------------			end
---------------		end
-
 
 request_close_window
 			-- The user wants to close the window
@@ -167,36 +91,17 @@ request_close_window
 			question_dialog.show_modal_to_window (Current)
 
 			if question_dialog.selected_button.is_equal ((create {EV_DIALOG_CONSTANTS}).ev_ok) then
+					-- Restore the main UI which is currently minimized
+				if attached main_ui then
+					main_ui.restore
+					main_ui.remove_reference_to_game (Current)
+				end
 					-- Destroy the window
-				destroy;
-
-					-- End the application
-					--| TODO: Remove this line if you don't want the application
-					--|       to end when the first window is closed..
-				(create {EV_ENVIRONMENT}).application.destroy
+				hide
 			end
 		end
 
-
---------------------------------------------------------------------------------------
-
 feature {ANY}
-
-	set_window_controller (controller: CU_INIT_CONTROLLER)
-			-- Set the controller
-		do
-		ensure
-			controller_uploaded: controller = window_controller
-		end
-
-	set_board (a_board: CU_BOARD)
-			-- Set the board
-		require
-			board_not_null: board /= Void
-		do
-		ensure
-			board_uploaded: board = a_board
-		end
 
 	set_message (a_message: STRING)
     	require
@@ -241,10 +146,6 @@ feature {EQA_TEST_SET} -- Menu Bar Implementation
 			separator_item: EV_MENU_SEPARATOR
 		do
 			create file_menu.make_with_text (Menu_file_item)
-			create menu_item.make_with_text (Menu_file_new_item)
-			file_menu.extend (menu_item)
-			create separator_item.default_create
-			file_menu.extend (separator_item)
 			create menu_item.make_with_text (Menu_file_exit_item)
 			menu_item.select_actions.extend (agent request_close_window)
 			file_menu.extend (menu_item)
@@ -290,7 +191,7 @@ feature {EQA_TEST_SET} -- Implementation / Constants
 
 	pix_background: EV_PIXMAP
 			-- returns the background for the active game
-		once
+		do
 			create Result
 			Result.set_with_named_file (file_system.pathname_to_string (Img_background))
 		end
@@ -306,21 +207,6 @@ feature {EQA_TEST_SET} -- Implementation / Constants
 	main_bu: EV_BUTTON
 
 	main_lobby: CU_MAIN_LOBBY
-
---	main_container: EV_VERTICAL_BOX
---			-- Main container (contains all widgets displayed in this window)
-
---	build_main_container
---			-- Create and populate `main_container'.
---		require
---			main_container_not_yet_created: main_container = Void
---		do
---			create main_container
-
---			main_container.extend (create {EV_TEXT})
---		ensure
---			main_container_created: main_container /= Void
---		end
 
 	horizontal_separator: EV_HORIZONTAL_SEPARATOR
 

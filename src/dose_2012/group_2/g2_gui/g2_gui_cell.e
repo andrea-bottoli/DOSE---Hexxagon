@@ -8,6 +8,7 @@ class
 	G2_GUI_CELL
 
 inherit
+
 	EV_BUTTON
 
 	EXECUTION_ENVIRONMENT
@@ -17,15 +18,15 @@ inherit
 		end
 
 create
-	make_gui_cell
+	make_gui_cell, make_gui_cell_1
 
 feature {ANY}
 	--initialize
 
-	make_gui_cell(row_1 , col_1 : INTEGER )
-	    require
-			valid_row : valid_index(row_1)
-			valid_col  : valid_index(col_1)
+	make_gui_cell (row_1, col_1: INTEGER)
+		require
+			valid_row: valid_index (row_1)
+			valid_col: valid_index (col_1)
 		do
 			default_create
 			row := row_1
@@ -33,53 +34,72 @@ feature {ANY}
 			create card.make_default
 			create element.make_default
 			set_pixmap (card.pixmap)
-			set_minimum_size (129 , 158)
+			set_minimum_size (129, 158)
 		end
 
-feature
+	make_gui_cell_1 (row_1, col_1: INTEGER; card_1: G2_GUI_CARD; element_1: STRING)
+		require
+			valid_row: valid_index (row_1)
+			valid_col: valid_index (col_1)
+			card_not_void: card_1 /= Void
+		do
+			default_create
+			row := row_1
+			col := col_1
+			card := card_1
+			create element.make_gui_element (element_1)
+			set_pixmap (card.pixmap)
+			set_minimum_size (129, 158)
+		ensure
+			row_is_equal: row = row_1
+			col_is_equal: col = col_1
+		end
 
-	set_element (element_1 : STRING)
+feature -- access
+
+	set_cell (card_1: G2_GUI_CARD; element_1: STRING)
+		require
+			card_not_void: card_1 /= Void
 		do
 			element.set_element (element_1)
+			card := card_1
+			set_pixmap (card_1.image)
 		end
 
-	set_card(card_1 : G2_GUI_CARD)
-		require
-			card_not_void : card_1 /= Void
-		do
-			card.set_card (card_1)
-			set_pixmap (card.image)
-		end
-
-	valid_index (index : INTEGER) : BOOLEAN
-		do
-			Result :=  0 <= index and index <= 3
-		end
-
-	set_board_game (board_1 : G2_GUI_BOARD_GAME)
-		do
-				card.set_board_game (board_1)
-		end
-
-	set_occupied (ocupp : BOOLEAN)
+	set_occupied (ocupp: BOOLEAN)
 		do
 			is_occupied := ocupp
+		end
+
+feature --miscellanies
+
+	valid_index (index: INTEGER): BOOLEAN
+		do
+			Result := 0 <= index and index <= 3
+		end
+
+	set_board_game (board_1: G2_GUI_BOARD_GAME)
+		do
+			card.set_board_game (board_1)
 		end
 
 	on_click (z_x, z_y: INTEGER; z_button: INTEGER; z_x_tilt, z_y_tilt: DOUBLE; z_pressure: DOUBLE; z_screen_x, z_screen_y: INTEGER)
 			-- Gives information about which button was pressed
 		do
 			if z_button = 1 then
-				card.board.move (row,col)
+				card.board.move (row, col)
+				card.board.refresh_now
 			end
 		end
+
 feature
 
-	row , col : INTEGER
+	row, col: INTEGER
 
 	card: G2_GUI_CARD
 
-	element : G2_GUI_ELEMENT
+	element: G2_GUI_ELEMENT
 
-	is_occupied : BOOLEAN
+	is_occupied: BOOLEAN
+
 end

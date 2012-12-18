@@ -1,10 +1,3 @@
-note
-	description:"Special message used to transfer	1)a part of an object throw the net or "
-	continue_description:"							2)an object that is need to know the location of its super component that it must be added to"
-	extra_attributes:"first,second: INTEGERS that are filled accordingly depending on the nature of the message(example 2)row,col if tile 2)box if follower)"
-	author: "Angel"
-	date: "9/12/2012"
-	revision: "2.0"
 
 class
 	G10_CRSN_SPECIAL_DATA_MESSAGE
@@ -44,6 +37,9 @@ feature {ANY}-- mutators
 		arg_not_negative: an_integer >= 0
 	do
 		first_integer := an_integer
+
+	ensure
+		first : first_integer = an_integer
 	end
 
 	set_second_integer(an_integer: INTEGER)
@@ -51,6 +47,8 @@ feature {ANY}-- mutators
 		arg_not_negative: an_integer >= 0
 	do
 		second_integer := an_integer
+	ensure
+		second : second_integer = an_integer
 	end
 --------------------------------------
 feature {ANY}-- accessors
@@ -58,11 +56,15 @@ feature {ANY}-- accessors
 	get_first_integer: INTEGER
 	do
 		Result := first_integer
+	ensure
+		return : Result = first_integer
 	end
 
 	get_second_integer: INTEGER
 	do
 		Result := second_integer
+	ensure
+		return : Result = second_integer
 	end
 --------------------------------------
 end

@@ -12,6 +12,9 @@ class
 
 	redefine errorMessage,statusMessage,message  end
 
+	--redefine statusMessage end
+
+	--redefine message end
 
 	feature
 		errorMessage(msg : STRING)

@@ -17,4 +17,6 @@ feature --Constructor
  	ensure
   		Name.is_equal("Rev.Carbine")
  	end
+
 end
+

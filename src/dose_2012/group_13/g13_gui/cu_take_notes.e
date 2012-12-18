@@ -117,9 +117,11 @@ feature
 			create ok_button.make_with_text ("Accept")
 			ok_button.select_actions.extend (agent hide)
 
-
+			create horizontal_separator
 			create con_notes
-			con_notes.extend_with_position_and_size (pix_notes, 0, 0, 861, 422)
+			con_notes.extend_with_position_and_size (horizontal_separator, 0, 0, 861, 5)
+
+			con_notes.extend_with_position_and_size (set_pixmap(img_notes), 0, 10, 861, 422)
 			con_notes.extend_with_position_and_size (suspect_1_button, 205, 75, 36, 25)
 			con_notes.extend_with_position_and_size (suspect_2_button, 205, 110, 36, 25)
 			con_notes.extend_with_position_and_size (suspect_3_button, 205, 147, 36, 25)
@@ -144,10 +146,10 @@ feature
 			con_notes.extend_with_position_and_size (room_8_button, 768, 321, 36, 25)
 			con_notes.extend_with_position_and_size (room_9_button, 768, 359, 36, 25)
 
-			con_notes.extend_with_position_and_size (ok_button, 380, 430, 80, 40)
+			con_notes.extend_with_position_and_size (ok_button, 380, 440, 80, 40)
 
 			make_with_title ("Notes - Cluedo")
-			set_size (861,480)
+			set_size (861,490)
 			put (con_notes)
 			disable_user_resize
 		ensure
@@ -161,47 +163,17 @@ feature
 		when 0 then
 			a_button.remove_pixmap
 		when 1 then
-			a_button.set_pixmap (pix_button_check)
+			a_button.set_pixmap (set_pixmap(img_notes_button_check))
 		when 2 then
-			a_button.set_pixmap (pix_button_cross)
+			a_button.set_pixmap (set_pixmap(img_notes_button_cross))
 		when 3 then
-			a_button.set_pixmap (pix_button_question)
+			a_button.set_pixmap (set_pixmap(img_notes_button_question))
 		end
 	end
 	request_close_window
 	do
 		hide
 	end
-
---	set_count (a_count: INTEGER): INTEGER
---	require
---		count_valid: a_count >= 0 and a_count <= 3
---	do
---		if a_count = 3 then
---			Result := 0
---		else
---			Result := a_count + 1
---		end
---	end
-
-
-	save_notes: LINKED_LIST [STRING]
-			-- Save the notes taked by player
-		require
-			notes_non_empty: notes /= void
-		do
-		ensure
-			notes_updated: notes = Result
-		end
-
-	load_notes (a_notes: LINKED_LIST [STRING])
-			-- Load the notes taked by played
-		require
-			non_empty_notes: a_notes /= void
-		do
-		ensure
-			notes_loaded: a_notes = notes
-		end
 
 feature {EQA_TEST_SET} -- Implementation / Constants
 
@@ -275,34 +247,6 @@ feature {EQA_TEST_SET} -- Implementation / Constants
 		-- "Rooms" label
 
 	con_notes: EV_FIXED
-
-	pix_notes: EV_PIXMAP
-			-- returns the background for the active game
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_notes))
-		end
-
-	pix_button_check: EV_PIXMAP
-			-- returns the background for the active game
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_notes_button_check))
-		end
-
-	pix_button_cross: EV_PIXMAP
-			-- returns the background for the active game
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_notes_button_cross))
-		end
-
-	pix_button_question: EV_PIXMAP
-			-- returns the background for the active game
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_notes_button_question))
-		end
 
 	button_count : INTEGER
 

@@ -102,6 +102,24 @@ feature -- Access
 			only_if_non_empty: Result implies (not place (x, y).is_empty)
 		end
 
+	possible_duplications(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
+		-- Return possible duplication moves.
+		require
+			selectable: is_piece_selectable (x, y)
+		deferred
+		ensure
+			non_void: Result /= Void
+		end
+
+	possible_jumps(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
+		-- Return possible jump moves.
+		require
+			selectable: is_piece_selectable (x, y)
+		deferred
+		ensure
+			non_void: Result /= Void
+		end
+
 	possible_moves(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
 		-- Return possible moves.
 		require

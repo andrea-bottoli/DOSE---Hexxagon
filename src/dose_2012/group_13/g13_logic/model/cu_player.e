@@ -44,7 +44,10 @@ feature  -- Access
 
 	last_sugg_room: CU_ROOM
 
-feature {CU_GAME} --Constructor
+	room_unset: INTEGER
+		--represents the number of turns left for last_sugg_room to be set to void
+
+feature {CU_GAME,EQA_TEST_SET} --Constructor
 	make(a_name: STRING; a_pawn: INTEGER)
 		require
 			valid_name: a_name/=void and a_name/=""
@@ -55,6 +58,7 @@ feature {CU_GAME} --Constructor
 			create hand.make
 			position:=void
 			last_sugg_room:= void
+			room_unset:=-1
 		ensure
 			valid_hand: hand/= void
 		end
@@ -149,7 +153,17 @@ feature {CU_GAME, CU_LOGIC, EQA_TEST_SET} --Operations
 		end
 
 	set_suggestion_room(a_room: CU_ROOM)
+		require
+			not_twice: a_room /= last_sugg_room
 		do
 			last_sugg_room:=a_room
+			room_unset:=1
+		end
+
+	decrease_room_count
+		do
+			if room_unset>-1 then
+				room_unset:=room_unset-1
+			end
 		end
 end

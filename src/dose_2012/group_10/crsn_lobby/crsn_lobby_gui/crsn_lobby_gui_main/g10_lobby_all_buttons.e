@@ -39,12 +39,6 @@ feature {ANY} -- constructor
 		join_button.pointer_enter_actions.extend (agent set_highlighted_button(join_button))
 		join_button.pointer_leave_actions.extend (agent set_simple_button(join_button))
 
-		create practice_button
-		set_simple_button(practice_button)
-		practice_button.pointer_button_release_actions.extend (agent practice(?, ?, ?, ?, ?, ?, ?, ?, lobby))
-		practice_button.pointer_enter_actions.extend (agent set_highlighted_button(practice_button))
-		practice_button.pointer_leave_actions.extend (agent set_simple_button(practice_button))
-
 		create return_button
 		set_simple_button(return_button)
 		return_button.pointer_button_release_actions.extend (agent return_to_main(?, ?, ?, ?, ?, ?, ?, ?, lobby))
@@ -53,7 +47,6 @@ feature {ANY} -- constructor
 
 		lobby.get_background.extend_with_position_and_size (create_button, Buttons_Start_width, Create_start_height, Button_width, Button_height)
 		lobby.get_background.extend_with_position_and_size (join_button, Buttons_Start_width, Join_start_height, Button_width, Button_height)
-		lobby.get_background.extend_with_position_and_size (practice_button, Buttons_Start_width, Practice_start_height, Button_width, Button_height)
 		lobby.get_background.extend_with_position_and_size (return_button, Buttons_Start_width, Return_start_height, Button_width, Button_height)
 
 	ensure
@@ -67,56 +60,42 @@ feature {NONE} -- Button actions
 	require
 		lobby_not_null: lobby /= void
 	do
-		lobby.get_new_game_info.paint_new_game_info_panel(lobby)
-	ensure
-		--panel_updated: lobby.get_new_game_info /= old lobby.get_new_game_info
+		lobby.get_south_panel.paint_new_game_info_panel(lobby)
 	end
 	----------------------------------
 	join_a_game(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32 lobby : G10_LOBBY_MAIN)
 	require
 		lobby_not_null: lobby /= void
-		game_info_panel_not_null: lobby.get_new_game_info /= void
+		game_info_panel_not_null: lobby.get_south_panel /= void
+	local
+		game_selected: STRING
 	do
-		lobby.get_new_game_info.paint_global_chat_panel(lobby)
-		if (lobby.get_game_window = void) then
-			lobby.launch_as_joined_player("", "") -- auta 8a ta pairnw apo ta text field me kamia split h' apo to logic
+		game_selected := get_last_selected_game_id(lobby)
+
+		lobby.get_south_panel.paint_global_chat_panel(lobby)
+		if (lobby.get_game_window = void and game_selected/= void and game_selected.is_integer) then
+			lobby.launch_as_joined_player(game_selected)
 		end
-	ensure
-		game_ui_not_null: lobby.get_crsn_game_ui /= void
 	end
-	----------------------------------
-	practice(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32 lobby : G10_LOBBY_MAIN)
-	require
-		lobby_not_null: lobby /= void
-		game_info_panel_not_null: lobby.get_new_game_info /= void
-	do
-		lobby.get_new_game_info.paint_global_chat_panel(lobby)
-		if (lobby.get_game_window = void) then
-			lobby.launch_as_forever_alone
-		end
-	ensure
-		game_ui_not_null: lobby.get_crsn_game_ui /= void
-	end
+
 	----------------------------------
 	return_to_main(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32 lobby : G10_LOBBY_MAIN)
 	require
 		lobby_not_null: lobby /= void
 	do
-		lobby.get_new_game_info.paint_global_chat_panel(lobby)
+		lobby.get_south_panel.paint_global_chat_panel(lobby)
 		lobby.quit_lobby
 	end
 	----------------------------------
 
 	set_simple_button (an_area: EV_FIXED)
-	require	-- the pointer is entering the area used as a button
+	require
 		area_not_null: an_area /= void
 	do
 		if an_area = create_button then
 			create_button.set_background_pixmap (pix_create_button)
 		elseif an_area = join_button then
 			join_button.set_background_pixmap (pix_join_button)
-		elseif an_area = practice_button then
-			practice_button.set_background_pixmap (pix_practice_button)
 		elseif an_area = return_button then
 			return_button.set_background_pixmap (pix_return_button)
 		else
@@ -126,15 +105,13 @@ feature {NONE} -- Button actions
 	end
 
 	set_highlighted_button (an_area: EV_FIXED)
-	require	-- the pointer is leaving the area used as a button
+	require
 		area_not_null: an_area /= void
 	do
 		if an_area = create_button then
 			create_button.set_background_pixmap (pix_highlighted_create_button)
 		elseif an_area = join_button then
 			join_button.set_background_pixmap (pix_highlighted_join_button)
-		elseif an_area = practice_button then
-			practice_button.set_background_pixmap (pix_highlighted_practice_button)
 		elseif an_area = return_button then
 			return_button.set_background_pixmap (pix_highlighted_return_button)
 		else
@@ -142,7 +119,24 @@ feature {NONE} -- Button actions
 		end
 	end
 
-feature {ANY} --accessors
+feature {NONE} --accessors
+
+	get_last_selected_game_id(lobby : G10_LOBBY_MAIN) : STRING
+	local
+	fault_dialog: EV_CONFIRMATION_DIALOG
+	do
+		if lobby.get_all_hosted_games.get_last_selected_game /= void then
+			Result := ""
+			Result.append ( lobby.get_all_hosted_games.get_last_selected_game.text.split (' ').at(2)) -- the second word of a hosted game's item text is the id
+			print("ID of game selected: "+Result+"%N")
+		else
+			create fault_dialog.make_with_text ("Please select the hosted game you want to join !!!")
+			fault_dialog.show_modal_to_window (lobby)
+			Result := void
+		end
+	end
+
+feature {G10_LOBBY_MAIN}
 
 	get_create_button: EV_FIXED
 	do
@@ -152,11 +146,6 @@ feature {ANY} --accessors
 	get_join_button: EV_FIXED
 	do
 		Result := join_button
-	end
-	----------------------------------
-	get_practice_button: EV_FIXED
-	do
-		Result := practice_button
 	end
 	---------------------------------
 	get_return_button: EV_FIXED

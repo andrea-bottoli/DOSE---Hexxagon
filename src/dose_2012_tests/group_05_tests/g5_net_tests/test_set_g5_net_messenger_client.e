@@ -1,6 +1,6 @@
 note
 	description: "This is the test class for the class G5_NET_MESSENGER_CLIENT"
-	author: "Team Rio Cuarto4 / Luca Falsina"
+	author: "Team Rio Cuarto4"
 	date: "29.11.2012"
 	revision: "0.1"
 	testing: "type/manual"
@@ -31,6 +31,8 @@ feature {NONE}
 
 	ip_address: STRING
 
+	concrete_GUI: G5_GUI
+
 feature {NONE} -- Events
 
 	on_prepare
@@ -38,12 +40,14 @@ feature {NONE} -- Events
 		do
 			player_name := "Test_Player"
 			ip_address := "192.168.2.1"
+			create concrete_GUI.make_test
+			associated_GUI := concrete_GUI
 		end
 
 feature -- Test with negative result: invalid make procedure
-
+	-- Fixed by Luca Falsina
 	make_void_controller_0
-			-- This test will fail since no G5_NET_CONTROLLER_CLIENT instance has not been created yet
+			-- This test will fail since no G5_NET_CONTROLLER_CLIENT instance has been created yet
 			-- when the G5_NET_MESSENGER_CLIENT is istantiated.
 		note
 			testing: "covers/{G5_NET_MESSENGER_CLIENT}.make"
@@ -60,13 +64,13 @@ feature -- Test with negative result: invalid make procedure
 			end
 		end
 
-feature -- Test negative for feature send_message_to_server
-
+feature -- Test negative for feature enque_message_to_server
+	-- Fixed by Luca Falsina
 	test_enque_message_to_server_0
 		note
 			testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
-			-- test negative for send_message_to_server with socket_message = Void
+			-- test negative for enque_message_to_server with socket_message = Void
 		do
 			--create associated_GUI.make()
 			create a_net_client.make (associated_GUI)
@@ -82,53 +86,58 @@ feature -- Test negative for feature send_message_to_server
 			end
 		end
 
-	test_enque_message_to_server_1
-		note
-			testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
-			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
-			-- test negative for send_message_to_server incorrect source
-		do
-			--create associated_GUI.make()
-			create a_net_client.make (associated_GUI)
-			create a_net_messenger.make (a_net_client, player_name, ip_address, 2000)
-			create socket_message.make ("", <<"SERVER">>, "display", "show display")
-			if not rescued then
-					a_net_messenger.enque_message_to_server (socket_message)
-			end
-			assert (" enque_message_to_server raised problem with socket_message.source /= 'SERVER'", rescued)
-		rescue
-			if not rescued then
-				rescued := True
-				retry
-			end
-		end
+	-- This test is now not relevant since by performing it the G5_MESSAGE class invariant is violated.
+	-- So the test will be commented out.
+--	test_enque_message_to_server_1
+--		note
+--			testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
+--			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
+--			-- test negative for enque_message_to_server incorrect source
+--		do
+--			--create associated_GUI.make()
+--			create a_net_client.make (associated_GUI)
+--			create a_net_messenger.make (a_net_client, player_name, ip_address, 2000)
+--			create socket_message.make ("", <<"SERVER">>, "display", "show display")
+--			if not rescued then
+--					a_net_messenger.enque_message_to_server (socket_message)
+--			end
+--			assert (" enque_message_to_server raised problem with socket_message.source /= 'SERVER'", rescued)
+--		rescue
+--			if not rescued then
+--				rescued := True
+--				retry
+--			end
+--		end
 
-	test_enque_message_to_server_2
-		note
-			testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
-			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
-			-- test negative for send_message_to_server for inconsistent targets
-		do
-			--create associated_GUI.make()
-			create a_net_client.make (associated_GUI)
-			create a_net_messenger.make (a_net_client, player_name, ip_address, 2000)
-			create socket_message.make ("player1", <<"">>, "display", "show display")
-			if not rescued then
-					a_net_messenger.enque_message_to_server (socket_message)
-			end
-			assert (" enque_message_to_server raised problem for inconsistent targets'", rescued)
-		rescue
-			if not rescued then
-				rescued := True
-				retry
-			end
-		end
+	-- This test is now not relevant since by performing it the G5_MESSAGE class invariant is violated.
+	-- So the test will be commented out.
+--	test_enque_message_to_server_2
+--		note
+--			testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
+--			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
+--			-- test negative for enque_message_to_server for inconsistent targets
+--		do
+--			--create associated_GUI.make()
+--			create a_net_client.make (associated_GUI)
+--			create a_net_messenger.make (a_net_client, player_name, ip_address, 2000)
+--			create socket_message.make ("player1", <<"">>, "display", "show display")
+--			if not rescued then
+--					a_net_messenger.enque_message_to_server (socket_message)
+--			end
+--			assert (" enque_message_to_server raised problem for inconsistent targets ", rescued)
+--		rescue
+--			if not rescued then
+--				rescued := True
+--				retry
+--			end
+--		end
 
+	-- Fixed by Luca Falsina
 	test_enque_message_to_server_3
 		note
 			testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
-			-- test negative for send_message_to_server for inconsistent targets
+			-- test negative for enque_message_to_server for inconsistent targets
 		do
 			--create associated_GUI.make()
 			create a_net_client.make (associated_GUI)
@@ -145,11 +154,12 @@ feature -- Test negative for feature send_message_to_server
 			end
 		end
 
-		test_enque_message_to_server_4
+	-- Fixed by Luca Falsina
+	test_enque_message_to_server_4
 			note
 				testing: "covers/{G5_NET_MESSENGER_CLIENT}.enque_message_to_server"
 				testing: "user/G5" -- this is the tag based on the group-prefix for our tests
-				-- test negative for send_message_to_server for inconsistent targets
+				-- test negative for enque_message_to_server for inconsistent targets
 			do
 				--create associated_GUI.make()
 				create a_net_client.make (associated_GUI)

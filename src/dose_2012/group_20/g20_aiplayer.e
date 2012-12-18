@@ -13,32 +13,36 @@ inherit
 
 create
 	make
-
 feature
+	AI: G20_AICORE
+	idPlayer: INTEGER
+
+feature{ANY}
 	make
 		do
-
+			create AI.make
+			idPlayer:=0
 		end
 
 feature -- next movement
-	move :G20_MOVEMENT --board : G20_MAINBOARD; players_number: INTEGER; handy_tiles: G20_SATCHEL): G20_MOVEMENT
---			-- We need to know the board state to calculate the new movement
---			-- We need to know the number of players in order to know with positions of the board could we use
---			-- We need the handy tiles corresponding to the AI player in order to know the possible options avialables.
-
---		require
---			players_number > 1
---		local
---			l_move: G20_MOVEMENT
+	move(currentPlayer: INTEGER) :G20_MOVEMENT
+		--require
+		--		(1<=currentPlayer) and (currentPlayer<=4)
+		local
+			hand: G20_SATCHEL
+			board: G20_MAINBOARD
 		do
---			-- calculate the optional next movement based on the entry information
---			-- Sends the next move of an AI Player to the LOGIC	component
---		ensure
---			-- G20_LogicCore.Validate(l_move: G20_MOVEMENT)
+			idPlayer:= currentPlayer
+			hand:= core.get_satchel(idPlayer)
+			board:= get_board
+			result:= AI.choose_movement(board, hand)
 		end
+
+	--invalid_move(currentPlayer: INTEGER) :G20_MOVEMENT
 	invalid_move
 		do
 			--handles when a movement that this player mad is invalid.
+			--result:= move(currentPlayer)
 		end
 
 end

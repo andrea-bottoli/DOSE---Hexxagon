@@ -1,6 +1,6 @@
 note
 	description: "Summary description for {RI_LAUNCHER}."
-	author: ""
+	author: "Emmanuel Scordalakes, George Constantine"
 	date: "$Date$"
 	revision: "$Revision$"
 

@@ -23,30 +23,20 @@ feature {G10_LOBBY_USER, G10_HOST} -- constructor
 	make
 	do
 		create Map.make()
-		create Players.make_players("Forever Alone", 1)
+		create Players.make
 		create TilePull.make()
 		create CurrentPlayerTile.make
 		is_finished := false
 		CurrentPlayer:=void
-		--CurrentPlayerTile:=void
+		CurrentPlayerTile:=void
 	end
 
-	make_for_host(host_name: STRING max_players: INTEGER)
-	do
-		create Map.make()
-		create Players.make_players(host_name, max_players)
-		create TilePull.make()
-		create CurrentPlayerTile.make
-		is_finished := false
-		CurrentPlayer :=  void
-		--CurrentPlayerTile:= void
-	end
 
 -- mutator methods.
 feature{ANY}
 	end_turn() -- routine sets the next player in queue the new current player.
 	do
-		CurrentPlayer := players.get_players().at(Players.generatenextplayer())
+		CurrentPlayer := players.get_players().at(Players.generate_next_player())
 	end
 
 	set_tile_rotation(tile : G10_TILE rotation : INTEGER) -- routine sets the tile state to state
@@ -68,21 +58,9 @@ feature{ANY}
 		players.add_player (p)
 	end
 
-	add_player_to_list_name(player_name : STRING) -- routine adds player in the players list with name player_name and default the other attributes
-	local
-		p : G10_PLAYER
-	do
-		create p.make_with_name (player_name)
-		players.add_player (p)
-	end
 
 	update_game(m : G10_CRSN_MESSAGE) -- routine takes a message , parses it and then updates the game regarding the move it decodes from message
 	do
-	end
-
-	rotate_current_players_tile_clockwise() -- routine rotates the current players tile to 90 degrees at time.
-	do
-		CurrentPlayerTile.rotate()
 	end
 
 	rotate_current_players_tile_counterclockwise() -- routine rotates the current players tile to 90 degrees at time.
@@ -90,9 +68,28 @@ feature{ANY}
 		CurrentPlayerTile.rotatecounterclockwise()
 	end
 
+	--set current player for the turn and for player IsCurrent flag is set to TRUE
+	--unsafe method! use set_current_player_by_id() method for safety
 	set_current_player(p : G10_PLAYER) -- routine sets p player the current player of the game.
 	do
+		Players.set_current_player(p)
 		CurrentPlayer:=p
+	end
+
+	set_current_player_by_id(id :INTEGER) -- routine sets p player the current player of the game.
+	do
+		Players.set_current_player_by_id(id)
+		CurrentPlayer:=Players.get_players().at (Players.get_current_player_id())
+	end
+
+	get_current_player():G10_PLAYER
+	do
+		Result:=CurrentPlayer
+	end
+
+	get_current_player_id:INTEGER
+	do
+		Result:=Players.get_current_player_id()
 	end
 
 	set_players_list(list : ARRAYED_LIST[G10_PLAYER]) -- routine sets the players_list attribute to list.
@@ -131,24 +128,15 @@ feature{ANY}
 
 -- accesor methods
 feature{ANY}
-	get_current_player_tile_id() : INTEGER -- routine returns the current players tile id.
-	do
-		Result:=TilePull.index_of(CurrentPlayerTile)
-	end
-
-	get_current_player_tile_state() : INTEGER -- routine returns the state (degrees rotated ) of the current players tile.
-	do
-		Result:=CurrentPlayerTile.get_rotation()
-	end
 
 	get_current_player_tile() : G10_TILE -- routine returns the current players tile.
 	do
 		Result:=CurrentPlayerTile
 	end
 
-	generate_current_player_tile() : G10_TILE -- routine generates and returns a new tile to be used by the current player.
+	generate_current_player_tile()  -- routine generates and stores a new tile from tile pull to current player tile to be used by the current player.
 	do
-		Result:=TilePull.GenerateNextTile()
+		currentplayertile := TilePull.generatenexttile
 	end
 
 	get_tile_from_terrain(x : INTEGER y : INTEGER) : G10_TILE -- routine returns the tile located in (x,y) coordinates in the terrain.
@@ -240,11 +228,6 @@ feature{ANY}
 		Result:=p.get_spareChipsAmount()
 	end
 
-	get_current_player() : G10_PLAYER -- routine returns the current player.
-	do
-		Result:=CurrentPlayer
-	end
-
 	get_length_players_list() : INTEGER -- routine returns the length of the players list.
 	do
 		Result:=PLayers.get_players.count
@@ -273,6 +256,13 @@ feature{ANY}
 
 	is_tile_filled(tile : G10_TILE) : BOOLEAN  -- routine returns true if the tile status is filled
 	do
+	end
+
+	is_tile_pull_empty : BOOLEAN
+	require
+		tile_pull_not_void : tilepull /= void
+	do
+		result := tilepull.isempty
 	end
 
 	-- we also need here a is_tile_empty that is also boolean and does the same thing with the 2 methods above for state 3

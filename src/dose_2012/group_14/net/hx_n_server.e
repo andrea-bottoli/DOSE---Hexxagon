@@ -12,18 +12,23 @@ create
 	server_create
 
 feature -- attributes
-	serverStarted: BOOLEAN
-	gameStarted: BOOLEAN
-	socket: NETWORK_STREAM_SOCKET
+	serverStarted: 	BOOLEAN
+	gameStarted:	BOOLEAN
+	server_socket: 	NETWORK_STREAM_SOCKET
+	socket: 		NETWORK_STREAM_SOCKET
 
 feature -- Init
 	server_create(a_port: INTEGER)
 		require
 				serverStarted = FALSE
 		do
-			create socket.make_server_by_port (a_port)
-			socket.listen (1)
-			socket.accept
+			create server_socket.make_server_by_port (a_port)
+			server_socket.listen (1)
+			server_socket.accept
+			socket := server_socket.accepted
+			print("Server created")
+			serverStarted := TRUE
+			gameStarted := TRUE
 
 			ensure
 				serverStarted = TRUE
@@ -48,12 +53,8 @@ feature -- server action
 		server_tuple : TUPLE[INTEGER, INTEGER, INTEGER]
 	do
 			server_tuple := [a_winner_id, a_player1_pieces, a_player2_pieces]
-		--	socket.independent_store ("Winner id :")
-		--	socket.independent_store (a_winner_id)
-		--	socket.independent_store ("Player 1 pieces: ")
-		--	socket.independent_store (a_player1_pieces)
-		--	socket.independent_store ("Player 2 pieces: ")
-		--	socket.independent_store (a_player2_pieces)
+			socket.independent_store (server_tuple)
+
 	ensure
 			socket /= Void
 	end
@@ -68,6 +69,7 @@ feature -- server action
 
 	receive_move(): STRING
 	do
+		socket.set_timeout (3600)
 		if attached{STRING} socket.retrieved as l_msg then
 			Result := l_msg
 		end
@@ -79,6 +81,8 @@ feature
 			serverStarted = TRUE
 		do
 			socket.cleanup
+			gameStarted := FALSE
+			serverStarted :=FALSE
 
 			ensure
 				gameStarted = FALSE
@@ -88,4 +92,7 @@ feature
 					socket.cleanup
 				end
 		end
+
+	invariant
+		socket /= Void
 end

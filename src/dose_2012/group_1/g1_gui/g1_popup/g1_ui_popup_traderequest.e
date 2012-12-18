@@ -66,7 +66,7 @@ feature {NONE} -- Initialization
 			popup_area := set_background(mp_img_load("background_gameboard.png"),0,0);
 
 			-- create player_information.make (controller.get_player.get_id_player,controller.get_player.get_name)
-			create player_information.make (2,controller.get_player.get_name)  -- per ora
+			create player_information.make (controller.get_player)
 			popup_area.extend_with_position_and_size (player_information, 5, 5, 365, 245)
 
 			create label_own_money
@@ -81,8 +81,8 @@ feature {NONE} -- Initialization
 			label_my_money.align_text_center
 			popup_area.extend_with_position_and_size (label_my_money, 55, 250, 60, 20)
 
-			create other_player_information.make (1,"Nome Giocatore")      -- aggiornare
-		    popup_area.extend_with_position_and_size (other_player_information, 460, 5, 365, 245)
+		--	create other_player_information.make (1,"Nome Giocatore")      -- aggiornare
+		--  popup_area.extend_with_position_and_size (other_player_information, 460, 5, 365, 245)
 
 			create label_other_money
 			label_other_money.set_background_color (GREEN)

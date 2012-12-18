@@ -28,7 +28,7 @@ feature
 			accept_button.select_actions.extend (agent destroy)
 
 			create con_accusation_incorrect
-			con_accusation_incorrect.extend_with_position_and_size (image_lose_game, 0, 0, 464, 560)
+			con_accusation_incorrect.extend_with_position_and_size (set_pixmap(img_lose), 0, 0, 464, 560)
 			con_accusation_incorrect.extend_with_position_and_size (accept_button, 192, 515, 80, 40)
 
 			make_with_title ("Lose for Accusation Incorrect")
@@ -48,15 +48,7 @@ feature	--Implementation/ Constants
 
 	accept_button: EV_BUTTON
         -- "Accept" button.
-
-    image_lose_game: EV_PIXMAP
-		-- Represents image of the lose game
-
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_lose))
-		end
-
+        
 	solution_game: CU_GAME
 
 	con_accusation_incorrect: EV_FIXED

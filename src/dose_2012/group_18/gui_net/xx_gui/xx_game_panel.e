@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_GAME_PANEL}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "is the game panel of the window."
+	author: "Team Milano2"
+	date: "29-11-2012"
+	revision: "0.7"
 
 class
 	XX_GAME_PANEL
@@ -291,6 +291,16 @@ feature {XX_GUI} --Methods used by XX_GUI
 			chat_panel.disable_sensitive
 		else
 			chat_panel.enable_sensitive
+		end
+	end
+
+	--Blocks and un-blocks the board
+	set_board_sensitive(a_cond: BOOLEAN)
+	do
+		if(a_cond) then
+			board_panel.enable_sensitive
+		else
+			board_panel.disable_sensitive
 		end
 	end
 

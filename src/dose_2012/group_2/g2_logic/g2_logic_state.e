@@ -11,6 +11,8 @@ inherit
 
 	G2_LOGIC_ISTATE
 
+	G2_NET_MJE
+
 create
 	make
 
@@ -23,8 +25,6 @@ feature
 			create g2_matrix.make_filled (tmp_matrix,3,3)
 			create g2_player1.make(1, 5)
 			create g2_player2.make(1, 5)
-			g2_player1_number_cards:=0
-			g2_player2_number_cards:=0
 		end
 
 feature {ANY} --Attributes
@@ -38,8 +38,82 @@ feature {ANY} --Attributes
 	g2_player: BOOLEAN
 
 	g2_player1_number_cards: INTEGER
+	local
+		row, col, index, res: INTEGER
+	do
+		if g2_matrix = Void then
+			Result := -1
+		end
+		from
+			index := 1
+		until
+			index > 5
+		loop
+			if g2_player1.item (index) /= Void then
+				res := res+1
+			end
+			index := index+1
+		end
+		from
+			row := 1
+		until
+			row > 3
+		loop
+			from
+				col := 1
+			until
+				col > 3
+			loop
+				if g2_matrix.item (row, col).g2_matrix_card /= Void then
+					if g2_matrix.item (row, col).g2_matrix_card.g2_card_color = True then
+						res := res+1
+					end
+				end
+				col := col + 1
+			end
+			row := row + 1
+		end
+		Result := res
+	end
 
 	g2_player2_number_cards: INTEGER
+	local
+		row, col, index, res: INTEGER
+	do
+		if g2_matrix = Void then
+			Result := -1
+		end
+		from
+			index := 1
+		until
+			index > 5
+		loop
+			if g2_player2.item (index) /= Void then
+				res := res+1
+			end
+			index := index+1
+		end
+		from
+			row := 1
+		until
+			row > 3
+		loop
+			from
+				col := 1
+			until
+				col > 3
+			loop
+				if g2_matrix.item (row, col).g2_matrix_card /= Void then
+					if g2_matrix.item (row, col).g2_matrix_card.g2_card_color = False then
+						res := res+1
+					end
+				end
+				col := col + 1
+			end
+			row := row + 1
+		end
+		Result := res
+	end
 
 feature {ANY} --procedure
 	set_player(a_player:BOOLEAN)
@@ -47,22 +121,6 @@ feature {ANY} --procedure
 			g2_player:=a_player
 		end
 
-	set_player1_number_cards(a_number:INTEGER)
-	require else
-			non_void:a_number/=0
-		do
-			g2_player1_number_cards := a_number
-		ensure then
-			cards_player1:g2_player1_number_cards = a_number
-		end
-	set_player2_number_cards(a_number:INTEGER)
-		require else
-			non_void:a_number/=0
-		do
-			g2_player2_number_cards := a_number
-		ensure then
-			cards_player2:g2_player2_number_cards.is_equal (a_number)
-		end
 	set_player1_cards (cards1: ARRAY [G2_LOGIC_CARD])
 		require else
 			non_void: cards1 /= void

@@ -24,6 +24,9 @@ feature {NONE}
 			create players.make
 			dragon := False
 			dragon_id := Void
+			internal_error_message := ""
+			mah_jong_number := Void
+
 		end
 
 feature -- Public features of the G3_MODEL class.
@@ -44,15 +47,9 @@ feature -- Public features of the G3_MODEL class.
 			tuple : TUPLE [player1, player2: STRING; global_score, partial_score: INTEGER]
 		do
 			if team_id = 1 then
-				tuple.put (team1_score.team.player1.name, 0)
-				tuple.put (team1_score.team.player2.name, 1)
-				tuple.put (team1_score.global_score, 2)
-				tuple.put (team1_score.partial_score, 3)
+				tuple := [team1_score.team.player1.name, team1_score.team.player2.name, team1_score.global_score, team1_score.partial_score]
 			else
-				tuple.put (team2_score.team.player1.name, 0)
-				tuple.put (team2_score.team.player2.name, 1)
-				tuple.put (team2_score.global_score, 2)
-				tuple.put (team2_score.partial_score, 3)
+				tuple := [team2_score.team.player1.name, team2_score.team.player2.name, team2_score.global_score, team2_score.partial_score]
 			end
 			Result := tuple
 		ensure
@@ -119,6 +116,34 @@ feature -- Public features of the G3_MODEL class.
 			Result:= table.round_over
 		end
 
+	get_players_in_team(team_number: INTEGER) : TUPLE [player1, player2: STRING]
+			-- Retrieves the players in team 'team_number'.
+		require
+			valid_team_number: team_number = 1 or team_number = 2
+		local
+			tuple : TUPLE [player1, player2: STRING]
+		do
+			if team_number = 1 then
+				tuple := [players.at (1).name, players.at (3).name]
+			else
+				tuple := [players.at (2).name, players.at (4).name]
+
+			end
+			Result := tuple
+		end
+
+	who_has_won :  TUPLE [player1, player2: STRING]
+			-- Retrieves the winner players
+		require
+			game_over: game_over
+		do
+			if team1_score.global_score >=  team2_score.global_score then
+				Result := get_players_in_team(1)
+			else
+				Result := get_players_in_team(2)
+			end
+		end
+
 
 feature  {G3_CONTROLLER}
 
@@ -132,12 +157,19 @@ feature  {G3_CONTROLLER}
 			-- Modifies the model with a new move.
 		require
 			valid_arg: move /= Void and move.is_valid
+		local
+			team1_last_score: INTEGER
+			team2_last_score: INTEGER
 		do
 			table.add_move (move)
 			remove_cards_to_player(get_player (table.turn), move)
 			if round_over then
 				table.set_round_over(True)
-				update_score
+				team1_last_score := team1_score.global_score
+				team2_last_score := team2_score.global_score
+				update_global_score
+				team1_score.set_partial_score (team1_score.global_score - team1_last_score)
+				team2_score.set_partial_score (team2_score.global_score - team2_last_score)
 			else
 				if move.cards.count = 1 and move.cards.first.is_the_dog then
 					played_dog
@@ -173,12 +205,12 @@ feature  {G3_CONTROLLER}
 			players.count = 4
 		do
 			deal_the_cards
-			players.at (0).set_team_number(1)
-			players.at (1).set_team_number(2)
-			players.at (2).set_team_number(1)
-			players.at (3).set_team_number(2)
-			team1_score.set_team (players.at (0), players.at (2))
-			team2_score.set_team (players.at (1), players.at (3))
+			players.at (1).set_team_number(1)
+			players.at (2).set_team_number(2)
+			players.at (3).set_team_number(1)
+			players.at (4).set_team_number(2)
+			team1_score.set_team (players.at (1), players.at (3))
+			team2_score.set_team (players.at (2), players.at (4))
 		end
 
 	start_round
@@ -198,6 +230,8 @@ feature  {G3_CONTROLLER}
 			table.set_round_over (False)
 			table.set_round_winner_player (Void)
 			table.set_turn (who_has_the_mah_jong)
+			table.tichu.wipe_out
+			table.grand_tichu.wipe_out
 			set_mah_jong_number (Void)
 			dragon := False
 		end
@@ -229,7 +263,7 @@ feature  {G3_CONTROLLER}
 			table.set_grand_tichu(player_id)
 		end
 
-feature{NONE}
+feature{NONE} -- Private features for several functions.
 
 	following_turn : G3_PLAYER_ID
 		require
@@ -250,15 +284,8 @@ feature{NONE}
 			until
 				players.item.is_playing
 			loop
-				-- A player that is not playing may be the last killer
-				if players.item.id.is_equal(table.last_killer) then
-					if not top_play.cards.at (0).is_the_dragon then
-						hand_winner (players.item.id)
-					else
-						dragon := True
-						dragon_id := players.item.id
-					end
-				end
+				-- A player that is not playing may be the last killer.
+				verify_last_killer (players.item.id)
 				if players.off then
 					-- If the list is at the end, it starts again.
 					players.start
@@ -268,17 +295,23 @@ feature{NONE}
 				end
 			end
 			-- A player that is playing may be the last killer.
-			if players.item.id.is_equal(table.last_killer) then
-				if not top_play.cards.at (0).is_the_dragon then
-					hand_winner (players.item.id)
-				else
-					dragon := True
-					dragon_id := players.item.id
-				end
-			end
+			verify_last_killer(players.item.id)
 			Result := players.item.id
 		ensure
 			valid_turn: is_valid_id(Result)
+		end
+
+	verify_last_killer(player_id : G3_PLAYER_ID)
+			-- Verify if the given player is the last killer, and in that case, the player_id is declared as the winner of the hand.
+		do
+			if player_id.is_equal(table.last_killer) then
+				if not top_play.cards.first.is_the_dragon then
+					hand_winner (player_id)
+				else
+					dragon := True
+					dragon_id := player_id
+				end
+			end
 		end
 
 	remove_cards_to_player (player : G3_PLAYER ; combination : G3_COMBINATION)
@@ -374,7 +407,7 @@ feature{NONE}
 			elseif playing.count = 1 then
 				Result := True
 			elseif playing.count = 2 then
-				if are_partners(playing.at (0).id, playing.at (1).id) then
+				if are_partners(playing.at (1).id, playing.at (2).id) then
 					Result := True
 				else
 					Result := False
@@ -656,7 +689,7 @@ feature{None} -- Features about managing the score.
 			end
 		end
 
-	update_score
+	update_global_score
 			-- Updates the score when the round is over.
 		require
 			round_over: round_over
@@ -732,6 +765,7 @@ feature{G3_CONTROLLER} -- Features about managing the game states.
 
 	set_before_9_cards(flag: BOOLEAN)
 		do
+			before_9_cards := flag
 		end
 
 	set_passing_cards_stage(flag: BOOLEAN)
@@ -759,11 +793,26 @@ feature {NONE}
 
 	players : LINKED_LIST [G3_PLAYER]
 
+	internal_error_message: STRING
+
 feature {G3_GAME_WINDOW, G3_CONTROLLER}
 
-	error_message: STRING
-
 	dragon : BOOLEAN
+
+	error_message: STRING
+		local
+			message : STRING
+		do
+			message.copy(internal_error_message)
+			internal_error_message := ""
+			Result := message
+		end
+
+	has_error_message:BOOLEAN
+			-- Has error_message?
+		do
+			Result:= not internal_error_message.is_empty
+		end
 
 feature {G3_CONTROLLER}
 
@@ -790,15 +839,9 @@ feature {G3_CONTROLLER}
 	set_error_message(message:STRING)
 			--Set the error message			
 		do
-			error_message:=message
+			internal_error_message:=message
 		ensure
-			error_message.is_equal (message)
-		end
-
-	has_error_message:BOOLEAN
-			-- Has error_message?
-		do
-			Result:= not error_message.is_empty
+			internal_error_message.is_equal (message)
 		end
 
 	set_interrupted(player_id: G3_PLAYER_ID)
@@ -871,7 +914,7 @@ feature{G3_CONTROLLER} -- This section is about when the players have to give th
 	number_of_given_card : INTEGER
 			-- Returns the number of received cards of all players.
 		do
-			Result := players.at (0).count_received_cards + players.at (1).count_received_cards + players.at (2).count_received_cards + players.at (3).count_received_cards
+			Result := players.at (1).count_received_cards + players.at (2).count_received_cards + players.at (3).count_received_cards + players.at (4).count_received_cards
 		end
 
 	update_given_cards
@@ -887,7 +930,7 @@ feature{G3_CONTROLLER} -- This section is about when the players have to give th
 			end
 		end
 
-feature {None}
+feature {None} -- This features are used as property to verify invariants.
 
 	is_valid_id(id: G3_PLAYER_ID): BOOLEAN
 			-- Verifies if the id is valid (it's one of the player IDs of the game).

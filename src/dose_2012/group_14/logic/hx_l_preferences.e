@@ -23,7 +23,6 @@ feature {NONE }-- Internal
 	dose_directory: STRING = "dose_2012"
 	group14_directory: STRING = "group_14"
 	logic_directory: STRING = "logic"
-	preferences_file: STRING = "preferences.txt"
 
 	preferences_path: KL_PATHNAME
 			-- Path for highscore file.
@@ -33,27 +32,53 @@ feature {NONE }-- Internal
 			Result.append_name (dose_directory)
 			Result.append_name (group14_directory)
 			Result.append_name (logic_directory)
-			Result.append_name (preferences_file)
+		end
+
+	board_image_path_string: STRING
+		local
+			l_preferences_path: KL_PATHNAME
+		do
+			l_preferences_path := preferences_path
+			l_preferences_path.append_name ("preferences_board.txt")
+			Result := file_system.pathname_to_string (l_preferences_path)
+		end
+
+	piece_p1_image_path_string: STRING
+		local
+			l_preferences_path: KL_PATHNAME
+		do
+			l_preferences_path := preferences_path
+			l_preferences_path.append_name ("preferences_piece_p1.txt")
+			Result := file_system.pathname_to_string (l_preferences_path)
+		end
+
+	piece_p2_image_path_string: STRING
+		local
+			l_preferences_path: KL_PATHNAME
+		do
+			l_preferences_path := preferences_path
+			l_preferences_path.append_name ("preferences_piece_p2.txt")
+			Result := file_system.pathname_to_string (l_preferences_path)
 		end
 
 feature
 	make
 		local
-			l_preferences_file: RAW_FILE
+			l_preferences_file: PLAIN_TEXT_FILE
 		do
-            create l_preferences_file.make_open_read (file_system.pathname_to_string (preferences_path))
+            create l_preferences_file.make_open_read (board_image_path_string)
 			l_preferences_file.readline
             board_image_path := l_preferences_file.last_string
+			l_preferences_file.close
 
+            create l_preferences_file.make_open_read (piece_p1_image_path_string)
             l_preferences_file.readline
             player1_piece_image_path := l_preferences_file.last_string
+			l_preferences_file.close
 
+            create l_preferences_file.make_open_read (piece_p2_image_path_string)
             l_preferences_file.readline
             player2_piece_image_path := l_preferences_file.last_string
-
-            l_preferences_file.readline
-            empty_place_image_path := l_preferences_file.last_string
-
             l_preferences_file.close
         end
 
@@ -62,26 +87,49 @@ feature -- access
 	save()
 		-- Saves preferences to a file.
 		local
-			l_preferences_file: RAW_FILE
+			l_preferences_file: PLAIN_TEXT_FILE
 		do
-            create l_preferences_file.make_open_write (file_system.pathname_to_string (preferences_path))
-			l_preferences_file.wipe_out
-
-			l_preferences_file.put_string (board_image_path)
-			l_preferences_file.put_new_line
-
-			l_preferences_file.put_string (player1_piece_image_path)
-			l_preferences_file.put_new_line
-
-			l_preferences_file.put_string (player2_piece_image_path)
-			l_preferences_file.put_new_line
-
-			l_preferences_file.put_string (empty_place_image_path)
-			l_preferences_file.put_new_line
+            create l_preferences_file.make_open_write (board_image_path_string)
+            if	board_image_path /= void then
+				l_preferences_file.put_string (board_image_path)
+			else
+				l_preferences_file.put_string ("dose_2012/images/group14/background151.png")
+			end
 
 			l_preferences_file.close
+
+			create l_preferences_file.make_open_write (piece_p1_image_path_string)
+			if	player1_piece_image_path /= void then
+				l_preferences_file.put_string (player1_piece_image_path)
+			else
+				l_preferences_file.put_string ("dose_2012/images/group14/cell1.png")
+			end
+			l_preferences_file.close
+
+			create l_preferences_file.make_open_write (piece_p2_image_path_string)
+			if	player2_piece_image_path /= void then
+				l_preferences_file.put_string (player2_piece_image_path)
+			else
+				l_preferences_file.put_string ("dose_2012/images/group14/cell6.png")
+			end
+			l_preferences_file.close
+
 		end
 
+	set_board_image_path(path: STRING)
+		do
+			board_image_path := path
+		end
+
+	set_player1_piece_image_path(path: STRING)
+		do
+			player1_piece_image_path := path
+		end
+
+	set_player2_piece_image_path(path: STRING)
+		do
+			player2_piece_image_path := path
+		end
 
 
 end

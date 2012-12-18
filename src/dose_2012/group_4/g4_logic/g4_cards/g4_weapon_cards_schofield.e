@@ -17,4 +17,5 @@ feature --Constructor
  	ensure
   		Name.is_equal("Schofield")
  	end
+
 end

@@ -6,7 +6,7 @@ note
 deferred class
 	G4_WEAPON_CARDS
 		inherit G4_CARDS
-		redefine construct end
+		redefine construct, action end
 
 feature --Distance the weapon can bang
 	Weapon_Distance: INTEGER
@@ -38,4 +38,9 @@ feature --Setters and getters of distance
 	do
 		Result := Weapon_Distance
 	end
+
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE;DiscardPile : G4_DISCARD_PILE)
+ 	do
+ 		a_Player_array[a_player_id].get_item_board.add_weapon (current)
+ 	end
 end

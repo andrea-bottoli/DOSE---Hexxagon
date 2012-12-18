@@ -42,20 +42,27 @@ feature {ANY}-- mutators
 		arg_not_void: an_id /= void
 	do
 		id := an_id
+
+	ensure
+		update : id = an_id
 	end
 
 	set_sender(a_sender: G10_NET_INFO)
 	require
 		arg_not_void: a_sender /= void
 	do
-		sender := a_sender;
+		sender := a_sender
+	ensure
+		update : sender = a_sender
 	end
 
 	set_receiver(a_receiver: G10_NET_INFO)
 	require
 		arg_not_void: a_receiver /= void
 	do
-		receiver := a_receiver;
+		receiver := a_receiver
+	ensure
+		update : receiver = a_receiver
 	end
 --------------------------------------
 feature {ANY}-- accessors
@@ -63,16 +70,22 @@ feature {ANY}-- accessors
 	get_id: STRING
 	do
 		Result := id;
+	ensure
+		return_is  : Result = id
 	end
 
 	get_sender: G10_NET_INFO
 	do
 		Result := sender;
+	ensure
+		return_is : result = sender
 	end
 
 	get_receiver: G10_NET_INFO
 	do
 		Result := receiver
+	ensure
+		return_is : result = receiver
 	end
 --------------------------------------	
 end

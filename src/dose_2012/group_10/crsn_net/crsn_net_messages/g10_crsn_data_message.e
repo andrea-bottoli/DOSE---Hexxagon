@@ -25,6 +25,7 @@ feature {ANY}-- constructors
 	end
 
 	make_data_msg(an_id: STRING a_sender, a_receiver: G10_NET_INFO some_data: ANY)
+
 	do
 		make_msg(an_id, a_sender, a_receiver)
 		data := some_data
@@ -33,8 +34,6 @@ feature {ANY}-- constructors
 feature {ANY}-- mutators
 
 	set_data(some_data: ANY)
-	require
-		data_not_void: some_data /= void
 	do
 		data := some_data
 	end
@@ -44,6 +43,9 @@ feature {ANY}-- accessors
 	get_data: ANY
 	do
 		Result := data
+
+	ensure
+	 return : Result = data
 	end
 --------------------------------------
 end

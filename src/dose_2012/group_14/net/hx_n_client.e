@@ -15,8 +15,9 @@ create
 
 feature
 
-isConnected : BOOLEAN
-socket: NETWORK_STREAM_SOCKET
+	isConnected : BOOLEAN
+	gameStarted : BOOLEAN
+	socket: NETWORK_STREAM_SOCKET
 
 feature --INIT
 
@@ -27,7 +28,12 @@ feature --INIT
 		do
 			create socket.make_client_by_port (a_port, a_IP_ADDR)
 			socket.connect
-			socket.independent_store (a_player_name)
+		--	socket.independent_store (a_player_name)
+		--	print("PLAYERNAME IS ")
+		--	print(a_player_name)
+			isConnected := TRUE
+			gameStarted := TRUE
+			print("CONNECTED")
 			ensure
 				isConnected = TRUE
 		end
@@ -35,7 +41,6 @@ feature --INIT
 
 feature -- Client actions
 
-	gameStarted : BOOLEAN
 
 	send_move(a_move: STRING) -- send to other player
 		require
@@ -67,6 +72,8 @@ feature -- Client actions
 
 	receive_state_update():STRING
 	--sends the updates of the game
+	require
+		socket /= Void
 		do
 			if attached{STRING} socket.retrieved as l_msg then
 				Result := l_msg
@@ -84,6 +91,7 @@ feature
 			socket.cleanup
 
 			isConnected := FALSE
+			gameStarted := FALSE
 
 			ensure
 				isConnected = FALSE
@@ -92,6 +100,9 @@ feature
 					socket.cleanup
 				end
 		end
+
+		invariant
+			socket /= Void
 end
 
 

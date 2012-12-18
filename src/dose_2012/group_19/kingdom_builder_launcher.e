@@ -37,18 +37,29 @@ feature -- Implemenation
 		local
 			gb: G19_GAME_BUILDER_IMPL
 			player: G19_CONSOLE_PLAYER
+			bot: G19_BOT_PLAYER
 			i, j: INTEGER
 		do
 			create gb.make()
+
+			print("[WARNING]: This console interface has developed by Odessa1 team as debug tools.%N")
+			print("[WARNING]: It should be replaced by GUI. %N")
+			print("[WARNING]: If you see it, it means that Debrecen2 haven't done their tasks.%N")
 
 			from
 				i := 1
 			until
 				i > 4
 			loop
-				create player.make()
-
-				j := gb.add_player(player)
+				print("Choose player type (1 - bot, 2 - human): ")
+				io.read_integer
+				if io.last_integer = 2 then
+					create player.make()
+					j := gb.add_player(player)
+				else
+					create bot.make()
+					j := gb.add_player(bot)
+				end
 
 				i := i + 1
 			end

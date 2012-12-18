@@ -37,9 +37,9 @@ feature --Setters and Getters
 
 feature --User's Actions
 
-	put(card: G4_CARDS):G4_CARDS --Player places a card on Discard Pile
+	put(card: G4_CARDS)--Player places a card on Discard Pile
 	do
-		Card_Pile.put(card)
+		Card_Pile.force (card) -- Put to the end
 	end
 	draw():G4_CARDS	--Player reuses the card from the top of Discard Pile
 	do

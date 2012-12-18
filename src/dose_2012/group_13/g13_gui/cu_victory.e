@@ -27,16 +27,13 @@ feature
 
 				create con_victory
 				con_victory.extend_with_position_and_size (accept_button, 160, 630, 80, 40)
-				con_victory.extend_with_position_and_size (image_victory, 0, 0, 400, 120)
-				con_victory.extend_with_position_and_size (image_victory_win, 0, 120, 400, 499)
+				con_victory.extend_with_position_and_size (set_pixmap(img_win), 0, 0, 400, 120)
+				con_victory.extend_with_position_and_size (set_pixmap(img_win_dialog), 0, 120, 400, 499)
 
 				make_with_title ("Victory")
 				set_size (400,680)
 				put (con_victory)
 				disable_user_resize
-		ensure
---			window_victory_display: is_displayed
---			end_of_game: solution_game.current_status = 5
 		end
 
 feature	--Implementation/ Constants
@@ -46,20 +43,6 @@ feature	--Implementation/ Constants
 
 	accept_button: EV_BUTTON
         -- "Accept" button.
-
-    image_victory_win: EV_PIXMAP
-		-- Represents image of the victory
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_win))
-		end
-
-	image_victory: EV_PIXMAP
-		-- Represents image of the victory
-		once
-			create Result
-			Result.set_with_named_file (file_system.pathname_to_string (img_win_dialog))
-		end
 
 	solution_game: CU_GAME
 		-- Represent a solution of current game

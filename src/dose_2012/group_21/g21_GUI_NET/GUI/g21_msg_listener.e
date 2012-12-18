@@ -8,9 +8,9 @@ deferred class
 	G21_MSG_LISTENER
 
 feature
-	messageReceived(msg : ARRAY[CHARACTER]) deferred
+	messageReceived(msg : STRING) deferred
 	ensure
-		msg.item /= '%U'
+		msg.item (1) /= '%U'
 	end
 
 

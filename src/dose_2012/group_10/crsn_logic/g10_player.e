@@ -1,19 +1,20 @@
 note
 	description: "Summary description for {PLAYER}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	author: "... , Angel Kyriako"
+	date: "13/12/2012"
+	revision: "3.0"
 
 class
 	G10_PLAYER
 
 create
-	make, make_with_name
+	make
 
 feature
 	Name:STRING
 	Score:INTEGER
 	SpareChipsAmount:INTEGER
+	IsCurrent:BOOLEAN
 
 feature -- constructors.  -- we may need to add here port and ip strings
 	make
@@ -21,16 +22,20 @@ feature -- constructors.  -- we may need to add here port and ip strings
 		Name := ""
 		Score := 0
 		SpareChipsAmount := 10
-	end
-
-	make_with_name(some_name : STRING)
-	do
-		Name := some_name
-		Score := 0
-		SpareChipsAmount := 10
+		IsCurrent:=FALSE
 	end
 
 feature
+	--gets IsCurrent class member
+	get_is_current():BOOLEAN
+	do
+		Result:=IsCurrent
+	end
+	--sets IsCurrent class member
+	set_is_current(NewIsCurrent:BOOLEAN)
+	do
+		IsCurrent:=NewIsCurrent
+	end
 
 	Add_SpareChipsAmount()
 	require
@@ -74,5 +79,6 @@ feature
 	do
 		spareChipsAmount:=ThespareChipsAmount
 	end
+
 end
 

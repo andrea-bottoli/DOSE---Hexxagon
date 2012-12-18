@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_SOCKET_INTERFACE}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "interface ogf socket connection."
+	author: "Team Milano2"
+	date: "11-12-2012"
+	revision: "0.3"
 
 deferred class
 	XX_SOCKET_INTERFACE

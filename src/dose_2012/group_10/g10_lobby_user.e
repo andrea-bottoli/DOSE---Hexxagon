@@ -7,7 +7,7 @@ note
 class
 	G10_LOBBY_USER
 inherit
-	G10_CRSN_MESSAGE_PROTOCOL
+	G10_NET_COM_FUNCS
 
 create
 	make
@@ -19,7 +19,7 @@ feature {NONE} --attributes
 	crsn_lobby_ui		  : G10_LOBBY_MAIN
 	crsn_lobby_logic	  : G10_LOBBY_LOGIC
 	crsn_game_ui	  	  : G10_GUI_GAME_MAIN
-	crsn_game_logic		  : G10_GAME
+	crsn_game_logic		  : G10_LOGIC_GAME_MAIN
 	-- my attributes
 	player_info		      : G10_NET_INFO
 	lobby_client		  : G10_CLIENT
@@ -57,165 +57,53 @@ feature{G10_CARCASSONNE_LAUNCHER} --constructors
 		timer := a_player.get_timer
 	end
 
+feature
+
+	interaction_for_disconnect
+	do
+		lobby_client.send_message_to_server (create {G10_CRSN_MESSAGE}.make_msg   --server closes client's socket
+							 (message_DISCONNECT, player_info, crsn_lobby_logic.get_info))
+	end
+	interaction_for_connect
+	do
+		lobby_client.send_message_to_server (create {G10_CRSN_MESSAGE}.make_msg   --server closes client's socket
+							 (message_CONNECT, player_info, crsn_lobby_logic.get_info))
+	end
+
+	receive_ack : BOOLEAN
+	local
+		temp_soc : NETWORK_STREAM_SOCKET
+	do
+		temp_soc := lobby_client.get_socket
+		Result := false
+		if attached {G10_CRSN_DATA_MESSAGE} temp_soc.retrieved as data_msg
+		then
+			if data_msg.get_data.is_equal(message_CONNECT) = true
+			then
+				print ("ACK received.Connected!%N")
+			elseif data_msg.get_data.is_equal (message_DISCONNECT) = true
+			then
+				print ("Ack Received.Disconnected! %N")
+				lobby_client.get_socket.close_socket
+			end
+			Result := true
+		else
+			print ("Ack received. Successful request! %N")
+			Result := true
+		end
+	end
+
+
 
 feature{NONE} -- connect with lobby server
 
-	interaction_with_lobby_for_create(game_title : STRING max_num : INTEGER)
-	do
-			lobby_client.send_message_to_server (create {G10_CRSN_SPECIAL_DATA_MESSAGE }.make_special_data_msg
-							("Create", player_info, crsn_lobby_logic.get_info, game_title,max_num, -1))
-
-			print("create message sent to lobby server from lobby user.. %N")
-			interaction_with_lobby_for_disconnect
-	end
-
-	receive_host_info_from_lobby : G10_NET_INFO
-	local
-		temp_soc : NETWORK_STREAM_SOCKET
-	do
-		if attached {G10_CRSN_DATA_MESSAGE} temp_soc.retrieved as data_msg3
-		then
-			if attached {G10_NET_INFO } data_msg3.get_data as info_host
-			then
-				print("Receiving Host info... %N")
-				print ("Host id : " + info_host.get_id + "%N")
-				Result := info_host
-				--client.close_socket
-				--client.connect (info_host.get_port, info_host.get_ip)
-				--the above probably will be not here
-				-- i added them in order to have an idea abou the continue of code from here
-			end
-		end
-	end
-
-	interaction_with_lobby_for_join : G10_NET_INFO
-	do
-		lobby_client.send_message_to_server (create
-		{G10_CRSN_SPECIAL_DATA_MESSAGE}.make_special_data_msg
-		("Join", player_info, crsn_lobby_logic.get_info, void,1, -1))
-
-		print("join message sent to lobby server from lobby user.. %N")
-
-		Result := receive_host_info_from_lobby
-
-	ensure
-		host_not_void : Result /= void
-	end
-
-	interaction_with_lobby_for_disconnect
-	do
-		lobby_client.send_message_to_server (create {G10_CRSN_MESSAGE}.make_msg   --server closes client's socket
-					 ("Disconnect", player_info, crsn_lobby_logic.get_info))
-	end
-
-	interaction_with_lobby_for_connect
-	do
-		lobby_client.send_message_to_server (create {G10_CRSN_MESSAGE}.make_msg   --server closes client's socket
-						 (message_CONNECT, player_info, crsn_lobby_logic.get_info))
-	end
-
-	interaction_with_lobby_for_ack
-	do
-		lobby_client.send_message_to_server (create {G10_CRSN_MESSAGE}.make_msg   --server closes client's socket
-						 (message_OK, player_info, crsn_lobby_logic.get_info))
-	end
-
-	interaction_with_lobby_for_get
-		do
-			lobby_client.send_message_to_server (create {G10_CRSN_MESSAGE}.make_msg
-								("Get", player_info, crsn_lobby_logic.get_info))
-				print("Waiting for message from server.. %N")
-
---				if receive_game_list_from_lobby = false
---				then
---					print ( "Error receiving GAME LIST. %N")
---					print ("Stop executing... %N")
---				end
---				if receive_connected_players_list_from_lobby = false
---				then
---					print ( "Error receiving PLAYER LIST %N")
---					print ("Stop executing... %N")
---				end
-		end
-
-
-feature {NONE} --receiving from lobby server
-
-
-	receive_game_list_from_lobby : BOOLEAN
-	local
-		temp_soc : NETWORK_STREAM_SOCKET
-	do
-		Result := false
-		temp_soc := lobby_client.get_socket
-		if attached {G10_CRSN_DATA_MESSAGE} temp_soc.retrieved as data_msg
-		then
-			if attached {ARRAYED_LIST[G10_HOSTED_GAME] } data_msg.get_data as game_arr_list
-			then
-				print ("Receiving Games List ... %N")
-				crsn_lobby_logic.set_new_games_list (game_arr_list)
-				Result := true
-			end
-		end
-	end
-
-	receive_connected_players_list_from_lobby  : BOOLEAN
-	local
-		temp_soc : NETWORK_STREAM_SOCKET
-	do
-		Result := false
-		temp_soc := lobby_client.get_socket
-		if (temp_soc.ready_for_reading = true)
-		then
-			if attached {G10_CRSN_DATA_MESSAGE} temp_soc.retrieved as data_msg
-			then
-				if attached {ARRAYED_LIST[G10_NET_INFO] } data_msg.get_data as con_arr_list
-				then
-					print("Receiving Connected Players List... %N")
-					crsn_lobby_logic.set_new_players_list (con_arr_list)
-					Result := true
-				end
-			end
-		end
-	end
-
-	receive_ack_from_lobby : BOOLEAN
-	local
-		temp_soc : NETWORK_STREAM_SOCKET
-	do
-		Result := false
-		if attached {G10_CRSN_MESSAGE} temp_soc.retrieved as norm_msg
-		then
-			if norm_msg.get_id.is_equal (message_OK)
-			then
-				Result := true
-			end
-		end
-	end
-
-feature{G10_LOBBY_MAIN}
-
-	keep_lobby_updated
-	do
-			if receive_game_list_from_lobby = false
-			then
-				print ( "Error receiving GAME LIST. %N")
-				print ("Stop executing... %N")
-			end
-			interaction_with_lobby_for_get
-			if receive_connected_players_list_from_lobby = false
-			then
-				print ( "Error receiving PLAYER LIST %N")
-				print ("Stop executing... %N")
-			end
-	end
 
 feature{NONE} -- private methods
 
 	launch_crsn_entrance_screen -- launch the carcassonne entrance lobby window
 	do
 		-- initialize my info
-		create player_info.make_player ("Kyr Lefteris")
+		create player_info.make_player
 		-- create the interance window need to let the user inform the programm about the above
 		create crsn_lobby_entrance_ui.make (Current)
 		crsn_lobby_entrance_ui.show
@@ -225,30 +113,43 @@ feature{NONE} -- private methods
 
 feature{G10_LOBBY_ENTRANCE_SCREEN} -- used in lobby_entrance
 
-	launch_crsn_lobby(id, ip, port: STRING) -- launch the carcassonne main lobby window
-	local
-		fault_dialog: EV_CONFIRMATION_DIALOG
-		i : INTEGER
+	launch_as_single_player(player_username: STRING) -- creates a carcassonne main game window //practice i think
 	do
-		if (port.is_empty or ip.is_empty or id.is_empty or (not port.is_integer) ) then
-		-- lauch again the entrance every time user fucks up and check if also port is not integer
+		-- initializtation of logic with player name , max players and default chips and score.
+		create crsn_game_logic.make_player_name_max_players_num(player_username, 6)
+		crsn_game_logic.add_player_to_list_name ("lefas", 2)
+		crsn_game_logic.add_player_to_list_name ("malakas", 3)
+		-- initialization of gui with logics first player name , max player num and default score and chips number.
+		create crsn_game_ui.make_2(Current ,crsn_game_logic.get_first_player_name ,6)
+		crsn_game_ui.show
 
-			launch_crsn_entrance_screen
-			create fault_dialog.make_with_text ("Your ip and port do not seem legit !")
-			fault_dialog.show_modal_to_window (crsn_lobby_entrance_ui)
+		crsn_game_ui.add_player ("lefas", 6)
+		crsn_game_ui.add_player ("antonistis", 6)
+		crsn_game_ui.update_current_player_tile (crsn_game_logic.get_current_player_tile_id)
+	end
 
-		else -- port and id and ip are cool, proceed to the main lobby
-
-			-- connection to lobby
-			create lobby_client.connect(get_crsn_lobby_logic.get_port.to_integer, get_crsn_lobby_logic.get_internal_ip)
-			interaction_with_lobby_for_get
-			keep_lobby_updated
-
-			-- launch the lobby main window
-			create crsn_lobby_ui.make (Current)
-			crsn_lobby_ui.show
-			main_ui.add_reference_to_game (crsn_lobby_ui)
+	launch_crsn_lobby(id, ip, port: STRING) -- launch the carcassonne main lobby window
+	do
+		-- connection to lobby
+		create lobby_client.connect(get_crsn_lobby_logic.get_port.to_integer, ip)
+		Current.interaction_for_connect
+		if receive_ack = false
+		then
+			print ("Error in connection %N")
 		end
+
+-- TEST
+--			Current.interaction_for_disconnect
+--			if receive_ack = false
+--			then
+--						print ("Error in connection %N")
+--			end
+		update_lobby (Current, void)
+
+		-- launch the lobby main window
+		create crsn_lobby_ui.make (Current)
+		crsn_lobby_ui.show
+		main_ui.add_reference_to_game (crsn_lobby_ui)
 	end
 
 feature{G10_LOBBY_MAIN} -- used in lobby main
@@ -260,40 +161,148 @@ feature{G10_LOBBY_MAIN} -- used in lobby main
 	local
 		host_player : G10_HOST
 	do
---		interaction_with_lobby_for_create(game_title, player_num.to_integer)
+		if interaction_with_lobby_for_create(Current,game_title, player_num.to_integer) = false
+		then
+		 	print ("Error creating game ... %N")
+		end
 		create host_player.make_host(Current)
 	end
 
-	launch_joined_player(host_ip, host_port: STRING) -- creates a joined player
+	launch_joined_player(game_id: INTEGER) -- creates a joined player
 	require
-		args_not_empty: (not host_ip.is_empty) and (not host_port.is_empty)
-		port_is_valid: host_port.is_integer and host_port.to_integer >= 10000 and host_port.to_integer <= 60000
+		arg_valid: game_id > 0
 	local
 		joined_player : G10_JOINED_PLAYER
 	do
-		create joined_player.make_joined_player(Current, interaction_with_lobby_for_join)
-	end
-
-	launch_dummy -- creates a carcassonne main game window //practice i think
-	do
-		create crsn_game_logic.make
-		crsn_game_logic.add_player_to_list_name (current.get_player_info.get_id)
-
-		create crsn_game_ui.make_2(Current ,crsn_game_logic.get_first_player_name ,6)
-		crsn_game_ui.show
-
-		crsn_lobby_ui.add_reference_to_game_window (crsn_game_ui)
+		create joined_player.make_joined_player(Current, interaction_with_lobby_for_join(Current,game_id) )
 	end
 
 feature{G10_GUI_GAME_MAIN} -- event handler
-	fire_event (an_event : STRING) -- event handler to be called for every game event
+	fire_event (an_event : STRING  tile_row , tile_col : INTEGER) -- event handler to be called for every game event
 	do
 		if (an_event.is_equal ("rotate")) then
-			print("Dude I just rotated while practicing and it felt great !!!!%N")
-			-- call on void target! solve soon plz.														-- TODO:SENT EMAIL
-			-- crsn_game_logic.rotate_current_players_tile_clockwise
-			crsn_game_ui.rotate_current_player_tile
+			-- rotation in logic
+			crsn_game_logic.rotate_current_players_tile
+			-- rotation in gui regarding the logic
+			crsn_game_ui.rotate_current_player_tile(crsn_game_logic.get_current_player_tile_state)
+
+			--test an douleyei perase
+			--crsn_game_ui.draw_terrain_from_logic(crsn_game_logic)
+		elseif(an_event.is_equal ("put_tile_to_terrain")) then
+			-- an ginei match me to terrain tote mpainei allios den mpainei tpt.
+			if(crsn_game_logic.tile_matches_terrain_item (crsn_game_logic.get_current_player_tile , tile_row, tile_col) = true )then
+				io.put_string ("i insert egine lol match : ")
+				io.put_new_line
+
+				-- bazo to tile sto logic.
+				crsn_game_logic.insert_tile_to_terrain (crsn_game_logic.get_current_player_tile, tile_row, tile_col)
+
+				-- edo testaro na do ama exo patisei follower na iparxei apo to gui
+				if(crsn_game_ui.has_drawed_tile_follower = true) then
+					-- ean nai tote ton bazo kai sto logic sto antistoixo tile.
+					--arg1 to tile pou tha mpei o follower , arg 2 to part pou tha mpei (1-9)
+					crsn_game_logic.insert_follower_to_tile (crsn_game_logic.get_terrain_item (tile_row, tile_col), crsn_game_ui.get_drawed_tile_follower_id )
+
+					--na kano decrement tous followers sto gui kai sto logic mazi
+					crsn_game_logic.decrement_current_player_followers
+					crsn_game_ui.decrement_followers(crsn_game_logic.get_current_player_id)
+
+					--working good tests
+--					crsn_game_ui.set_score (crsn_game_logic.get_current_player_id, 50)
+--					crsn_game_ui.set_followers_num(crsn_game_logic.get_current_player_id, 150)
+				end
+
+				-- edo epitelous zografizo to tile pou mpike prin sto logic , tora sto gui.
+				crsn_game_ui.draw_tile_to_terrain (crsn_game_logic.get_current_player_tile_id, crsn_game_logic.get_current_player_tile_state, tile_row, tile_col)
+
+				--edo prepei na kaleso tin methodo gia na ftiakso ta scores.
+				--crsn_game_ui.set_score (crsn_game_logic.get_current_player_id, crsn_game_logic.get_current_player.get_score)
+				crsn_game_ui.update_scores (crsn_game_logic.update_game_state(tile_row , tile_col))
+				-- INTERACTION FOR WITH HOST
+				-- this routine removes a follower from a tile in the terrain.
+				--crsn_game_ui.remove_followers_from_tile (tile_row,tile_col)
+
+				-- edo ginetai i allagi ti current player tile , logic kai gui mazi.
+				if(crsn_game_logic.is_tile_pull_empty = false) then
+					crsn_game_logic.generate_current_player_tile
+					crsn_game_ui.update_current_player_tile (crsn_game_logic.get_current_player_tile_id)
+				else
+					-- ean adeiase to pile tou logic tote den zografizo tpt kai prepei na teleiosei to paixnidi!
+					crsn_game_ui.destroy_current_player_tile
+				end
+				-- dilosi oti o giros exei teleiosei!
+				crsn_game_logic.end_turn
+
+				--INTERACTION FOR END TURN
+				if(crsn_game_logic.get_current_player_id /= 1) then
+					bot_play
+				end
+
+--				if(crsn_game_logic.get_current_player_id /= 1) then
+--					bot_play
+--				end
+				--crsn_game_ui.draw_terrain_from_logic(crsn_game_logic)
+
+			else
+				io.put_string ("arxidia insert ekane")
+				io.put_new_line
+			end
+
 		end
+	end
+
+	bot_play -- carcasone ai
+	local
+		a_tile : G10_LOGIC_TILE
+		i , j , tries: INTEGER
+		putted : BOOLEAN
+	do
+		-- when bot player then the drawed tile cannot be displayed. itan tha teleiosei tin paikia prepei na to ksanaemfanisei
+		crsn_game_ui.destroy_current_player_tile
+
+		a_tile := crsn_game_logic.get_current_player_tile
+	--	crsn_game_logic.insert_tile_to_terrain_random (a_tile)
+--		crsn_game_ui.draw_terrain_from_logic(crsn_game_logic)
+
+		io.put_string ("paizei to bot! id : ")
+		io.put_integer (crsn_game_logic.get_current_player_id)
+		io.put_new_line
+
+		from tries := 1 until tries >= 3
+		loop
+			from i := 2 until i >= 39 or putted = true
+			loop
+				from j := 2 until j >=39 or putted = true
+				loop
+					if(crsn_game_logic.get_terrain_attr.tile_matches_terrain_item (a_tile, i, j) = true) then
+						crsn_game_logic.get_terrain_attr.insert_tile_to_terrain (a_tile, i, j)
+						crsn_game_ui.draw_tile_to_terrain (crsn_game_logic.get_tile_id (a_tile), crsn_game_logic.get_tile_state (a_tile), i, j)
+						putted := true
+						tries := 5
+					end
+					j := j + 1
+				end
+				i := i + 1
+			end
+			a_tile.rotate
+			tries := tries + 1
+		end
+
+
+		-- edo exei teleiosei to turn to bot kai ksana einai i seira tou paixti.
+		crsn_game_logic.end_turn
+		if(crsn_game_logic.get_current_player_id = 1) then
+			crsn_game_ui.update_current_player_tile (crsn_game_logic.get_current_player_tile_id)
+		else
+			bot_play
+		end
+	end
+
+feature {ANY} --mutators
+
+	set_logic_game_main(updated_logic: G10_LOGIC_GAME_MAIN)
+	do
+		crsn_game_logic := updated_logic
 	end
 
 feature{ANY} -- accessors
@@ -331,7 +340,7 @@ feature{ANY} -- accessors
 		Result := crsn_lobby_logic
 	end
 
-	get_crsn_game_logic: G10_GAME
+	get_crsn_game_logic: G10_LOGIC_GAME_MAIN
 	do
 		Result := crsn_game_logic
 	end

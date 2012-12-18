@@ -32,29 +32,16 @@ feature {ANY}-- constructor
 		-- and add it to the background of lobby
 		lobby.get_background.extend_with_position_and_size (current, south_panel_start_width, south_panel_start_height,
 																	 south_panel_width, south_panel_height)
-		-- init the info panel
-		init_new_game_info_panel(lobby)
-		-- init an empty panel
-		init_global_chat_panel(lobby)
+		-- create the info panel
+		create info_area.make(lobby)
+		-- create an empty panel
+		create chat_area.make(lobby)
 		-- starting with empty panel
 		paint_global_chat_panel(lobby)
 	end
 
-feature {NONE}-- mutators.
 
-	init_new_game_info_panel(lobby: G10_LOBBY_MAIN)
-	do
-		create info_area.make(lobby)
-		info_area.set_minimum_size (south_panel_width, south_panel_height)
-	end
-
-	init_global_chat_panel(lobby: G10_LOBBY_MAIN)
-	do
-		create chat_area.make(lobby)
-		chat_area.set_minimum_size (south_panel_width, south_panel_height)
-	end
-
-feature {G10_LOBBY_ALL_BUTTONS} -- mutators
+feature {G10_LOBBY_ALL_BUTTONS, G10_LOBBY_MAIN} -- mutators
 
 	paint_new_game_info_panel(lobby : G10_LOBBY_MAIN)
 	require
@@ -78,6 +65,13 @@ feature {G10_LOBBY_ALL_BUTTONS} -- mutators
 			set_extend (chat_area)
 			refresh_now
 		end
+	end
+
+feature{G10_LOBBY_MAIN}
+
+	get_global_chat: G10_LOBBY_GLOBAL_CHAT
+	do
+		Result := chat_area
 	end
 
 end

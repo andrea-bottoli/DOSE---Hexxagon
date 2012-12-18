@@ -97,7 +97,6 @@ feature {EQA_TEST_SET} -- Implementation
     local
 		image: EV_PIXMAP
 		button_ok: EV_PIXMAP
-		button_ok_in: EV_PIXMAP
 		button_back: EV_PIXMAP
 		buttons_box: EV_HORIZONTAL_BOX
 		right_vertical_box: EV_VERTICAL_BOX
@@ -163,7 +162,7 @@ feature {EQA_TEST_SET} -- Implementation
         	create players_button.make_with_strings (<<"2", "3", "4">>)
 			players_button.disable_edit
 			--Delete the next line to allow more than 2 players (not implemented yet)
---			players_button.disable_sensitive
+			--players_button.disable_sensitive
 
 			create kingdom_cards_button.make_with_strings (<<"10", "11", "12">>)
 			kingdom_cards_button.disable_edit
@@ -184,6 +183,7 @@ feature {EQA_TEST_SET} -- Implementation
 
 			if(is_new_game) then
 				port_field.disable_edit
+				players_button.disable_sensitive
 			else
 				difficulty_button.disable_sensitive
 			end
@@ -205,14 +205,6 @@ feature {EQA_TEST_SET} -- Implementation
 		--Add buttons
 		setting.extend_with_position_and_size (right_vertical_box2, 97, 414, 128, 73)
 		setting.extend_with_position_and_size (name_field, 36, 72, 150, 24)
-
-		--Pediente damian
-		--create button_ok_in.default_create
-        --button_ok_in.set_with_named_file(Files_path+"game_buttons/button_ok_white.png")
-        --create ok_area
-		--ok_area.pointer_enter_actions.extend (agent pointer_area(ok_area, button_ok_in))
-		--ok_area.pointer_leave_actions.extend (agent pointer_area(ok_area, button_ok))
-		--setting.extend_with_position_and_size (ok_area, 447, 411, 128, 73)
 	end
 
 	error (messaje: STRING)
@@ -223,6 +215,16 @@ feature {EQA_TEST_SET} -- Implementation
 			name_empty.set_title ("ERROR")
 			name_empty.disable_border
 			name_empty.show
+		end
+
+	notify_windows2 (message: STRING)
+		local
+			windows_messages: USER_INFO_DIALOG
+			image_path: STRING
+		once
+			create image_path.make_from_string (Files_path+"wallpapers/waiting.png")
+			create windows_messages.make (image_path, "WAITING", message)
+			windows_messages.show_modal_to_window (current)
 		end
 
 	-- the pointer is entering the area used as a button
@@ -283,20 +285,27 @@ feature {EQA_TEST_SET} -- Implementation
 			if (board /= Void) then
 				board.destroy
 			end
-			create game.play_game(players)
+			create game.play_game(2)	--ver de cambiarlo despues con el tema de q el cliente debe recibir los settings
 			if (not is_new_game and not is_join_game) then
 				create server.make(port,game, Current,players, name)
 			end
 			if (is_join_game) then
 				create board.make_board(window, client, Void, game)
-			else
+				client.set_board(board)
+			elseif (not is_new_game) then
 				create board.make_board(window, Void, server, game)
+				server.set_board(board)
+			else
+				create board.make_board (window, Void, Void, game)
 			end
 			window.minimize
 			board.show
 			destroy
 			if server/=Void then
 				server.others_turn
+			end
+			if client/=Void then
+				client.listen
 			end
 		end
 

@@ -1,8 +1,8 @@
 note
 	description: "Summary description for {TILE_PULL}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	author: "..., Eleutherios S BenisisAngel Kyriako"
+	date: "15/12/2012"
+	revision: "3.0"
 
 class
 	G10_TILE_PULL
@@ -18,11 +18,13 @@ feature
 	--this 53th tile is with part of road and part of town
 	--it helps not to start game with random tile (that can fully
 	--consist from grass without town)! Only if it is really needed
+
 	get_start_tile():G10_TILE
 	do
 		IsTileTaken.at (53):=TRUE
 		Result:=Pull.at(53)
 	end
+
 	-- Allows to get next tile which is not taken
 	--next tile for current player
 	GenerateNextTile():G10_TILE
@@ -78,6 +80,7 @@ feature
 -- constructors.
 --initialization of tile pool
 feature
+
 	make
 	local
 		j :INTEGER
@@ -125,8 +128,9 @@ feature
 	 		elseif (j < 72) then
 	 			tile.setType(19)--"qadrcrossroad+grass")
 	 		end
-	 	--Pull[j]:= tile															-- ERROR FROM G10_TILE OF SETTYPE FIX
-	 	j := j+1
+	 		Pull.extend (tile)															-- ERROR FROM G10_TILE OF SETTYPE FIX
+	 		j := j+1
 	 	end
 	end
+
 end

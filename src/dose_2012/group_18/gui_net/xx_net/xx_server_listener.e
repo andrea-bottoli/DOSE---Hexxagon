@@ -39,7 +39,6 @@ feature {XX_NET} --Methods used by XX_NET
 	do
 		continue:=TRUE
 		create server_socket.make_server_by_port (net.get_server_port)
-		print("Server is up and wait%N")
 		waiting
 		setup_client_connected
 		listening
@@ -50,8 +49,6 @@ feature {XX_NET} --Methods used by XX_NET
 	do
 		if(writer/=Void and writer.is_ready_for_writing)then
 			store (a_message, writer)
-		else
-			print("writer vuoto%N")
 		end
 	end
 
@@ -71,6 +68,7 @@ feature {NONE} --Private methods
 	--Server is waiting for a connection
 	waiting
 	do
+		print("Server is up and waiting for a connection%N")
 		server_socket.listen (1)
 		server_socket.accept
 	end
@@ -82,6 +80,7 @@ feature {NONE} --Private methods
 		ip_client:=client_socket.peer_address.host_address.host_address
 		net.set_client_ip (ip_client)
 		create_socket_agents
+		print("Client connected: "+ip_client+"%N")
 		net.send_request_client_name_player
 	end
 

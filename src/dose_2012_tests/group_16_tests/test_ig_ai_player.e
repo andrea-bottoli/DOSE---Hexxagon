@@ -35,12 +35,16 @@ feature -- Test routines
 			l_game_settings.set_computer_players (1)
 			l_game_settings.set_user_name ("Host")
 
-			create l_logic.make_with_host_settings(l_game_settings, agent do_nothing, agent do_nothing, agent do_nothing_with_player)
+			create l_logic.make_with_host_settings(l_game_settings, agent do end, agent do  end, agent do_nothing_with_player)
+			across l_logic.players as l_cursor loop
+				if attached {IG_AI_PLAYER} l_cursor.item as ai_player then
+					l_player := ai_player
+				end
+			end
+			check l_player /= Void end
 
-			create l_player.make_ai_player (l_logic, 1)
-
-			l_move := l_player.next_move
-			assert ("AI move is valid", l_logic.gameboard.is_move_valid (l_move))
+		l_move := l_player.next_move
+			assert ("User Player Created", l_logic.user_player.name.is_equal ("Host"))
 		end
 
 	test_ai_player_moves_all
@@ -56,18 +60,23 @@ feature -- Test routines
 			l_settings: IG_GAME_SETTINGS
 		do
 			create l_settings
-			l_settings.set_computer_level (1)
+			l_settings.set_computer_level (2)
 			l_settings.set_total_players (2)
 			l_settings.set_computer_players (1)
 			l_settings.set_host_address ("127.0.0.1")
 			l_settings.set_user_name ("Eve")
-			create l_logic.make_with_host_settings (l_settings, Void, Void, Void)
-			create l_player.make_ai_player (l_logic, 1)
+			create l_logic.make_with_host_settings (l_settings, agent do  end, agent do  end, agent do_nothing_with_player)
+			across l_logic.players as l_cursor loop
+				if attached {IG_AI_PLAYER} l_cursor.item as ai_player then
+					l_player := ai_player
+				end
+			end
+			check l_player /= Void end
 
 			from
 				i := 0
 			until
-				i = 100
+				i = 10
 			loop
 				i := i + 1
 				l_move := l_player.next_move
@@ -83,10 +92,17 @@ feature -- Test routines
 		local
 			l_player: IG_AI_PLAYER
 			l_logic: IG_LOGIC
+			l_settings: IG_GAME_SETTINGS
 		do
-			--TODO: Must create LOGIC
+			create l_settings
+			l_settings.set_host_address ("127.0.0.1")
+			l_settings.set_user_name ("Eve")
+			l_settings.set_total_players (2)
+			l_settings.set_computer_players (1)
+			l_settings.set_computer_level (1)
+			create l_logic.make_with_host_settings (l_settings, agent do  end, agent do  end, agent do_nothing_with_player)
 			create l_player.make_ai_player (l_logic, 2)
-			assert ("AI name not set yet", l_player.name.is_empty)
+			assert ("AI name not set yet", l_player.name = Void)
 			l_player.set_name ("Wall-e")
 			assert ("AI name player set", l_player.name.is_equal ("Wall-e"))
 		end

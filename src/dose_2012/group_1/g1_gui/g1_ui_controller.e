@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {G1_UI_CONTROLLER}."
-	author: "MILANO7"
-	date: "10/11/2012"
-	revision: "1.0"
+	description: "Controller used to manage all the GUI interface"
+	author: "MILANO7: Hossein Sedighizadeh, Cristina Vicini, Jiang Wu"
+	date: "$16/12/2012$"
+	revision: "$2.0$"
 
 class
 	G1_UI_CONTROLLER
@@ -35,10 +35,7 @@ feature
 			socket_in.close_socket
 
 			create game.make_with_controller (Current,ip_address)
-			-- l_player := game.get_player
-			create l_player.make (999, "Player")
-
-			is_server_started := FALSE
+			create l_player.make (1, "")
 		end
 
 feature {NONE}
@@ -53,6 +50,7 @@ feature {NONE}
 	match_name: STRING
 	players_list: HASH_TABLE [STRING, INTEGER]
 	gameboard: G1_UI_GAMEBOARD
+	current_gui : EV_TITLED_WINDOW
 
 feature {ANY} -- Initial operation
 	--- The following feature are called to initialize the GUI
@@ -111,6 +109,17 @@ feature {ANY} -- Game operation
 		require
 			message /= Void
 		do
+			if attached {G1_MESSAGE_BUY} message as message_buy  then
+				gameboard.update_buy_or_unmortgage_my_ui_player_information (message_buy.id)
+			elseif attached {G1_MESSAGE_MORTGAGE} message as message_mortgage then
+				if message_mortgage.mortgage then
+					gameboard.update_mortgage_my_ui_player_information(message_mortgage.id_deed)
+				else
+					gameboard.update_buy_or_unmortgage_my_ui_player_information (message_mortgage.id_deed)
+				end
+			elseif attached {G1_MESSAGE_CASH} message as message_cash then
+				gameboard.update_money_my_ui_player
+			end
 		ensure
 		end
 
@@ -120,6 +129,9 @@ feature {ANY} -- Game operation
 		require
 			turn /= Void
 		do
+			if attached {G1_MESSAGE_FINISH} turn as message_finish  then
+--				gameboard.set_turn (players_list.item (message_finish.player_id), my_turn, i_am_in_jail)
+			end
 		ensure
 			players_list = old players_list
 		end
@@ -130,15 +142,14 @@ feature {ANY} -- Game operation
 		require
 			message /= Void
 		do
-		ensure
-		end
-
-	update_token (token: G1_MESSAGE)
-			--- update_token is used when a turn is finished. It's called by LOGIC to update all information of each player who has been modified in some way in the turn
-			--- The message should have at least the player's ID and its money.
-		require
-			token /= Void
-		do
+			if attached {G1_MESSAGE_DICE} message as message_dice  then
+				gameboard.update_dice(message_dice.dice_1,message_dice.dice_2)
+			elseif attached {G1_MESSAGE_MOVE} message as message_move then
+				gameboard.update_position_player(game.board.cells[message_move.position].name_cell,message_move.id_player)
+				if message_move.id_player = l_player.id_player then
+					gameboard.view_cell
+				end
+			end
 		ensure
 		end
 
@@ -154,6 +165,7 @@ feature {ANY} -- Game operation
 		end
 
 feature {G1_UI_MAIN}
+
 	connect_to_server (IP: STRING; server_port: INTEGER)
 		require
 			IP /= "0"
@@ -161,9 +173,8 @@ feature {G1_UI_MAIN}
 		do
 			server_ip := IP
 			port := server_port
-			--game.set_server_info (IP, server_port)
-			-- Leo. M not necessary, for the moment
-			--game.join_game (player)
+			game.set_server_info (IP, server_port)
+			game.add_player (l_player)
 		ensure
 			port = server_port
 			server_ip = IP
@@ -218,7 +229,6 @@ feature {G1_UI_MAIN} -- USED TO START SERVER
 		do
 			create server.make_server(match_name)
 			server.launch
-
 			is_server_started := TRUE
 		end
 
@@ -237,6 +247,11 @@ feature {ANY} -- Features called by other GUI classes
 			Result := players_list
 		end
 
+	get_gameboard : G1_UI_GAMEBOARD
+		do
+			Result := gameboard
+		end
+
 	roll_dice : G1_CELL
 		do
 			Result := game.roll_dice (l_player)
@@ -244,7 +259,7 @@ feature {ANY} -- Features called by other GUI classes
 
 	buy_property(property : G1_DEED)
 		do
-			game.buy (l_player, property)
+				game.buy (l_player, property)
 		end
 
 	finish_turn
@@ -295,4 +310,45 @@ feature {ANY} -- Features called by other GUI classes
 		do
 			Result := game.board.cells[id]
 		end
+
+	communicate_id_card(id : INTEGER)
+		do
+			game.action_card (id, l_player)
+		end
+
+	pay_ten_percent
+		do
+			game.pay_income_tax10 (l_player)
+		end
+	pay_two_hundred_dollars
+		do
+			game.pay_income_tax200 (l_player)
+		end
+
+	ask_player(id : INTEGER) : G1_PLAYER
+		do
+			Result := game.get_player_board (id)
+		end
+
+	trade_with_a_player(a_player1, a_p1_deed, a_p1_card, a_player2, a_p2_deed, a_p2_card : INTEGER)
+		do
+			game.trade (a_player1, a_p1_deed, a_p1_card, a_player2, a_p2_deed, a_p2_card)
+		end
+
+--- ERROR DIALOG FEATURES ---
+feature {ANY}
+	set_current_gui (gui: EV_TITLED_WINDOW)
+	do
+		current_gui := gui
+	end
+
+	error_dialog(text: STRING)
+			-- The user wants to close the window
+		local
+			dialog: EV_INFORMATION_DIALOG
+		do
+			create dialog.make_with_text (text)
+			dialog.show_modal_to_window (current_gui)
+	end
+
 end

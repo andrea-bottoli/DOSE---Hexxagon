@@ -14,17 +14,12 @@ create
 	make
 
 feature
-	make
+	make(m_game: CU_MAIN_GAME)
 		-- Displays a window for make an accusation
-		require
---			not_is_displayed: not is_displayed
 		do
 			create suspects_combo_box.make_with_strings (make_list_suspects)
 			suspects_combo_box.set_minimum_size (120,24)
 			suspects_combo_box.disable_edit
-
---			io.put_integer (suspects_combo_box.width)
---			io.put_integer (suspects_combo_box.height)
 
 			create weapons_combo_box.make_with_strings (make_list_weapons)
 			weapons_combo_box.set_minimum_size (120, 24)
@@ -36,18 +31,22 @@ feature
 
 			create accuse_button.make_with_text ("Accuse")
 			accuse_button.set_minimum_size (75,24)
-			accuse_button.select_actions.extend (agent hide)
+			accuse_button.select_actions.extend (agent destroy)
+			accuse_button.select_actions.extend (agent take_elements(suspects_combo_box,weapons_combo_box,rooms_combo_box))
 
 			create cancel_button.make_with_text ("Cancel")
 			cancel_button.set_minimum_size (75, 24)
 			cancel_button.select_actions.extend (agent hide)
+			cancel_button.select_actions.extend (agent m_game.set_sensitive_accuse)
 
+			create horizontal_separator
 			create con_accusation
+			con_accusation.extend_with_position_and_size (horizontal_separator, 0, 0, 410, 5)
 			con_accusation.extend_with_position_and_size (accuse_button, 62, 200, 80, 40)
 			con_accusation.extend_with_position_and_size (cancel_button, 249, 200, 80, 40)
-			con_accusation.extend_with_position_and_size (suspects_combo_box, 10, 50, 120, 22)
-			con_accusation.extend_with_position_and_size (weapons_combo_box, 140, 50, 120, 22)
-			con_accusation.extend_with_position_and_size (rooms_combo_box, 270, 50, 120, 22)
+			con_accusation.extend_with_position_and_size (suspects_combo_box, 10, 50, 120, 24)
+			con_accusation.extend_with_position_and_size (weapons_combo_box, 140, 50, 120, 24)
+			con_accusation.extend_with_position_and_size (rooms_combo_box, 270, 50, 120, 24)
 
 			set_message("Select a Suspect")
 			con_accusation.extend_with_position_and_size (message_label, 10, 15, 100, 20)
@@ -60,94 +59,83 @@ feature
 			set_size (410,350)
 			put (con_accusation)
 			disable_user_resize
+
 		ensure
 			accusation_is_displayed: not is_displayed
 		end
 
-feature -- Implementation/ Operations
-
-	select_a_suspect ():INTEGER
-		-- Display  all characters and select one of them
-		do
-
-		ensure
-			valid_selection: Result >= 0 and Result <= 5
-		end
-
-	select_a_weapon (): INTEGER
-		-- Display  all weapons and select one of them
-		do
-
-		ensure
-			valid_selection: Result >= 0 and Result <= 5
-		end
-
-	select_a_room ():INTEGER
-		-- Display  all rooms and select one of them
-		do
-		ensure
-			valid_selection: Result >= 0 and Result <= 8
-		end
-
 feature
 
---    set_message (a_message: STRING)
---    	require
---    		messagge_not_empty: a_message /= void
---		do
---			create message_label.default_create
---			message_label.set_text (a_message)
---		ensure
---			message_updated: message_label.text.is_equal (a_message)
---	    end
-
 	make_list_suspects: LINKED_LIST [STRING]
-	local
-		index: INTEGER
-	do
-		create suspects
-		create Result.make
-		from
-			index := 0
-		until
-			index >= 6
-		loop
-			Result.extend (suspects.get_full_name (index))
-			index := index + 1
+		local
+			index: INTEGER
+		do
+			create suspects
+			create Result.make
+			from
+				index := 0
+			until
+				index >= 6
+			loop
+				Result.extend (suspects.get_full_name (index))
+				index := index + 1
+			end
 		end
-	end
 
 	make_list_weapons: LINKED_LIST [STRING]
-	local
-		index: INTEGER
-	do
-		create weapons
-		create Result.make
-		from
-			index := 0
-		until
-			index >= 6
-		loop
-			Result.extend (weapons.get_full_name (index))
-			index := index + 1
+		local
+			index: INTEGER
+		do
+			create weapons
+			create Result.make
+			from
+				index := 0
+			until
+				index >= 6
+			loop
+				Result.extend (weapons.get_full_name (index))
+				index := index + 1
+			end
 		end
-	end
 
 	make_list_rooms: LINKED_LIST [STRING]
-	local
-		index: INTEGER
-	do
-		create rooms
-		create Result.make
-		from
-			index := 0
-		until
-			index >= 9
-		loop
-			Result.extend (rooms.get_full_name (index))
-			index := index + 1
+		local
+			index: INTEGER
+		do
+			create rooms
+			create Result.make
+			from
+				index := 0
+			until
+				index >= 9
+			loop
+				Result.extend (rooms.get_full_name (index))
+				index := index + 1
+			end
 		end
+
+	take_elements(susp: EV_COMBO_BOX; weap: EV_COMBO_BOX; room: EV_COMBO_BOX)
+		local
+			list: LINKED_LIST[STRING]
+		do
+			create list.make
+
+			if attached room.selected_item then
+				list.extend (room.selected_item.text)
+			end
+			if attached weap.selected_item then
+				list.extend (weap.selected_item.text)
+			end
+			if attached susp.selected_item then
+				list.extend (susp.selected_item.text)
+			end
+
+		create accuse.make_accuse (list)
+		accuse.show
+
 	end
+
+
 
 feature	--Implementation/ Constants
 
@@ -161,15 +149,15 @@ feature	--Implementation/ Constants
     		-- "Weapons" combo box
     rooms_combo_box: EV_COMBO_BOX
     		-- "Rooms" combo box
-    window_label: EV_LABEL
-    con_accusation: EV_FIXED
 
---    message_label: EV_LABEL
-        -- Label situated on the top of the dialog,
-        -- contains the message.
+    window_label: EV_LABEL
+
+    con_accusation: EV_FIXED
 
 	suspects: CU_ENUM_SUSPECTS
 	weapons: CU_ENUM_WEAPONS
 	rooms: CU_ENUM_ROOMS
-end
 
+	accuse: CU_SHOW_SUGGEST_ACCUSATION
+
+end

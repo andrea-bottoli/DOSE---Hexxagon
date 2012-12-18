@@ -1,8 +1,8 @@
 note
 	description: "G1_UI_MAIN: first interface which allows the user to create or join a game."
-	author: "MILANO7"
-	date: "10/11/2012"
-	revision: "1.0"
+	author: "MILANO7: Cristina Vicini, Jiang Wu"
+	date: "$16/12/2012$"
+	revision: "$2.0$"
 
 class
 	G1_UI_MAIN
@@ -60,7 +60,7 @@ feature {NONE} -- Initialization
 				country_flag: EV_FIXED
 	        do
 	        	Precursor {EV_TITLED_WINDOW}
-
+				controller.set_current_gui(Current)
 	        	close_request_actions.extend (agent request_close_window(main_ui,current))
 
  				--- CONTAINER, BACKGROUND ---
@@ -93,7 +93,7 @@ feature {NONE} -- Initialization
 				monopoly_bk_area.extend_with_position_and_size (txt_player, 70, 205, 200, 30)
 
 				create btn_confirm_player.make_with_text ("Confirm")
-				btn_confirm_player.select_actions.extend (agent confirm_player_name)
+				btn_confirm_player.select_actions.extend (agent confirm_player_name(FALSE))
 				monopoly_bk_area.extend_with_position_and_size (btn_confirm_player, 170, 240, 100, 30)
 
 				country_flag := set_background(mp_flag(controller.get_country_code),40,30);
@@ -130,7 +130,7 @@ feature {NONE} -- Initialization
 				monopoly_bk_area.extend_with_position_and_size (btn_new_match, 420, 330, 90, 30)
 
 				create btn_new_match.make_with_text ("Join New Game")
-				btn_new_match.select_actions.extend (agent enter_new_game)
+				btn_new_match.select_actions.extend (agent enter_new_game(TRUE))
 				monopoly_bk_area.extend_with_position_and_size (btn_new_match, 520, 330, 90, 30)
 
 				--- CREDITS ---
@@ -175,26 +175,28 @@ feature {NONE}	-- Attributes
 
 feature {NONE} -- Implementation
 
-	confirm_player_name
+	confirm_player_name(is_start_server: BOOLEAN)
 		do
 			if txt_player.text.count <=1 then
-				error_dialog("Error... This player name cannot be used!")
+				controller.error_dialog("Error... This player name cannot be used!")
 			else
 				controller.get_player.set_name (txt_player.text)
+				if not is_start_server then
+					controller.error_dialog("Player's name changed: " + txt_player.text)
+				end
 			end
 		end
 
 	connection_to_server
 		do
 			if txt_port.text.count<0 then
-				error_dialog("Error... Port not valid!")
+				controller.error_dialog("Error... Port not valid!")
 			elseif txt_ip.text.count<8 then
-				error_dialog("Error... IP not valid!")
+				controller.error_dialog("Error... IP not valid!")
 			elseif txt_player.text.count <=1 then
-				error_dialog("Error... Please insert a name!")
+				controller.error_dialog("Error... Please insert a name!")
 			else
-				controller.connect_to_server(txt_ip.text,txt_port.text.to_integer)
-				enter_new_game
+				enter_new_game(FALSE)
 			end
 		end
 
@@ -203,44 +205,53 @@ feature {NONE} -- Implementation
 			text: STRING
 		do
 			if txt_new_match.text.count <=1 then
-				error_dialog("Error... This match name cannot be used!")
+				controller.error_dialog("Error... This match name cannot be used!")
 			else
-				if txt_player.text.count <=1 then
-					error_dialog("Error... Please insert a name!")
-				else
-					controller.set_match_name (txt_new_match.text)
-					controller.start_server
-
-					create text.make_from_string ("Server Started: ")
-					text.append_string (controller.get_match_name)
-					text.append_string ("%NServer Information: ")
-					text.append_string (controller.get_local_ip)
-					text.append_string (":")
+				if controller.is_server_started then
+					create text.make_from_string ("Server already started on port: ")
 					text.append_integer (controller.get_port)
-					error_dialog(text)
+					text.append_string ("%NCannot start another server")
+					controller.error_dialog (text)
+				else
+					if txt_player.text.count <=1 then
+						controller.error_dialog("Error... Please insert a name!")
+					else
+						controller.set_match_name (txt_new_match.text)
+						controller.start_server
 
-					controller.connect_to_server ("127.0.0.1", controller.get_port)
+						create text.make_from_string ("Server started: ")
+						text.append_string (controller.get_match_name)
+						text.append_string ("%NServer Information: ")
+						text.append_string (controller.get_local_ip)
+						text.append_string (":")
+						text.append_integer (controller.get_port)
+						controller.error_dialog(text)
+					end
 				end
 			end
 		end
 
-	enter_new_game
-		do
-			if not controller.is_server_started  then
-				error_dialog("Error... Please start first the server!")
-			else
-				controller.start_gameboard(main_ui)
-				destroy
-			end
-		end
-
-	error_dialog(text: STRING)
-			-- The user wants to close the window
+	enter_new_game (is_server: BOOLEAN)
 		local
-			dialog: EV_INFORMATION_DIALOG
+			ip: STRING
 		do
-			create dialog.make_with_text (text)
-			dialog.show_modal_to_window (Current)
+			confirm_player_name(TRUE)
+			if txt_player.text.count <=1 then
+				controller.error_dialog("Error... This player name cannot be used!")
+			else
+				if not controller.is_server_started and is_server then
+					controller.error_dialog("Error... Please start first the server!")
+				else
+					if is_server then
+						ip := "127.0.0.1"
+					else
+						ip := txt_ip.text
+					end
+					controller.connect_to_server(ip,txt_port.text.to_integer)
+					controller.start_gameboard(main_ui)
+					destroy
+				end
+			end
 		end
 
 	label_with_text(text:STRING; color:EV_COLOR):EV_LABEL

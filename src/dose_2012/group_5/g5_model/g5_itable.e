@@ -14,15 +14,15 @@ feature {ANY} -- Connection-Disconnection
 			-- this feature is used to inform the LOGIC that a player wants to join
 			-- in a match (not already started).
 		require
-			player_name_valid: name_player /= Void;
+			player_name_valid: (not name_player.is_empty)
 		deferred
 		ensure
 		end
 
-	disconnect (name_player: STRING)
+	disconnect (name_player: STRING): BOOLEAN
 			--this feature is used to inform the LOGIC that a player leave the game
 		require
-			player_name_valid: name_player /= Void;
+			player_name_valid: (not name_player.is_empty)
 		deferred
 		ensure
 		end
@@ -32,7 +32,7 @@ feature {ANY} -- Entries
 	set_respose (new_resposes: LINKED_LIST [G5_MESSAGE])
 			-- Sets the response when there a new
 		require
-			valid_arg: new_resposes /= Void
+			valid_response: (not new_resposes.is_empty)
 		deferred
 		ensure
 		end
@@ -42,7 +42,7 @@ feature {ANY} -- Finalization
 	restart_game (player_name: STRING): BOOLEAN
 			-- function that alerts the server that the player id_player want a rematch.
 		require
-			player_name_invalid: player_name /= Void;
+			player_name_invalid: (not player_name.is_empty)
 		deferred
 		ensure
 		end

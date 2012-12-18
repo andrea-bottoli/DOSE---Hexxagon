@@ -12,6 +12,7 @@ create
 
 feature {NONE}--attributes
 	host_player 			: G10_NET_INFO
+	socket_list     		:  ARRAYED_LIST[NETWORK_STREAM_SOCKET]
 	list_of_joined_players	: ARRAYED_LIST[G10_NET_INFO]
 	game_id					: INTEGER
 	game_title				: STRING
@@ -35,7 +36,6 @@ feature
 		host_player := player_info
 		game_id := next_game_id
 		game_title := title
-
 	ensure
 		number_of_players : list_of_joined_players.capacity = player_num
 		g_title 		  : game_title = title
@@ -47,12 +47,13 @@ feature -- mutators
 	require
 		a_player_not_null: a_player /= void
 	do
-		if player_exists(a_player.get_id) = false
-		then
+--		if player_exists(a_player.get_id) = false
+--		then
 			list_of_joined_players.put_front (a_player)
-		end
+--		end
+			print ("Inserteddd %N")
 	ensure
-		--player_count_raised: list_of_joined_players.count = old list_of_joined_players.count + 1
+		player_count_raised: list_of_joined_players.count = old list_of_joined_players.count + 1
 	end
 
 
@@ -83,7 +84,7 @@ feature --other
 	local
 		i : INTEGER
 		do
-			from  i := 0; Result := false
+			from  i := 1; Result := false
 			until i > list_of_joined_players.count AND Result = true
 			loop
 				if list_of_joined_players.at (i).get_id.is_equal (p_id) = true
@@ -144,5 +145,35 @@ feature -- accessors
 		Result :=  list_of_joined_players
 	ensure
 		result_is : Result /= void  AND Result = list_of_joined_players
+	end
+
+	feature --sockets
+
+	get_socket_list  :  ARRAYED_LIST[NETWORK_STREAM_SOCKET]
+	do
+		Result := socket_list
+	ensure
+		return : Result = socket_list
+	end
+	get_socket_list_at (i : INTEGER) : NETWORK_STREAM_SOCKET
+	do
+		Result := socket_list.at (i)
+
+	ensure
+		return : Result = socket_list.at (i)
+	end
+
+	add_to_socket_list (sock : NETWORK_STREAM_SOCKET)
+	do
+		socket_list.put_front (sock)
+	ensure
+		list_soc : socket_list.has (sock ) = true
+	end
+
+	remove_from_socket_array (sock : NETWORK_STREAM_SOCKET)
+	do
+		socket_list.prune_all (sock)
+	ensure
+		list_soc : socket_list.has (sock) = false
 	end
 end

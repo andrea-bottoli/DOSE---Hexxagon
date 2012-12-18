@@ -59,7 +59,7 @@ feature {G5_LAUNCHER, EQA_TEST_SET} -- Game Start
 
 			all_players_name_are_not_void:
 				players.for_all (agent (player: STRING): BOOLEAN do Result := (player /= void
-				and not(player.is_empty)) end)
+				and not(player.is_empty) and not(player.is_equal (" "))) end)
 
 		deferred
 		ensure
@@ -75,7 +75,7 @@ feature {G5_ITABLE, EQA_TEST_SET} -- Game Management
 			correct_scores:
 				scores /= void and
 				scores.count >= 2 and
-				scores.count >= 4
+				scores.count <= 4
 
 		deferred
 		ensure
@@ -119,8 +119,8 @@ feature {G5_ITABLE, EQA_TEST_SET} -- Game Management
 				received_messages.for_all (agent (message: G5_MESSAGE): BOOLEAN
 										do Result := (
 											message.targets.for_all (agent (target: STRING): BOOLEAN
-											do Result := (not(target.is_equal ("SERVER"))) end)
-										) end)
+											do Result := (not(target.is_equal ("SERVER"))) end))
+										 end)
 		deferred
 		ensure
 			-- received_messages is correctly received and it contains only valid messages which can be

@@ -1,8 +1,11 @@
 note
-	description: "Summary presentation of the class {G5_MESSAGE_UPDATE}, which manages the actions update_state and update_supply_state."
+	description: "[
+					Summary presentation of the class G5_MESSAGE_UPDATE, which 
+					manages the actions update_state and update_supply_state.
+					]"
 	author: "Riccardo Binetti"
 	date: "14.11.2012"
-	revison: "1.3"
+	revison: "1.4"
 
 class
 	G5_MESSAGE_UPDATE

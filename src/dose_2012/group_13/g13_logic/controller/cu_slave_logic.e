@@ -19,9 +19,10 @@ feature
 feature {CU_INIT_CONTROLLER}
 	make
 		do
-			create net.make
+			create game.make
+			--create net.make
 		ensure
-			ok_net: net /= void
+--			ok_net: net /= void
 		end
 
 feature --Inherited methods

@@ -47,7 +47,9 @@ feature {ANY} --GUI
 		require
 			-- a valid server_ip
 			valid_port: server_port > 1024 and server_port < 5000
-			valid_arg: my_name /= void and not(my_name.is_equal (""))
+			valid_arg:
+				my_name /= void and not(my_name.is_equal (" ")
+				and not(my_name.is_empty) and not(my_name.is_equal ("SERVER")))
 			-- my_name isn't already in use. In this case the host informs the player that his name is invalid and close the
 			-- connection, the player can try to re-connect using another name.
 		deferred
@@ -57,14 +59,12 @@ feature {ANY} --GUI
 			-- Otherwise the connection is not established.
 		end
 
-	rematch(my_name: STRING)
-		-- this feature is invoked to inform the host that the player with name "my_name" would like to play
-		-- another match with the same players and the same cards set.
-		require
-			valid_arg: my_name /= void
-			valid_arg: my_name.is_equal (player_name)
+	rematch(agreed_on_rematch: BOOLEAN)
+			-- This feature is invoked to inform the host if this player would like to play
+			-- another match with the same players, if possible, and the same cards set.
 		deferred
 		ensure
+			-- this message will be sent to the host
 		end
 
 	play_card(card: STRING)
@@ -92,7 +92,7 @@ feature {ANY} --GUI
 			-- this message will be sent to the host
 		end
 
-	select_from_hand(cards: ARRAY[STRING])
+	selected_from_hand(cards: ARRAY[STRING])
 	-- this feature is invoked by the GUI to inform the NET about cards chosen from a pop-up
 		require
 			-- a feature pop_up_selection has been invoked before and the attribute "cards_are_from" is equal to HAND.
@@ -154,18 +154,6 @@ feature {ANY} --GUI
 	 	deferred
 	 	ensure
 	 	end
-
-
---	look_in_trash_pile()
-		-- this feature is invoked when the player asks to see which cards are in the trash pile
---		require
---			true
---		do
---		ensure
-			-- the net asks to the host the list of cards in the trash pile.
-			-- the server will provide the list using other messages
---		end
-
 
 feature -- Status Report
 

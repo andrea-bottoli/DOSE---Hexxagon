@@ -96,7 +96,7 @@ feature{XX_SERVER_LISTENER}
 	--Used for notified that a client is connected
 	client_connected
 	do
-		logic_interface.client_connected (name_player, client_ip)
+--		logic_interface.client_connected (name_player, client_ip)
 	end
 
 	--Sets the ip address of the client
@@ -154,6 +154,9 @@ feature{XX_SERVER_LISTENER, XX_CLIENT_CONNECT}	--PRIVATE Methods of XX_NET
 					l_content.append (l_split_message.at (l_i+1))
 					l_i:=l_i+1
 				end
+
+				print("Command: "+l_command+"%N"+"Content: "+l_content+"%N")
+
 				if (l_command.is_equal (command_request_name_player)) then
 					send_client_name_player
 				elseif (l_command.is_equal (command_name_player)) then
@@ -176,32 +179,40 @@ feature{XX_SERVER_LISTENER, XX_CLIENT_CONNECT}	--PRIVATE Methods of XX_NET
 					l_i:=l_i+1
 				end
 
+				print("Command: "+l_command+"%N"+"Content: "+l_content+"%N")
+
 				if (l_command.is_equal (command_switch_panel_game_to_menu)) then
-					logic_interface.receive_command_switch_panel_game_to_menu
+--					logic_interface.receive_command_switch_panel_game_to_menu
 				elseif(l_command.is_equal (command_switch_panel_menu_to_game))then
-					logic_interface.receive_command_switch_panel_menu_to_game
+--					logic_interface.receive_command_switch_panel_menu_to_game
 				elseif (l_command.is_equal (command_clean_game_windo)) then
-					logic_interface.receive_command_clean_game_window
+--					logic_interface.receive_command_clean_game_window
 				elseif (l_command.is_equal (command_defeat))then
-					logic_interface.receive_defeat
+--					logic_interface.receive_defeat
 				elseif (l_command.is_equal (command_victory))then
-					logic_interface.receive_victory
+--					logic_interface.receive_victory
 				elseif (l_command.is_equal (command_draw))then
-					logic_interface.receive_draw_status
+--					logic_interface.receive_draw_status
 				elseif (l_command.is_equal (command_chat_message)) then
-					chat_manager.set_chat_message (l_content)
+--					chat_manager.set_chat_message (l_content)
 				elseif (l_command.is_equal (command_chat_enable)) then
-					logic_interface.receive_chat_enable (l_content.to_boolean)
+--					logic_interface.receive_chat_enable (l_content.to_boolean)
+				elseif (l_command.is_equal (command_board_sensitive)) then
+--					logic_interface.receive_board_sensitive (l_content.to_boolean)
 				end
 
 			elseif attached {XX_BOARD} a_object as board then
-				logic_interface.receive_board (board)
+				print("BOARD%N")
+--				logic_interface.receive_board (board)
 			elseif attached {XX_POSSIBLE_MOVES} a_object as possible_move then
-				logic_interface.other_move(possible_move)
+				print("POSSIBLE MOVE%N")
+--				logic_interface.other_move(possible_move)
 			elseif attached {XX_TIMER} a_object as timer then
-				logic_interface.receive_timer (timer)
+				print("TIMER%N")
+--				logic_interface.receive_timer (timer)
 			elseif attached {XX_NET_GAME_STATUS} a_object as game_status then
-				logic_interface.receive_game_status (game_status.get_player1,game_status.get_player2,game_status.is_active)
+				print("GAME STATUS%N")
+--				logic_interface.receive_game_status (game_status.get_player1,game_status.get_player2,game_status.is_active)
 			end
 		end
 	end
@@ -335,6 +346,17 @@ feature	-- PUBLIC Methods inherited from XX_INET
 		socket_interface.write (command_draw)
 	end
 
+	-- This method permits to send the timer
+	send_board_sensitive(a_condition: BOOLEAN)
+	local
+		l_string: STRING
+	do
+		l_string:=command_board_sensitive
+		l_string.append_boolean (a_condition)
+
+		socket_interface.write (l_string)
+	end
+
 feature{NONE} --Private Method Inherited from XX_INET
 
 	--Check if an address is valid
@@ -419,16 +441,9 @@ feature{NONE} --Private Method Inherited from XX_CHAT_TO_NET_INTERFACE
 		end
 	end
 
---#############################
---#############################
---##						 ##
---##	TEMPORANEAL METHOD   ##
---##						 ##
---#############################
---#############################
-feature --TEMPORANEAL METHOD
-	send(a: ANY)
+feature --Send (TEST)
+	send(a_message: ANY)
 	do
-		socket_interface.write (a)
+		socket_interface.write (a_message)
 	end
 end

@@ -85,11 +85,9 @@ feature {G5_IGUI_TO_NET}
 			loop
 				temporary_string.append (joined_players_name[i])
 				temporary_string.append (" | ")
-		--		list_of_players.force (joined_players_name[i])
-
 				i:=i+1
 			end
-			
+
 			current.lock_update
 			list_of_players_text_box.set_text (temporary_string)
 			current.unlock_update

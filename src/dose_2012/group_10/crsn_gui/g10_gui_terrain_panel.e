@@ -42,6 +42,7 @@ feature {ANY}
 
 		--add the panel into the scrollable area
 		extend (background)
+
 		--initialize the terrain with the starting tile and perimeter
 		init_terrain(game)
 
@@ -56,7 +57,7 @@ feature {NONE}
 	do
 		background.set_background_pixmap (a_pixmap)
 		background.pointer_button_press_actions.extend (agent move_terrain_by_clicking(?,?,?,?,?,?,?,?))
-		background.pointer_enter_actions.extend (agent default_terrain_offset)
+		background.pointer_enter_actions.extend (agent set_default_terrain_offset)
 	ensure
 		background_changed_to_arg_pixmap : background.background_pixmap.is_equal (a_pixmap)
 	end
@@ -74,60 +75,60 @@ feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL}
 	end
 
 	init_terrain(game : G10_GUI_GAME_MAIN) -- routine initializes the terrain array with the starting tile and it's perimeter
-	require
-		terrain_is_void : terrain = void
+--	require
+--		terrain_is_void : terrain = void
 	local
 		default_tile : G10_GUI_TILE
 	do
 		create terrain.make_filled (void , max_tiles_per_row, max_tiles_per_column)
-		create default_tile.make_starting_tile(starting_tile_row_index, starting_tile_col_index)
+		create default_tile.make_certain_tile(starting_tile_row_index, starting_tile_col_index, "1", "0" ,-1 ,-1) -- auta apo to logic (id, rotation)
 
 		insert_tile_to_terrain(starting_tile_row_index, starting_tile_col_index, default_tile)
-		default_tile.draw_tile_to_terrain(Current, starting_tile_row_index, starting_tile_col_index)
-		add_empty_tiles_in_perimeter(Current, default_tile)
+		default_tile.draw_tile_to_terrain(game , Current, starting_tile_row_index, starting_tile_col_index, -1,-1)
+		add_empty_tiles_in_perimeter(game , Current, default_tile)
 	ensure
 		terrain_not_void : terrain /= void
 	end
 
-feature {G10_GUI_TILE}
+feature {G10_GUI_TILE , G10_GUI_GAME_MAIN}
 
-	add_empty_tiles_in_perimeter(field: G10_GUI_TERRAIN_PANEL a_tile: G10_GUI_TILE) -- routine adds empty tiles in the perimeter of the i ,j tile if possible
+	add_empty_tiles_in_perimeter(game : G10_GUI_GAME_MAIN field: G10_GUI_TERRAIN_PANEL a_tile: G10_GUI_TILE) -- routine adds empty tiles in the perimeter of the i ,j tile if possible
 	local
 		temp_tile , north_tile , east_tile , south_tile , west_tile: G10_GUI_TILE
 	do
 		temp_tile := terrain.item (a_tile.get_row-1 , a_tile.get_column)
 		if(valid_coordinates(a_tile.get_row - 1 , a_tile.get_column) = true and temp_tile = void)
 		then
-			create north_tile.make_empty_tile(Current, a_tile.get_row - 1 , a_tile.get_column)
+			create north_tile.make_empty_tile(game , Current, a_tile.get_row - 1 , a_tile.get_column)
 			insert_tile_to_terrain(a_tile.get_row - 1 , a_tile.get_column ,north_tile)
-			north_tile.draw_tile_to_terrain(Current, a_tile.get_row-1,a_tile.get_column)
+			north_tile.draw_tile_to_terrain(game , Current, a_tile.get_row-1,a_tile.get_column , -1,-1)
 		end
 
 		temp_tile := terrain.item (a_tile.get_row , a_tile.get_column + 1)
 		if(valid_coordinates(a_tile.get_row , a_tile.get_column + 1) = true and temp_tile = void)
 		then
-			create east_tile.make_empty_tile(Current, a_tile.get_row , a_tile.get_column + 1)
+			create east_tile.make_empty_tile(game , Current, a_tile.get_row , a_tile.get_column + 1)
 			insert_tile_to_terrain(a_tile.get_row ,a_tile.get_column + 1 ,east_tile)
-			east_tile.draw_tile_to_terrain(Current, a_tile.get_row, a_tile.get_column + 1)
+			east_tile.draw_tile_to_terrain(game , Current, a_tile.get_row, a_tile.get_column + 1 , -1,-1)
 		end
 
 		temp_tile := terrain.item (a_tile.get_row + 1 , a_tile.get_column)
 		if(valid_coordinates(a_tile.get_row + 1 , a_tile.get_column) = true and temp_tile = void)
 		then
-			create south_tile.make_empty_tile(Current, a_tile.get_row + 1 , a_tile.get_column)
+			create south_tile.make_empty_tile(game , Current, a_tile.get_row + 1 , a_tile.get_column)
 			insert_tile_to_terrain(a_tile.get_row + 1 , a_tile.get_column ,south_tile)
-			south_tile.draw_tile_to_terrain(Current,a_tile.get_row + 1, a_tile.get_column)
+			south_tile.draw_tile_to_terrain(game , Current,a_tile.get_row + 1, a_tile.get_column, -1,-1)
 		end
 
 		temp_tile := terrain.item (a_tile.get_row , a_tile.get_column - 1)
 		if(valid_coordinates(a_tile.get_row , a_tile.get_column - 1) = true and temp_tile = void)
 		then
-			create west_tile.make_empty_tile(Current, a_tile.get_row , a_tile.get_column - 1)
+			create west_tile.make_empty_tile(game , Current, a_tile.get_row , a_tile.get_column - 1)
 			insert_tile_to_terrain(a_tile.get_row , a_tile.get_column - 1 ,west_tile)
-			west_tile.draw_tile_to_terrain(Current, a_tile.get_row, a_tile.get_column-1)
+			west_tile.draw_tile_to_terrain(game , Current, a_tile.get_row, a_tile.get_column-1, -1,-1)
 		end
-		wipe_out
-		extend (background)
+--		wipe_out
+--		extend (background)
 	end
 
 -- accesor methods.
@@ -153,8 +154,8 @@ feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL, G10_GUI_TILE}
 		current_object_not_mutated : current = old current
 	end
 
-	-- terrain listener
-	move_terrain_by_clicking(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+
+	move_terrain_by_clicking(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)-- terrain listener that lets the user to navigate through the terrain
 	do
 		-- the -80 and +450 constants are used because the scrollable area is not a square in shape when the background is !!!!
 
@@ -172,7 +173,7 @@ feature {G10_GUI_GAME_MAIN,	TEST_TERRAIN_PANEL, G10_GUI_TILE}
 
 	end
 
-	default_terrain_offset
+	set_default_terrain_offset -- sets the offset of the terrain to default (middle of the terrain)
 	do
 		if (not initialized) then
 			set_x_offset (starting_offset_x)

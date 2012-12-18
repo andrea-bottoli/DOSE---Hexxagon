@@ -47,8 +47,7 @@ feature -- Test routines
 			l_move: CP_POSITION
 			l_insect: CP_INSECT
 		do
-			l_server.send_move (l_player, l_insect, l_move)
-			print ("server send move tested")
+			-- Feature moved to CP_MOVE_SENDER_RECEIVER
 		end
 
 	test_post_message
@@ -71,8 +70,7 @@ feature -- Test routines
 			l_game_msg:CP_GAMEMESSAGE
 			l_board:ARRAY[CP_INSECT]
 		do
-			l_server.apply_move (l_game_msg, l_board)
-			print ("server apply move tested")
+			-- Feature moved to CP_MOVE_SENDER_RECEIVER
 		end
 
 	test_abortServer

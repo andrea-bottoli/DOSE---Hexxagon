@@ -1,6 +1,6 @@
 note
-	description: "Summary description for {G1_UI_IP_ADDRESS}."
-	author: "MILANO7"
+	description: "Class with some network information: External IP and Nationality of the player"
+	author: "MILANO7: Jiang Wu"
 	date: "10/11/2012"
 	revision: "1.0"
 
@@ -19,7 +19,7 @@ feature {NONE} -- Initialization
 		local
 			ip_request_url: HTTP_URL
 		do
-			create ip_request_url.make ("http://api.externalip.net/ip/")
+			create ip_request_url.make ("http://api-sth01.exip.org/?call=ip")
 			make (ip_request_url)
 		end
 

@@ -60,8 +60,7 @@ feature
 			l_insect: CP_INSECT
 			l_position: CP_POSITION
 		do
-			l_client.send_move (l_player, l_insect, l_position)
-			print ("tested client send move")
+			-- Feature moved to CP_MOVE_SENDER_RECEIVER
 		end
 
 	test_post_message
@@ -83,8 +82,7 @@ feature
 			l_board:ARRAY[CP_INSECT]
 			l_client:CP_CLIENT
 		do
-			l_client.apply_move (l_game_msg,l_board)
-			print ("tested client apply move")
+			-- Feature moved to CP_MOVE_SENDER_RECEIVER
 		end
 
 test_disconnect

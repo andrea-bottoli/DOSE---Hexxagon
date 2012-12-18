@@ -27,6 +27,7 @@ feature -- Test routines
 			if not rescued then
 				create logic_state.make()
 				logic_state.set_player1_cards(cards2)
+				rescued:= logic_state.g2_player2.is_equal (void)
 			end
 			assert ("cards2 is void", rescued)
 			rescue

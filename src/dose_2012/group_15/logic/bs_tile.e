@@ -34,7 +34,7 @@ feature
 
 	is_equal (other: like Current): BOOLEAN
 	do
-		if other.get_original_state.is_equal (tile_original_state) and other.get_color = color then
+		if other.get_original_state.is_equal (tile_original_state) and other.get_color = color and other.get_original_state.width = tile_original_state.width and other.get_original_state.height = tile_original_state.height then
 			Result := true
 		else
 			Result := false

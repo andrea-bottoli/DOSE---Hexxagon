@@ -104,15 +104,18 @@ feature {NONE} -- Implementation
 			player_name: STRING
 			ip: STRING
 			port: INTEGER
+			ip_manager: G5_IP_MANAGER
+			ip_temporary_string: STRING
 
 		do
-			-- AGGIUNGERE PARTE INVIO INFO
+			create ip_manager.make_empty
 
 			-- check the correctness of the name
 			if not(player_name_text_box.text.is_equal ("") or player_name_text_box.text.is_equal ("SERVER")) then
 
 				-- check the correctness of selected ip
-				if (is_ip_valid) then
+				ip_temporary_string:= ip_address_text_box.text
+				if (ip_manager.is_a_valid_ipv4 (ip_temporary_string)) then
 
 					-- check the correctness of selected port
 					if((port_text_box.text.is_integer) and (port_text_box.text.to_integer >1024 and port_text_box.text.to_integer <5000)) then
@@ -141,35 +144,35 @@ feature {NONE} -- Implementation
 
 		end
 
-	is_ip_valid: BOOLEAN
-		local
-			splitted_ip: LIST[STRING_32]
-			i: INTEGER
-			--a_string_part_of_the_ip: STRING
-			an_integer_part_of_the_ip: INTEGER
-			is_valid: BOOLEAN
-		do
-			if (ip_address_text_box.text.occurrences ('.')=3) and (ip_address_text_box.text.count<=15) then
-
-				is_valid:= true
-				splitted_ip:=ip_address_text_box.text.split ('.')
-				from
-					i:=1
-				until
-					i>4 or is_valid=false
-				loop
-					is_valid:= splitted_ip.at (i).is_integer
-					if(is_valid) then
-						an_integer_part_of_the_ip:= splitted_ip.at (i).to_integer
-						is_valid:= ((an_integer_part_of_the_ip <=255) and (an_integer_part_of_the_ip>=0))
-					end
-					i:=i+1
-				end
-				result:=is_valid
-			else
-				result:=false
-			end
-		end
+--	is_ip_valid: BOOLEAN
+--		local
+--			splitted_ip: LIST[STRING_32]
+--			i: INTEGER
+--			--a_string_part_of_the_ip: STRING
+--			an_integer_part_of_the_ip: INTEGER
+--			is_valid: BOOLEAN
+--		do
+--			if (ip_address_text_box.text.occurrences ('.')=3) and (ip_address_text_box.text.count<=15) then
+--
+--				is_valid:= true
+--				splitted_ip:=ip_address_text_box.text.split ('.')
+--				from
+--					i:=1
+--				until
+--					i>4 or is_valid=false
+--				loop
+--					is_valid:= splitted_ip.at (i).is_integer
+--					if(is_valid) then
+--						an_integer_part_of_the_ip:= splitted_ip.at (i).to_integer
+--						is_valid:= ((an_integer_part_of_the_ip <=255) and (an_integer_part_of_the_ip>=0))
+--					end
+--					i:=i+1
+--				end
+--				result:=is_valid
+--			else
+--				result:=false
+--			end
+--		end
 
 
 feature {NONE}	-- Attributes

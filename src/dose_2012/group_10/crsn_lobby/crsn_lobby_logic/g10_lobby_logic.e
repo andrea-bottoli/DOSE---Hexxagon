@@ -16,19 +16,21 @@ create
 ------------------------------------------------------------------
 feature{NONE} -- attributes
 
-	list_of_games 			  :	ARRAYED_LIST[G10_HOSTED_GAME]
-	list_of_connected_players : ARRAYED_LIST[G10_NET_INFO]
-	lobby_info 				  : G10_NET_INFO
-	current_game_id   		  : INTEGER
-	random_gen 				  : RANDOM
+	list_of_games 				: ARRAYED_LIST[G10_HOSTED_GAME]
+	list_of_connected_players	: ARRAYED_LIST[G10_NET_INFO]
+	global_chat_log				: ARRAYED_LIST[STRING]
+	lobby_info 					: G10_NET_INFO
+	current_game_id   			: INTEGER
+	random_gen 					: RANDOM
 
 ------------------------------------------------------------------
 feature{ANY} -- constructor
 
 	make(an_id, int_ip, ext_ip, a_port :STRING)
 	do
-		 create list_of_games.make (10)
-		 create list_of_connected_players.make (20)
+		 create list_of_games.make (50)
+		 create list_of_connected_players.make (50)
+		 create global_chat_log.make (100)
 		 create lobby_info.make_lobby(an_id, int_ip,ext_ip, a_port)
 		 current_game_id := 1
 	end
@@ -42,12 +44,12 @@ feature{ANY} -- mutators
 	do
 		if game_exists (title) = false
 		then
-			list_of_games.put_front (create {G10_HOSTED_GAME}.make(host, title, num, current_game_id))
+			list_of_games.force (create {G10_HOSTED_GAME}.make(host, title, num, current_game_id))
+			if (list_of_games.count = list_of_games.capacity) then
+				list_of_games.resize (2*list_of_games.capacity)
+			end
 			current_game_id := current_game_id + 1
 		end
-
-	ensure
-		game_count_raised: list_of_games.count = old list_of_games.count + 1
 	end
 
 	add_player_to_list (a_player : G10_NET_INFO)
@@ -55,12 +57,25 @@ feature{ANY} -- mutators
 		player_not_null : a_player /= void
 	do
 		if player_exists(a_player.get_id) = false then
-				print ("EEEEEEEEEEEEEEEEEEEEEe mounopano edw thn gamises %N")
 			list_of_connected_players.put_front (a_player)
+			if (list_of_connected_players.count = list_of_connected_players.capacity)
+		     then
+				list_of_connected_players.resize (2*list_of_connected_players.capacity)
+			end
 		end
+	end
 
+	add_text_msg_to_log(text_msg: STRING) -- inserts a text msg into the chat log data structure, the capacity is raised if needed
+	require
+		text_msg_valid: text_msg /= void and not text_msg.is_empty
+	do
+		global_chat_log.put_front (text_msg)
+		if (global_chat_log.count = global_chat_log.capacity) then
+			global_chat_log.resize (2*global_chat_log.capacity)
+--			global_chat_log.duplicate (50)
+		end
 	ensure
-		--player_count_raised: list_of_connected_players.count= old list_of_connected_players.count + 1
+		--insert_successful: global_chat_log.count = global_chat_log.count + 1
 	end
 
 	remove_game_from_list (a_game : G10_HOSTED_GAME)
@@ -72,16 +87,17 @@ feature{ANY} -- mutators
 		removed : list_of_games.has (a_game) = false
 	end
 
-	game_exists ( g_id : STRING) : BOOLEAN
+	game_exists ( g_title : STRING) : BOOLEAN
 	require
-		gameID_is : g_id.is_empty = false
+		gameID_is : g_title.is_empty = false
 	local
 		i : INTEGER
 	do
 		from  i := 1; Result := false
-		until i > list_of_games.count AND Result = true
+		until i > list_of_games.count
 		loop
-			if list_of_games.at (i).get_host_player.get_id.is_equal (g_id) then
+			if list_of_games.at (i).get_game_title.is_equal (g_title) = true
+			then
 				Result := true
 			end
 			i := i + 1
@@ -106,6 +122,10 @@ feature{ANY} -- mutators
 		end
 	end
 
+	set_new_chat_list ( chat : ARRAYED_LIST[STRING])
+	do
+		global_chat_log := chat
+	end
 	set_new_games_list ( new_list : ARRAYED_LIST[G10_HOSTED_GAME])
 	do
 		list_of_games := new_list
@@ -175,6 +195,16 @@ feature{ANY} -- accessors
 		result_is : result/= void AND Result.is_equal (list_of_connected_players) = True
 	end
 
+	get_global_chat_log: ARRAYED_LIST[STRING] --gets the global_chat_log
+	do
+		Result := global_chat_log
+	end
+
+	get_global_chat_log_msg(index: INTEGER): STRING -- gets a text message of the chat log
+	do
+		Result := global_chat_log.at(index)
+	end
+
 	get_active_games_no : INTEGER
 	do
 		Result := list_of_games.count
@@ -185,9 +215,9 @@ feature{ANY} -- accessors
 		Result := list_of_connected_players.count
 	end
 
-	get_game_by_number(num : INTEGER) : G10_NET_INFO
+	get_game_by_number(num : INTEGER) : G10_HOSTED_GAME
 	do
-		Result := list_of_games.at (num).get_host_player
+		Result := list_of_games.at (num)
 	end
 
 	get_info: G10_NET_INFO

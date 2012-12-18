@@ -34,7 +34,7 @@ feature {NONE}	-- Initialization
 				-- Store the main_ui object. We want to restore it later on (it's currently minimized).
 			main_ui := a_main_ui_window
 				-- Create the Ingenious window.
-			make_with_title (window_title)
+			make_with_title (window_title + " - " + a_logic.user_player.name)
 		end
 
 	initialize

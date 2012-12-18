@@ -45,7 +45,7 @@ feature {NONE}	-- Initialization
 
 		end
 
-feature {G5_MAIN_MENU, G5_IGUI_TO_NET} -- initialize the container of the main menu
+feature {G5_MAIN_MENU, G5_IGUI_TO_NET, G5_CREATE_GAME_MENU} -- initialize the container of the main menu
 
 	create_container_main_menu
 		-- the constructor of the main menu container
@@ -189,22 +189,22 @@ feature -- feature used by submenu that will be displayed in this window
 		end
 
 	submit_request_join_to_game(name,ip: STRING; port: INTEGER)
-		-- The user submetted and confirmeted informations about his intent to join in a game
+		-- The user submitted and confirmed informations about his intent to join a game
 		do
 			app_launcher.submitting_as_a_client(ip, name, port)
 
 			-- Destroy the window
-			destroy
+--			destroy
 		end
 
-	submit_request_create_new_game(name, game_type: STRING; port, players_number: INTEGER)
-		-- The user submetted and confirmeted informations about his intent to join in a game
+	submit_request_create_new_game(name, game_type: STRING; port, players_number: INTEGER; set_cards: ARRAY[STRING])
+		-- The user submitted and confirmed informations about his intent to create a game
 		do
 --			app_launcher.submitting_as_a_host(port, players_number, name, game_type)
-			app_launcher.submitting_as_a_host(port, players_number, name, game_type, void)
+			app_launcher.submitting_as_a_host(port, players_number, name, game_type, set_cards)
 
 			-- Destroy the window
-			destroy
+--			destroy
 		end
 
 

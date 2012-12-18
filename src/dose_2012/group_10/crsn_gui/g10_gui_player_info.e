@@ -114,9 +114,8 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 		score_number_is_valid : num >= 0
 		score_obj_valid : followers /= void
 	do
-		ensure
-			score_obj_valid : followers /= void
-			valid_mutation : old num = score.get_score_number_display
+	ensure
+		score_obj_valid : followers /= void
 	end
 
 	update_background(a_pixmap : EV_PIXMAP) -- routine sets the background of this object to arg pixmap
@@ -138,10 +137,16 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 
 -- accesor methods.
 feature {G10_GUI_PLAYER_INFO,G10_GUI_GAME_MAIN , G10_GUI_SCOREBOARD_PANEL}
+	get_followers : G10_GUI_FOLLOWER -- routine returns the followers attribute f this object
+	do
+		result := followers
+	end
+
 	get_follower_number() : INTEGER -- routine returns the follower number of this object's attribute.
 	do
-		ensure
-			object_not_mutated : followers = old followers and followers.get_follower_number = old followers.get_follower_number and followers /= void
+		result := get_followers.get_follower_number
+	ensure
+		object_not_mutated : followers = old followers and followers.get_follower_number = old followers.get_follower_number and followers /= void
 	end
 
 	get_player_name() : STRING -- routine returns the name of the player object's attribute.
@@ -151,10 +156,11 @@ feature {G10_GUI_PLAYER_INFO,G10_GUI_GAME_MAIN , G10_GUI_SCOREBOARD_PANEL}
 			object_not_mutated : player = old player and player.get_player_name_display = old player.get_player_name_display and player /= void
 	end
 
-	get_score() : INTEGER -- routine returns the score of the score attribute of this object.
+	get_score() : G10_GUI_SCORE -- routine returns the score of the score attribute of this object.
 	do
-		ensure
-			object_not_mutated : score = old score and score.get_score_number_display = old score.get_score_number_display and score /= void
+		result := score
+	ensure
+		object_not_mutated : score = old score and score.get_score_number_display = old score.get_score_number_display and score /= void
 	end
 
 -- class invariants

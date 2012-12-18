@@ -6,6 +6,8 @@ note
 
 class
 	G10_NET_INFO
+	inherit
+		G10_CRSN_CONSTANTS
 
 create
 	make_lobby, make_player
@@ -34,33 +36,41 @@ feature{ANY} -- constructors
 		port_ok : get_port = a_port
 	end
 
-	make_player( an_id: STRING)
-	require
-		valid_arg: an_id /= void and not an_id.is_empty
+	make_player
 	do
-		id := an_id
-		internal_ip := ""--get_internal_ip_by_file
+		id := ""
+		internal_ip := get_internal_ip_by_file
 		external_ip := get_external_ip_by_http
 		port := generate_random_port
 	ensure
-		id_ok: get_id = an_id
-		--internal_ip_ok: get_internal_ip = get_internal_ip_by_file
+		id_ok: get_id.is_empty
+		internal_ip_ok: get_internal_ip = get_internal_ip_by_file
 		external_ip_ok : get_external_ip = get_external_ip_by_http
 	end
 
 feature{G10_LOBBY_USER} -- regarding ip addresses and port of the user's pc
 
+
 	get_internal_ip_by_file : STRING
 	local
-		input : PLAIN_TEXT_FILE
-		i : INTEGER
-		str : STRING
-		lan_ip : STRING
-		ok : BOOLEAN
+		input 	: PLAIN_TEXT_FILE
+		i 		: INTEGER
+		str 	: STRING
+		ok  	: BOOLEAN
 	once
-		create input.make_open_read ("log.txt")  -- edw anti gia to string 8a valoume to ip_config_log_path
+--		rescue
+
+--			from  ok := false
+--			until (input.is_open_read = true)
+--			loop
+--				create input.make_open_read ("log.txt")
+--			end
+--			retry
+
+		create input.make_open_read ("log.txt")
+
 		create str.make_from_string ("")
-		create lan_ip.make (20)
+		create Result.make(20)
 
 	  	 from  input.start ; input.read_line ; ok := false
 	  	 until ok = true
@@ -72,31 +82,35 @@ feature{G10_LOBBY_USER} -- regarding ip addresses and port of the user's pc
 				 from  i := str.substring_index ("IPv4 Address", 1) + 36
 		         until i > str.count
 		         loop
-		  			lan_ip.append_character (str.at (i))
+		  			Result.append_character (str.at (i))
 		  			i:= i + 1
 		         end
 			end
 			str.append_string ("%N")
 	        input.read_line
 	      end
-	     print(lan_ip)
+	     --print("internal ip found: "+Result+"%N")
 	     input.close
-	     --input.delete
 	end
 
 	get_external_ip_by_http : STRING
 	local
-     			http : G10_HTTP_CLIENT
-		url  : HTTP_URL
-		page : STRING
-		ip : STRING
-		i 	: INTEGER
+     	http 	: G10_HTTP_CLIENT
+		url  	: HTTP_URL
+		page,ip	: STRING
+		i 		: INTEGER
+		got_correct : BOOLEAN
 	once
 		create url.make ("http://www.auditmypc.com/digital-footprint.asp")
 		create http.make (url)
 
-		page := http.get
-		--print(page)
+--	rescue
+--		from  got_correct := false
+--		until http.is_packet_pending = false
+--		loop
+			page := http.get
+--		end
+--		retry
 
 		create ip.make (15)
 		from
@@ -108,16 +122,6 @@ feature{G10_LOBBY_USER} -- regarding ip addresses and port of the user's pc
 			i := i + 1
 		end
 		Result := ip
-	end
-
-	ipconf_script_call
-	local
---		my_proc : PROCESS
---		proc_run : PROCESS_FACTORY
-	once
---		create proc_run
---		my_proc := proc_run.process_launcher ("ipconf.bat",void,"") --  edw anti gia to string 8a valoume to ipconfig_script_path
---		my_proc.launch
 	end
 
 	generate_random_port : STRING -- provides a random port (10.000-60.000)
@@ -208,4 +212,7 @@ feature{ANY} -- accessors
 		Result /= void AND Result = port
 	end
 
+invariant
+	port_always_bigger 	: (port.to_integer > 1024) AND (port.to_integer < 65536 )
+	string_var_are 		: id /= "" AND internal_ip /= ""
 end

@@ -16,9 +16,15 @@ create
 feature {CU_LOGIC}
 	make
 		do
+			create constants
+			current_status:=constants.game_states.initializing
+			n_turns:=-1
+			create players.make_empty
+			create active_players.make_empty
+			create solution.make_empty
 		ensure
 			make_constants: constants /= void
-			make_players: active_players /= void
+			make_players: active_players /= void and players/= void
 		end
 
 feature  -- Access
@@ -138,20 +144,23 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 	next_turn
 		--goes to the next player
 		require
-			right_phase: current_status = constants.game_states.suggesting
+			right_phase: current_status = constants.game_states.suggesting or current_status = constants.game_states.starting
 		local
-			l_total: INTEGER
+			l_pl_i:INTEGER
 		do
 			n_turns:=n_turns+1
-			l_total:=active_players.count
-			active_players[(n_turns-2*l_total)\\l_total].set_suggestion_room (void)
-			current_player:=active_players[n_turns\\active_players.count]
+			l_pl_i:=n_turns\\active_players.count+1
+			current_player:=active_players.entry (l_pl_i)
+			if current_player.room_unset=0 then
+				current_player.set_suggestion_room(void)
+			end
+			current_player.decrease_room_count
+
 			next_game_state (false)
 			create steps.make
 			notify_observers (create{CU_MESSAGE}.make("new_turn", <<>>))
 		ensure
-			new_current_player: current_player /= old current_player
-			next_one: current_player = active_players[n_turns\\active_players.count]
+			--new_current_player: current_player /= old current_player
 			next_num: n_turns = old n_turns + 1
 			new_turn: current_status=constants.game_states.dices
 		end
@@ -186,7 +195,6 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		-- generates the solution of the case at the beginning
 		require
 			right_phase: current_status = constants.game_states.starting
-			solution_void: solution=void
 		local
       l_list: LINKED_LIST[INTEGER]
       l_int: INTEGER
@@ -226,12 +234,12 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 			create l_cards_deck.make
 			deck_init(l_cards_deck)
 			from
-				i:=1
+				i:=0
 			until
 				l_cards_deck.off
 			loop
 				l_cards_deck.start
-				active_players.item (i\\active_players.count).add_card_to_hand (l_cards_deck.item)
+				active_players.item ((i\\active_players.count)+1).add_card_to_hand (l_cards_deck.item)
 				l_cards_deck.remove
 				i:=i+1
 			end
@@ -244,6 +252,11 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 			board_void: game_board = void
 		local
 			l_i: INTEGER
+			l_rand: INTEGER
+			l_coord: CU_COORDINATE
+			l_rooms: LINKED_LIST[CU_ROOM]
+			l_r_list: LINKED_LIST[INTEGER]
+			l_w_list: LINKED_LIST[INTEGER]
 		do
 			create game_board.make
 			--Set initial player's position
@@ -257,31 +270,62 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 				when 0 then
 					if attached {CU_CORRIDOR} game_board.board.item(25, 8) as scarlet then
 						scarlet.player_moves_in (players.item (l_i))
+						players.item (l_i).move_to_position (25,8)
 					end
 				when 1 then
 					if attached {CU_CORRIDOR} game_board.board.item(18, 1) as mustard then
 						mustard.player_moves_in (players.item (l_i))
+						players.item (l_i).move_to_position (18,1)
 					end
 				when 2 then
 					if attached {CU_CORRIDOR} game_board.board.item(1, 10) as white then
 						white.player_moves_in (players.item (l_i))
+						players.item (l_i).move_to_position (1,10)
 					end
 				when 3 then
 					if attached {CU_CORRIDOR} game_board.board.item(1, 15) as green then
 						green.player_moves_in (players.item (l_i))
+						players.item (l_i).move_to_position (1,15)
 					end
 				when 4 then
 					if attached {CU_CORRIDOR} game_board.board.item(7, 24) as peacock then
 						peacock.player_moves_in (players.item (l_i))
+						players.item (l_i).move_to_position (7,24)
 					end
 				when 5 then
 					if attached {CU_CORRIDOR} game_board.board.item(20, 24) as plum then
 						plum.player_moves_in (players.item (l_i))
+						players.item (l_i).move_to_position (20,24)
 					end
-				else
-
 				end
 				l_i:=l_i+1
+			end
+			--Sets weapons initial position randomly
+			l_r_list:= constants.rooms.get_list
+			l_w_list:= constants.weapons.get_list
+			create l_rooms.make
+			from
+				l_i:= 1
+			until
+				l_i>l_r_list.count
+			loop
+				l_coord:= game_board.find_room (l_r_list.at (l_i))
+				if attached {CU_ROOM} game_board.board.item(l_coord.x, l_coord.y) as l_room then
+					l_rooms.extend (l_room)
+				end
+				l_i:= l_i+1
+			end
+			from
+				l_i:= 1
+				l_rooms.start
+			until
+				l_i>l_w_list.count
+			loop
+				l_rand:= rand (l_rooms.count)
+				l_rooms.go_i_th (l_rand)
+				l_rooms.item.weapon_in (l_w_list.at (l_i))
+				l_rooms.remove
+				l_i:= l_i+1
 			end
 		ensure
 			board_not_empty: game_board /= void
@@ -294,23 +338,29 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		local
 			l_list: LINKED_LIST[INTEGER]
 			l_ordered_players: ARRAY[CU_PLAYER]
-			i: INTEGER
+			l_stop: BOOLEAN
+			l_i: INTEGER
 		do
 			l_list:= constants.suspects.get_list
+			create l_ordered_players.make_empty
 			from
 				l_list.start
 			until
 				l_list.off or else active_players.count=l_ordered_players.count
 			loop
 				from
-					i:=0
+					l_i:=1
+					l_stop:=false
 				until
-					i>active_players.count
+					l_i>active_players.count or l_stop
 				loop
-					if l_list.item=active_players.item (i).pawn then
-						l_ordered_players.force (active_players.item (i), l_ordered_players.count+1)
+					if l_list.item=active_players.item (l_i).pawn then
+						l_ordered_players.force (active_players.item (l_i), l_ordered_players.count+1)
+						l_stop:=true
 					end
+					l_i:=l_i+1
 				end
+				l_list.forth
 			end
 			active_players:=l_ordered_players
 		end
@@ -318,8 +368,10 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 	remove_player (a_pl: CU_PLAYER)
 		--removes specific player from the game
 		require
-			active_player_exists: active_players.has(a_pl)
+			--active_player_exists: active_players.has(a_pl)
 			player_exists: players.has (a_pl)
+		local
+			l_temp: INTEGER
 		do
 			no_blocking_door(a_pl)
 			redistribute_cards(a_pl)
@@ -331,8 +383,10 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 				l_room.insert_pawns (a_pl.pawn)
 			end
 			end
-			n_turns:=remove_players_from_array(a_pl, players)
-			n_turns:=remove_players_from_array(a_pl, active_players)
+			l_temp:=remove_players_from_array(a_pl, players)
+			if active_players.has(a_pl) then
+				n_turns:=remove_players_from_array(a_pl, active_players)-1
+			end
 			notify_observers (create{CU_MESSAGE}.make("player_removed", <<a_pl>>))
 		ensure
 			active_player_does_not_exist: not active_players.has(a_pl)
@@ -361,12 +415,10 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 			result:=rand(12)
 		end
 
-	move (a_pl: CU_PLAYER; a_dir: CHARACTER_8)
+	move (a_dir: CHARACTER_8)
 		--moves a specific player into an adiacent square following given direction
 		require
 			right_phase: current_status = constants.game_states.moving
-			player_not_void: a_pl /= void
-			player_exists: active_players.has(a_pl)
 			valid_dir: a_dir.is_equal ('u') or a_dir.is_equal ('d') or a_dir.is_equal ('r') or a_dir.is_equal ('l')
 		local
 			l_current_sq: CU_SQUARE
@@ -377,34 +429,31 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 					a_dir
 				when 'u' then
 					if l_current_corridor.n.is_equal ("door") or l_current_corridor.n.is_equal ("corridor") then
-						square_player_setting(current_player.position.x-1,current_player.position.y)
+						square_player_setting(current_player,current_player.position.x-1,current_player.position.y)
 					end
 				when 'd' then
 					if l_current_corridor.s.is_equal ("door") or l_current_corridor.s.is_equal ("corridor") then
-						square_player_setting(current_player.position.x+1,current_player.position.y)
+						square_player_setting(current_player,current_player.position.x+1,current_player.position.y)
 					end
 				when 'l' then
 					if l_current_corridor.w.is_equal ("door") or l_current_corridor.w.is_equal ("corridor") then
-						square_player_setting(current_player.position.x,current_player.position.y-1)
+						square_player_setting(current_player,current_player.position.x,current_player.position.y-1)
 					end
 				when 'r' then
 					if l_current_corridor.e.is_equal ("door") or l_current_corridor.e.is_equal ("corridor") then
-						square_player_setting(current_player.position.x,current_player.position.y+1)
+						square_player_setting(current_player,current_player.position.x,current_player.position.y+1)
 					end
 				end
 			end
 			notify_observers (create{CU_MESSAGE}.make("player_moved", <<current_player>>))
 		ensure
-			player_exists: active_players.has(a_pl)
-			changed_square: a_pl.position /= old a_pl.position
+			changed_square: current_player.position /= old current_player.position
 		end
 
 	exit_room(a_corr: CU_CORRIDOR)
 		require
 			valid_corr: a_corr/= void
 		local
-			l_i: INTEGER
-			l_stop: BOOLEAN
 			l_coord: CU_COORDINATE
 		do
 			if attached {CU_ROOM} game_board.find_square (current_player.position) as l_room then
@@ -553,15 +602,16 @@ feature {CU_LOGIC,EQA_TEST_SET}--Procedures
 		end
 
 feature {NONE}
-	square_player_setting(a_x,a_y: INTEGER)
+	square_player_setting(a_pl: CU_PLAYER; a_x,a_y: INTEGER)
 		require
 			valid_coord: a_x>0 and a_y>0
+			valid_pl: a_pl /= void
 		local
 			l_square: CU_SQUARE
 		do
 			l_square:=game_board.board.item (a_x,a_y)
 			if not steps.has (l_square) then
-				current_player.move_to_position (a_x,a_y)
+				a_pl.move_to_position (a_x,a_y)
 				if attached {CU_CORRIDOR} l_square as l_corridor then
 					l_corridor.player_moves_in(current_player)
 				else
@@ -594,29 +644,34 @@ feature {NONE}
 			until
 				a_list.off
 			loop
-				l_int:=rand(a_cards_deck.count)
-				a_cards_deck.move (l_int)
+				if(a_cards_deck.count=0) then
+					a_cards_deck.start
+				else
+					l_int:=rand(a_cards_deck.count)
+					a_cards_deck.go_i_th (l_int)
+				end
 				inspect
 					a_position
 				when 1 then
 					if attached {CU_SUSPECT_CARD} solution.item(a_position) as l_temp_sus then
-						if l_temp_sus.suspect=a_list.item then
+						if l_temp_sus.suspect/=a_list.item then
 							a_cards_deck.put_left (create {CU_SUSPECT_CARD}.make (a_list.item))
 						end
 					end
 				when 2 then
 					if attached {CU_WEAPON_CARD} solution.item(a_position) as l_temp_wea then
-						if l_temp_wea.weapon=a_list.item then
+						if l_temp_wea.weapon/=a_list.item then
 							a_cards_deck.put_left (create {CU_WEAPON_CARD}.make (a_list.item))
 						end
 					end
 				when 3 then
 					if attached {CU_ROOM_CARD} solution.item(a_position) as l_temp_roo then
-						if l_temp_roo.room=a_list.item then
+						if l_temp_roo.room/=a_list.item then
 							a_cards_deck.put_left (create {CU_ROOM_CARD}.make (a_list.item))
 						end
 					end
 				end
+				a_list.forth
 			end
 		end
 
@@ -676,13 +731,13 @@ feature {NONE}
 		do
 			if attached {CU_CORRIDOR} game_board.find_square (a_pl.position) as l_pos then
 				if l_pos.n="door" then
-					move(a_pl,'u')
+					square_player_setting (a_pl, a_pl.position.x-1,a_pl.position.y)
 				else if	 l_pos.s="door" then
-					move(a_pl,'d')
+					square_player_setting (a_pl, a_pl.position.x+1,a_pl.position.y)
 				else if l_pos.e="door" then
-					move(a_pl,'r')
+					square_player_setting (a_pl, a_pl.position.x,a_pl.position.y+1)
 				else if l_pos.w="door" then
-					move(a_pl,'l')
+					square_player_setting (a_pl, a_pl.position.x,a_pl.position.y-1)
 				end
 				end
 				end
@@ -693,26 +748,31 @@ feature {NONE}
 	remove_players_from_array(a_pl: CU_PLAYER; a_players: ARRAY[CU_PLAYER]): INTEGER
 		local
 			i: INTEGER
+			l_j: INTEGER
+			l_stop: BOOLEAN
 		do
 			from
 				i:=1
+				l_stop:=false
 			until
-				i>a_players.count
+				i>a_players.count or l_stop
 			loop
 				if a_pl=a_players.item (i) then
-				result:=i;
+					result:=i;
+					l_stop:=true
 					from
+						l_j:=i
 					until
-						i>a_players.count
+						l_j>a_players.count-1
 					loop
-						a_players.item (i):=a_players.item (i+1)
-						i:=i+1
+						a_players.enter(a_players.item (l_j+1),l_j)
+						l_j:=l_j+1
 					end
 				end
 				i:=i+1
 			end
-			a_players.put (void, i-2)
-			a_players.trim--This is the correct way to eliminate holes in the array
+			a_players.put (void, a_players.count)
+			a_players.remove_tail (1)
 		end
 
 invariant

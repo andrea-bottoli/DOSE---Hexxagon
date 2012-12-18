@@ -32,6 +32,8 @@ feature -- Initialization
 
 			not_void_table: a_score_table /= void
 
+			correct_table_count: a_score_table.count >= 2 and a_score_table.count <= 4
+
 			accepted_actions_for_end_message:	an_action.is_equal ("end")
 
 			server_is_source:	a_source.is_equal ("SERVER")

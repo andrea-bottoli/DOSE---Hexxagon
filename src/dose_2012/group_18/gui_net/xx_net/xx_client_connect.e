@@ -47,8 +47,6 @@ feature{XX_NET} --Methods used by XX_NET
 	do
 		if(writer/=Void and writer.is_ready_for_writing)then
 			store (a_message, writer)
-		else
-			print("writer empty%N")
 		end
 	end
 

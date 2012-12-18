@@ -15,6 +15,12 @@ inherit
 
 feature {NONE} -- Access
 
+	set_pixmap (a_path: KL_PATHNAME): EV_PIXMAP
+	do
+		create Result
+		Result.set_with_named_file (file_system.pathname_to_string (a_path))
+	end
+
 	Dose_folder: STRING = "dose_2012"
 	Image_folder: STRING = "images"
 	CU_folder: STRING = "group13"
@@ -33,7 +39,7 @@ feature {NONE} -- Access
 			-- Path to "background" image
 		do
 			Result := img_path
-			Result.append_name ("CluedoBoard.png")
+			Result.append_name ("cluedo_table.png")
 		end
 
 	img_main_background: KL_PATHNAME
@@ -62,6 +68,41 @@ feature {NONE} -- Access
 		do
 			Result := img_path
 			Result.append_name ("PawnBoardMrsPeacock.png")
+		end
+
+	img_mustard: KL_PATHNAME
+			-- Path to "background" image
+		do
+			Result := img_path
+			Result.append_name ("PawnBoardColonelMustard.png")
+		end
+
+	img_plum: KL_PATHNAME
+			-- Path to "background" image
+		do
+			Result := img_path
+			Result.append_name ("PawnBoardProfessorPlum.png")
+		end
+
+	img_scarlett: KL_PATHNAME
+			-- Path to "background" image
+		do
+			Result := img_path
+			Result.append_name ("PawnBoardMissScarlett.png")
+		end
+
+	img_green: KL_PATHNAME
+			-- Path to "background" image
+		do
+			Result := img_path
+			Result.append_name ("PawnBoardMrGreen.png")
+		end
+
+	img_white: KL_PATHNAME
+			-- Path to "background" image
+		do
+			Result := img_path
+			Result.append_name ("PawnBoardMrsWhite.png")
 		end
 
 	img_notes: KL_PATHNAME
@@ -177,6 +218,158 @@ feature {NONE} -- Access
 			Result := img_path
 			Result.append_name ("fuuu.png")
 		end
+
+	------------- Img card rooms ----------------------------------------
+	img_card_ball_room: KL_PATHNAME
+			-- Path to "Ball Room" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomBallRoom.png")
+		end
+
+	img_card_billiard_room: KL_PATHNAME
+			-- Path to "Billiard Room" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomBilliardRoom.png")
+		end
+
+	img_card_conservatory: KL_PATHNAME
+			-- Path to "Conservatory" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomConservatory.png")
+		end
+
+	img_card_dining_room: KL_PATHNAME
+			-- Path to "Dining Room" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomDiningRoom.png")
+		end
+
+	img_card_hall: KL_PATHNAME
+			-- Path to "Hall" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomHall.png")
+		end
+
+	img_card_kitchen: KL_PATHNAME
+			-- Path to "Kitchen" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomKitchen.png")
+		end
+
+	img_card_library: KL_PATHNAME
+			-- Path to "Library" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomLibrary.png")
+		end
+
+	img_card_lounge: KL_PATHNAME
+			-- Path to "Lounge" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomLounge.png")
+		end
+
+	img_card_study: KL_PATHNAME
+			-- Path to "Study" image
+		do
+			Result := img_path
+			Result.append_name ("CardRoomStudy.png")
+		end
+
+
+------------- Img card suspects ----------------------------------------
+	img_card_mustard: KL_PATHNAME
+			-- Path to "Mustard" image
+		do
+			Result := img_path
+			Result.append_name ("CardSuspectColonelMustard.png")
+		end
+
+	img_card_plum: KL_PATHNAME
+			-- Path to "Plum" image
+		do
+			Result := img_path
+			Result.append_name ("CardSuspectProfessorPlum.png")
+		end
+
+	img_card_scarlett: KL_PATHNAME
+			-- Path to "Scarlett" image
+		do
+			Result := img_path
+			Result.append_name ("CardSuspectMissScarlett.png")
+		end
+
+	img_card_peacock: KL_PATHNAME
+			-- Path to "Peacock" image
+		do
+			Result := img_path
+			Result.append_name ("CardSuspectMrsPeacock.png")
+		end
+
+	img_card_white: KL_PATHNAME
+			-- Path to "White" image
+		do
+			Result := img_path
+			Result.append_name ("CardSuspectMrsWhite.png")
+		end
+
+	img_card_green: KL_PATHNAME
+			-- Path to "Green" image
+		do
+			Result := img_path
+			Result.append_name ("CardSuspectReverendGreen.png")
+		end
+
+------------- Img card weapons ----------------------------------------
+	img_card_knife: KL_PATHNAME
+			-- Path to "Knife" image
+		do
+			Result := img_path
+			Result.append_name ("CardWeaponKnife.png")
+		end
+
+	img_card_candlestick: KL_PATHNAME
+			-- Path to "Candlestick" image
+		do
+			Result := img_path
+			Result.append_name ("CardWeaponCandlestick.png")
+		end
+
+	img_card_lead_pipe: KL_PATHNAME
+			-- Path to "Lead Pipe" image
+		do
+			Result := img_path
+			Result.append_name ("CardWeaponLeadPipe.png")
+		end
+
+	img_card_wrench: KL_PATHNAME
+			-- Path to "Wrench" image
+		do
+			Result := img_path
+			Result.append_name ("CardWeaponWrench.png")
+		end
+
+	img_card_rope: KL_PATHNAME
+			-- Path to "Rope" image
+		do
+			Result := img_path
+			Result.append_name ("CardWeaponRope.png")
+		end
+
+	img_card_revolver: KL_PATHNAME
+			-- Path to "Revolver" image
+		do
+			Result := img_path
+			Result.append_name ("CardWeaponRevolver.png")
+		end
+
 
 	Quit_dialog_message: STRING = "Do you really want to close?"
 			-- Message for the quit dialog box

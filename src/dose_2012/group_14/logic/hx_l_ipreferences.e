@@ -17,13 +17,22 @@ feature -- Access
 	board_image_path: STRING
 		-- Path to a board image. #596
 
+	set_board_image_path(path: STRING)
+		deferred
+		end
+
 	player1_piece_image_path: STRING
 		-- Path to a player1 piece image. #597
+
+	set_player1_piece_image_path(path: STRING)
+		deferred
+		end
 
 	player2_piece_image_path: STRING
 		-- Path to a player2 piece image. #598
 
-	empty_place_image_path: STRING
-		-- Path to a empty place image. #599
+	set_player2_piece_image_path(path: STRING)
+		deferred
+		end
 
 end

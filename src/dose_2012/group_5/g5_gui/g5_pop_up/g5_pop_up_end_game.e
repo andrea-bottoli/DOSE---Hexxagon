@@ -14,7 +14,7 @@ create
 
 feature
 
-	make(the_scores: HASH_TABLE[INTEGER, STRING])
+	make(the_scores: HASH_TABLE[INTEGER, STRING]; a_gui: G5_GUI)
 		-- The constructor of the class
 		require
 			valid_arg: the_scores /= void
@@ -22,6 +22,7 @@ feature
 			font: EV_FONT
 		do
 			final_Scores:= the_scores
+			gui:= a_gui
 
 
 			-- create the window
@@ -53,10 +54,15 @@ feature
 			description_label.set_font (font)
 			pop_up_container.extend_with_position_and_size (description_label, 150, 50, 500, 30)
 
+			-- create and add buttons to the pop-up
+			create leave_button.make_with_text ("Leave")
+			pop_up_container.extend_with_position_and_size (leave_button, 260, 450, 113, 42)
+			leave_button.select_actions.extend(agent leave_request)
+
 			-- create and add button to the pop-up
-			create ok_button.make_with_text ("OK")
-			pop_up_container.extend_with_position_and_size (ok_button, 343, 450, 113, 42)
-			ok_button.select_actions.extend(agent ok_request)
+			create rematch_button.make_with_text ("Rematch")
+			pop_up_container.extend_with_position_and_size (rematch_button, 430, 450, 113, 42)
+			rematch_button.select_actions.extend(agent rematch_request)
 
 			-- create all cards
 			set_score_labels
@@ -100,12 +106,37 @@ feature {NONE} -- label initialization
 
 		end
 
+	leave_request
+		-- the ok button has been pressed
+		do
+			gui.leave_request
+			destroy
+		end
+
+	rematch_request
+		-- the ok button has been pressed
+		do
+			gui.rematch_request
+		end
+
+
 feature -- Variables
+
+	gui:G5_GUI
+		-- the ref to the gui used to notify the player choice
 
 	final_scores: HASH_TABLE[INTEGER, STRING]
 		-- The list of players with their names and their final scores
 
 	score_labels_list: ARRAYED_LIST[EV_LABEL]
 		-- the list that cointains label with scores
+
+feature -- Attributes
+
+	leave_button: EV_BUTTON
+		-- the leave button
+
+	rematch_button: EV_BUTTON
+		-- the rematch button
 
 end

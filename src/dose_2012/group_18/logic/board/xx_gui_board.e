@@ -17,7 +17,7 @@ feature {NONE}
 
 feature {XX_BOARD,XX_HEXXAGON,XX_RULES} -- Initialization
 
---###############################################################
+
 	make()  -- Constructor of object XX_GUI_BOARD
 	do
 		cell_n := 58
@@ -41,7 +41,7 @@ feature {XX_BOARD,XX_HEXXAGON,XX_RULES} -- Initialization
 		valid_cell: (cells /= Void) and (Result = cells[cell])
 	end
 
---###############################################################
+
 	set_cell(cell:INTEGER; value:INTEGER)	-- Set value to a specific gui board cell
 											-- 0 for empty
 											-- 1 for player1 piece
@@ -61,7 +61,7 @@ feature {XX_BOARD,XX_HEXXAGON,XX_RULES} -- Initialization
 
 feature{ANY}
 
---###############################################################
+
 	get_array(): ARRAY[INTEGER]			-- Get the whole array
 										--for each cell has a number
 										--if 0 then it is empty

@@ -54,6 +54,6 @@ feature -- Constants
 
 	protocol_error: STRING = "Protocol error"
 
-
+	max_passes : INTEGER = 3
 
 end

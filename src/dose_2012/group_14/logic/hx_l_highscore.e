@@ -33,6 +33,17 @@ feature {NONE }-- Internal
 			Result.append_name (highscore_file)
 		end
 
+	player_name_path: KL_PATHNAME
+			-- Path for highscore file.
+		do
+			create Result.make
+			Result.set_relative (TRUE)
+			Result.append_name (dose_directory)
+			Result.append_name (group14_directory)
+			Result.append_name (logic_directory)
+			Result.append_name ("highscore_player.txt")
+		end
+
 feature -- access
 
 	set_high_score(new_high_score: INTEGER)
@@ -55,6 +66,31 @@ feature -- access
 
             l_highscore_file.read_integer
 			Result := l_highscore_file.last_integer
+
+            l_highscore_file.close
+
+		end
+
+	set_player_name(new_player_name: STRING)
+		-- Set the value of the high score
+		local
+			l_highscore_file: PLAIN_TEXT_FILE
+		do
+            create l_highscore_file.make_open_write (file_system.pathname_to_string (player_name_path))
+            l_highscore_file.put_string (new_player_name)
+            l_highscore_file.close
+        end
+
+	player_name: STRING
+		-- Get the value of the high score
+		local
+			l_highscore_file: PLAIN_TEXT_FILE
+		do
+
+            create l_highscore_file.make_open_read (file_system.pathname_to_string (player_name_path))
+
+            l_highscore_file.readline
+			Result := l_highscore_file.last_string
 
             l_highscore_file.close
 

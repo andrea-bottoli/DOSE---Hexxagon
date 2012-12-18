@@ -25,7 +25,8 @@ feature{G5_IGUI_TO_NET, EQA_TEST_SET} -- the constructor
 			font: EV_FONT
 		do
 			supply_state:= state_of_supply
-			create list_of_displayed_cards.make (list_of_cards.count)
+			create list_of_displayed_cards.make (state_of_supply.count)
+			create supply_cards_label.make (0)
 
 			-- create the window
 			default_create
@@ -53,25 +54,32 @@ feature{G5_IGUI_TO_NET, EQA_TEST_SET} -- the constructor
 			create font.default_create
 			font.set_height (20)
 			description_label.set_font (font)
-			pop_up_container.extend_with_position_and_size (description_label, 23, 15, 100, 30)
+			current.lock_update
+			pop_up_container.extend_with_position_and_size (description_label, 23, 15, 250, 30)
+			current.unlock_update
 
 			-- create and add button to the pop-up
 			create ok_button.make_with_text ("OK")
-			pop_up_container.extend_with_position_and_size (ok_button, 166, 497, 113, 42)
+			pop_up_container.extend_with_position_and_size (ok_button, 309, 449, 113, 42)
+			current.lock_update
 			ok_button.select_actions.extend(agent ok_request)
-
+			current.unlock_update
 
 			-- create and add the zoom box that display the zoomed card
 			create zoom_box.make
+			current.lock_update
 			pop_up_container.extend_with_position_and_size (zoom_box, 471, 41, 296, 473)
+			current.unlock_update
 
-
-			-- ** NOTA ** midificare!!!!
 			-- create all cards
+			current.lock_update
 			set_cards_in_the_pop_up
+			current.unlock_update
 
 			-- add the main container to the pop-up
+			current.lock_update
 			put (pop_up_container)
+			current.unlock_update
 		end
 
 feature {NONE} -- Application
@@ -94,7 +102,7 @@ feature {NONE} -- Application
 				create a_card.make_mini (key_set[i], "pop-up")
 				create a_card_label.make_with_text (supply_state.at (key_set[i]).out)
 
-				a_card.pointer_enter_actions.extend (agent pointer_enter_card(list_of_cards[i]))
+				a_card.pointer_enter_actions.extend (agent pointer_enter_card(key_set[i]))
 				a_card.pointer_leave_actions.extend (agent pointer_leave_card)
 
 				-- sets dimension of the card and add it to the container
@@ -104,15 +112,13 @@ feature {NONE} -- Application
 				pop_up_container.set_item_size (a_card_label, 16, 21)
 				index_of_card:= i
 
-
-				-- ** NOTA ** CAMBIARE!!!!
 				-- sets position of the card
 				if (index_of_card <= 3) then
 					pop_up_container.set_item_x_position (a_card, (((index_of_card-1)*143)+23))
 					pop_up_container.set_item_y_position (a_card, (69))
 
 					pop_up_container.set_item_x_position (a_card_label, (((index_of_card-1)*143)+69))
-					pop_up_container.set_item_y_position (a_card_label, (121))
+					pop_up_container.set_item_y_position (a_card_label, (115))
 				elseif (index_of_card <= 6) then
 					-- set the correct position
 					index_of_card:= index_of_card -3
@@ -120,7 +126,7 @@ feature {NONE} -- Application
 					pop_up_container.set_item_y_position (a_card, 145)
 
 					pop_up_container.set_item_x_position (a_card_label, (((index_of_card-1)*143)+69))
-					pop_up_container.set_item_y_position (a_card_label, (197))
+					pop_up_container.set_item_y_position (a_card_label, (191))
 				elseif (index_of_card <= 9) then
 					-- set the correct position
 					index_of_card:= index_of_card -6
@@ -128,7 +134,7 @@ feature {NONE} -- Application
 					pop_up_container.set_item_y_position (a_card, 221)
 
 					pop_up_container.set_item_x_position (a_card_label, (((index_of_card-1)*143)+69))
-					pop_up_container.set_item_y_position (a_card_label, (273))
+					pop_up_container.set_item_y_position (a_card_label, (267))
 				elseif (index_of_card <= 12) then
 					-- set the correct position
 					index_of_card:= index_of_card -9
@@ -136,7 +142,7 @@ feature {NONE} -- Application
 					pop_up_container.set_item_y_position (a_card, 297)
 
 					pop_up_container.set_item_x_position (a_card_label, (((index_of_card-1)*143)+69))
-					pop_up_container.set_item_y_position (a_card_label, (349))
+					pop_up_container.set_item_y_position (a_card_label, (343))
 				elseif (index_of_card <= 15) then
 					-- set the correct position
 					index_of_card:= index_of_card -12
@@ -144,7 +150,7 @@ feature {NONE} -- Application
 					pop_up_container.set_item_y_position (a_card, 373)
 
 					pop_up_container.set_item_x_position (a_card_label, (((index_of_card-1)*143)+69))
-					pop_up_container.set_item_y_position (a_card_label, (425))
+					pop_up_container.set_item_y_position (a_card_label, (419))
 				elseif (index_of_card <= 18) then
 					-- set the correct position
 					index_of_card:= index_of_card -15
@@ -152,17 +158,7 @@ feature {NONE} -- Application
 					pop_up_container.set_item_y_position (a_card, 449)
 
 					pop_up_container.set_item_x_position (a_card_label, (((index_of_card-1)*143)+69))
-					pop_up_container.set_item_y_position (a_card_label, (501))
---				elseif (index_of_card <= 21) then
---					-- set the correct position
---					index_of_card:= index_of_card -18
---					pop_up_container.set_item_x_position (a_card, (((index_of_card-1)*143)+23))
---					pop_up_container.set_item_y_position (a_card, 369)
---				elseif (index_of_card <= 24) then
---					-- set the correct position
---					index_of_card:= index_of_card -21
---					pop_up_container.set_item_x_position (a_card, (((index_of_card-1)*143)+23))
---					pop_up_container.set_item_y_position (a_card, 419)
+					pop_up_container.set_item_y_position (a_card_label, (495))
 				end
 				list_of_displayed_cards.force (a_card)
 				supply_cards_label.force (a_card_label)

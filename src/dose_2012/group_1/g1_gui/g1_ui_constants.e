@@ -57,7 +57,7 @@ feature {NONE} -- Numerical Constants
 
     Popup_trade_width : INTEGER = 830
 			-- Initial width for the mortgage popup.
-	Popup_trade_height: INTEGER = 300
+	Popup_trade_height: INTEGER = 330
             -- Initial height for the mortgage popup.		
 
 	Popup_jail_width : INTEGER = 520
@@ -146,6 +146,7 @@ feature {NONE} -- Common features
 				pixmap.stretch (width_img,height_img)
 			end
 			area.set_background_pixmap (pixmap)
+			pixmap.destroy
 			Result := area
 		end
 

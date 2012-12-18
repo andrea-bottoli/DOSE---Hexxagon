@@ -2,23 +2,24 @@ note
 	description: "represents the graphic interface of the list of hosted carcassonne games "
 	author: "Angel Kyriako"
 	date: "27/11/2012"
+	revision: "3.0"
 
 class
 	G10_LOBBY_HOSTED_GAMES
-	----------------------------------
+
 inherit
 	EV_LIST
 	G10_LOBBY_CONSTANTS
 		undefine
 			default_create, copy, is_equal
 		end
-	----------------------------------
+
 create make_hosted_games
-	----------------------------------
+
 
 feature {NONE}
+	last_selected_game: EV_LIST_ITEM
 
-	----------------------------------
 
 feature {ANY} --constructor
 
@@ -29,8 +30,9 @@ feature {ANY} --constructor
 		pointer_enter_actions.extend (agent enter_hosted_games_notify(lobby) )
 		pointer_leave_actions.extend (agent enter_hosted_games_notify(lobby) )
 		lobby.get_background.extend_with_position_and_size (Current, hosted_games_Start_width, hosted_games_Start_height, hosted_games_width, hosted_games_height)
+
+		last_selected_game := void
 	end
-	----------------------------------
 
 feature {NONE} -- mutators
 
@@ -50,22 +52,39 @@ feature {NONE} -- mutators
 			end
 			-- display the game in the text area
 			create a_game.make_with_text (a_game_diplay)
+			a_game.select_actions.extend(agent update_last_selected_game(a_game))
 			extend(a_game)
 		end
 	end
-	----------------------------------
+
 	enter_hosted_games_notify(lobby: G10_LOBBY_MAIN) -- updates lobby
 	do
 		-- latest update
-		lobby.update_lobby
+		lobby.update_lobby(void)
 	end
 
-feature{G10_LOBBY_MAIN}
-	----------------------------------
+feature {G10_LOBBY_MAIN}
 	redraw_all_games(lobby_logic: G10_LOBBY_LOGIC) -- redraws all the hosted games
 	do
 		wipe_out
 		add_all_hosted_games(lobby_logic)
 		refresh_now
 	end
+
+feature {NONE}
+
+	update_last_selected_game(an_item: EV_LIST_ITEM)
+	require
+		an_item /= void
+	do
+		last_selected_game := an_item
+	end
+
+feature{G10_LOBBY_ALL_BUTTONS} --accessor
+
+	get_last_selected_game: EV_LIST_ITEM
+	do
+		Result := last_selected_game
+	end
+
 end

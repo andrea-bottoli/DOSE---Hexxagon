@@ -127,7 +127,7 @@ feature {NONE}
 			create l_hex2.make (args.at (2))
 			create l_tile.make_with_hexes (l_hex1, l_hex2)
 			--player.add_tile (l_tile)
-			logic.add_tile(player, l_tile)
+			logic.add_tile(logic.last_player, l_tile)
 		end
 
 	send_starting_game_state (args: LIST[STRING])

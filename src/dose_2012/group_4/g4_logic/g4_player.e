@@ -18,11 +18,12 @@ feature --Atrributes
 	Player_id : INTEGER
 
 feature --Constructor
-	make
+	make(id: INTEGER)
 	do
 		create Hand.make
 		create Allowed_Hand.make
 		create Player_Item_Board.make
+		set_player_id(id)
 	ensure
 		Hand.is_empty = True
 		Allowed_Hand.is_empty = True
@@ -68,16 +69,17 @@ feature --Setters and getters
 feature --Functions
 
 	--Simulates the Player's play action
-	play(a_card: G4_CARDS)
+	play(a_card: G4_CARDS;DiscardPile: G4_DISCARD_PILE)
 	require
 		Hand.is_empty = False
-		Allowed_Hand.has(a_card) = True
+		--Allowed_Hand.has(a_card) = True
 	do
+		DiscardPile.put (a_card)
 		--Implementation Required!!!
 		--make action
 		--and then discard...
-	ensure
-		Hand.count = old Hand.count - 1
+--	ensure
+--		Hand.count = old Hand.count - 1
 	end
 
 	--Simulates the Player's discard a card action
@@ -110,8 +112,8 @@ feature --Functions
 	draw(a_draw_pile: G4_DRAW_PILE)
 	do
 		Hand.force (a_draw_pile.pop)
-	ensure
-		Hand.count = old Hand.count + 1
+--	ensure
+--		Hand.count = old Hand.count + 1
 	end
 
 	draw_card(a_card : G4_CARDS)
@@ -134,7 +136,7 @@ feature
 
 
 feature
-	reaction(a_Player_array : ARRAYED_LIST[G4_PLAYER]; a_player_id: INTEGER;a_card : G4_CARDS; Draw_Pile : G4_DRAW_PILE) : BOOLEAN
+	reaction(a_Player_array : ARRAYED_LIST[G4_PLAYER]; a_player_id: INTEGER;a_card : G4_CARDS; Draw_Pile : G4_DRAW_PILE;DiscardPile : G4_DISCARD_PILE) : BOOLEAN
 	local
 		item_list : LINKED_LIST[G4_CARDS]
 		hand_list :	LINKED_LIST[G4_CARDS]
@@ -147,73 +149,154 @@ feature
 		hand_list := current.get_player_hand
 		miss_count := 0
 		flag := False
-		if((a_card.getname= ("Bang!")) or (a_card.getname= ("Gatling")))then
-			from item_list.start until item_list.item = item_list.last
-			loop
-				if((item_list.item.getname= ("Barrel")) or
-					(current.get_item_board.get_player_character.get_character_name= ("Jourdonnais"))) then
+		if((a_card.getname.is_equal ("Bang!")) or (a_card.getname.is_equal ("Gatling")))then
 
-					card := Draw_Pile.pop
-					if (card.get_symbol= ("Hearts")) then
-						flag := True  --Draw a Heart get missed
-						if(a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name= ("Slab the Killer")) and (flag = true)
-							then
-								card := Draw_Pile.pop
-								if (card.get_symbol= ("Hearts")) then
-									flag := True  --Draw a Heart get missed
-								else
-									flag := False
-								end
+			if(item_list.is_empty = False) then
+
+				from item_list.start until item_list.after = true
+				loop
+					if((item_list.item.getname.is_equal ("Barrel")) or
+						(current.get_item_board.get_player_character.get_character_name.is_equal ("Jourdonnais"))) then
+
+						card := Draw_Pile.pop
+						if (card.get_symbol.is_equal ("Hearts")) then
+
+							io.putstring ("Player ")
+							print(current.get_player_id)
+							io.putstring ("draws Hearts, so Player ")
+							print(a_player_id )
+							io.putstring ("misses")
+							io.new_line
+
+							flag := True  --Draw a Heart get missed
+							if(a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name.is_equal("Slab the Killer")) and (flag = true)
+								then
+									io.put_string ("Player ")
+									print(a_player_id)
+									io.putstring ( "is Slab the Killer")
+									io.new_line
+									io.put_string ("Player")
+									print(current.get_player_id)
+									io.putstring (" has to draw one more Heart in order to Miss the Bang!")
+									io.new_line
+									card := Draw_Pile.pop
+									if (card.get_symbol.is_equal("Hearts")) then
+										flag := True  --Draw a Heart get missed
+									else
+										flag := False
+									end
+							end
+							-- Find a way to end it here
 						end
-						-- Find a way to end it here
-					end
 
+					end
 				end
 			end
 
-			if(flag /= True) then
-				from hand_list.start until hand_list.item = hand_list.last --Search for miss cards
-				loop
-					if(hand_list.item.getname= ("Miss")) then
-						miss_count := miss_count + 1
+			if(flag /= True) then --edw
+				if(hand_list.is_empty = False) then
+					from hand_list.start until hand_list.after = true --Search for miss cards
+					loop
+						if(hand_list.item.getname.is_equal("Miss")) then
+							miss_count := miss_count + 1
 
-					elseif (hand_list.item.getname= ("Bang")) then
-						bang_count := bang_count + 1
+						elseif (hand_list.item.getname.is_equal("Bang!")) then
+							bang_count := bang_count + 1
+						end
+						hand_list.forth
 					end
-					hand_list.forth
 				end
 
+				io.new_line
 				--Slab the Killer Case
-				if(a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name= ("Slab the Killer")) then
+				if(a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name.is_equal ("Slab the Killer")) then
+
+					io.put_string ("Player ")
+					print(a_player_id)
+					io.putstring (" is Slab the Killer")
+					io.new_line
 
 					if(miss_count >= 2) then
-						flag := True  -- Use two Miss cards
+						io.put_string ("Do you want to use 2 Miss cards? [y/n]")
+						io.read_character
+						io.new_line
+						if(io.last_character = 'y') then
+							io.put_string ("Player ")
+							print(current.get_player_id)
+							io.putstring (" uses Miss!")
+							current.find_card ("Miss", 2,DiscardPile) --Find the card
+							flag := True  -- Use two Miss cards
+						end
+
 					elseif ((bang_count >= 2) and ( --Calamity Jane Case
-							a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name= ("Calamity Janet"))) then
-						flag := True
+							current.get_item_board.get_player_character.get_character_name.is_equal("Calamity Janet"))) then
+						io.put_string ("Do you want to use 2 Bang! cards to Miss the Bang? [y/n]")
+						io.read_character
+						io.new_line
+						if(io.last_character = 'y') then
+							io.put_string ("Player ")
+							print(current.get_player_id)
+							io.putstring(" as Calamity Janet, uses Bang! for Miss")
+							current.find_card ("Bang!", 2,DiscardPile) --Find card
+							flag := True  -- Use two Miss cards
+						end
 					else
 						flag := False
 					end
 				else
 					if(miss_count > 0) then
-						flag := True  -- Use a Miss card
+						io.put_string ("Do you want to use a Miss card? [y/n]")
+						io.read_character
+						io.new_line
+						if(io.last_character = 'y') then
+
+							io.put_string ("Player ")
+							print(current.get_player_id)
+							io.putstring ("uses Miss!")
+							io.new_line
+							current.find_card ("Miss", 2,DiscardPile) --find the card
+							flag := True  -- Use two Miss cards
+						end
+
 					elseif ((bang_count > 0) and (  --Calamity Jane Case
-							a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name= ("Calamity Janet"))) then
-						flag := True
+						current.get_item_board.get_player_character.get_character_name.is_equal ("Calamity Janet"))) then
+						io.put_string ("Do you want to use Bang! cards to Miss the Bang? [y/n]")
+						io.read_character
+						io.new_line
+						if(io.last_character = 'y') then
+
+							io.put_string ("Player ")
+							print(current.get_player_id)
+							io.putstring (" as Calamity Janet, uses Bang! card for Miss")
+							io.new_line
+							current.find_card ("Bang!", 2,DiscardPile)--find the card
+							flag := True  -- Use two Miss cards
+						end
 					else
 						flag := False
 					end
 				end
 			end
 
-		elseif (a_card.getname= ("Duell") or a_card.getname= ("Indians")) then -- Duell Case
-			from hand_list.start until hand_list.item = hand_list.last
-			loop
-				if(hand_list.item.getname= ("Bang")) then
-					flag := True
-					if(a_Player_array[a_player_id].get_item_board.get_player_character.get_character_name= ("Calamity Janet")) then
-						if(hand_list.item.getname= ("Miss")) then
-							flag := True
+		elseif (a_card.getname= "Duell" or a_card.getname.is_equal ("Indians")) then -- Duell and Indians Case
+
+			if(hand_list.is_empty = False) then
+				from hand_list.start until hand_list.item = hand_list.last
+				loop
+					if(hand_list.item.getname.is_equal("Bang!")) then
+						io.put_string ("Uses Bang! card")
+						flag := True
+						if(current.get_item_board.get_player_character.get_character_name.is_equal ("Calamity Janet")) then
+							if(hand_list.item.getname.is_equal ("Miss")) then
+
+								io.put_string ("Player ")
+								print(current.get_player_id)
+								io.putstring (" as Calamity Janet, uses Miss card for Bang!")
+								current.find_card ("Miss", 2,DiscardPile) --find the card
+								io.new_line
+								flag := True
+
+							end
 						end
 					end
 				end
@@ -232,7 +315,11 @@ feature
 	local
 		i : INTEGER
 	do
-		from Hand.start until Hand.item = Hand.last
+		i:= 1
+		io.new_line
+		io.putstring ("Hand of the Player:")
+		io.new_line
+		from Hand.start until Hand.after = true
 			loop
 				io.new_line
 				io.put_string (Hand.item.getname + " ")
@@ -240,7 +327,6 @@ feature
 				io.put_string (" " + Hand.item.get_symbol + " ")
 				io.put_string (" Code: ")
 				print(i)
-				io.new_line
 				i := i+1
 				Hand.forth
 			end
@@ -249,12 +335,29 @@ feature
 	pick_a_card(a_card_id : INTEGER) : G4_CARDS --Implementation only for terminal play
 	do
 		--Implemented for terminal
-		if(a_card_id < Hand.count) then
+		if(a_card_id <= Hand.count) then
 			Hand.go_i_th (a_card_id)
 			Result := Hand.item
 			Hand.remove
 		else
 			print("Invalid choice")
+		end
+	end
+
+	find_card(card_name: STRING; count : INTEGER;DiscardPile : G4_DISCARD_PILE)
+	local
+		i : INTEGER
+	do
+		from i:=0 until i=count
+		loop
+			from Hand.start until Hand.after = true
+			loop
+				if(Hand.item.getname = card_name) then
+					DiscardPile.put (Hand.item)
+					Hand.remove
+				end
+				Hand.forth
+			end
 		end
 	end
 end

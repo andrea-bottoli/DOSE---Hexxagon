@@ -112,8 +112,6 @@ feature
 			--Return true if the combination is a full house
 		require
 		local
-			has_triple_:BOOLEAN
-			has_pair_: BOOLEAN
 			comb: G3_COMBINATION
 			list: LINKED_LIST[G3_CARD]
 		do
@@ -229,6 +227,42 @@ feature
 				cards.off
 			loop
 				if cards.item.is_the_mahjongg then
+					Result:=cards.item
+				end
+				cards.forth
+			end
+		end
+
+		biggest_card:G3_CARD
+			--Return the biggest card of the combination
+		require
+			cards /= Void
+		do
+			Result:=cards.first
+			from
+				cards.start
+			until
+				cards.off
+			loop
+				if cards.item.value>Result.value then
+					Result:=cards.item
+				end
+				cards.forth
+			end
+		end
+
+	smallest_card : G3_CARD
+			--Return the smallest card of the combination
+		require
+			cards /= Void
+		do
+			Result:=cards.first
+			from
+				cards.start
+			until
+				cards.off
+			loop
+				if cards.item.value<Result.value then
 					Result:=cards.item
 				end
 				cards.forth
@@ -614,23 +648,6 @@ feature {G3_COMBINATION}
 			end
 		end
 
-	smallest_card : G3_CARD
-			--Return the smallest card of the combination
-		require
-			cards /= Void
-		do
-			Result:=cards.first
-			from
-				cards.start
-			until
-				cards.off
-			loop
-				if cards.item.value<Result.value then
-					Result:=cards.item
-				end
-				cards.forth
-			end
-		end
 
 	has_card_value (value_:REAL):BOOLEAN
 			-- Return true if the combination has a card with a value specified
@@ -750,23 +767,6 @@ feature  {G3_COMBINATION}-- Features used per kills
 			Result:=biggest_card.value>other_combination.biggest_card.value
 		end
 
-	biggest_card:G3_CARD
-			--Return the biggest card of the combination
-		require
-			cards /= Void
-		do
-			Result:=cards.first
-			from
-				cards.start
-			until
-				cards.off
-			loop
-				if cards.item.value>Result.value then
-					Result:=cards.item
-				end
-				cards.forth
-			end
-		end
 
 
 	kill_triple(other_combination:G3_COMBINATION): BOOLEAN

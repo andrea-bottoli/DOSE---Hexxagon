@@ -27,7 +27,6 @@ feature{NONE} --attributes
 	--parts of the lobby entrance graphic component
 	background: EV_FIXED
 	all_buttons: G10_LOBBY_ENTRANCE_ALL_BUTTONS
-	input_bar: EV_TEXT_FIELD
 
 feature{ANY}
 	make (a_player: G10_LOBBY_USER)
@@ -51,10 +50,10 @@ feature{ANY}
 		close_request_actions.extend (agent quit_entrance_lobby)
 
 		init_background
-		init_all_components
+		create all_buttons.make_buttons(Current)
 	end
 	----------------------------------
-feature{NONE}
+feature{NONE} -- initializations
 
 	init_background
 	require
@@ -69,36 +68,28 @@ feature{NONE}
 		valid_width: background.width = lobby_window_width
 		valid_height: background.height = lobby_window_height
 	end
-	----------------------------------
-	init_all_components
-	require
-		window_is_created: current /= void
-		background_is_created: background /= void
-	do
-		create all_buttons.make_buttons(Current)
-		create input_bar
-		background.extend_with_position_and_size (input_bar, input_bar_start_width, input_bar_start_height, input_bar_width, input_bar_height)
-		input_bar.align_text_center
-	ensure
-		username_button_exists: all_buttons.get_username_button /= void
-		ip_button_exists: all_buttons.get_ip_button /= void
-		port_button_exists: all_buttons.get_port_button /= void
-		to_lobby_button_exists: all_buttons.get_to_lobby_button /= void
-		to_main_button_exists: all_buttons.get_to_main_button /= void
-	end
-	----------------------------------
 
 feature{G10_LOBBY_ENTRANCE_ALL_BUTTONS}
 
-	launch_main_lobby
+	launch_main_game
+	do
+		destroy
+		player.launch_as_single_player(get_username)
+	ensure
+		game_window_is_not_null: player.get_crsn_game_ui /= void
+	end
+	----------------------------------
+	launch_main_lobby(is_launcher_for_lan: BOOLEAN)
 	require
 	do
-		print("usr: "+get_username+"%N")
-		print("ip: "+get_internal_ip+"%N")
-		print("port: "+get_port+"%N")
-		-- destroy this window and launch the main lobby
 		destroy
-		player.launch_crsn_lobby(get_username, get_internal_ip, get_port)
+		if is_launcher_for_lan then
+			player.launch_crsn_lobby(get_username, get_players_internal_ip, get_players_port)-- launch with internal
+		else
+			player.launch_crsn_lobby(get_username, get_players_external_ip, get_players_port)-- launch with external	
+		end
+	ensure
+		lobby_window_is_not_null: player.get_crsn_lobby_ui /= void
 	end
 	----------------------------------
 	quit_entrance_lobby
@@ -119,38 +110,16 @@ feature{G10_LOBBY_ENTRANCE_ALL_BUTTONS}
 			destroy
 		end
 	end
-	----------------------------------
 
-feature {ANY} -- mutators
+feature {G10_LOBBY_ENTRANCE_ALL_BUTTONS} -- mutator
 
 	set_username(a_username: STRING)
 	do
 		player.get_player_info.set_id(a_username)
 	end
-	----------------------------------
-	set_internal_ip(an_ip: STRING)
-	do
-		player.get_player_info.set_internal_ip(an_ip)
-	end
-	----------------------------------	
-	set_external_ip(an_ip: STRING)
-	do
-		player.get_player_info.set_external_ip(an_ip)
-	end
-	----------------------------------
-	set_port(a_port: STRING)
-	do
-		player.get_player_info.set_port(a_port)
-	end
-	----------------------------------
-	set_input_bar_text(some_text: STRING)
-	do
-		input_bar.set_text (some_text)
-		input_bar.show
-	end
-	----------------------------------
 
-feature {ANY} -- accessors
+
+feature {G10_LOBBY_ENTRANCE_ALL_BUTTONS} -- accessors
 
 	get_crsn_lobby_ui: G10_LOBBY_MAIN
 	do
@@ -167,30 +136,24 @@ feature {ANY} -- accessors
 		Result := all_buttons
 	end
 	----------------------------------
-	get_input_bar: EV_TEXT_FIELD
-	do
-		Result := input_bar
-	end
-	----------------------------------
 	get_username: STRING
 	do
 		Result := player.get_player_info.get_id
 	end
 	----------------------------------
-	get_internal_ip: STRING
+	get_players_internal_ip: STRING
 	do
 		Result := player.get_player_info.get_internal_ip
 	end
 	----------------------------------
-	get_external_ip: STRING
+	get_players_external_ip: STRING
 	do
 		Result := player.get_player_info.get_external_ip
 	end
 	----------------------------------
-	get_port: STRING
+	get_players_port: STRING
 	do
 		Result := player.get_player_info.get_port
 	end
-	----------------------------------	
 
 end

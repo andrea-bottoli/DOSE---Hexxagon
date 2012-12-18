@@ -17,6 +17,7 @@ feature --Constructor
  	ensure
   		Name.is_equal("Volcanic")
  	end
+
 end
 
 

@@ -44,9 +44,8 @@ feature {NONE} -- Initialization
 			set_title (Window_title)
 
 				-- Set the initial size of the window
+			disable_user_resize
 			set_size (Window_width, Window_height)
-			set_maximum_size (Window_width, Window_height)
-			set_minimum_size (Window_width, Window_height)
 		end
 
 	is_in_default_state: BOOLEAN
@@ -131,18 +130,18 @@ feature {NONE} -- Implementation
 			--set position label
 		do
 				--set position Label IP
-			main_container.set_item_position_and_size (l_ip, 0000 , 0040 , 0060 , 0020 )
+			main_container.set_item_position_and_size (l_ip, 0000, 0040, 0060, 0020)
 				--set position Label PORT
-			main_container.set_item_position_and_size (l_port, 0240 , 0040 , 0060 , 0020 )
+			main_container.set_item_position_and_size (l_port, 0240, 0040, 0060, 0020)
 		end
 
 	set_position_text_field
 			--set position textfield
 		do
 				--set position Text IP
-			main_container.set_item_position_and_size (t_ip, 0080 , 0040 , 0080 , 0020 )
+			main_container.set_item_position_and_size (t_ip, 0080, 0040, 0080, 0020)
 				--set position Text PORT
-			main_container.set_item_position_and_size (t_port, 0320 , 0040 , 0060 , 0020 )
+			main_container.set_item_position_and_size (t_port, 0320, 0040, 0060, 0020)
 		end
 
 	set_position_button
@@ -150,9 +149,9 @@ feature {NONE} -- Implementation
 		do
 				--set position Button  Join Game
 
-			main_container.set_item_position_and_size (b_join_game, 0020 , 0080 , 0080 , 0020)
+			main_container.set_item_position_and_size (b_join_game, 0020, 0080, 0080, 0020)
 				--set position Button Back
-			main_container.set_item_position_and_size (b_back, 0140 , 0080 , 0080 , 0020)
+			main_container.set_item_position_and_size (b_back, 0140, 0080, 0080, 0020)
 		end
 
 feature {NONE}
@@ -166,8 +165,9 @@ feature {NONE}
 					t_port.set_background_color (array_color.at (2))
 					main_menu.set_ip (t_ip.text)
 					main_menu.set_port (t_port.text.to_integer)
-					main_menu.get_inform_join_game
+					Current.refresh_now
 					Current.hide
+					main_menu.get_inform_join_game
 				end
 				if (not valid_ip_address (t_ip.text)) then
 					t_ip.set_background_color (array_color.at (1))
@@ -183,7 +183,6 @@ feature {NONE}
 	back
 			--back to the main window.
 		do
-			main_menu.show
 			current.destroy
 		end
 
@@ -220,7 +219,7 @@ feature {NONE} --miscellanies
 			ipv4_address: INET_ADDRESS
 		do
 			create net_address
-			ipv4_address ?= net_address.create_from_name(ip)
+			ipv4_address ?= net_address.create_from_name (ip)
 			Result := ipv4_address /= Void
 		end
 

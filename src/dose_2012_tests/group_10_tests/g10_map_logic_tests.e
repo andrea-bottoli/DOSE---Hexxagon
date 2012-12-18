@@ -20,9 +20,9 @@ feature -- Test routines
 		testing:  "user/G10"
 	local
 		map : G10_MAP
+		tile : G10_TILE
 		pos : G10_POSITION
 		player : INTEGER
-		tile : G10_TILE
 		--bool_res : BOOLEAN
 	do
 		create map.make()
@@ -39,9 +39,9 @@ feature -- Test routines
 	note
 		testing:  "user/G10"
 	local
-		map : G10_MAP
 		pos : G10_POSITION
 		player : INTEGER
+		map : G10_MAP
 		tile : G10_TILE
 		--bool_res : BOOLEAN
 	do
@@ -60,9 +60,9 @@ feature -- Test routines
 		testing:  "user/G10"
 	local
 		map : G10_MAP
+		tile : G10_TILE
 		pos : G10_POSITION
 		player : INTEGER
-		tile : G10_TILE
 		--bool_res : BOOLEAN
 	do
 		create map.make()

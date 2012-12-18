@@ -24,6 +24,8 @@ feature -- Initialization
 			l_net := a_net
 			l_current_turn := 0
 		ensure
+			valid_net: l_net = a_net
+			valid_current_turn: l_current_turn = 0
 		end
 
 feature -- State values
@@ -58,14 +60,6 @@ feature -- Basic Operations
 			deleted_palyer_of_list: not l_client_list.has (a_player)
 		end
 
-	update_game_state
-			-- Send a message to the players updating the game state.
-		local
-			message: G1_MESSAGE_AUCTION
-		do
-			l_net.send_message_broadcast (message)
-		end
-
 	next_turn
 			-- Advance to the id of the player whose turn it is to play.
 		do
@@ -83,14 +77,41 @@ feature -- Basic Operations
 
 	receive_message (a_message: G1_MESSAGE)
 			-- Receive a message from G1_NET_SERVER_SINGLE and do something
+		local
+			message_finish : G1_MESSAGE_FINISH
 		do
 			if attached {G1_MESSAGE_ADD_PLAYER} a_message as msg_add_player then
-				add_player (msg_add_player.id_player) -- A player is added to the list of the game
+				add_player (l_client_list.count+1) -- A player is added to the list of the game
 			else
 				if attached {G1_MESSAGE_FINISH} a_message as msg_finish_turn then
 					next_turn
+					create message_finish.make_finish (l_current_turn, False, False)
 					l_net.send_message_to (l_current_turn, msg_finish_turn) -- Send a message to a player who has the current turn
+				else
+					if attached {G1_MESSAGE_NUMBER_PLAYER} a_message as number_players then
+						number_players.set_number_players(l_client_list.count)
+						l_net.send_message_to(l_client_list.count,number_players)
+					else
+						send_msg_to_others_players (a_message) -- Other kind of message
+					end
 				end
+			end
+		end
+
+	send_msg_to_others_players (a_message: G1_MESSAGE)
+			-- Send a message to all players except the current player.
+		local
+			count: INTEGER
+		do
+			from
+				count := 1
+			until
+				count = l_client_list.count + 1
+			loop
+				if (count /= l_current_turn) then
+					l_net.send_message_to (l_current_turn, a_message)
+				end
+				count := count + 1
 			end
 		end
 

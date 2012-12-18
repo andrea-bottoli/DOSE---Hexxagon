@@ -46,7 +46,7 @@ feature -- Test negative
 			if not rescued then
 				the_scores.make (1)
 				the_scores.put (1,VOID)
-				class_test.make (the_scores)
+				class_test.make (the_scores, void)
 			end
 			assert ("make raised problem", rescued)
 			rescue

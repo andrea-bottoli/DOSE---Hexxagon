@@ -10,33 +10,42 @@ feature --Attributes
 	Card_Pile: LINKED_LIST [G4_CARDS] --A simple linked list that contains all different pile of cards
 
 feature --Function
-	shuffle(Pile: LINKED_LIST[G4_CARDS]):LINKED_LIST[G4_CARDS] --suffles the cards on the pile
+
+	shuffle -- Fisher-Yates algorithm
 	local
-		NewPile:LINKED_LIST[G4_CARDS]
-		i:INTEGER
-		count:INTEGER
-		imod:INTEGER
+		l_time: TIME; l_seed: INTEGER; math: DOUBLE_MATH; rnd: RANDOM;
+		i: INTEGER; k: INTEGER; j: REAL_64; tmp1: G4_CARDS; tmp2: G4_CARDS
 	do
-		create NewPile.make
-		count:=Pile.count
-		from i:=1 until i = count + 1		--Copying Pile to NewPile but Shuffled.
+		create l_time.make_now
+		l_seed := l_time.hour
+		l_seed := l_seed*60 + l_time.minute
+		l_seed := l_seed*60 + l_time.second
+		l_seed := l_seed*1000 + l_time.milli_second
+		create rnd.set_seed (l_seed)
+		create math
+		Card_Pile.start
+		rnd.start
+		from i := 1 until i = Card_Pile.count+1
 		loop
-			imod:=i\\2
-			NewPile.start
-			if	imod=0	then
-				NewPile.start
-				NewPile.put_right (Pile.item)
-			else
-				if i=1 then
-					NewPile.force (Pile.item)
-				end
-				NewPile.start
-				NewPile.put_left (Pile.item)
+			j := math.floor (rnd.double_item * (1 + i))
+			from k := 1 until k >= j
+			loop
+				k := k + 1
 			end
-			Pile.forth
-			i:=i+1
+			if (k /= i) then
+				tmp1:=Card_Pile.at(i)
+				tmp2:=Card_Pile.at(k)
+				Card_Pile.go_i_th(i)
+				Card_Pile.remove
+				Card_Pile.force (tmp1)
+				Card_Pile.go_i_th(k)
+				Card_Pile.remove
+				Card_Pile.force (tmp2)
+
+			end
+			rnd.forth
+			i := i + 1
 		end
-		Result := NewPile
 	end
 
 feature
@@ -47,21 +56,22 @@ feature
 
 feature
 
-	display_list(Pile : LINKED_LIST [G4_CARDS])
+	display_list
 	local
 		i : INTEGER
 	do
-		from Pile.start until Pile.item = Pile.last
-			loop
-				io.new_line
-				io.put_string (Pile.item.getname + " ")
-				print(Pile.item.get_number)
-				io.put_string (" " + Pile.item.get_symbol + " ")
-				io.put_string (" Code: ")
-				print(i)
-				io.new_line
-				i := i+1
-				Pile.forth
-			end
+		i:=1
+		from Card_Pile.start until Card_Pile.after = true
+		loop
+			io.new_line
+			io.put_string (Card_Pile.item.getname + " ")
+			print(Card_Pile.item.get_number)
+			io.put_string (" " + Card_Pile.item.get_symbol + " ")
+			io.put_string (" Code: ")
+			print(i)
+			io.new_line
+			i := i+1
+			Card_Pile.forth
+		end
 	end
 end

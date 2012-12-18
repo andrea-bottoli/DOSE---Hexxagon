@@ -19,6 +19,22 @@ feature -- Access
 
     Path_background_card : STRING = ".\dose_2012\images\group_02\background_windows\background_card.png"
 
+	Path_background_card_fire : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_fire.png"
+
+	Path_background_card_earth : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_earth.png"
+
+	Path_background_card_holy : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_holy.png"
+
+    Path_background_card_ice : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_ice.png"
+
+	Path_background_card_lightning : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_lightning.png"
+
+	Path_background_card_poison : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_poison.png"
+
+	Path_background_card_water : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_water.png"
+
+	Path_background_card_wind : STRING = ".\dose_2012\images\group_02\background_windows\background_card_element_wind.png"
+
     Path_main_menu_background : STRING = ".\dose_2012\images\group_02\background_windows\main_menu.png"
 
     Path_main_menu_win : STRING = ".\dose_2012\images\group_02\others\win.png"

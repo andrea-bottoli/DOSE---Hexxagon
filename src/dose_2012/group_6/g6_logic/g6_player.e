@@ -32,7 +32,7 @@ feature -- Measurement
 			-- value is updated just after each properties modification
 
 	jail_cards: INTEGER
-			-- 0 = no jail_cards, 1 = comunity chest jail_card, -1 =  chance jail_card
+			-- 0 = no jail_cards, 1 = comunity chest jail_card, -1 =  chance jail_card, 2 = two jail cards
 
 	properties: LINKED_LIST [INTEGER]
 			-- Properties of the player, max 22 elements
@@ -58,26 +58,36 @@ feature -- Initialization
 
 feature -- Basic Operations
 
-	increment_jail_cards
+	increment_jail_cards(is_chance: BOOLEAN)
 
 			-- Increment in one the number of jail cards
 		require
-			valid_old_numb: jail_cards >= 0 and jail_cards < 2
+			valid_old_numb: jail_cards /= 2
 		do
-			jail_cards := jail_cards + 1;
+			if(jail_cards = -1 or jail_cards = 1) then
+				jail_cards := 2
+			elseif (is_chance) then
+				jail_cards := -1
+			else
+				jail_cards := 0
+			end
 		ensure
-			valid_new_numb: jail_cards >= 1 and jail_cards <= 2
+			valid_new_numb: jail_cards /= 0
 		end
 
 	decrement_jail_cards
 
 			-- Decrement in one the number of jail cards
 		require
-			valid_old_numb: jail_cards >= 1 and jail_cards <= 2
+			jail_card_present: jail_cards = 1 or jail_cards = -1 or jail_cards = 2
 		do
-			jail_cards := jail_cards - 1;
+			if(jail_cards = 2) then
+				jail_cards := 1
+			else
+				jail_cards := 0
+			end
 		ensure
-			valid_new_numb: jail_cards >= 0 and jail_cards < 2
+			jail_cards = 0 or jail_cards = 1
 		end
 
 	increment_money (m: INTEGER)

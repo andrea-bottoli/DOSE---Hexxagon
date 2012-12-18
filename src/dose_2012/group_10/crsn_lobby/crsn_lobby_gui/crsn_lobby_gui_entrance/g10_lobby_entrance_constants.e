@@ -22,55 +22,85 @@ feature{NONE} --folder path of lobby images
 		Result.append_name (lobby_entrance_folder)
 	end
 
+feature{ANY} -- button names
+
+	usr: STRING = "usr"
+	single: STRING = " single"
+	mult: STRING = " mult"
+	lan: STRING = " lan"
+	online: STRING = " online"
+
+	pressed_usr: STRING = "pressed_usr"
+	pressed_single: STRING = "pressed_single"
+	pressed_mult: STRING = "pressed_mult"
+	pressed_lan: STRING = "pressed_lan"
+	pressed_online: STRING = "pressed_online"
+
 feature{ANY} --component sizes
 
 	--window
 	lobby_window_width: INTEGER = 700
 	lobby_window_height: INTEGER = 466
 
-	--All Buttons
-	username_button_width: INTEGER = 380
-	username_button_height: INTEGER = 78
+	-- username tag
+	username_width: INTEGER = 380
+	username_height: INTEGER = 78
 	username_start_width: INTEGER = 183
 	username_start_height: INTEGER = 147
 
-	ip_button_width: INTEGER = 277
-	ip_button_height: INTEGER = 48
-	ip_start_width: INTEGER = 138
-	ip_start_height: INTEGER = 236
-
-	port_button_width: INTEGER = 304
-	port_button_height: INTEGER = 55
-	port_start_width: INTEGER = 229
-	port_start_height: INTEGER = 310
-
-	to_lobby_button_width: INTEGER = 170
-	to_lobby_button_height: INTEGER = 76
-	to_lobby_start_width: INTEGER
+	-- username text bar
+	username_bar_width: INTEGER = 200
+	username_bar_height: INTEGER = 25
+	username_bar_start_width: INTEGER -- bottom right of username button
 	do
-		Result := lobby_window_width - ( to_lobby_button_width + 2*distance_between_components)
+		Result := username_width - username_bar_width
 	end
-	to_lobby_start_height: INTEGER
+	username_bar_start_height: INTEGER
 	do
-		Result := lobby_window_height - to_lobby_button_height
+		Result := username_height - username_bar_height
 	end
 
-	to_main_button_width: INTEGER = 162
-	to_main_button_height: INTEGER = 99
-	to_main_start_width: INTEGER
+	-- single player button
+	single_width: INTEGER = 279
+	single_height: INTEGER = 52
+	single_start_width: INTEGER = 141
+	single_start_height: INTEGER = 236
+
+	-- lan game button
+	mult_lan_width: INTEGER = 247
+	mult_lan_height: INTEGER = 53
+	mult_lan_start_width: INTEGER = 249
+	mult_lan_start_height: INTEGER = 314
+
+	-- online game button
+	online_width: INTEGER = 297
+	online_height: INTEGER = 49
+	online_start_width: INTEGER = 165
+	online_start_height: INTEGER = 385
+
+	-- next button
+	next_width: INTEGER = 170
+	next_height: INTEGER = 76
+	next_start_width: INTEGER
+	do
+		Result := lobby_window_width - ( next_width + 2*distance_between_components)
+	end
+	next_start_height: INTEGER
+	do
+		Result := lobby_window_height - next_height
+	end
+
+	-- back button
+	back_width: INTEGER = 162
+	back_height: INTEGER = 99
+	back_start_width: INTEGER
 	do
 		Result := distance_between_components
 	end
-	to_main_start_height: INTEGER
+	back_start_height: INTEGER
 	do
-		Result := lobby_window_height - to_main_button_height
+		Result := lobby_window_height - back_height
 	end
-
-	-- input bar
-	input_bar_width: INTEGER = 200
-	input_bar_height: INTEGER = 25
-	input_bar_start_width: INTEGER = 250
-	input_bar_start_height: INTEGER = 395
 
 feature{ANY} --PixMaps
 
@@ -120,95 +150,152 @@ feature{ANY} --PixMaps
 			Result.set_with_named_file (file_system.pathname_to_string(img_selected_username_button) )
 		end
 
-	-- ip
-	img_ip_button: KL_PATHNAME
+	-- single player
+	img_single_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("ip_277_48.png")
+			Result.append_name ("single_player_279_52.png")
 		end
-	pix_ip_button: EV_PIXMAP
+	pix_single_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_ip_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_single_button) )
 		end
 
-	img_highlighted_ip_button: KL_PATHNAME
+	img_highlighted_single_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("highlighted_ip_277_48.png")
+			Result.append_name ("highlighted_single_player_279_52.png")
 		end
-	pix_highlighted_ip_button: EV_PIXMAP
+	pix_highlighted_single_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_ip_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_single_button) )
 		end
 
-	img_selected_ip_button: KL_PATHNAME
+	img_selected_single_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("selected_ip_277_48.png")
+			Result.append_name ("selected_single_player_279_52.png")
 		end
-	pix_selected_ip_button: EV_PIXMAP
+	pix_selected_single_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_selected_ip_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_selected_single_button) )
 		end
 
-	-- port
-	img_port_button: KL_PATHNAME
+	-- multiplayer
+	img_multi_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("port_304_55.png")
+			Result.append_name ("multiplayer_button_247_53.png")
 		end
-	pix_port_button: EV_PIXMAP
+	pix_multi_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_port_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_multi_button) )
 		end
 
-	img_highlighted_port_button: KL_PATHNAME
+	img_highlighted_multi_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("highlighted_port_304_55.png")
+			Result.append_name ("highlighted_multiplayer_button_247_53.png")
 		end
-	pix_highlighted_port_button: EV_PIXMAP
+	pix_highlighted_multi_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_port_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_multi_button) )
 		end
 
-	img_selected_port_button: KL_PATHNAME
+	-- lan
+	img_lan_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("selected_port_304_55.png")
+			Result.append_name ("lan_game_247_53.png")
 		end
-	pix_selected_port_button: EV_PIXMAP
+	pix_lan_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_selected_port_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_lan_button) )
+		end
+
+	img_highlighted_lan_button: KL_PATHNAME
+		do
+			Result := lobby_entrance_img_path
+			Result.append_name ("highlighted_lan_game_247_53.png")
+		end
+	pix_highlighted_lan_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_lan_button) )
+		end
+
+	img_selected_lan_button: KL_PATHNAME
+		do
+			Result := lobby_entrance_img_path
+			Result.append_name ("selected_lan_game_247_53.png")
+		end
+	pix_selected_lan_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_selected_lan_button) )
+		end
+
+	-- online
+	img_online_button: KL_PATHNAME
+		do
+			Result := lobby_entrance_img_path
+			Result.append_name ("online_game_297_49.png")
+		end
+	pix_online_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_online_button) )
+		end
+
+	img_highlighted_online_button: KL_PATHNAME
+		do
+			Result := lobby_entrance_img_path
+			Result.append_name ("highlighted_online_game_297_49.png")
+		end
+	pix_highlighted_online_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_online_button) )
+		end
+
+	img_selected_online_button: KL_PATHNAME
+		do
+			Result := lobby_entrance_img_path
+			Result.append_name ("selected_online_game_297_49.png")
+		end
+	pix_selected_online_button: EV_PIXMAP
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string(img_selected_online_button) )
 		end
 
 	-- to lobby
-	img_to_lobby_button: KL_PATHNAME
+	img_next_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("to_lobby_170_76.png")
+			Result.append_name ("next_170_76.png")
 		end
-	pix_to_lobby_button: EV_PIXMAP
+	pix_next_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_to_lobby_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_next_button) )
 		end
 
-	img_highlighted_to_lobby_button: KL_PATHNAME
+	img_highlighted_next_button: KL_PATHNAME
 		do
 			Result := lobby_entrance_img_path
-			Result.append_name ("highlighted_to_lobby_170_76.png")
+			Result.append_name ("highlighted_next_170_76.png")
 		end
-	pix_highlighted_to_lobby_button: EV_PIXMAP
+	pix_highlighted_next_button: EV_PIXMAP
 		once
 			create Result
-			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_to_lobby_button) )
+			Result.set_with_named_file (file_system.pathname_to_string(img_highlighted_next_button) )
 		end
 
 	-- to main

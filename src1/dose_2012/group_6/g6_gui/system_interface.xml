@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><application xsi="http://www.w3.org/1999/XMLSchema-instance">
+ <item type="Constants">
+ </item>
+ <item type="EV_TITLED_WINDOW">
+  <Internal_properties>
+   <id>1</id>
+   <name>monopoly_win</name>
+   <Expanded>1</Expanded>
+   <generate_as_client>True</generate_as_client>
+   <Is_root_window>True</Is_root_window>
+  </Internal_properties>
+  <EV_COLORIZABLE>
+  </EV_COLORIZABLE>
+  <EV_SENSITIVE>
+  </EV_SENSITIVE>
+  <EV_WIDGET>
+   <Minimum_width>800</Minimum_width>
+   <Minimum_height>600</Minimum_height>
+  </EV_WIDGET>
+  <EV_WINDOW>
+   <Maximum_width>1024</Maximum_width>
+   <Maximum_height>768</Maximum_height>
+   <Title>MONOPOLY</Title>
+  </EV_WINDOW>
+  <EV_PIXMAPABLE>
+  </EV_PIXMAPABLE>
+  <EV_CONTAINER>
+  </EV_CONTAINER>
+  <item type="EV_FRAME">
+   <Internal_properties>
+    <id>13</id>
+    <Expanded>1</Expanded>
+   </Internal_properties>
+   <EV_COLORIZABLE>
+   </EV_COLORIZABLE>
+   <EV_FONTABLE>
+   </EV_FONTABLE>
+   <EV_SENSITIVE>
+   </EV_SENSITIVE>
+   <EV_TEXTABLE>
+   </EV_TEXTABLE>
+   <EV_WIDGET>
+   </EV_WIDGET>
+   <EV_FRAME>
+   </EV_FRAME>
+   <EV_TEXT_ALIGNABLE>
+   </EV_TEXT_ALIGNABLE>
+   <EV_PIXMAPABLE>
+   </EV_PIXMAPABLE>
+   <EV_CONTAINER>
+   </EV_CONTAINER>
+   <item type="EV_PIXMAP">
+    <Internal_properties>
+     <id>14</id>
+     <Expanded>0</Expanded>
+    </Internal_properties>
+    <EV_COLORIZABLE>
+    </EV_COLORIZABLE>
+    <EV_FONTABLE>
+    </EV_FONTABLE>
+    <EV_SENSITIVE>
+    </EV_SENSITIVE>
+    <EV_TOOLTIPABLE>
+    </EV_TOOLTIPABLE>
+    <EV_WIDGET>
+     <Minimum_width>800</Minimum_width>
+     <Minimum_height>600</Minimum_height>
+    </EV_WIDGET>
+    <EV_PIXMAP>
+     <Pixmap_path>C:\Users\Fauzi\Desktop\Monopoly_GUI\TABULEIRO.png</Pixmap_path>
+    </EV_PIXMAP>
+   </item>
+  </item>
+ </item>
+</application>

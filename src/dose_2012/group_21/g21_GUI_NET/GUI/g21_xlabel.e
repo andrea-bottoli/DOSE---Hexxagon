@@ -7,18 +7,22 @@ note
 class
 	G21_XLABEL
 inherit
-	EV_DRAWING_AREA --Class from EiffelVision
+	EV_PIXMAP --Class from EiffelVision
 
 create
 	XLabel
 
 feature
+	listener : G21_CARD_MESSAGE
 
-	XLabel(card_a : g21_card)
+feature
+
+	XLabel(card_a : G21_CARD)
 	require
 		card_a /= Void
 	do
-
+		card := card_a.getcardname
+		set_with_named_file (rpath("options.png"))
 	ensure
 		right_text /= Void
 		left_text /= Void
@@ -43,4 +47,20 @@ feature {G21_XLABEL}
 		Result /= Void
 	end
 
+feature
+
+	OnClickSelect()
+	do
+		listener.sendCard(card)
+	end
+
+	OnClickPlay()
+	do
+		listener.sendCard(card)
+	end
+
+	OnClickPick()
+	do
+		listener.sendCard(card)
+	end
 end

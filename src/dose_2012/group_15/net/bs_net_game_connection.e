@@ -35,7 +35,7 @@ feature -- Constructor
 				if received_command.command = command_list.command_welcome then
 					is_master := received_command.you_are_master
 					is_accepted := true
-					io.put_string ("You are the master? " + is_master.out + "%N")
+					-- io.put_string ("You are the master? " + is_master.out + "%N")
 				end
 			end
 		ensure
@@ -50,6 +50,16 @@ feature -- Status
 	is_connected() : BOOLEAN
 	do
 		result := (socket_is_connected() and is_accepted)
+	end
+
+	has_byebyed() : BOOLEAN
+	do
+		result := byebyed
+	end
+
+	has_been_kicked() : BOOLEAN
+	do
+		result := kicked
 	end
 
 feature -- Game messages
@@ -102,6 +112,16 @@ feature -- Game messages
 			-- check_ack() -- Ack no longer required
 		end
 
+	send_bye_and_close()
+		require
+			connected: is_connected()
+		do
+			send_line(protocol.bye)
+			byebyed := true
+			socket.close()
+			-- check_ack() -- Ack no longer required
+		end
+
 	disconnect () -- Can be sent at any time, assuming that the socket is connected
 		require
 			socket_connected: socket_is_connected()
@@ -142,6 +162,7 @@ feature -- Receive commands and game status updates
 				end
 			end
 			if line ~ protocol.closing then
+				kicked := true
 				create result.make (command_list.command_closing)
 				result.validation_enabled := true
 				succeeded := true
@@ -235,6 +256,9 @@ feature {NONE} -- Locals
 	move_requested: BOOLEAN -- Set by read_command when the command is get_move.
 
 	socket: detachable NETWORK_STREAM_SOCKET
+
+	byebyed: BOOLEAN
+	kicked: BOOLEAN
 
 	constants : BS_CONSTANTS
 

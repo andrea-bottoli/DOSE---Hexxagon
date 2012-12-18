@@ -10,9 +10,6 @@ class
 inherit
 
 	EQA_TEST_SET
-		redefine
-			on_prepare
-		end
 
 feature {NONE} --elemants for test
 
@@ -28,13 +25,13 @@ feature {NONE} --elemants for test
 
 feature --initialization
 
-	on_prepare
-		do
-			list_of_cards.make_empty
-			min := 0
-			max := 0
-			place := VOID
-		end
+--	on_prepare
+--		do
+--			list_of_cards.make_empty
+--			min := 0
+--			max := 0
+--			place := VOID
+--		end
 
 feature -- Test positive
 

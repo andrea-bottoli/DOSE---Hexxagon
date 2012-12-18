@@ -23,7 +23,7 @@ feature
 
 	do
 		Result := void
-		if sock.ready_for_reading = true
+		if sock.ready_for_reading = true AND sock.is_closed = false
 		then
 
       		if attached {G10_CRSN_MESSAGE} sock.retrieved as norm_msg

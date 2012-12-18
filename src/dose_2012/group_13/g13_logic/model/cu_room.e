@@ -58,6 +58,9 @@ feature {CU_BOARD} --constructor
 			if a_passage /= void then
 				secret_passage:=a_passage
 			end
+			create weapons.make (0)
+			create player_on.make (0)
+			create pawns.make (0)
 		ensure
 			valid_doors: doors/=void
 			valid_weapons: weapons/=void
@@ -86,7 +89,7 @@ feature --Insertion
 			one_more_player: player_on.count = old player_on.count +1
 			weapons_not_change: weapons.count = old weapons.count
 			room_not_change: room_id =old room_id
-			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
+			s_pass_not_change: secret_passage = old secret_passage
 			doors_not_change: doors.is_equal(old doors)
 		end
 
@@ -102,7 +105,7 @@ feature --Insertion
 			one_more_weapon: weapons.count = old weapons.count +1
 			players_not_change: player_on.count = old player_on.count
 			room_not_change: room_id =old room_id
-			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
+			s_pass_not_change: secret_passage = old secret_passage
 			pawn_not_change: pawns.count = old pawns.count
 			doors_not_change: doors.is_equal(old doors)
 		end
@@ -117,7 +120,7 @@ feature --Insertion
 			pawn_in: pawns.has(a_pawn)
 			players_not_change: player_on.count = old player_on.count
 			room_not_change: room_id =old room_id
-			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
+			s_pass_not_change: secret_passage = old secret_passage
 			doors_not_change: doors.is_equal(old doors)
 		end
 
@@ -134,7 +137,7 @@ feature --Removal
 			player_is_out: not player_on.has(a_player)
 			one_less_player: player_on.count = old player_on.count -1
 			room_not_change: room_id =old room_id
-			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
+			s_pass_not_change: secret_passage = old secret_passage
 			doors_not_change: doors.is_equal(old doors)
 		end
 
@@ -149,7 +152,7 @@ feature --Removal
 			weapon_is_out: not weapons.has(a_weapon)
 			one_less_weapon: weapons.count = old weapons.count -1
 			room_not_change: room_id = old room_id
-			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
+			s_pass_not_change: secret_passage = old secret_passage
 			pawn_not_change: pawns.count = old pawns.count
 			doors_not_change: doors.is_equal(old doors)
 		end
@@ -165,7 +168,7 @@ feature --Removal
 			pawn_not_in: not pawns.has (a_pawn)
 			players_not_change: player_on.count = old player_on.count
 			room_not_change: room_id =old room_id
-			s_pass_not_change: secret_passage.room_id = old secret_passage.room_id
+			s_pass_not_change: secret_passage = old secret_passage
 			doors_not_change: doors.is_equal(old doors)
 		end
 

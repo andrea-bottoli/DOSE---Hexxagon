@@ -25,13 +25,14 @@ feature --create methods
 	make_with_server_parameters( port: INTEGER;  maximum_clients: INTEGER; master_key: INTEGER)
 	do
 		create players.make
-		create board.make
 		create event_mutex.make()
 		create shutdown_mutex.make()
 		has_started := false
 		create server.make (Current, port, maximum_clients, create {BS_NET_AGENT_SET}.make (agent machine_connected_event, agent machine_disconnected_event, agent add_player_event, agent remove_player_event, agent start_game_event, agent rematch_event), master_key)
 		thread_make
 		listening_successful := (server.start_listening() ~ "OK")
+		two_players_mode := false
+		total_scores := Void
 	end
 
 	listening_successful : BOOLEAN
@@ -158,9 +159,9 @@ feature --score features
 	local
 		i, winner, best_score: INTEGER
 	do
-		best_score := -100
+		best_score := -2000000
 		from
-			i := 0
+			i := 1
 		until
 			i > scores.count
 		loop
@@ -174,101 +175,23 @@ feature --score features
 		Result := winner
 	end
 
-	calculate_players_score: ARRAY[TUPLE[INTEGER,attached STRING,INTEGER]]
+	start_match_scores
 	local
-		scores_array : ARRAY[TUPLE[id:INTEGER; name:attached STRING;score:INTEGER]]
-		score: INTEGER
-		player_id: INTEGER
-		tuple: TUPLE[id:INTEGER;name:attached STRING; score:INTEGER]
 		i: INTEGER
 	do
-		create scores_array.make_empty
-
-		--add scores for each color
 		from
-			players.start
+			i := 1
 		until
-			players.after
+			i > total_scores.count
 		loop
-			score := calculate_score( players.item )
-			player_id := players.item.get_number
-
-			create tuple.default_create
-			tuple.id := player_id
-			tuple.name := players.item.get_name
-			tuple.score := score
-
-			--add tuple to the list or just update score
-			from
-				i := 0
-			until
-				i > scores_array.count
-			loop
-				--if this id already exist then just update score else create a new
-				if scores_array.item (i).id = tuple.id then
-					scores_array.item (i).score := scores_array.item (i).score + tuple.score
-				else
-					--new entry
-					scores_array.conservative_resize_with_default (Void, 1, scores_array.count + 1)
-					scores_array.put (tuple, scores_array.count + 1)
-				end
-
-				i := i + 1
+			--summ down all the squares
+			if two_players_mode then
+				total_scores.item (i).score := total_scores.item (i).score - 89*2
+			else
+				total_scores.item (i).score := total_scores.item (i).score - 89
 			end
-
-			players.forth
-		end
-
-		Result := scores_array
-
-		--sum up to total
-		from
-			i := 0
-		until
-			i > scores_array.count
-		loop
-			--should be in same order, just check it
-			if scores_array.item (i).id = total_scores.item (i).id then
-				total_scores.item (i).score := total_scores.item (i).score + scores_array.item (i).score
-			end
-
 			i := i + 1
 		end
-	end
-
-	calculate_score( player: BS_PLAYER ): INTEGER
-	local
-		count, score: INTEGER
-		tile: BS_TILE
-		remaining_tiles: LINKED_LIST[BS_TILE]
-	do
-		score := 0
-		remaining_tiles := player.get_remaining_tiles
-
-		--Calculate scores of individual inserted squares of each tile
-		from
-			remaining_tiles.start
-		until
-			remaining_tiles.after
-		loop
-			tile := remaining_tiles.item
-
-			score := count - tile.squares_count
-			remaining_tiles.forth
-		end
-
-		--Bonus if inserted all
-		if player.get_remaining_tiles.count = 0 then
-			score := score + 15
-			--more bonus if last tile inserted is the one square piece
-			tile := board.get_player_moves (player.get_number).item (21).get_tile
-			if tile.get_original_state.height = 1 and tile.get_original_state.width = 1 then
-				score := score + 5
-			end
-		end
-		remaining_tiles.start
-
-		Result := score
 	end
 
 	start() : BOOLEAN
@@ -289,20 +212,73 @@ feature --score features
 			player := copy_from_player( players.item, players.count + 1 )
 			add_return := add_player (player)
 			players.start
+
+			two_players_mode := true
 		else --this may be the second time that game is started, reset tile sets
 			from
 				players.start
 			until
 				players.after
 			loop
-				players.item.reset_set
+				players.item.reset
 				players.forth
 			end
 		end
 
+		if total_scores = Void then
+			start_total_scores_array
+		end
+
 		--start loop in a thread
+		terminated := false -- Very, very dirty!
 		launch
 		result := false
+	end
+
+	start_total_scores_array
+	local
+		tuple: TUPLE[id:INTEGER;name:attached STRING; score:INTEGER]
+	do
+		if two_players_mode then
+			create total_scores.make_filled (Void, 1, 2)
+
+			players.start
+
+			--first player score
+			create tuple.default_create
+			tuple.id := players.item.get_number
+			tuple.name := players.item.get_name
+			tuple.score := 0
+			total_scores.put (tuple, players.item.get_number)
+
+			players.forth
+
+			--second player score
+			create tuple.default_create
+			tuple.id := players.item.get_number
+			tuple.name := players.item.get_name
+			tuple.score := 0
+			total_scores.put (tuple, players.item.get_number)
+
+			players.start
+		else
+			create total_scores.make_filled (Void, 1, 4)
+
+			from
+				players.start
+			until
+				players.after
+			loop
+				create tuple.default_create
+				tuple.id := players.item.get_number
+				tuple.name := players.item.get_name
+				tuple.score := 0
+
+				total_scores.put (tuple, players.item.get_number)
+
+				players.forth
+			end
+		end
 	end
 
 feature --
@@ -548,9 +524,11 @@ feature --procedures for server events
 	end
 
 	rematch_event(machine: BS_NET_MACHINE)
+	local
+		wedontcare: BOOLEAN
 	do
 		if machine.is_game_master then
-			-- Go with the rematch
+			wedontcare := start()
 		else
 			-- Let's find the players residing on that machine.
 			from
@@ -572,17 +550,28 @@ feature --procedures for server events
 feature {NONE}
 	loop_game
 	local
+		board : BS_BOARD
 		move: BS_MOVE
 		move_validity, winner: INTEGER
 		new_scores: ARRAY[TUPLE[INTEGER,attached STRING,INTEGER]]
 		move_ok: BOOLEAN
+		stop_playing: BOOLEAN
 	do
+		create board.make
+
 		send_start_game_to_machines
 		has_started := true
+
+		start_match_scores
+		send_update_scores_to_machines ( total_scores )
+
+		create pass_control.make_filled (0, 1, 4)
+
 		--loop players for move
 		from
+			stop_playing := false
 		until
-			false
+			stop_playing
 		loop
 			from
 				players.start
@@ -600,27 +589,45 @@ feature {NONE}
 						send_set_turn_to_machines (players.item.get_number, players.item.get_color)
 						move := players.item.do_move (board)
 
-						-- Paolo: please review this if...elseif block. In particular, is it
-						-- ok not to record the move anywhere in case it is skip or surrender?
 						if move.get_action = move.action_move then
 							board.insert_player_tile (players.item.get_color, move)
-							players.item.remove_tile ( move.get_tile )
 							move_validity := board.last_insertion_result
+
+							if move_validity = 0 then
+								players.item.remove_tile ( move.get_tile )
+							end
+							pass_control.put ( 0, players.item.get_color)
 						elseif move.get_action = move.action_pass then
 							move_validity := 0
+
+							pass_control.put ( pass_control.item (players.item.get_color) + 1, players.item.get_color)
+							if pass_control.item (players.item.get_color) >= max_passes then
+								players.item.player_surrend
+								create move.make_with_action (move.action_surrender, Void, Void)
+							end
+
 						elseif move.get_action = move.action_surrender then
 							players.item.player_surrend()
 							move_validity := 0
 						end
-
 
 						--if is a valid move then remove tile played, else warn player
 						if move_validity = 0 then
 							move_ok := true
 
 							send_move_to_machines( players.item.get_number, players.item.get_color, move )
-							-- Paolo: replaced next line with the one above, is this correct?
-							-- send_move_to_machines( players.item.get_number, move.get_tile.get_color, move )
+
+							if move.get_action = move.action_move then
+								--update score for player based on last move
+								total_scores.item (players.item.get_number).score := total_scores.item (players.item.get_number).score + move.get_tile.squares_count
+								if players.item.get_remaining_tiles.count = 0 then
+									total_scores.item (players.item.get_number).score := total_scores.item (players.item.get_number).score + 15
+									if move.get_tile.get_state.width = 1 and move.get_tile.get_state.height = 1 then
+										total_scores.item (players.item.get_number).score := total_scores.item (players.item.get_number).score + 5
+									end
+								end
+								send_update_scores_to_machines ( total_scores )
+							end
 						else
 							players.item.warn_bad_move
 						end
@@ -628,19 +635,45 @@ feature {NONE}
 
 				end
 
+				if players.item.get_remaining_tiles.count = 0 then
+					--player stop playing
+					players.item.player_surrend
+				end
+
 				players.forth
 			end
+
+			if not is_anyone_playing then
+				stop_playing := true
+			end
+
 		end
 
-		--after finished calculate score and send to all
-		new_scores := calculate_players_score
-		send_update_scores_to_machines ( new_scores )
-
 		--search the winner
-		winner :=  return_winner (new_scores)
+		winner :=  return_winner (total_scores)
 		send_announce_victory_to_machines(winner)
 
 		has_started := false
+	end
+
+	is_anyone_playing: BOOLEAN
+	local
+		response : BOOLEAN
+	do
+		response:= false
+		from
+			players.start
+		until
+			players.after
+		loop
+			if players.item.is_still_playing then
+				response := true
+			end
+
+			players.forth
+		end
+
+		Result := response
 	end
 
 feature {NONE}
@@ -656,6 +689,7 @@ feature {NONE}
 		else
 			new_player := Void
 		end
+		new_player.reset_set
 		Result := new_player
 	end
 
@@ -663,7 +697,7 @@ feature {NONE}
 	local
 		new_net_player: BS_NET_PLAYER
 	do
-		if attached {BS_NET_PLAYER} new_net_player as player_net then
+		if attached {BS_NET_PLAYER} player as player_net then
 			create new_net_player.make (player_net.get_number, new_color, player.get_name, player_net.get_machine)
 		end
 		Result := new_net_player
@@ -716,10 +750,11 @@ feature {NONE}
 feature {NONE}
 
 	server: BS_NET_SERVER
-	board : BS_BOARD
 	has_started : BOOLEAN
 	players: LINKED_LIST[BS_PLAYER]
 	total_scores: ARRAY [TUPLE [id: INTEGER_32; name: STRING_8; score: INTEGER_32]]
+	pass_control: ARRAY [INTEGER]
+	two_players_mode: BOOLEAN
 
 -- Paolo: Added this for preventing events from overlapping.
 	event_mutex: MUTEX

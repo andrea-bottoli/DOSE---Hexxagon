@@ -18,7 +18,6 @@ create
 feature{NONE} --Initialization
 	make
 	do
-		io.put_string("Discard Pile%N")
 		NumberOfCards := 0
 		create ListOfCards.make (308)
 	end
@@ -67,7 +66,7 @@ feature --Access
 
 	emfanise()
 	do
-		
+
 		across
 			 	ListOfCards
 			 	as

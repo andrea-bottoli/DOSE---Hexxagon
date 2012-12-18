@@ -15,7 +15,7 @@ feature
 	make_default
 			--create element of card by default
 		do
-			element := "basic"
+			element := "None"
 		end
 
 	make_gui_element (element1: STRING)
@@ -48,15 +48,15 @@ feature --miscellanies
 			list_is_void: elements = void
 		do
 			create elements.make
-			elements.put ("basic")
-			elements.put ("fire")
-			elements.put ("earth")
-			elements.put ("holy")
-			elements.put ("ice")
-			elements.put ("lightning")
-			elements.put ("poison")
-			elements.put ("water")
-			elements.put ("wind")
+			elements.put ("None")
+			elements.put ("Fire")
+			elements.put ("Earth")
+			elements.put ("Holy")
+			elements.put ("Ice")
+			elements.put ("Lightning")
+			elements.put ("Poison")
+			elements.put ("Water")
+			elements.put ("Wind")
 
 		ensure
 			list_not_void: elements /= void

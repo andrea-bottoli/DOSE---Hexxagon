@@ -17,7 +17,8 @@ feature {NONE}
 	player2: BOOLEAN	-- The cell is occupied by player2 piece
 
 feature {ANY}
---###############################################################
+
+
 	make_cell(id: INTEGER)  	--Constructor of cell object
 	require
 		valid_cell_id: id>=0 and id <= 57
@@ -28,7 +29,8 @@ feature {ANY}
 	end
 
 feature {NONE}
---###############################################################
+
+
 	set_cell_id(id: INTEGER)   -- Set the id to the cell
 	require
 		valid_cell_id: id>=0 and id <= 57
@@ -41,7 +43,7 @@ feature {NONE}
 
 feature {ANY}
 
---###############################################################
+
 	get_cell_id(): INTEGER	-- Get the cell unique id
 	do
 		Result := cell_id
@@ -58,7 +60,7 @@ feature {ANY}
 		player1_set: player1 = True and player2 = False
 	end
 
---###############################################################
+
 	set_cell_player2()  -- Set the player2 as the owner of this cell
 	do
 		player2 := True
@@ -67,7 +69,7 @@ feature {ANY}
 		player2_set: player2 = True and player1 = False
 	end
 
---###############################################################
+
 	set_is_blank() -- Set the cell blank
 	do
 		player1 := False
@@ -76,7 +78,7 @@ feature {ANY}
 		blank_cell: player1 = False and player2 = False
 	end
 
---###############################################################
+
 	get_cell_player1(): BOOLEAN  -- Get info if player1 possesses this cell
 	do
 		Result := player1
@@ -84,7 +86,7 @@ feature {ANY}
 		player1_valid: Result = player1
 	end
 
---###############################################################
+
 	get_cell_player2(): BOOLEAN  -- Get info if player2 possesses this cell
 	do
 		Result := player2
@@ -92,7 +94,7 @@ feature {ANY}
 		player2_valid: Result = player2
 	end
 
---###############################################################
+
 	get_is_blank(): BOOLEAN  -- Get info if the cell is blank or not
 	do
 		Result:= not ((player1 or player2))
@@ -101,7 +103,7 @@ feature {ANY}
 		blank_cell: (Result = True) xor (Result = False)
 	end
 
---###############################################################
+
 	get_contents():INTEGER	--Get the contents of a cell
 							--0 is empty
 							--1 has player1 piece
@@ -121,8 +123,8 @@ feature {ANY}
 		ensure
 			valid_result: ((Result>=-1) and (Result <=2))
 	end
-	
---###############################################################
+
+
 	set_contents(value:INTEGER)	--set the contents of a cell
 								--0 for empty
 								--1 for player1 piece

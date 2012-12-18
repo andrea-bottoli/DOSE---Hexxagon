@@ -8,25 +8,27 @@ deferred class
 	G21_ACTIONLISTENER
 
 feature
+	board:G21_BOARD
+	net:G21_NET
+
 	-- Informs component that a card have been played
 	-- pre : card != null, 0 < position < 8
-	playCard(card : g21_card; position : INTEGER) deferred
+	playCard(card : g21_card; row : INTEGER ; col : INTEGER) deferred
 	ensure
 		card /= Void
-		position <= 8
-		position >= 0
+
 	end
 
 	-- Informs component about the selected rule
 	-- pre : rule > 0
-	selectRule(rule : INTEGER) deferred
-	ensure
-		rule > 0
+	selectRule(rule : STRING) deferred
+	--ensure
+	--	rule > 0
 	end
 
 	-- Informs component that a player wishes to start a new game
 	-- pre : 0 < port < 65535
-	newGame(port : INTEGER) deferred
+	newGame(startDefaultCards:BOOLEAN;difficulty:INTEGER_32; port:INTEGER) deferred
 	ensure
 		port <= 65535
 		port >= 0

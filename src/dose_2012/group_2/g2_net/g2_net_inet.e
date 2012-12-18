@@ -1,7 +1,7 @@
 note
 	description: "Interface for a main class for the NET sub-componet of the game TTNG."
 	author: "Team Rio Cuarto8"
-	date: "03/12/2012"
+	date: "$Date$"
 	revision: "1.0"
 
 deferred class

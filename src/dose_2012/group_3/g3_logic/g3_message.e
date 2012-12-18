@@ -7,6 +7,10 @@ note
 class
 	G3_MESSAGE
 
+inherit
+
+	STORABLE
+
 create
 	make, make_with_parameters
 
@@ -34,7 +38,7 @@ feature{NONE}
 			type := 0
 		end
 
-feature{G3_CONTROLLER,EQA_TEST_SET}
+feature{G3_CONTROLLER,G3_INETWORK,EQA_TEST_SET}
 
 	set_sender_id (id : G3_PLAYER_ID)
 		require

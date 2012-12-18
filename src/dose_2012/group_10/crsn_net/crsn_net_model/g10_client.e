@@ -59,5 +59,7 @@ feature
 			client_soc.independent_store (msg_to_send)
 		end
 
+invariant
+	client_socket_is_not : client_soc /= void
 end
 

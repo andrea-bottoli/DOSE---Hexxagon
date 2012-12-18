@@ -54,7 +54,9 @@ feature
 			create color.make_with_rgb (0.5, 0.5, 0.5)
 			accept_button.set_background_color (color)
 
+			create horizontal_separator
 			create con_rules
+			con_rules.extend_with_position_and_size (horizontal_separator, 0, 0, 800, 5)
 			con_rules.extend_with_position_and_size (accept_button, 300, 620, 80, 50)
 			con_rules.extend_with_position_and_size (text_area, 0, 0, 800, 600)
 

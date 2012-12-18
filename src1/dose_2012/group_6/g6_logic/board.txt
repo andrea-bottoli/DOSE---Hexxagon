@@ -1,0 +1,40 @@
+NP	Go	0
+PG	Mediterranean Avenue	60	1	50	2	10	30	90	160	250
+NP	Community chest	1
+PG	Baltic Avenue	60	1	50	4	20	60	180	320	450
+NP	Incoming tax	3
+PT	Reading Railway	200	
+PG	Oriental Avenue	100	2	50	6	30	90	270	400	550
+NP	Chance	2
+PG	Vermont Avenue	100	2	50	6	30	90	270	400	550
+PG	Connecticut Avenue	120	2	50	8	40	100	300	450	600
+NP	Jail / Visit jail	4
+PG	St. Charles Place	140	3	100	10	50	150	450	625	750
+PS	Electric Company	150	
+PG	States Avenue	140	3	100	10	50	150	450	625	750
+PG	Virginia Avenue	160	3	100	12	60	180	500	700	900
+PT	Pennsylvania Railway	200
+PG	St. James Place	180	4	100	14	70	200	550	750	950
+NP	Community chest	1
+PG	Tennessee Avenue	180	4	100	14	70	200	550	750	950
+PG	New York Avenue	200	4	100	16	80	220	600	800	1000
+NP	Free parking	5
+PG	Kentucky Avenue	220	5	150	18	90	250	700	875	1050
+NP	Chance	2
+PG	Indiana Avenue	220	5	150	18	90	250	700	875	1050
+PG	Illinois Avenue	240	5	150	20	100	300	750	925	1100
+PT	B&O  Railway	200
+PG	Atlantic Avenue	260	6	150	22	110	330	800	975	1150
+PG	Ventnor Avenue	260	6	150	22	110	330	800	975	1150
+PS	Water Works	150
+PG	Marvin Gardens	280	6	150	24	120	360	850	1025	1200
+NP	Go to jail	6
+PG	Pacific Avenue	300	7	200	26	130	390	900	1100	1275
+PG	North Carolina Avenue	300	7	200	26	130	390	900	1100	1275
+NP	Community chest	1
+PG	Pennsylvania Avenue	320	7	200	28	150	450	1000	1200	1400
+PT	Short Line Railway	200
+NP	Chance	2
+PG	Park Place	350	8	200	35	175	500	1100	1300	1500
+NP	Luxury tax	7
+PG	Boardwalk	400	8	200	50	200	600	1400	1700	2000

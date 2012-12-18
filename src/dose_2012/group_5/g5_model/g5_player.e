@@ -2,7 +2,7 @@ note
  	description: "Summary description for {G5_PLAYER}."
 	author: "Team: Rio Cuarto 4"
  	date: "$17/11/2012$"
- 	revision: "$0.3$"
+ 	revision: "$0.7$"
 
 class
  	G5_PLAYER
@@ -23,13 +23,13 @@ feature -- Constants
 feature -- Elements
 
 	deck: G5_DECK [G5_CARD]
- 		-- Deck of play
+ 		-- Contains the deck of player
 
  	hand_current: LINKED_LIST [G5_CARD]
  		-- Contains the hand current of player
 
 	discard_pile: LINKED_STACK [G5_CARD]
-		-- Contains the discarded cards
+		-- Contains the discarded cards of player
 
 feature -- Measurements
 
@@ -55,7 +55,7 @@ feature -- Intialization
 	make (name_player: STRING; new_table: G5_TABLE)
 		-- Create a new player
 		require
-			valid_arg: name_player /= Void and new_table /= Void
+			valid_arg: (name_player /= Void) and (new_table /= Void)
 		local
 			card: G5_CARD
 			pile: G5_PILE_CARD_SUPPLY
@@ -99,13 +99,13 @@ feature -- Intialization
 
 			-- Initialization of hand
 			create hand_current.make
-			get_new_hand()
+			get_new_hand() -- Gets first hand
 
 		ensure
 			initial_references: table /= Void
-			initial_atribute: name = name_player
-			initial_Measurements: amount_action = 1 and amount_buy = 1 and amount_coin = 0 point_victory = 0
-			initial_elements: (deck /= Void and deck.is_empty = False) and (hand_current /= Void and hand_current.is_empty = False) and (deck /= Void and deck.is_empty = False) and (hand_current /= Void and hand_current.is_empty = False)
+			initial_atribute: name.is_equal (name_player)
+			initial_measurements: (amount_action = 1) and (amount_buy = 1) and (amount_coin = 0) and (point_victory = 0)
+			initial_elements: (deck /= Void and not deck.is_empty) and (hand_current /= Void and not hand_current.is_empty) and (discard_pile /= Void and discard_pile.is_empty)
 		end
 
 feature {G5_TABLE, EQA_TEST_SET} -- Settings
@@ -146,7 +146,7 @@ feature {G5_TABLE, EQA_TEST_SET} -- Settings
 			discard_pile = new_discard_pile
 		end
 
-feature -- Phase Action
+feature -- Functionalities to the Action Phase
 
 	play_card(card: G5_CARD)
 		-- Play the card that is passed as a parameter
@@ -216,10 +216,10 @@ feature -- Phase Action
 			valid_result: not result.is_empty implies hand_current.there_exists (agent (c: G5_CARD): BOOLEAN do Result := c.type.has_substring ("reaction") end )
 		end
 
-feature -- Phase Buy
+feature -- Functionalities to the Buy Phase
 
 	get_card_supply(id_card: STRING): G5_CARD
-		-- Search a card in the supply by id. if found returns its stack
+		-- Search a card in the supply by "id_card". if exist return the card, otherwise return Void
 		require
 			valid_arg: id_card /= Void
 			valid_phase: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_action) or table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_buy)
@@ -229,11 +229,11 @@ feature -- Phase Buy
 			pile := table.supply.search_card (id_card)
 			result := table.supply.take_card (pile)
 		ensure
-			resulting_card: result = Void or result.id.is_equal (id_card)
+			resulting_card: (result = Void) or (result.id.is_equal (id_card))
 		end
 
 	count_treasures()
-		-- Count the cards coming from coin treasures.
+		-- Count the coins coming from cards treasures that are found in the hand
 		require
 			hand_state: hand_current /= Void
 			valid_phase: table.phase_current.is_equal ({G5_MACRO_CARDS}.phase_buy)
@@ -244,6 +244,7 @@ feature -- Phase Buy
 				hand_current.index > hand_current.count
 			loop
 				if (hand_current.item.type.has_substring ({G5_MACRO_CARDS}.treasure)) then
+					table.receiver.set_card_current (hand_current.item)
 					hand_current.item.command2.execute
 				end
 				hand_current.forth
@@ -251,7 +252,7 @@ feature -- Phase Buy
 		ensure
 		end
 
-feature -- Phase Clean-up
+feature -- Functionalities to the Clean-up Phase
 
 	cleaning_effect()
 		-- To carry out the cleaning phase about the player
@@ -264,7 +265,7 @@ feature -- Phase Clean-up
 			amount_buy := 1
 			amount_coin := 0
 		ensure
-			efect: not hand_current.is_empty and amount_action = 1 and amount_buy = 1 and amount_coin = 0
+			efect: (not hand_current.is_empty) and (amount_action = 1) and (amount_buy = 1) and (amount_coin = 0)
 		end
 
 feature -- Efect by Cards Action
@@ -311,7 +312,7 @@ feature -- Efect by Cards Action
 feature -- Operation about hand
 
 	get_all_cards_hand(): ARRAY [STRING]
-		-- Returns all cards of hand as "ids"
+		-- Returns all cards of hand, only "ids of cards"
 		require
 			hand_current /= Void
 		local
@@ -343,11 +344,10 @@ feature -- Operation about hand
 		end
 
 	get_card_hand (id_card: STRING): G5_CARD
-		-- Gets and removes a card in the hand. Returns VOID if the card is not in the hand
+		-- Seeks, gets and removes a card in the hand found by "id_card". Returns VOID if the card is not in the hand
 		require
 			valid_arg: id_card /= Void
 		local
-			card: G5_CARD
 			encountered: BOOLEAN
 		do
 			from
@@ -366,7 +366,7 @@ feature -- Operation about hand
 				result := Void
 			end
 		ensure
-			resulting_card: result = Void or result.id.is_equal (id_card)
+			resulting_card: (result = Void) or (result.id.is_equal (id_card))
 		end
 
 	adds_cards_hand(cards: LINKED_LIST [G5_CARD])
@@ -382,7 +382,7 @@ feature -- Operation about hand
 feature -- Operation about deck
 
 	draw_card_deck (number_card: INTEGER): LINKED_LIST [G5_CARD]
-		-- Gets of the deck, cards. The obtained number of cards is determined by the parameter
+		-- Gets of the deck, cards. The obtained number of cards is determined by the parameter "number_card"
 		require
 			valid_arg: number_card > 0
 		local
@@ -395,17 +395,17 @@ feature -- Operation about deck
 			until
 				i >= number_card or no_more_cards
 			loop
-				if deck.is_empty then
+				if deck.is_empty then -- Transfer the discard pile to the deck
 					translate_discard_pile_to_deck
-					if deck.is_empty then
+					if deck.is_empty then -- No there more cards to draw
 						no_more_cards := True
-					else
+					else -- There more cards to draw
 						deck.shuffle
 						result.extend (deck.item)
 						deck.remove
 						i := i + 1
 					end
-				else
+				else -- Draw card
 					result.extend (deck.item)
 					deck.remove
 					i := i + 1
@@ -470,7 +470,8 @@ feature -- State finished
 			until
 				deck_clone.is_empty
 			loop
-				if deck_clone.item.type.has_substring ({G5_MACRO_CARDS}.victory)  then
+				if (deck_clone.item.type.has_substring ({G5_MACRO_CARDS}.victory)) or (deck_clone.item.type.has_substring ({G5_MACRO_CARDS}.type_curse))  then
+					table.receiver.set_card_current (deck_clone.item)
 					deck_clone.item.command2.execute
 				end
 				deck_clone.remove
@@ -485,7 +486,7 @@ feature -- Player Status
 	-- Gets the most relevant information from player
 	require
 	do
-		result.make (5)
+		create result.make (5)
 		result.extend (amount_action, "ACTION")
 		result.extend (amount_buy, "BUY")
 		result.extend (amount_coin, "COIN")

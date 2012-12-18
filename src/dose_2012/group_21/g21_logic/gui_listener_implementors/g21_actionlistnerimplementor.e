@@ -12,17 +12,19 @@ class
 
 		redefine playCard,selectRule,newGame,save,joinGame end
 
-		feature
-			playCard(card : G21_CARD; position : INTEGER)
-			do
+	feature
 
-			end
-			selectRule(rule : INTEGER)
+			playCard(card : g21_card; row : INTEGER ; col : INTEGER)
 			do
-
+--				board.makeplay_card (row, col, card)
 			end
-			newGame(port : INTEGER)
+			selectRule(rule : STRING)
 			do
+				board.activerule (rule)
+			end
+			newGame(startDefaultCards:BOOLEAN;difficulty:INTEGER_32; port:INTEGER)
+			do
+				create board.make (startdefaultcards, difficulty)
 
 			end
 			save
@@ -31,7 +33,7 @@ class
 			end
 			joinGame(IP : STRING; port : INTEGER)
 			do
-
+				create net.newclient (IP, port)
 			end
 
 end

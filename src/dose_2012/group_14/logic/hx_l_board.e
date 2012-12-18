@@ -122,6 +122,7 @@ feature {HX_L_IBOARD} -- Initialization
 			l_template: ARRAY2 [HX_L_IPLACE]
 			x: INTEGER
 			y: INTEGER
+			l_random: RANDOM
 		do
 			logic := a_logic
 			height := a_template.height
@@ -132,7 +133,15 @@ feature {HX_L_IBOARD} -- Initialization
 			create board_player_2.make(Current, 2, a_player_name_2, a_player_2_is_human)
 			player_2 := board_player_2
 
-			board_active_player := player_1
+			create l_random.make
+			l_random.forth
+
+			if player_1.id = l_random.item \\ 2 + 1 then
+				board_active_player := player_1
+			else
+				board_active_player := player_2
+			end
+
 			existing_places_count := 0
 
 			create l_template.make_filled(Void, width, height)
@@ -202,12 +211,11 @@ feature -- Access
 			Result := board_active_player
 		end
 
-	legal_moves: LIST[HX_L_IMOVE]
-		-- Warning: caches moves per board.
+	legal_moves_generator: LIST[HX_L_IMOVE]
 		local
 			l_list: LINKED_LIST[HX_L_IMOVE]
 			x, y: INTEGER
-		once ("OBJECT")
+		do
 			create l_list.make
 
 			from x:=1
@@ -228,6 +236,12 @@ feature -- Access
 
 			Result := l_list
 
+		end
+
+	legal_moves: LIST[HX_L_IMOVE]
+		-- Warning: caches moves per board.
+		once ("OBJECT")
+			Result := legal_moves_generator
 		end
 
 	is_end_ai(a_leaf: BOOLEAN): BOOLEAN
@@ -254,7 +268,7 @@ feature -- Access
 				Result := TRUE
 			elseif player_1.pieces_count = 0 or player_2.pieces_count = 0 then
 				Result := TRUE
-			elseif legal_moves.count = 0 then
+			elseif legal_moves_generator.count = 0 then
 				Result := TRUE
 			else
 				Result := FALSE
@@ -287,6 +301,54 @@ feature -- Access
 			Result := (place(x,y).exists AND NOT place(x,y).is_empty AND
 				place(x,y).player_id = active_player.id)
 		end
+
+	possible_duplications(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
+		local
+			l_list: LINKED_LIST[HX_L_IMOVE]
+			l_from: HX_L_LOCATION
+			l_to: HX_L_ILOCATION
+			l_move: HX_L_MOVE
+		do
+			create l_list.make()
+			create l_from.make (x, y)
+
+			-- Get all the the free places which are first grade neighbors
+			across first_grade_neighbors_of_location (x, y) as neighbor
+			loop
+				l_to := neighbor.item
+				if place(l_to.x, l_to.y).exists and place(l_to.x, l_to.y).is_empty then
+					create l_move.make(l_from, l_to)
+					l_list.extend(l_move)
+				end
+			end
+
+			Result := l_list
+
+		end
+
+	possible_jumps(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
+	local
+		l_list: LINKED_LIST[HX_L_IMOVE]
+		l_from: HX_L_LOCATION
+		l_to: HX_L_ILOCATION
+		l_move: HX_L_MOVE
+	do
+		create l_list.make()
+		create l_from.make (x, y)
+
+		-- Get all the the free places which are second grade neighbors
+		across second_grade_neighbors_of_location (x, y) as neighbor
+		loop
+			l_to := neighbor.item
+			if place(l_to.x, l_to.y).exists and place (l_to.x, l_to.y).is_empty then
+				create l_move.make (l_from, l_to)
+				l_list.extend (l_move)
+			end
+		end
+
+		Result := l_list
+	end
+
 
 	possible_moves(x: INTEGER; y: INTEGER): LIST[HX_L_IMOVE]
 		-- Return possible moves.
@@ -404,6 +466,15 @@ feature -- Access
 			end
 		end
 
+	other_player(a_player: HX_L_IPLAYER): HX_L_PLAYER
+		do
+			if a_player = player_1 then
+				Result := board_player_2
+			else
+				Result := board_player_1
+			end
+		end
+
 	move_piece_and_continue(from_x: INTEGER; from_y: INTEGER; to_x: INTEGER; to_y: INTEGER)
 		local
 			a_move: HX_L_MOVE
@@ -411,33 +482,44 @@ feature -- Access
 			a_to: HX_L_LOCATION
 			l_message: HX_L_GAME_END_MESSAGE
 		do
-			if board_active_player.is_human then
-				print("UI is making a move...%N")
-			end
 
 			create a_from.make(from_x, from_y)
 			create a_to.make(to_x, to_y)
 			create a_move.make(a_from, a_to)
 			logic.logic_gui.repaint
+
+			if board_active_player.is_human then
+				print("UI is making a move...%N")
+				logic.net_send_move(board_active_player, a_move)
+			end
 			move_piece(a_move)
 
 			if is_end then
 
 				fill_empty_places(winner)
+				logic.logic_gui.repaint
+
+				if player_1.is_human and not player_2.is_human then
+					if logic.highscore.high_score < player_1.pieces_count then
+						logic.highscore.set_high_score (player_1.pieces_count)
+						logic.highscore.set_player_name (player_1.name)
+					end
+				end
 
 				create l_message.make (winner.id, player_1.pieces_count, player_2.pieces_count)
-				logic.stop
 				logic.logic_gui.game_finished (l_message)
+				logic.stop
 			else
+				logic.logic_gui.repaint
 
 				if not board_active_player.is_human then
 					print("UI finished move...  %N")
-					logic.ai_move (board_active_player)
+					logic.remote_move (board_active_player)
+					logic.logic_gui.repaint
 				else
 					print("AI finished move...  %N")
 					logic.logic_gui.request_move
 				end
-
 			end
 
 		end
@@ -451,6 +533,40 @@ feature -- Access
 		-- Returns a copy of a board.
 		do
 			create {HX_L_BOARD} Result.make_copy(Current)
+		end
+
+	serialized (): STRING
+		local
+			l_board_state: TUPLE[array: ARRAY2[INTEGER]]
+			l_array: ARRAY2[INTEGER]
+			l_x, l_y: INTEGER
+		do
+			create l_array.make_filled (-1, height, width)
+			from
+				l_x := 1
+			until
+				l_x > height
+			loop
+				from
+					l_y := 1
+				until
+					l_y > width
+				loop
+					if place (l_x, l_y) = non_existant_place then
+						l_array.put (3, l_x, l_y)
+					elseif place (l_x, l_y) = empty_place then
+						l_array.put (0, l_x, l_y)
+					elseif place (l_x, l_y) = player1_place then
+						l_array.put (1, l_x, l_y)
+					elseif place (l_x, l_y) = player2_place then
+						l_array.put (2, l_x, l_y)
+					end
+					l_y := l_y + 1
+				end
+				l_x := l_x + 1
+			end
+			l_board_state := [l_array]
+			Result := board_serializer.serialize (l_board_state)
 		end
 
 FEATURE {HX_L_IBOARD} -- Internal details

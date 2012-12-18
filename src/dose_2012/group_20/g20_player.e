@@ -8,7 +8,7 @@ class
 	G20_PLAYER
 
 feature
-	move : G20_MOVEMENT
+	move(currentPlayer: INTEGER) : G20_MOVEMENT
 		do
 
 		end

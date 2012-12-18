@@ -12,7 +12,7 @@ class
 
 
 		redefine
-			initialize--,is_in_default_state
+			initialize, is_in_default_state
 		end
 
 		RI_GUI_CONSTANTS
@@ -36,7 +36,7 @@ class
 			main_ui := a_main_ui_window
 				-- Create the Risk window.
 			make_with_title ("Risk 2 - by Group 9")
-		--	disable_user_resize
+
 		end
 
 
@@ -46,13 +46,16 @@ class
 		do
 			Precursor {EV_TITLED_WINDOW}
 
-			set_size(1000, 600)
+			set_size(1010, 620)
 			set_pixmaps
 			build_primitives
 			close_request_actions.extend (agent request_close_window)
-		--	disable_user_resize
+			disable_user_resize
 
 		end
+
+	feature
+		main_ui: 				MAIN_WINDOW
 
 
 	feature {NONE} 	--Atributtes
@@ -60,12 +63,10 @@ class
 		serv_log :				RI_SERVER_LOG
 		game_lobby :			RI_GAME_LOBBY
 		font_const :			EV_FONT_CONSTANTS
-		main_ui: 				MAIN_WINDOW
+
 		btn_Quit :				RI_BUTTON
 		btn_Start_Dedicated : 	RI_BUTTON
 		btn_Connect_Dedicated : RI_BUTTON
-		lbl_Binding :			EV_LABEL
-		lbl_ServerIP :			EV_LABEL
 		txt_BindingPort :		EV_TEXT_FIELD
 		txt_ServerIP :			EV_TEXT_FIELD
 		txt_ServerPort : 		EV_TEXT_FIELD
@@ -113,12 +114,7 @@ class
 
 			create con_main
 			put (con_main)
-
-
-		--	create con_game
-
 			con_main.set_background_pixmap (pix_bg_welcome)
-		--	con_main.extend_with_position_and_size (con_game, 0, 0, 1000, 600)
 
 			create btn_Start_Dedicated.default_create
 			btn_Start_Dedicated.set_pix (pix_start_d_serv_btn,pix_start_d_servp_btn)
@@ -135,6 +131,7 @@ class
 			btn_Start_Dedicated.set_data (true)
 			btn_Connect_Dedicated.pointer_button_press_actions.extend (agent change_button_view(btn_Connect_Dedicated,?,?,?,?,?,?,?,?))
 			btn_Connect_Dedicated.pointer_button_release_actions.extend (agent change_button_view(btn_Connect_Dedicated,?,?,?,?,?,?,?,?))
+			btn_Connect_Dedicated.select_actions.extend (agent create_connect_Window)
 			con_main.extend_with_position_and_size (btn_Connect_Dedicated, 25, 450, 244, 74)
 
 			create btn_Quit.default_create
@@ -167,9 +164,9 @@ class
 
 		end
 
-	feature {NONE}
+	feature -- actions
 
-		return_to_main_window
+		request_welcome_window
 		do
 			build_primitives
 		end
@@ -197,6 +194,14 @@ class
 		create_connect_Window						--Creates an instance of the Client Lobby window
 		do
 
+			create game_lobby.make (current)
+			replace(game_lobby)
+
+		end
+
+		get_main_window: MAIN_WINDOW
+		do
+			Result := main_ui
 		end
 
 
@@ -223,11 +228,11 @@ class
 		end
 
 
---		is_in_default_state: BOOLEAN
+		is_in_default_state: BOOLEAN
 			-- Is `Current' in its default state?
---		do
---			Result := True
---		end
+		do
+			Result := True
+		end
 
 
 		my_font: EV_FONT
@@ -258,4 +263,6 @@ class
 
 			end
 		end
+
+
 end

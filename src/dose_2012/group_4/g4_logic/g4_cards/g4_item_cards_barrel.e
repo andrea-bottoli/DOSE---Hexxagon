@@ -22,8 +22,9 @@ feature --Constructor
  	end
 
 feature
-	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE)
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE;DiscardPile : G4_DISCARD_PILE)
 	do
+		a_Player_array[a_player_id].get_item_board.add_item (current)
 		--Implemented as reaction
 	end
 end

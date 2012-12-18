@@ -8,10 +8,11 @@ class
 	G10_TILE_PART
 create
 	make
+
 feature
 	--Chip if it is located in this part of tile
 	Chip: G10_CHIP
-	--Description of this tile part texture(grass = 0, road = 1, building = 2,shield =3)
+	--Description of this tile part texture(grass = 0, road = 1, building = 2, land = 3)
 	GroundTexture: INTEGER
 feature
 	setChip(theChip: G10_CHIP)

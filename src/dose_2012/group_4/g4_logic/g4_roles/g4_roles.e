@@ -26,12 +26,12 @@ feature --Setters and Getters
 
 	get_role_name(): STRING
 	do
-
+		Result:=Role_Name
 	end
 
 feature --Special Function
 
-	victory_conditions(a_palyer_array: ARRAY[G4_PLAYER]): BOOLEAN
+	victory_conditions(a_palyer_array: ARRAYED_LIST[G4_PLAYER]): BOOLEAN
 	do
 
 	end

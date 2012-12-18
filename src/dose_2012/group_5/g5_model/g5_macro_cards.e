@@ -117,7 +117,6 @@ feature -- Access
 	council_room_type:STRING="kingdom action"
 	feast_type:STRING="kingdom action"
 	festival_type:STRING="kingdom action"
-	garden_type:STRING="victory"
 	laboratory_type:STRING="kingdom action"
 	library_type:STRING="kingdom action"
 	market_type:STRING="kingdom action"
@@ -139,9 +138,10 @@ feature -- Access
 	silver_type:STRING="treasure"
 	gold_type:STRING="treasure"
 	-- Type of Victory cards
-	estate_type:STRING="treasure"
-	duchy_type:STRING="treasure"
-	province_type:STRING="treasure"
+	garden_type:STRING="kingdom victory"
+	estate_type:STRING="victory"
+	duchy_type:STRING="victory"
+	province_type:STRING="victory"
 	-- Values Cost curse
 	curse_type:STRING="curse"
 end

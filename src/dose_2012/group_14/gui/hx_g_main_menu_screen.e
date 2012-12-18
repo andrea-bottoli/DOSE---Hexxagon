@@ -22,17 +22,19 @@ feature -- Access
 	box_buttons: EV_VERTICAL_BOX
 	new_game_button, high_score_button, preferences_button, about_button,help_button, quit_button: EV_BUTTON
 	internal_pixmap: EV_PIXMAP
-
+	ui_manager : HX_G_UIMANAGER
+	logic : HX_L_LOGIC
 
 feature -- Init
 
-        make(a_main_ui_window: MAIN_WINDOW)
+        make(a_main_ui_window: MAIN_WINDOW )
 			-- Creation procedure
 		local
 			screen: EV_SCREEN
 		do
 			-- Store the main_ui object. We want to restore it later on (it's currently minimized).
 			main_ui := a_main_ui_window
+
 			-- Create the window.
 			make_with_title ("Hexxagon Game")
 
@@ -75,7 +77,7 @@ feature -- Init
  			con_main.set_item_width (box_buttons, 0340)--384
  			con_main.set_item_height(box_buttons, 0355)--405
 
- 		--	box_buttons.set_padding (5)
+ 			box_buttons.set_padding (3)
  			box_buttons.set_background_pixmap (pix_background)
 
 			box_buttons.enable_homogeneous
@@ -85,16 +87,13 @@ feature -- Init
 	  		new_game_button.set_minimum_height (25)
 	 	 	internal_pixmap:=pix_play_game_button
 		   	new_game_button.set_pixmap(internal_pixmap)
-		  	--events when moving mouse pointer on the new_game_button image:
-		--	new_game_button.pointer_enter_actions.extend (agent pointer_enter_area(new_game_button))
-		--	new_game_button.pointer_leave_actions.extend (agent pointer_leave_area(new_game_button))
 
 
 			-- high_score_button:
 			high_score_button.set_minimum_width (86)
 			high_score_button.set_minimum_height (25)
 		  	internal_pixmap := pix_high_score_button
-		  	high_score_button.set_pixmap(internal_pixmap)
+		 	high_score_button.set_pixmap(internal_pixmap)
 
 			-- preferences_button:
 			preferences_button.set_minimum_width (86)
@@ -137,50 +136,76 @@ feature -- Init
 			about_button.select_actions.extend (agent about_action)
 			quit_button.select_actions.extend(agent quit_action)
 
-			--set_pointer_style (default_pixmaps.hyperlink_cursor)
-			--new_game_button.pointer_enter_actions.extend (agent pointer_enter_area)
-			-- Close the application when an interface close
-			-- request is recieved on `Current'. i.e. the cross is clicked.
-			close_request_actions.extend (agent destroy_and_exit_if_last)
+			--Mouse over actions
+			new_game_button.pointer_enter_actions.extend (agent pointer_enter_area(new_game_button))
+			new_game_button.pointer_leave_actions.extend (agent pointer_leave_area(new_game_button))
+
+			preferences_button.pointer_enter_actions.extend (agent pointer_enter_area(preferences_button))
+			preferences_button.pointer_leave_actions.extend (agent pointer_leave_area(preferences_button))
+
+			high_score_button.pointer_enter_actions.extend (agent pointer_enter_area(high_score_button))
+			high_score_button.pointer_leave_actions.extend (agent pointer_leave_area(high_score_button))
+
+			help_button.pointer_enter_actions.extend (agent pointer_enter_area(help_button))
+			help_button.pointer_leave_actions.extend (agent pointer_leave_area(help_button))
+
+			about_button.pointer_enter_actions.extend (agent pointer_enter_area(about_button))
+			about_button.pointer_leave_actions.extend (agent pointer_leave_area(about_button))
+
+			quit_button.pointer_enter_actions.extend (agent pointer_enter_area(quit_button))
+			quit_button.pointer_leave_actions.extend (agent pointer_leave_area(quit_button))
+
+
 		end
 
 feature -- Implementation pointer events
 
-	pointer_enter_area (a_area: EV_FIXED)
+
+	pointer_enter_area (a_area: EV_BUTTON)
 			-- the pointer is entering the area used as a button
 		do
 			if a_area = new_game_button then
-		--	new_game_button.set_pixmap (pix_play_game_button)--set_background_pixmap(img_play_hover)
-		--		internal_pixmap:=pix_play_game_button_hover
-		 --  		new_game_button.set_pixmap(internal_pixmap)
+				internal_pixmap:=pix_play_game_button_hover
+		   		new_game_button.set_pixmap(internal_pixmap)
 			elseif a_area = preferences_button then
-		--		preferences_button.set_background_pixmap(preferences_button_pixmap_pointer_in)
+				internal_pixmap:=pix_preferences_button_hover
+		   		preferences_button.set_pixmap(internal_pixmap)
 			elseif a_area = high_score_button then
-		--		high_score_button.set_background_pixmap(high_score_button_pixmap_pointer_in)
+				internal_pixmap := pix_high_score_button_hover
+		  		high_score_button.set_pixmap(internal_pixmap)
 			elseif a_area = help_button then
-		--		help_button.set_background_pixmap (help_button_pixmap_pointer_in)
+				internal_pixmap:= pix_help_button_hover
+		  		help_button.set_pixmap(internal_pixmap)
 			elseif a_area = about_button then
-		--		about_button.set_background_pixmap (about_button_pixmap_pointer_in)
+				internal_pixmap:= pix_about_button_hover
+		  		about_button.set_pixmap(internal_pixmap)
 			elseif a_area = quit_button then
-		--		quit_button.set_background_pixmap (quit_button_pixmap_pointer_in)
+				internal_pixmap:= pix_quit_button_hover
+		  		quit_button.set_pixmap(internal_pixmap)
 			end
 		end
 
-	pointer_leave_area (a_area: EV_FIXED)
+	pointer_leave_area (a_area: EV_BUTTON)
 			-- the pointer is leaving the area used as a button
 		do
 			if a_area = new_game_button then
-		--		new_game_button.set_background_pixmap (create_game_button_pixmap_pointer_out)
+				internal_pixmap:=pix_play_game_button
+		   		new_game_button.set_pixmap(internal_pixmap)
 			elseif a_area = preferences_button then
-		--		preferences_button.set_background_pixmap(preferences_button_pixmap_pointer_out)
+				internal_pixmap:=pix_preferences_button
+		   		preferences_button.set_pixmap(internal_pixmap)
 			elseif a_area = high_score_button then
-		--		high_score_button.set_background_pixmap(high_score_button_pixmap_pointer_out)
+				internal_pixmap := pix_high_score_button
+		  		high_score_button.set_pixmap(internal_pixmap)
 			elseif a_area = help_button then
-		--		help_button.set_background_pixmap (help_button_pixmap_pointer_out)
+				internal_pixmap:= pix_help_button
+		  		help_button.set_pixmap(internal_pixmap)
 			elseif a_area = about_button then
-		--		about_button.set_background_pixmap (about_button_pixmap_pointer_out)
+				internal_pixmap:= pix_about_button
+		  		about_button.set_pixmap(internal_pixmap)
 			elseif a_area = quit_button then
-		--		quit_button.set_background_pixmap (quit_button_pixmap_pointer_out)
+				internal_pixmap:= pix_quit_button
+		  		quit_button.set_pixmap(internal_pixmap)
 			end
 		end
 
@@ -243,6 +268,42 @@ feature --images attributes
 			Result.set_with_named_file (file_system.pathname_to_string (img_play_hover))
 		end
 
+		--------Hover------
+
+		pix_preferences_button_hover: EV_PIXMAP
+			-- returns the preferences_button for the active game
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_preferences_hover))
+		end
+
+		pix_help_button_hover: EV_PIXMAP
+			-- returns the help_button for the active game
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_help_hover))
+		end
+
+		pix_about_button_hover: EV_PIXMAP
+			-- returns the help_button for the active game
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_about_hover))
+		end
+
+		pix_high_score_button_hover: EV_PIXMAP
+			-- returns the help_button for the active game
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_high_score_hover))
+		end
+
+		pix_quit_button_hover: EV_PIXMAP
+			-- returns the help_button for the active game
+		once
+			create Result
+			Result.set_with_named_file (file_system.pathname_to_string (img_quit_hover))
+		end
 
 feature -- actions
 
@@ -281,7 +342,7 @@ feature -- actions
 			local
 				help_window: HX_G_HELP_SCREEN
 			do
-				create help_window.make(main_ui)
+				create help_window.make(main_ui,600,600)
 				help_window.show
 				destroy
 			end

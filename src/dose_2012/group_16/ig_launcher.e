@@ -83,6 +83,9 @@ feature -- Implemenation
 
 				-- Keep the game window from being collected
 			main_ui_window.add_reference_to_game (game_window)
+
+				-- Hide the start dialog
+			start_dialog.hide
 		end
 
 	main_ui_window: MAIN_WINDOW

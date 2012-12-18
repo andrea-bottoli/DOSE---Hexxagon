@@ -25,8 +25,8 @@ feature -- Test routines
 			-- New test routine
 		do
 			create test_model.make
-			create terrA.make
-			create terrB.make
+--			create terrA.make
+--			create terrB.make
 			test_model.invasion (terrA, terrB)
 		end
 
@@ -41,8 +41,8 @@ feature -- Test routines
 			-- New test routine
 		do
 			create test_model.make
-			create terrA.make
-			create terrB.make
+--			create terrA.make
+--			create terrB.make
 			test_model.reinforcement (terrA, terrB, count)
 			assert("Territory A has at least 1",terrA.army_count > 0)
 			assert("Territory B has at least 1",terrB.army_count > 0)
@@ -58,7 +58,7 @@ feature -- Test routines
 				-- New test routine
 			do
 				create test_model.make
-				create terrA.make
+--				create terrA.make
 				prev := terrA.army_count
 				test_model.fortify (terrA)
 				assert("Territory army +1",terrA.army_count = prev +1)

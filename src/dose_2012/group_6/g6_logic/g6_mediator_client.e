@@ -31,8 +31,6 @@ feature {NONE}
 				--s.add_player (p)
 			elseif (true) then --Roll dice
 				s.roll_dice
-			elseif (true) then --Buy a cell if this can be selled where the player stands
-				s.buy_a_cell
 			elseif (true) then -- Finish the current turn
 				s.finish_turn
 			elseif (true) then --Mortage a property

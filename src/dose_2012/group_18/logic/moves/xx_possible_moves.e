@@ -18,14 +18,15 @@ feature {NONE}
 							--if ai sends (2 numbers)put the piece to move in piece and the move to to_positon and type:=2
 
 feature {ANY}
---###############################################################
+
+
 	make_possible_moves()	--constructor
 	do
 		piece:=0
 		to_position:=0
 		type:=0
-	ensure
 
+	ensure
 		ensure_piece: (piece = 0)
 		ensure_to_position: (to_position = 0)
 		ensure_tpe: (type = 0)
@@ -33,7 +34,8 @@ feature {ANY}
 	end
 
 feature {ANY}
---###############################################################
+
+
 	get_piece():INTEGER		--returns the piece to move
 	do
 		Result := piece
@@ -41,7 +43,8 @@ feature {ANY}
 	ensure
 		valid_possible_moves: (Result = piece)
 	end
---###############################################################
+
+
 	get_position():INTEGER	--returns the place to move the piece
 	do
 		Result := to_position
@@ -49,7 +52,8 @@ feature {ANY}
 	ensure
 		valid_possible_moves: (Result = to_position)
 	end
---###############################################################
+
+
 	get_type():INTEGER		--returns the type (if gui/net send it or ai send it)
 	do
 		Result:=type
@@ -57,7 +61,8 @@ feature {ANY}
 	ensure
 		valid_possible_moves: (Result = type)
 	end
---###############################################################
+
+
 	set_move(which:INTEGER; where_to:INTEGER; case:INTEGER)	--sets the move to send
 	require
 		valid_indexes: (which>=0 and which<=57) and (where_to>=0 and where_to<=57) and (case>0 and case <=2)
@@ -67,7 +72,8 @@ feature {ANY}
 		type:=case
 	ensure then piece = which and to_position = where_to and type = case
 	end
---###############################################################	
+
+
 	set_piece(which:INTEGER)	--sets the piece on the move to send
 	require
 		valid_indexes: (which>=0 and which<=57)
@@ -75,7 +81,8 @@ feature {ANY}
 		piece:=which
 	ensure then piece = which
 	end
---###############################################################	
+
+
 	set_position(where_to:INTEGER)	--sets the position on the move to send
 	require
 		valid_indexes:	(where_to>=0 and where_to<=57)
@@ -83,7 +90,8 @@ feature {ANY}
 		to_position:=where_to
 	ensure then to_position = where_to
 	end
---###############################################################	
+
+
 	set_type(case:INTEGER)	--sets the move to send
 	require
 		valid_indexes: (case>0 and case <=2)

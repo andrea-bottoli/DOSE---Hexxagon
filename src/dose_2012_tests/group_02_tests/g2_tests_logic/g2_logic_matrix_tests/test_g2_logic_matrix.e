@@ -2,9 +2,9 @@ note
 	description: "[
 		Eiffel tests that can be executed by testing tool.
 	]"
-	author: "EiffelStudio test wizard"
-	date: "20/11/2012"
-	revision: "Revision 0.1"
+	author: "RioCuarto8"
+	date: "16/12/12"
+	revision: "1.1"
 	testing: "type/manual"
 
 class
@@ -15,6 +15,7 @@ inherit
 	EQA_TEST_SET
 
 feature -- Test routines
+		-- Test for G2_LOGIC_MATRIX_MAKE
 
 	test_g2_logic_matrix_1
 	    --testing with card=void and element /= void
@@ -25,7 +26,7 @@ feature -- Test routines
 			card: G2_LOGIC_CARD
 		do
 			create matrix.make (card, "fire")
-			--assert ("at loaded correctly the data ", matrix.g2_matrix_card.is_equal (card) and matrix.g2_matrix_element.is_equal ("fire"))
+			assert ("at loaded correctly the data ", matrix.g2_matrix_card.is_equal (card) and matrix.g2_matrix_element.is_equal ("fire"))
 		end
 
 	test_g2_logic_matrix_2
@@ -38,7 +39,7 @@ feature -- Test routines
 		do
 			create card.make (true, "Fire", 4, 5, 8, 6)
 			create matrix.make (card, "fire")
-			--assert ("at loaded correctly the data ", matrix.g2_matrix_card.is_equal(card)and matrix.g2_matrix_element.is_equal ("fire"))
+			assert ("at loaded correctly the data ", matrix.g2_matrix_card.is_equal(card)and matrix.g2_matrix_element.is_equal ("fire"))
 		end
 
 	test_g2_logic_matrix_3
@@ -52,7 +53,7 @@ feature -- Test routines
 		do
 			create card.make (true, "Fire", 4, 5, 8, 6)
 			create matrix.make (card, "hola mundo")
-			--assert ("at loaded correctly the data ", matrix.g2_matrix_card.is_equal (card) and matrix.g2_matrix_element.is_equal ("hola mundo"))
+			assert ("at loaded correctly the data ", matrix.g2_matrix_card.is_equal (card) and matrix.g2_matrix_element.is_equal ("hola mundo"))
 		end
 
 		test_g2_logic_matrix_4

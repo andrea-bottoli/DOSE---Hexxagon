@@ -93,7 +93,6 @@ feature -- Test routines
 			l_superior_hex:IG_HEX
 			l_inferior_hex:IG_HEX
 			l_move: IG_MOVE
-			l_player: IG_PLAYER
 		do
 			create l_gameboard.make(2)
 			create l_superior_hex.make ("r")
@@ -102,7 +101,6 @@ feature -- Test routines
 			create l_move.make_with_tile(l_tile)
 			l_move.set_position(4,7)
 			l_move.set_rotation(1)
-			l_gameboard.set_tile_on_board (l_move,l_player)
 			assert ("The move is not valid", l_gameboard.is_move_valid(l_move)=FALSE)
 		end
 
@@ -143,7 +141,6 @@ feature -- Test routines
 			l_move: IG_MOVE
 			l_superior_hex: IG_HEX
 			l_inferior_hex: IG_HEX
-			l_player: IG_PLAYER
 		do
 			create l_gameboard.make(2)
 			create l_superior_hex.make ("p")
@@ -152,7 +149,6 @@ feature -- Test routines
 			create l_move.make_with_tile(l_tile)
 			l_move.set_position(8,14)
 			l_move.set_rotation(1)
-			l_gameboard.set_tile_on_board (l_move, l_player)
 			assert ("The move is not valid", l_gameboard.is_move_valid(l_move)=FALSE)
 		end
 
@@ -167,7 +163,6 @@ feature -- Test routines
 			l_move: IG_MOVE
 			l_superior_hex: IG_HEX
 			l_inferior_hex: IG_HEX
-			l_player: IG_PLAYER
 		do
 			create l_gameboard.make(2)
 			create l_superior_hex.make ("r")
@@ -176,7 +171,6 @@ feature -- Test routines
 			create l_move.make_with_tile(l_tile)
 			l_move.set_position(14,14)
 			l_move.set_rotation(1)
-			l_gameboard.set_tile_on_board (l_move,l_player)
 			assert ("The move is not valid", l_gameboard.is_move_valid(l_move)=FALSE)
 		end
 

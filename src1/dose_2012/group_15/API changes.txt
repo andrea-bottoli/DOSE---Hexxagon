@@ -1,0 +1,3 @@
+-> Moving port from start_listening() method to the constructor of BS_NET_SERVER.
+
+-> BS_MOVE now contains an action field, which specifies whether the current move is actually a "new tile" move or if it is just a "pass" or a "surrender" move. In case of a "new tile" move, the TILE and the POSITION must not be void.

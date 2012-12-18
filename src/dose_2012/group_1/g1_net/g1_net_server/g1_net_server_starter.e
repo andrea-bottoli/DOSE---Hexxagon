@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {G1_NET_SERVER_THREAD}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Server starter class. This class start the server in a separate thread to not have problem with network interaction"
+	author: "MILANO7: Jiang Wu"
+	date: "$16/12/2012$"
+	revision: "$2.0$"
 
 class
 	G1_NET_SERVER_STARTER
@@ -14,8 +14,9 @@ create
 
 feature {NONE}
 	server_game: G1_NET_SERVER_SINGLE
-	
+
 feature {ANY}
+
 	make_server(match_name:STRING)
 	do
 		make

@@ -28,7 +28,7 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 
 	make
 		do
-			--create cards.
+			create cards.make (0)
 
 			-- Create the main window.
 			make_with_title ("Dominion")
@@ -39,11 +39,14 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 			-- Build the window
 		do
 			Precursor {EV_TITLED_WINDOW}
-			set_size(1020,725)
+			set_size(1020,690)
+			set_minimum_size (1020, 690)
+
 			--close_request_actions.extend (agent request_close_window)
 
 			-- create some parts of the main_view
 			create main_container
+			main_container.set_minimum_size (1020, 690)
 
 			--close_request_actions.extend (agent request_close_window)
 			load_main_container
@@ -80,21 +83,26 @@ feature {NONE} -- Initialization
 			main_container.set_item_position (current_phase_label, 470,18)
 
 			main_container.extend (coin_label)
+			main_container.set_item_size (coin_label, 15, 12)
 			main_container.set_item_position (coin_label, 980,18)
 
 			main_container.extend (action_label)
+			main_container.set_item_size (action_label, 15, 12)
 			main_container.set_item_position (action_label, 720,18)
 
 			main_container.extend (buy_label)
+			main_container.set_item_size (buy_label, 15, 12)
 			main_container.set_item_position (buy_label, 860,18)
 
 			main_container.extend (deck_label)
-			main_container.set_item_position (deck_label, 860,18)
+			main_container.set_item_size (deck_label, 15, 12)
+			main_container.set_item_position (deck_label, 976,635)
 
 			main_container.extend (hand_label)
-			main_container.set_item_position (hand_label, 860,18)
+			main_container.set_item_size (hand_label, 15, 12)
+			main_container.set_item_position (hand_label, 976,662)
 
-			main_container.extend_with_position_and_size (text_box, 25, 630, 893, 86)
+			main_container.extend_with_position_and_size (text_box, 25, 624, 895, 62)
 
 
 			-- add the main_container to the window
@@ -186,16 +194,20 @@ feature {G5_IGUI_TO_NET} -- Application
 		local
 			a_card: EV_FIXED
 			a_card_image: EV_PIXMAP
-			i: INTEGER
-			temporary_cards: ARRAYED_LIST[EV_FIXED]
 			path_name: STRING
 		do
+
+			-- remove first cards if capacity is ended
+			if (((cards.count)+1) > 10) then
+				elimination_of_old_cards
+			end
+
 			create a_card
 			create a_card_image
 
 			-- create pixmap and add this ti the card
 			path_name:= file_system.pathname_to_string (img_path_observer)
-			path_name.append_string ("\")
+			path_name.append_string ("/")
 			path_name.append_string (a_card_id)
 			path_name.append_string (".png")
 
@@ -205,32 +217,68 @@ feature {G5_IGUI_TO_NET} -- Application
 			-- add cards to the list
 			cards.force (a_card)
 
-			-- remove first cards if capacity is ended
-			if (cards.count <=10) then
-				create temporary_cards.make (0)
-				from
-					i:=6
-				until
-					i>cards.count
-				loop
-					temporary_cards.force (cards[i])
-				end
-
-				cards:= temporary_cards
-			end
-
 			-- set position of cards
 			if(cards.count<=5) then
 				current.lock_update
-				main_container.extend_with_position_and_size (a_card, 25+((cards.count-1)*198), 45, 178, 284)
+				main_container.extend_with_position_and_size (a_card, (25+(((cards.count)-1)*198)), 45, 178, 284)
 				current.unlock_update
 			else
 				current.lock_update
-				main_container.extend_with_position_and_size (a_card, 25+((cards.count-6)*198), 45+(296), 178, 284)
+				main_container.extend_with_position_and_size (a_card, (25+(((cards.count)-6)*198)), 45+(290), 178, 284)
 				current.unlock_update
 			end
 
+		end
 
+feature {NONE} -- Internal features
+
+	elimination_of_old_cards
+		-- if cards are more then 10 remove first 5 cards from the board
+		local
+			i: INTEGER
+			temporary_cards: ARRAYED_LIST[EV_FIXED]
+			a_card:EV_FIXED
+		do
+			create temporary_cards.make (0)
+
+			-- remove old cards
+			from
+				i:=1
+			until
+				i> cards.count
+			loop
+					current.lock_update
+					main_container.prune (cards[i])
+					current.unlock_update
+				if(i >5 ) then
+					temporary_cards.force (cards[i])
+				end
+				i:=i+1
+			end
+
+			cards:= temporary_cards
+
+			-- pose saved cards in their new position
+			from
+				i:=1
+			until
+				i>temporary_cards.count
+			loop
+				create a_card
+				a_card.set_background_pixmap (temporary_cards[i].background_pixmap)
+
+				-- set position of cards
+				if(i<=5) then
+					current.lock_update
+					main_container.extend_with_position_and_size (a_card, (25+(((i)-1)*198)), 45, 178, 284)
+					current.unlock_update
+				else
+					current.lock_update
+					main_container.extend_with_position_and_size (a_card, (25+(((i)-6)*198)), 45+(290), 178, 284)
+					current.unlock_update
+				end
+				i:=i+1
+			end
 		end
 
 

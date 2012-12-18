@@ -22,7 +22,7 @@ feature -- Test routines
 		local
 			test_player : RI_PLAYER
 		do
-			create test_player.make
+			--create test_player.make
 			assert("Non-void test_player",test_player /=void)
 			assert("Non-empty Name",test_player.name.count > 3)
 			assert("Non-zero Id",test_player.id >0)

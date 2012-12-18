@@ -37,26 +37,26 @@ feature -- Preparation of Tests
 
 feature -- Test positive
 
-	pop_up_text_message0
-		-- pop_up_text_message("have a reaction card in hand, want to play it?")
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_text_message"
-		do
-			text := "have a reaction card in hand, want to play it?"
-			class_test.pop_up_text_message (text)
-			assert ("pop_up_text_message effectively creates the message", class_test.a_pop_up_message.message.is_equal(text))
-		end
+--	pop_up_text_message0
+--		-- pop_up_text_message("have a reaction card in hand, want to play it?")
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_text_message"
+--		do
+--			text := "have a reaction card in hand, want to play it?"
+--			class_test.pop_up_text_message (text)
+--			assert ("pop_up_text_message effectively creates the message", class_test.a_pop_up_message.message.is_equal(text))
+--		end
 
-	pop_up_text_message1
-		-- two messages at once is possible?
-		note
-			testing: "G5_IGUI_TO_NET/.pop_up_text_message"
-		do
-			text := "Have a reaction card in hand, want to play it?"
-			class_test.pop_up_text_message (text)
-			text := "Nading"
-			class_test.pop_up_text_message (text)
-			assert ("pop_up_text_message effectively creates two message", class_test.a_pop_up_message.message.is_equal(text))
-		end
+--	pop_up_text_message1
+--		-- two messages at once is possible?
+--		note
+--			testing: "G5_IGUI_TO_NET/.pop_up_text_message"
+--		do
+--			text := "Have a reaction card in hand, want to play it?"
+--			class_test.pop_up_text_message (text)
+--			text := "Nading"
+--			class_test.pop_up_text_message (text)
+--			assert ("pop_up_text_message effectively creates two message", class_test.a_pop_up_message.message.is_equal(text))
+--		end
 
 end

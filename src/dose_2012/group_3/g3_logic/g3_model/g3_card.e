@@ -95,7 +95,7 @@ feature
 
 	set_number(number_ : STRING)
 		require
-			valid_id: number /= Void
+			valid_id: number_ /= Void
 		do
 			number:= number_
 		end

@@ -36,7 +36,7 @@ feature {ANY} -- creates a new PLAYER_ACTION_PANEL object.
 		draw_player_action_panel()
 	end
 
-	make_with_id(game: G10_GUI_GAME_MAIN  tile_id : INTEGER) -- routine creates a new reference to a player action panel with the drawed tile initialized to tile_id
+	make_with_id(game: G10_GUI_GAME_MAIN  tile_id : STRING) -- routine creates a new reference to a player action panel with the drawed tile initialized to tile_id
 	do
 		default_create()
 		init_current_player_tile_id(game , tile_id)
@@ -55,12 +55,12 @@ feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of
 	require
 		uninitialized_current_players_tile : current_player_tile = void
 	do
-		 create current_player_tile.make_drawed_tile(game)
+		create current_player_tile.make_drawed_tile(game)
 		ensure
 			initialized_current_players_tile : current_player_tile /= void
 	end
 
-	init_current_player_tile_id(game: G10_GUI_GAME_MAIN tile_id : INTEGER) -- routine initializes the current players tile with tile_id.
+	init_current_player_tile_id(game: G10_GUI_GAME_MAIN tile_id : STRING) -- routine initializes the current players tile with tile_id.
 	require
 		uninitialized_current_players_tile : current_player_tile = void
 	do
@@ -80,22 +80,32 @@ feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of
 			initialized_rotate_button : rotate_button /= void
 	end
 
-	rotate_current_player_tile() -- routine performes the rotation of the current players tile
+	rotate_current_player_tile(degrees : STRING) -- routine performes the rotation of the current players tile
 	require
 		img_src_not_void : current_player_tile.get_img_src() /= void
 	do
-		current_player_tile.rotate_tile
+		current_player_tile.rotate_tile(degrees)
 		ensure
 			rotated_img_not_void : current_player_tile.get_img_src() /= void
 	end
 
-	update_tile(src : KL_PATHNAME) -- routine changes the image of the current_player_tile.
+	update_current_player_tile(game : G10_GUI_GAME_MAIN id : STRING) -- routine changes the image of the current_player_tile.
 	require
-		source_image_not_void : src /= void
+		source_image_not_void : id /= void
 	do
-		current_player_tile.set_img_src (src)
-		ensure
-			tile_changed : current_player_tile.get_img_src = src
+		destroy_current_player_tile
+		init_current_player_tile_id(game , id)
+		draw_player_action_panel
+	ensure
+		-- tile_changed : current_player_tile.get_img_src.is_equal (id) = true
+	end
+
+	destroy_current_player_tile -- routine destroys current player tile widget and sets it to void.if widget is already destoyed routine does nothing.
+	do
+		if(current_player_tile /= void) then
+			current_player_tile.destroy
+			current_player_tile := void
+		end
 	end
 
 	update_background(a_pixmap : EV_PIXMAP) -- routine sets the background pixmap of this object to arg pixmap
@@ -113,7 +123,9 @@ feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of
 		valid_rotate_button : rotate_button /= void
 	do
 		-- rotate button width : 150 height : 80
-		current.extend_with_position_and_size (rotate_button, rotate_button_start_width, rotate_button_start_height, rotate_button_width, rotate_button_height)
+		if(current.has (rotate_button) = false) then
+			current.extend_with_position_and_size (rotate_button, rotate_button_start_width, rotate_button_start_height, rotate_button_width, rotate_button_height)
+		end
 		-- current player tile width : 100 height : 100
 		current.extend_with_position_and_size (current_player_tile, drawed_tile_start_width, drawed_tile_start_height, drawed_tile_width, drawed_tile_height)
 
@@ -125,12 +137,12 @@ feature {G10_GUI_GAME_MAIN} -- routine rotates the current_player_tile object of
 
 	action_performed_rotate_button(game: G10_GUI_GAME_MAIN a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32) -- routine changes the source and draws the new pixmap of the current players tile.
 	do
-		game.notify(rotate_event)
+		game.notify(rotate_event , -1 , -1)
 		-- rotate_current_player_tile()
 	end
 
 -- accesor methods.
-feature {G10_GUI_GAME_MAIN} -- routine returns the color of the player_action_panel object
+feature {G10_GUI_GAME_MAIN , G10_GUI_PLAYER_ACTION_PANEL} -- routine returns the color of the player_action_panel object
 	get_backgroung_color() : EV_COLOR
 	do
 		result := background_color
@@ -145,7 +157,7 @@ feature {G10_GUI_GAME_MAIN} -- routine returns the color of the player_action_pa
 		rotate_button_not_mutated : rotate_button = old rotate_button
 	end
 
-	get_current_player_tile () : G10_GUI_TILE -- routine returns the current players tile
+	get_current_player_tile () : G10_GUI_DRAWED_TILE -- routine returns the current players tile
 	do
 		result := current_player_tile
 		ensure
@@ -169,5 +181,5 @@ feature {G10_GUI_GAME_MAIN} -- routine returns the color of the player_action_pa
 --class invariants
 invariant
 	rotate_button_not_void : rotate_button /= void
-	current_player_tile_not_void : current_player_tile /= void
+	 -- current_player_tile_not_void : current_player_tile /= void
 end

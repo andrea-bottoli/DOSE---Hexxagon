@@ -24,12 +24,12 @@ feature {CU_INIT_CONTROLLER} --Constructor
 			--if attached a_gui then
 			--	game.add_observer (a_gui)
 			--end
-			create net.make
+			--create net.make
 			--game.add_observer (net) We need the net components to be observers, or they will ever get any update from the game!
 			create incoming_clients.make
 		ensure
 			clients_setup: incoming_clients /= void
-			ok_network: net /= void
+--			ok_network: net /= void
 		end
 
 feature -- Procedures
@@ -88,7 +88,7 @@ feature -- Procedures
 			game.distribute_cards
 			game.next_turn--From Starting to the first throw dices
 		ensure
-			game_started: game.current_player= game.active_players[0]
+			game_started: game.current_player= game.active_players[1]
 		end
 
 feature --inherited methods

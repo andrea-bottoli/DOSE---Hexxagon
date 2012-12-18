@@ -14,12 +14,11 @@ feature{NONE}
 
 feature
 
-	make(player_info: G19_PLAYER_INFO; position: TUPLE[x, y:INTEGER]; action_type: STRING)
+	make(player_info: G19_PLAYER_INFO)
 		do
 			current_player_info := player_info
 
 			create current_actions.make()
-			current_actions.extend([position.x, position.y, action_type])
 		end
 
 	get_player(): G19_PLAYER_INFO
@@ -30,6 +29,11 @@ feature
 	get_actions(): LIST[TUPLE[x, y: INTEGER; action_type: STRING]]
 		do
 			result := current_actions
+		end
+
+	add_action(position: TUPLE[x, y:INTEGER]; action_type: STRING)
+		do
+			current_actions.extend([position.x, position.y, action_type])
 		end
 
 end

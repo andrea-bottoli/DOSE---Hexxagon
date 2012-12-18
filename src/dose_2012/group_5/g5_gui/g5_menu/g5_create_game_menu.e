@@ -92,10 +92,10 @@ feature	{NONE} -- Initialization
 			extend_with_position_and_size (custom_button, 734, 318, 170, 59)
 
 			-- add text box name
-			create host_name_text_box
-			host_name_text_box.set_minimum_width (150)
-			extend (host_name_text_box)
-			set_item_position (host_name_text_box, 400,118)
+			--create host_name_text_box
+			--host_name_text_box.set_minimum_width (150)
+			--extend (host_name_text_box)
+			--set_item_position (host_name_text_box, 400,118)
 
 			-- add text box players number
 			create players_number_text_box
@@ -154,63 +154,112 @@ feature {NONE} -- Implementation
 			end
 		end
 
-		confirm_request(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
-			-- the user press the ok button
-			local
-				error_dialog: EV_INFORMATION_DIALOG
-				player_name: STRING
-				selected_game_type: STRING
-				port: INTEGER
-				players_number: INTEGER
-			do
-				-- AGGIUNGERE CHECK SU PORTA E PARTE INVIO INFO AL MENU SUCCESSIVO SE C'E' PER IL DEFAULT E IL RANDOM INVIA DIRETTO
-				-- check the correctness of the name
-				if not(host_name_text_box.text.is_equal ("") or host_name_text_box.text.is_equal ("SERVER")) then
+	confirm_request(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+		-- the user press the ok button
+		local
+			error_dialog: EV_INFORMATION_DIALOG
+			--player_name: STRING
+			selected_game_type: STRING
+			port: INTEGER
+			players_number: INTEGER
+			kingdom_set_pop_up: G5_POP_UP_SELECT_KINGDOM_CARDS
+		do
+			-- AGGIUNGERE CHECK SU PORTA E PARTE INVIO INFO AL MENU SUCCESSIVO SE C'E' PER IL DEFAULT E IL RANDOM INVIA DIRETTO
+			-- check the correctness of the name
+			--if not(host_name_text_box.text.is_equal ("") or host_name_text_box.text.is_equal ("SERVER")) then
 
-					-- check the correctness of the player number
-					if ((players_number_text_box.text.is_integer) and (players_number_text_box.text.to_integer >1) and (players_number_text_box.text.to_integer <5)) then
+				-- check the correctness of the player number
+				if ((players_number_text_box.text.is_integer) and (players_number_text_box.text.to_integer >1) and (players_number_text_box.text.to_integer <5)) then
 
-						-- check the correctness of the selected port
-						if((port_text_box.text.is_integer) and (port_text_box.text.to_integer >1024 and port_text_box.text.to_integer <5000)) then
+					-- check the correctness of the selected port
+					if((port_text_box.text.is_integer) and (port_text_box.text.to_integer >1024 and port_text_box.text.to_integer <5000)) then
 
-							-- check that a game type has been chosen
-							if (game_type/= void) then
+						-- check that a game type has been chosen
+						if (game_type/= void) then
 
-								-- call the main_menu windows feature used to send to the launcher user choices
-								player_name:= host_name_text_box.text.to_string_32
-								selected_game_type:= game_type
-								port:= port_text_box.text.to_integer
-								players_number:= players_number_text_box.text.to_integer
+							-- call the main_menu windows feature used to send to the launcher user choices
+							--player_name:= host_name_text_box.text.to_string_32
+							selected_game_type:= game_type
+							port:= port_text_box.text.to_integer
+							players_number:= players_number_text_box.text.to_integer
 
-								-- select which feature we need to call
-								if (game_type.is_equal ("default") or game_type.is_equal ("random")) then
-									-- random or default game type selcted
-									parent_window.submit_request_create_new_game(player_name, selected_game_type, port, players_number)
-								else
-									-- custom game type selected
-								end
+							-- select which feature we need to call
+							if (game_type.is_equal ("default") or game_type.is_equal ("random")) then
+								-- random or default game type selcted
+
+								-- hides menu and inform with a pop-up the state of the server
+								parent_window.hide
+								parent_window.refresh_now
+								io.put_string("Server was created successfully and it's waiting for new clients.")
+
+								-- create the server
+								parent_window.submit_request_create_new_game("server", selected_game_type, port, players_number, void)
+
+
+								-- the software arrive here only when the game is ended and return to the main menu
+								io.put_string("Server shuts down")
+								parent_window.create_container_main_menu
+								parent_window.show
+
 							else
-								create error_dialog.make_with_text ("please, select a game type")
-								error_dialog.set_title ("ERROR")
-								error_dialog.show_modal_to_window (parent_window)
+								-- custom game type selected
+								create kingdom_set_pop_up.make_set_kingdom_cards (current)
+								kingdom_set_pop_up.show_modal_to_window (parent_window)
 							end
 						else
-							create error_dialog.make_with_text ("port number is not valid (please select a number between 1024 and 5000)")
+							create error_dialog.make_with_text ("please, select a game type")
 							error_dialog.set_title ("ERROR")
 							error_dialog.show_modal_to_window (parent_window)
 						end
 					else
-						create error_dialog.make_with_text ("number of players is not valid")
+						create error_dialog.make_with_text ("port number is not valid (please select a number between 1024 and 5000)")
 						error_dialog.set_title ("ERROR")
 						error_dialog.show_modal_to_window (parent_window)
 					end
 				else
-					create error_dialog.make_with_text ("name is empty or is SERVER (this name is not available)")
+					create error_dialog.make_with_text ("number of players is not valid")
 					error_dialog.set_title ("ERROR")
 					error_dialog.show_modal_to_window (parent_window)
 				end
+--			else
+--				create error_dialog.make_with_text ("name is empty or is SERVER (this name is not available)")
+--				error_dialog.set_title ("ERROR")
+--				error_dialog.show_modal_to_window (parent_window)
+--			end
 
-			end
+		end
+
+feature {G5_POP_UP_SELECT_KINGDOM_CARDS} -- feature called to return the set of kingdom cards
+
+	set_selected(a_set: ARRAY[STRING]; a_pop_up: G5_POP_UP_SELECT_KINGDOM_CARDS)
+		-- the feature called to submit the custom set
+		local
+			--player_name: STRING
+			selected_game_type: STRING
+			port: INTEGER
+			players_number: INTEGER
+		do
+			a_pop_up.destroy
+
+			-- player_name:= host_name_text_box.text.to_string_32
+			selected_game_type:= game_type
+			port:= port_text_box.text.to_integer
+			players_number:= players_number_text_box.text.to_integer
+
+			-- hides the menu and open a pop-up with the state of the server
+			parent_window.hide
+			parent_window.refresh_now
+			io.put_string("Server was created successfully and it's waiting for new clients.")
+
+			-- start the server
+			parent_window.submit_request_create_new_game("server", selected_game_type, port, players_number, a_set)
+
+
+			-- the software arrive here only when the game is ended and return to the main menu
+			io.put_string("Server shuts down")
+			parent_window.create_container_main_menu
+			parent_window.show
+		end
 
 
 feature {NONE}	-- Attributes
@@ -254,7 +303,7 @@ feature {NONE}	-- Attributes
 
 -- ### text box
 
-	host_name_text_box: EV_TEXT_FIELD
+	--host_name_text_box: EV_TEXT_FIELD
 		-- the text box of the host name
 
 	players_number_text_box: EV_TEXT_FIELD

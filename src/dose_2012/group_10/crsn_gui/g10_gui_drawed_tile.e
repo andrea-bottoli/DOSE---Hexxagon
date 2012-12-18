@@ -8,8 +8,8 @@ class
 	G10_GUI_DRAWED_TILE
 inherit
 	G10_GUI_TILE
-	export
-		{ANY}
+	redefine
+		set_img_src_id_and_degrees
 	end
 
 create
@@ -18,6 +18,7 @@ create
 -- attributes.
 feature{NONE}
 	follower : EV_FIXED
+	follower_pos : INTEGER
 	clickable_point_1 , clickable_point_2 , clickable_point_3  : EV_FIXED
 	clickable_point_4 , clickable_point_5 , clickable_point_6  : EV_FIXED
 	clickable_point_7 , clickable_point_8 , clickable_point_9  : EV_FIXED
@@ -30,7 +31,7 @@ feature{ANY}
 		set_img_src(game_drawed_tiles_img_path)
 		set_minimum_width (drawed_tile_width)
 		set_minimum_height (drawed_tile_height)
-		set_img_src_id_and_degrees("15" , "90")
+		set_img_src_id_and_degrees("11" , "180")
 		draw_background_pixmap()
 
 		make_clickable_points
@@ -39,20 +40,13 @@ feature{ANY}
 		--Edw mallon 8a 8eloume na valoume tous agents sxetikous me tous followers
 	end
 
-	make_drawed_tile_with_id(game: G10_GUI_GAME_MAIN tile_id : INTEGER) -- creates a new reference to an drawed tile the one that appears on the current players action panel
-	local
-		tile_id_str : STRING
+	make_drawed_tile_with_id(game: G10_GUI_GAME_MAIN tile_id : STRING) -- creates a new reference to an drawed tile the one that appears on the current players action panel
 	do
 		make_ev_fixed
 		set_img_src(game_drawed_tiles_img_path)
 		set_minimum_width (drawed_tile_width)
 		set_minimum_height (drawed_tile_height)
-
-		tile_id_str := tile_id.to_hex_string
-		io.put_string ("mesa stin make_drawed_tile_with_id / tile_id:" + tile_id_str)
-		io.put_new_line
-
-		set_img_src_id_and_degrees(tile_id_str , "0")
+		set_img_src_id_and_degrees(tile_id , "0")
 		draw_background_pixmap()
 
 		make_clickable_points
@@ -63,12 +57,31 @@ feature{ANY}
 
 -- muattor methods.
 feature{ANY}
+
+	set_img_src_id_and_degrees(id : STRING degrees : STRING) -- routine appends the image source of this tile with id and degrees.  Works for field tiles
+	require else
+		id_not_void : id /= void
+	local
+		post_fix : STRING
+	do
+		post_fix := id
+		post_fix.append ("_")
+		post_fix.append (degrees)
+		post_fix.append (".png")
+
+		img_src := game_drawed_tiles_img_path
+		img_src.append_name (post_fix)
+	ensure then
+		img_src_nor_void : get_img_src /= void
+	end
+
 	make_clickable_points -- routine creates and initialized the clickable point 1 with its pixmap and the test_listener agent.
 	local
 		y , x : REAL_64
 	do
 		x := follower_width / 2
 		y := follower_height / 2
+		follower_pos := 0
 		create clickable_point_1.default_create
 		create clickable_point_2.default_create
 		create clickable_point_3.default_create
@@ -124,8 +137,6 @@ feature{ANY}
 		clickable_point_9.set_minimum_width (clickable_point_width)
 		clickable_point_9.extend(make_clickable_point_pixmap(9))
 		extend_with_position_and_size (clickable_point_9 , (x.ceiling*2) +60 , (y.ceiling*2) +60, clickable_point_width, clickable_point_height)
-
-
 	ensure
 		clickable_point_not_void : clickable_point_1 /= void
 	end
@@ -141,6 +152,7 @@ feature{ANY}
 		follower.set_minimum_width (follower_width)
 		follower.extend(make_follower_pixmap)
 		padding := 10
+		follower_pos := point_num
 
 		if(point_num = 1) then
 			x := 0
@@ -178,7 +190,7 @@ feature{ANY}
 		--follower_1_valid_pixmap : follower_1.has (pix_red_follower) = true
 	end
 
-	make_follower_pixmap : EV_PIXMAP -- routine returns a follower pixmap.
+	make_follower_pixmap : EV_PIXMAP -- routine returns a follower pixmap. -- aytin edo peirazo gia na ftiakso meta to xroma tou follower analoga me to poios paizei
 	require
 		source_not_void : img_red_follower /= void
 		pixmap_not_void : pix_red_follower /= void
@@ -195,17 +207,12 @@ feature{ANY}
 		follower_pixmap_not_void : result /= void
 	end
 
-	test(a : INTEGER) -- test procedure
-	do
-	end
-
 	make_clickable_point_pixmap(point_num : INTEGER) : EV_PIXMAP -- routine returns a clickable point pixmap.
 	require
 		source_not_void : img_clickable_point /= void
 		pixmap_not_void : pix_clickable_point /= void
 	local
 		new_pixmap : EV_PIXMAP
-		num : INTEGER_32
 		array : ARRAY[INTEGER]
 	do
 		create array.make_filled (point_num, 1, 1)
@@ -213,14 +220,13 @@ feature{ANY}
 		new_pixmap.set_minimum_height (clickable_point_height)
 		new_pixmap.set_minimum_width (clickable_point_width)
 		new_pixmap.pointer_button_release_actions.extend (agent put_follower(array , ?,?,?,?,?,?,?,?))
-		--(void , ?,?,?,?,?,?,?,?)
-		--new_pixmap.pointer_button_release_actions.extend (v: [like item] [detachable] PROCEDURE [[detachable] ANY, [detachable] TUPLE [INTEGER_32, INTEGER_32, INTEGER_32, REAL_64, REAL_64, REAL_64, INTEGER_32, INTEGER_32]])
+
 		result := new_pixmap
 	ensure
 		clickable_point_pixmap_not_void : result /= void
 	end
 
-	rotate_tile -- routine rotates the image of the tile
+	rotate_tile(degrees : STRING) -- routine rotates the image of the tile
 	require
 		void_parameter : img_src /= void
 		tile_is_drawed_tile : drawed_tile_width = current.minimum_width and drawed_tile_height = current.minimum_height
@@ -238,7 +244,6 @@ feature{ANY}
 			io.put_new_line
 		end
 	ensure
-		image_rotated : img_src /= old img_src
 		void_result : img_src /= void
 	end
 
@@ -290,6 +295,24 @@ feature{ANY}
 		source_not_mutated : get_img_src = old get_img_src
 	end
 
+	has_follower : BOOLEAN -- routine returns true if drawed tile has a follower drawed in it else false.
+	do
+		if(follower = void)then
+			result := false
+		else
+			result := true
+		end
+	end
+
+	get_follower_id : INTEGER -- routine returns the follower position (1-9)
+	require
+		follower_not_void : follower /= void
+	do
+		result := follower_pos
+	ensure
+		drawed_tile_unmutated : current = old current
+	end
+
 --listeners
 	test_listener(obj : ANY a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32) -- routine prints a test message that entered in routine
 	do
@@ -326,6 +349,7 @@ feature{ANY}
 		clickable_point_9.destroy
 
 		make_follower(point_num)
+		follower_pos := point_num
 	ensure
 		follower_drawed : current.has (follower) = true
 	end
@@ -340,7 +364,7 @@ feature{ANY}
 			io.put_string ("mpika stin if! einai empty!");
 			io.put_new_line
 		end
-
+		follower_pos := 0
 		make_clickable_points
 	ensure
 		current.has (clickable_point_1) = true and current.has (follower) = false

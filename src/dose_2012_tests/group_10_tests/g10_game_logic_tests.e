@@ -416,8 +416,8 @@ feature -- Test routines
 	note
 		testing:  "user/G10"
 	local
-		game : G10_GAME
 		tile_id : INTEGER
+		game : G10_GAME
 		tile : G10_TILE
 	do
 		create game.make()
@@ -434,8 +434,8 @@ feature -- Test routines
 		testing:  "user/G10"
 	local
 		game : G10_GAME
-		tile_id : INTEGER
 		tile : G10_TILE
+		tile_id : INTEGER
 	do
 		create game.make()
 		create tile.make()

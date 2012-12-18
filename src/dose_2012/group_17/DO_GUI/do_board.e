@@ -130,11 +130,41 @@ feature {ANY}  -- Notification, on lose or win the game
 			lose_dialog.show_modal_to_window (current)
 		end
 
-feature {EQA_TEST_SET} -- Implementation
+	on_tie
+		local
+			lose_dialog: USER_INFO_DIALOG
+			image_path: STRING
+		do
+			create image_path.make_from_string (Files_path+"wallpapers/draw.png")
+			create lose_dialog.make (image_path, "DRAW", "")
+			lose_dialog.show_modal_to_window (current)
+		end
+
+	ask_win(victory_points: STRING)
+		local
+			status: STRING
+			status_message: DO_OUR_MESSAGE
+		do
+			create status_message.make
+			status_message.extend ("status")
+			if (client/=Void) then
+				status:=client.ask_win(status_message)
+			elseif (server/=Void) then
+				status:=server.ask_win(status_message)
+			end
+			if (status.is_equal ("yes")) then
+				on_win
+			elseif (status.is_equal ("no")) then
+				on_lose
+			else
+				on_tie
+			end
+		end
+
+feature {EQA_TEST_SET, DO_GRAPHIC_CARD} -- Implementation
 
 	main_board: EV_FIXED
 			-- Main container (contains all widgets displayed in this window)
-	--buttons_box: EV_HORIZONTAL_BOX
 
 	build_board
 			-- Fill the board with cards, buttons and info
@@ -154,7 +184,6 @@ feature {EQA_TEST_SET} -- Implementation
 
 			create end_button.make_with_text ("End Action Phase")
 			end_button.set_minimum_size (150, 40)
-			--end_button.select_actions.extend (agent send_message)
 			end_button.select_actions.extend (agent end_button_pressed)
 
 			create actions_left.make_with_text("Actions: 0")
@@ -165,27 +194,114 @@ feature {EQA_TEST_SET} -- Implementation
 			main_board.extend_with_position_and_size (coins_left, 15, 590, 120, 24)
 
 			main_board.extend_with_position_and_size (end_button, 10, 500, 150, 40)
-			create aux_message.make
+			create net_message.make
 			create board_cards.make
-			--refresh_hand(cards_example)
-			--refresh_board_cards(cards_example)
 			paint_buy_zone(12,15)
 
-			create text_area
-			create message_log.make_from_string ("")
-			text_area.set_minimum_size (200, 200)
-			text_area.disable_edit
-			main_board.extend_with_position_and_size (text_area, 750, 20, 200, 200)
+			create log_text_area
+			create message_log.make_from_string ("DOMINION%N")
+			log_text_area.set_minimum_size (200, 200)
+			log_text_area.disable_edit
+			main_board.extend_with_position_and_size (log_text_area, 750, 20, 200, 200)
 			start
 		end
 
 	start
 		do
 			create game_phase.make_from_string("play")
-			--print(game_reference.NotifyGameState("play"+"_"+"nothing")
+			create Played_cards.make
+			on_update(game_reference.notifygamestate ("init"),Void)
 		end
 
+	end_button_pressed
+		do
+			if game_phase.is_equal ("play") then
+				end_button.set_text("Done buys")
+				game_phase:= "buy"
+			elseif game_phase.is_equal ("buy")  then
+				end_button.set_text("Done Clean phase")
+				game_phase:= "clean"
+			elseif game_phase.is_equal ("clean") then
+				end_button.set_text("Done Action phase")
+				game_phase:= "play"
+				send_message
+				send_turn
+			end
+		end
+
+	-- the pointer is entering the area used as a button
+	pointer_enter_card_area(name:STRING)
+		do
+			card_pixmap_pointer_in.set_with_named_file (Files_path+name)--name_big_card)	
+			deck_area.set_background_pixmap(card_pixmap_pointer_in)
+		end
+
+	-- the pointer is leaving the area used as a button
+	pointer_leave_card_area
+		do
+			deck_area.set_background_pixmap (image_deck)
+		end
+
+feature {EQA_TEST_SET, DO_GRAPHIC_CARD, DO_CLIENT,DO_SERVER} -- Board variables
+
+	message: DO_OUR_MESSAGE
+			-- Message that will be sended to the oponent
+
+	game_reference: DO_GAME
+			-- Reference the logic part of the Game
+
+	log_text_area: EV_RICH_TEXT
+		-- log text, to inform the progress of the game
+
+	message_log: STRING
+		-- Message for the log text
+
+	end_button: EV_BUTTON
+		-- Button used to end a fase, and begin the next one
+
+	game_phase: STRING
+		-- Which fase of the game is the current (action, buy, clean)	
+
+	net_message: LINKED_LIST[STRING]
+		-- Fill the message for the oponent
+
+	Played_cards: LINKED_LIST[STRING]
+		-- have every card played
+
+	board_cards:LINKED_LIST[EV_FIXED]
+		-- Every card painted on the board
+
+	-- Information Variables, to know how many actions, buys and coins rests
+		actions_left: EV_LABEL
+		buys_left: EV_LABEL
+		coins_left: EV_LABEL
+	--
+
+	-- Variables needed to paint every card in the board
+		-- Position Variables,
+		pos_card_x:INTEGER
+		pos_card_y:INTEGER
+		pos_buy_zone_x:INTEGER
+		pos_buy_zone_y:INTEGER
+		-- Picture Variables
+		new_card: EV_FIXED
+		new_card_pixmap: EV_PIXMAP
+		buy_zone: EV_FIXED
+		buy_zone_pixmap: EV_PIXMAP
+		-- Variables we use to paint a pointed card on the top_left of the board
+		image_deck: EV_PIXMAP
+		deck_area: EV_FIXED
+		card_pixmap_pointer_in: EV_PIXMAP
+	--
+
+		end_first_turn: BOOLEAN
+
+
+
+feature {EQA_TEST_SET,DO_GRAPHIC_CARD, DO_CLIENT, DO_SERVER} -- Methods that print the window.
+
 	paint_Card (card:DO_GRAPHIC_CARD)
+		-- Paint a Card
 		do
 			create new_card
 			create new_card_pixmap
@@ -203,9 +319,10 @@ feature {EQA_TEST_SET} -- Implementation
 
 		end
 
-	paint_buy (card:DO_GRAPHIC_CARD; zone:INTEGER)
+	paint_buy (card:DO_GRAPHIC_CARD; x,y:INTEGER)
+		-- Paint a supply bar, that contains a buyable card
 		do
-			create buy_zone
+			create buy_zone.default_create
 			create buy_zone_pixmap
 			buy_zone_pixmap.set_with_named_file (Files_path+"buy_stuff\"+card.small_card_name) --cambiar la imagen
 			buy_zone.set_background_pixmap (buy_zone_pixmap)
@@ -213,106 +330,75 @@ feature {EQA_TEST_SET} -- Implementation
 			buy_zone.pointer_enter_actions.extend (agent pointer_enter_card_area("big_cards\"+card.big_card_name))
 			buy_zone.pointer_leave_actions.extend (agent pointer_leave_card_area)
 			buy_zone.pointer_button_release_actions.extend (agent card.on_click)
-			card.set_card_pos_x_y (pos_buy_zone_x, pos_buy_zone_y)
+			card.set_card_pos_x_y (x, y)
 			card.set_buy_pos_x_y(pos_buy_zone_x+150,pos_buy_zone_y+3)
 			main_board.extend_with_position_and_size (buy_zone, card.pos_x, card.pos_y, 172, 25)
 			refresh_buy_number(card)
 
-			pos_buy_zone_x:=pos_buy_zone_x+175
-			if (pos_buy_zone_x>700 or zone=1) then
-				pos_buy_zone_y:=pos_buy_zone_y+30
-				pos_buy_zone_x:=215
-			end
 		end
 
 	paint_buy_zone(nr_of_each_card:INTEGER; nr_of_each_vp_card:INTEGER)
+		-- Paint the buy zone, completely
 		local
 			card:DO_GRAPHIC_CARD
 		do
 			pos_buy_zone_x:=215
 			pos_buy_zone_y:=20
+			create card.make_supply("Chapel",nr_of_each_card,current)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Oasis",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Village",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_y:=pos_buy_zone_y+30
+			pos_buy_zone_x:=215
 			create card.make_supply("Woodcutter",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Salvager",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Smithy",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_y:=pos_buy_zone_y+30
+			pos_buy_zone_x:=215
 			create card.make_supply("Laboratory",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Market",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Stables",nr_of_each_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_y:=pos_buy_zone_y+30
+			pos_buy_zone_x:=215
 			create card.make_supply("Festival",nr_of_each_card,current)
-			paint_buy(card,1)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_y:=pos_buy_zone_y+30
+			pos_buy_zone_x:=215
 			create card.make_supply("Copper",45,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Silver",40,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Gold",30,current)
-			paint_buy(card,1)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_y:=pos_buy_zone_y+30
+			pos_buy_zone_x:=215
 			create card.make_supply("Estate",nr_of_each_vp_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Duchy",nr_of_each_vp_card,current)
-			paint_buy(card,0)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_x:=pos_buy_zone_x+175
 			create card.make_supply("Province",nr_of_each_vp_card,current)
-			paint_buy(card,1)
+			paint_buy(card,pos_buy_zone_x,pos_buy_zone_y)
+			pos_buy_zone_y:=pos_buy_zone_y+30
+			pos_buy_zone_x:=215
 		end
-
-	-- the pointer is entering the area used as a button
-	pointer_enter_card_area(name:STRING)
-		do
-			card_pixmap_pointer_in.set_with_named_file (Files_path+name)--name_big_card)	
-			deck_area.set_background_pixmap(card_pixmap_pointer_in)
-		end
-
-	-- the pointer is leaving the area used as a button
-	pointer_leave_card_area
-	do
-		deck_area.set_background_pixmap (image_deck)
-	end
-
-	new_card: EV_FIXED
-
-	new_card_pixmap: EV_PIXMAP
-
-	buy_zone: EV_FIXED
-
-	buy_zone_pixmap: EV_PIXMAP
-
-	image_deck: EV_PIXMAP
-
-	deck_area: EV_FIXED
-
-	card_pixmap_pointer_in: EV_PIXMAP
-
-	text_area: EV_RICH_TEXT
-
-	end_button: EV_BUTTON
-
-	message_log: STRING
-
-	build_main_board (p_setting: DO_SETTINGS)
-			-- Create and populate `main_container'.
-		do
-		end
-
-
-	board_cards:LINKED_LIST[EV_FIXED]
-	cards_example:LINKED_LIST[STRING]
-	actions_left: EV_LABEL
-	buys_left: EV_LABEL
-	coins_left: EV_LABEL
-	pos_card_x:INTEGER
-	pos_card_y:INTEGER
-	pos_buy_zone_x:INTEGER
-	pos_buy_zone_y:INTEGER
-
-feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Methods that print the window.
 
 	refresh_hand (cards: LINKED_LIST[STRING])
 		-- paint the cards in your hand
@@ -354,11 +440,31 @@ feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Methods that print the window.
 		end
 
 	refresh_buy_number (card:DO_GRAPHIC_CARD)
+		-- Refresh the buys left of a buyable card
 		do
 			card.create_buy
 			main_board.extend_with_position_and_size (card.number_of_buys, card.buy_number_zone_x, card.buy_number_zone_y, 18, 18)
 		end
 
+	refresh_oponent_buy (msg: STRING)
+		local
+			buy_num_zone_x: INTEGER
+			buy_num_zone_y: INTEGER
+			card_name: STRING
+			new_supply_card: DO_GRAPHIC_CARD
+			color: EV_COLOR
+			num_of_buys: EV_LABEL
+		do
+			create color.make_with_8_bit_rgb (232, 0, 99)
+			create num_of_buys.make_with_text (msg.substring (1, msg.index_of ('/', 1) -1))
+			num_of_buys.set_background_color(color)
+			card_name:= msg.substring (msg.index_of ('_', 1) +1, msg.count)
+			buy_num_zone_x:= msg.substring (msg.index_of ('/', 1) +1, msg.last_index_of ('/', msg.count) -1).to_integer
+			buy_num_zone_y:= msg.substring (msg.last_index_of ('/', msg.count) +1, msg.index_of ('-', 1) -1).to_integer
+			create new_supply_card.make_supply(card_name,msg.substring (1, msg.index_of ('/', 1) -1).to_integer,current)
+			paint_buy(new_supply_card,pos_buy_zone_x,pos_buy_zone_y)
+			--paint_buy
+		end
 
 	refresh_actions	(actions: NATURAL; buys: NATURAL; coins: NATURAL)
 		-- paint the actions left zone
@@ -369,11 +475,13 @@ feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Methods that print the window.
 			end
 
 	refresh_log_text
+		-- Refresh the log text
 		do
-			text_area.set_text (message_log)
+			log_text_area.set_text (message_log)
 		end
 
 	clean_all
+		-- Clean all the board, erasing the hand and board cards
 		do
 			from
 				board_cards.start
@@ -395,66 +503,66 @@ feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Methods that print the window.
 			i: INTEGER
 			hand_cards: LINKED_LIST[STRING]
 			aux_card: STRING
+			victory_points: STRING
 		do
-			clean_all
-			create hand_cards.make
-			create aux_card.make (20)
-			if (m.is_equal ("ERROR")) then -- ver lo que ponen los griegos
-				print("ERROR")-- implementar la funcion
-			elseif (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('p')) then
-				from
-					i:=1
-				until
-					i >= m.index_of ('_', 1)
-				loop
-					aux_card:= m.substring(i, m.index_of (' ', i)-1)
-					hand_cards.extend (aux_card)
-					i := m.index_of (' ', i)+1
+			if (game_reference.is_end_game) then
+				victory_points:=game_reference.get_winner
+			else
+				if (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('N')) or (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('C')) then
+					message_log:= message_log + m.substring ((m.index_of ('N', 1)) , m.count) + "%N"
+				else
+					clean_all
+					create hand_cards.make
+					create aux_card.make (20)
+					from
+						i:=1
+					until
+						i >= m.index_of ('_', 1)
+					loop
+						aux_card:= m.substring(i, m.index_of (' ', i)-1)
+						hand_cards.extend (aux_card)
+						i := m.index_of (' ', i)+1
+					end
+					refresh_hand(hand_cards)
+					if (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('A')) then
+						Played_cards.extend (clicked_card.card_name)
+						print("%N"+Played_cards.item+"%N")
+						refresh_board_cards(Played_cards)
+						message_log:= message_log + m.substring ((m.index_of ('A', 1)) , m.count) + "%N"
+					elseif (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('B')) then
+						clicked_card.buy_card
+						message_log:= message_log + m.substring ((m.index_of ('B', 1)) , m.count) + "%N"
+					end
+					actions:= m.substring ((m.index_of ('_', 1) + 1) , (m.index_of ('/', 1) - 1)).to_natural
+					buys:= m.substring ((m.index_of ('/', 1) + 1), (m.last_index_of ('/', m.count) - 1)).to_natural
+					coins:= m.substring ((m.last_index_of ('/', m.count) + 1), (m.last_index_of ('_', m.count) - 1)).to_natural
+					refresh_actions (actions, buys, coins)
+					refresh_board_cards(Played_cards)
+					if clicked_card/=Void then
+						net_message.extend (clicked_card.card_buys.out+"/"+clicked_card.buy_number_zone_x.out+"/"+clicked_card.buy_number_zone_y.out+"-"+game_phase+"_"+clicked_card.card_name)
+						print("%N"+clicked_card.card_buys.out+"/"+clicked_card.buy_number_zone_x.out+"/"+clicked_card.buy_number_zone_y.out+"-"+game_phase+"_"+clicked_card.card_name+"%N")
+					end
 				end
-				refresh_hand(hand_cards)
-				refresh_board_cards(hand_cards)
-			elseif (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('b')) then
-				clicked_card.buy_card
-			elseif (m.item (m.last_index_of ('_', m.count) + 1).is_equal ('c')) then
-				--falta
+				refresh_log_text
 			end
-			actions:= m.substring ((m.index_of ('_', 1) + 1) , (m.index_of ('/', 1) - 1)).to_natural
-			buys:= m.substring ((m.index_of ('/', 1) + 1), (m.last_index_of ('/', m.count) - 1)).to_natural
-			coins:= m.substring ((m.last_index_of ('/', m.count) + 1), (m.last_index_of ('_', m.count) - 1)).to_natural
-			refresh_actions (actions, buys, coins)
 		end
 
-	end_button_pressed
-		do
-			if game_phase.is_equal ("play") then
-				end_button.set_text("Done buys")
-				game_phase:= "buy"
-			elseif game_phase.is_equal ("buy")  then
-				end_button.set_text("Done Clean phase")
-				game_phase:= "clean"
-			elseif game_phase.is_equal ("clean") then
-				end_button.set_text("Done Action phase")
-				game_phase:= "play"
-				refresh_log_text
-				send_message
-			end
-		end
+feature {DO_SERVER,DO_CLIENT}	--turn setters
 
 	send_message
+		-- Fill and Send the message to the oponent
 		do
-			refresh_log_text
-			print("MESSAGE %N")
 			create message.make
 			from
-				aux_message.start
+				net_message.start
 			until
-				aux_message.off
+				net_message.off
 			loop
 				if client=Void and server=Void then
-					print(aux_message.item +" - ")
+					print(net_message.item +" - ")
 				end
-				message.extend (aux_message.item)
-				aux_message.forth
+				message.extend (net_message.item)
+				net_message.forth
 			end
 			if (client/=Void) then
 				client.append(message)
@@ -462,20 +570,43 @@ feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Methods that print the window.
 			if (server /=Void) then
 				server.append(message)
 			end
-			aux_message.wipe_out
+			net_message.wipe_out
 		end
 
+	send_turn
+		do
+			if (server/=Void) then
+				server.turn_is_over
+			elseif (client/=Void) then
+				client.turn_is_over
+			end
+--			current.disable_sensitive
+		end
 
+	recieve_turn(plays: LINKED_LIST[STRING])
+		local
+			garbage: STRING
+		do
+			current.enable_sensitive
+			refresh_log_text
+			if end_first_turn then
+				garbage:=game_reference.notifygamestate ("change_player")
+				print(garbage)
+				on_update(garbage,Void)
+			end
+			from
+				plays.start
+			until
+				plays.after
+			loop
+				refresh_oponent_buy(plays.item)
+			end
+			end_first_turn := True
+			--falta implementar
+		end
 
 feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Implementation / Constants
 
-	message: DO_OUR_MESSAGE
-
-	game_phase: STRING
-
-	game_reference: DO_GAME
-
-	aux_message: LINKED_LIST[STRING]
 
 	Board_title: STRING = "Dominion-Playing"
 			-- Title of the window.
@@ -488,9 +619,4 @@ feature {EQA_TEST_SET,DO_GRAPHIC_CARD} -- Implementation / Constants
 
 	Main_window: DO_MAIN_WINDOW
 			--Reference to the game main window
-
-	end_buys(name:STRING)
-		do
-			--buys_left:=0
-		end
 end

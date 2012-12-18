@@ -43,7 +43,7 @@ feature -- Test routines
 			player: G1_PLAYER
 		do
 			create player.make (1, "PLayer 1")
-			create msg_buy.make_buy (player.id_player, TRUE)
+			create msg_buy.make_buy (player.id_player, TRUE, 1)
 			assert ("Message Buy: Buy:TRUE ", msg_buy.buy)
 		end
 

@@ -13,14 +13,17 @@ create
 feature -- Access
 	logic: CU_LOGIC
 	--we miss here attributes for net and gui
-	gui: CU_MAIN_LOBBY
+--	gui: CU_MAIN_LOBBY
+	gui: CU_INTERFACE
 feature --constructor
 	make(mainUI:MAIN_WINDOW)
 		require
 			ok_window: mainUI /= void
 		do
-			create gui.make_window (mainUI)
-			gui.show
+--			create gui.make_window (mainUI, Current)
+--			gui.show
+			create gui
+			gui.initialize (Current, mainUI)
 
 		ensure
 			--gui is initialized. Logic and net should be initialized after we receive from GUI the type of game

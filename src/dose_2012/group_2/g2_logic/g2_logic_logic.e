@@ -50,12 +50,9 @@ feature {ANY} --Attributes
 
 	g2_deck: ARRAY [G2_LOGIC_CARD]
 
-feature {ANY} --setters
+	g2_quit: BOOLEAN
 
-	set_net(a_net:G2_NET_NET)
-		do
-			g2_net:=a_net
-		end
+feature {ANY} --setters
 
 	set_gui (a_gui: G2_GUI_MAIN_MENU)
 		require else
@@ -64,6 +61,13 @@ feature {ANY} --setters
 			g2_gui := a_gui
 		ensure then
 			g2_gui: g2_gui = a_gui
+		end
+
+	set_net (a_net: G2_NET_NET) -- may be null
+		do
+			g2_net := a_net
+		ensure then
+			g2_net: g2_net = a_net
 		end
 
 	set_state (e_state: G2_LOGIC_STATE)
@@ -88,56 +92,118 @@ feature {ANY} --setters
 			g2_same_wall := a_rules.at (4)
 			g2_sudden_death := a_rules.at (5)
 			g2_combo := a_rules.at (6)
-			if
-				g2_open=True or g2_plus=True or g2_plus=True or g2_same=True or g2_plus=True
-			then
-				g2_combo:=True
+			if g2_open = True or g2_plus = True or g2_plus = True or g2_same = True or g2_plus = True then
+				g2_combo := True
 			end
 			g2_elemental := a_rules.at (7)
-
 		ensure then
-			g2_rules: g2_open = a_rules.at (1) and g2_same = a_rules.at (3) and g2_same_wall = a_rules.at (4) and g2_sudden_death = a_rules.at (5) and g2_plus = a_rules.at (2)  and g2_elemental = a_rules.at (7)
+			g2_rules: g2_open = a_rules.at (1) and g2_same = a_rules.at (3) and g2_same_wall = a_rules.at (4) and g2_sudden_death = a_rules.at (5) and g2_plus = a_rules.at (2) and g2_elemental = a_rules.at (7)
+		end
+
+	set_quit (a_quit: BOOLEAN)
+		do
+			g2_quit := a_quit
 		end
 
 feature {ANY} --Initialization
 
 	create_new_game (master: BOOLEAN)
+		local
+			arr_rules: ARRAY [BOOLEAN]
 		do
 			if (master = true) then
 					--create connection host
 				Current.set_rules (g2_gui.rules)
 				create g2_net.make ("localhost", g2_gui.port, master)
-				store_all_cards
+				g2_net.set_logic (Current)
 				g2_net.create_connection
 				g2_net.send_rules (g2_gui.rules)
 				init_game
+				g2_gui.set_board (g2_state)
+				g2_net.send_state (g2_state)
 			else
 					--create connection join
 				create g2_net.make (g2_gui.ip, g2_gui.port, master)
+				g2_net.set_logic (Current)
 				g2_net.join_connection
-				set_rules (g2_net.receive_rules)
+				create arr_rules.make_from_array (g2_net.receive_rules)
+				set_rules (arr_rules)
+				g2_gui.set_rules (arr_rules)
 				set_state (g2_net.receive_state)
 				g2_gui.set_board (g2_state)
 			end
-				--begin game
+		--	g2_gui.block_board
 		end
+
+	game_over : BOOLEAN
+	do
+		Result := matrix_is_full or g2_quit
+	end
+
+	run_game
+	local
+		new_state: G2_LOGIC_STATE
+	do
+		if game_over then
+			if g2_quit then
+				g2_gui.on_win
+			else
+				end_of_game
+			end
+		else
+			if (g2_state.g2_player = g2_net.master) then
+				g2_gui.resfresh_board
+				g2_gui.unblock_board
+			else
+				new_state := g2_net.receive_state
+				if g2_quit then
+					g2_gui.on_win
+				else
+					set_state (new_state)
+					g2_gui.set_board (g2_state)
+					g2_gui.resfresh_board
+					if matrix_is_full then
+						end_of_game
+					else
+					g2_gui.set_board (g2_state)
+					g2_gui.unblock_board
+					end
+				end
+			end
+		end
+	rescue
+		g2_gui.destroy
+		g2_net.close_connection
+	end
+
 
 	init_deck ()
 			--initialize the deck with the saved cards
 		do
-			store_all_cards
+			level_1_cards
+			level_2_cards
+			level_3_cards
+			level_4_cards
+			level_5_cards
+			level_6_cards
+			level_7_cards
+			level_8_cards
+			level_9_cards
+			level_A_cards
 		end
-
-
 
 	init_game ()
 			--calls all the procedures needed to initialize game
 
 		do
+			if
+				g2_elemental=true
+			then
+				operate_random_element()
+			end
 			init_deck ()
 			distribute_card (g2_deck)
-			g2_net.send_state (g2_state)
-			define_first_player()
+			define_first_player ()
 		end
 
 	distribute_card (e_deck: ARRAY [G2_LOGIC_CARD])
@@ -150,6 +216,7 @@ feature {ANY} --Initialization
 			random_number: INTEGER
 			i: INTEGER
 			card1: G2_LOGIC_CARD
+			card2: G2_LOGIC_CARD
 		do
 			create random_sequence.make
 			create l_time.make_now
@@ -159,19 +226,21 @@ feature {ANY} --Initialization
 				i = 6
 			loop
 				random_sequence.set_seed (60 + l_time.second)
+
 				random_sequence.forth
 				random_number := random_sequence.item \\ 111
 				card1 := g2_deck.at (random_number)
+				card1.set_color (True)
 				g2_state.g2_player1.put (card1, i)
+
 				random_sequence.forth
 				random_number := random_sequence.item \\ 111
-				card1 := g2_deck.at (random_number)
-				card1.change_color
-				g2_state.g2_player2.put (card1, i)
+				card2 := g2_deck.at (random_number)
+				card2.set_color (False)
+				g2_state.g2_player2.put (card2, i)
+
 				i := i + 1
 			end
-			g2_state.set_player1_number_cards (5)
-			g2_state.set_player2_number_cards (5)
 		ensure
 			player1_cards_non_void: g2_state.g2_player1 /= void
 			player2_cards_non_void: g2_state.g2_player2 /= void
@@ -194,35 +263,48 @@ feature {ANY} --Initialization
 			else
 				g2_state.set_player (False)
 			end
-				--g2_gui.set_board (tmp_state)
-				--g2_net.send_state (tmp_state)
 		end
 
 feature {ANY} --Game procedures
 
-	find_chosen_card (a_card: G2_LOGIC_CARD): G2_LOGIC_CARD
+		find_chosen_card (a_card: G2_LOGIC_CARD)
 			--looking a card at the current player's cards and return it
 		require
 			non_void_card: a_card /= void
 		local
 			card: G2_LOGIC_CARD
 			x: INTEGER
+			tmp:INTEGER
 		do
-			if g2_state.g2_player1.has (a_card) then
-				from
-					x := 1
-				until
-					x = 6
-				loop
-					if g2_state.g2_player1.at (x).is_equal_card (a_card) then
-						Result := g2_state.g2_player1.at (x)
+			if a_card.g2_card_color=true then
+				if g2_state.g2_player1.has (a_card) then
+					from
+						x := 1
+					until
+						x = 6
+					loop
+						if g2_state.g2_player1.at (x).is_equal_card (a_card) then
+							tmp:=x
+						end
+						x := x + 1
 					end
-					x := x + 1
 				end
-				Result := card
+				g2_state.g2_player1.put (void,tmp)
+			else
+				if g2_state.g2_player2.has (a_card) then
+					from
+						x := 1
+					until
+						x = 6
+					loop
+						if g2_state.g2_player2.at (x).is_equal_card (a_card) then
+							tmp:=x
+						end
+						x := x + 1
+					end
+				end
+				g2_state.g2_player2.put (void,tmp)
 			end
-		ensure
-			non_void_returned_card: Result /= void
 		end
 
 	play_card (e_card: G2_LOGIC_CARD; x, y: INTEGER)
@@ -233,13 +315,14 @@ feature {ANY} --Game procedures
 			i: INTEGER
 			j: INTEGER
 			tmp_matrix: G2_LOGIC_MATRIX
+			new_state: G2_LOGIC_STATE
 		do
+				-- Wait play other player
 			if is_valid_state (x, y) then
-				create tmp_matrix.make (e_card, "NONE")
+				create tmp_matrix.make (e_card, "None")
 				g2_state.g2_matrix.put (tmp_matrix, x, y)
-				g2_state.g2_matrix.item (x, y).g2_matrix_card.print_card
 
-				--operate_elemental(x,y)
+--				operate_elemental(x,y)
 
 				i := x - 1 --check the card above the played card
 				j := y
@@ -277,20 +360,23 @@ feature {ANY} --Game procedures
 						end
 					end
 				end
-				if( g2_same = true ) then
-					operation_same(x,y)
+				if (g2_same = true) then
+					operation_same (x, y)
+				end
+				if (g2_same_wall = true) then
+					operation_same_wall (x, y)
+				end
+				if (g2_plus = true) then
+					operate_plus (x, y)
 				end
 
-				if( g2_same_wall = true ) then
-					operation_same_wall(x,y)
-				end
-				if( g2_plus = true ) then
-					operate_plus(x,y)
-				end
-
-				--	operate_combo(x,y)
+					--	operate_combo(x,y)
 
 			end
+			g2_state.set_player (not g2_state.g2_player)
+			g2_gui.set_board (g2_state)
+			g2_net.send_state (g2_state)
+			run_game
 		end
 
 	capture (card: G2_LOGIC_CARD)
@@ -337,21 +423,36 @@ feature {ANY} --Game procedures
 	end_of_game ()
 			--decide which player won the game,end game
 		do
-			if g2_state.g2_player1_number_cards > g2_state.g2_player2_number_cards then
+			if g2_state.g2_player1_number_cards > g2_state.g2_player2_number_cards and g2_net.master then
 				g2_gui.on_win
-			elseif g2_state.g2_player1_number_cards < g2_state.g2_player2_number_cards then
-				g2_gui.on_lose
 			else
-				g2_gui.on_draw
+				if  g2_state.g2_player1_number_cards > g2_state.g2_player2_number_cards and not g2_net.master then
+					g2_gui.on_lose
+				else
+					if g2_state.g2_player1_number_cards < g2_state.g2_player2_number_cards and g2_net.master then
+						g2_gui.on_lose
+					else
+						if g2_state.g2_player1_number_cards < g2_state.g2_player2_number_cards and not g2_net.master then
+							g2_gui.on_win
+						else
+							if g2_sudden_death then
+								--operate_sudden_death
+								g2_net.send_state (g2_state)
+							else
+								g2_gui.on_draw
+							end
+						end
+					end
+				end
 			end
-			g2_net.send_state (g2_state)
 		end
+
 
 	quit ()
 			--quiting the game
 		do
 			g2_net.send_leave_msg
-			die (1)
+
 		end
 
 	valid_index (x, y: INTEGER): BOOLEAN
@@ -376,12 +477,85 @@ feature {ANY} --Game procedures
 			end
 		end
 
+		operate_random_element ()
+		local
+			i: INTEGER
+			j: INTEGER
+			random_sequence1: RANDOM --use as boolean
+			random_number1: INTEGER
+			random_sequence2: RANDOM --use to determine element
+			random_number2: INTEGER
+			l_time: TIME
+		do
+			create random_sequence1.make
+			create random_sequence2.make
+			create l_time.make_now
+			from
+				i := 1
+			until
+				i = 4
+			loop
+				from
+					j := 1
+				until
+					j = 4
+				loop
+					if g2_state.g2_matrix.item (i, j).g2_matrix_element = void then
+							---	g2_state.g2_matrix.item (i, j).g2_matrix_card.print_card
+
+						random_sequence1.set_seed (60 + l_time.second)
+						random_sequence1.forth
+						random_number1 := random_sequence1.item \\ 2
+						if random_number1 = 1 then --if true,puts element
+							random_sequence2.set_seed (60 + l_time.second)
+							random_sequence2.forth
+							random_number2 := random_sequence2.item \\ 9
+
+							if random_number2 = 0 then
+								g2_state.g2_matrix.item (i, j).set_element ("None")
+							end
+							if random_number2 = 1 then
+								g2_state.g2_matrix.item (i, j).set_element ("Earth")
+							end
+							if random_number2 = 2 then
+								g2_state.g2_matrix.item (i, j).set_element("Lightning")
+							end
+							if random_number2 = 3 then
+								g2_state.g2_matrix.item (i, j).set_element ("Ice")
+							end
+							if random_number2 = 4 then
+								g2_state.g2_matrix.item (i, j).set_element("Poison")
+							end
+							if random_number2 = 5 then
+								g2_state.g2_matrix.item (i, j).set_element("Wind")
+							end
+							if random_number2 = 6 then
+								g2_state.g2_matrix.item (i, j).set_element("Fire")
+							end
+							if random_number2 = 7 then
+								g2_state.g2_matrix.item (i, j).set_element ("Water")
+							end
+							if random_number2 = 8 then
+								g2_state.g2_matrix.item (i, j).set_element("Holy")
+							end
+						end
+
+							--io.put_new_line
+
+					end
+					j := j + 1
+				end
+				i := i + 1
+			end
+		end
+
 	operation_same (x, y: INTEGER)
 		local
 			i: INTEGER
 			j: INTEGER
 			k: INTEGER
 			l: INTEGER
+			captured: BOOLEAN --check if capture happened
 
 		do
 			i := x - 1 --rigth and up
@@ -394,10 +568,15 @@ feature {ANY} --Game procedures
 							--check if card belongs to player and captures
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (k, l).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (k, l)
+							end
 						end
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
-							operate_combo(x,y)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -407,14 +586,20 @@ feature {ANY} --Game procedures
 			k := x + 1
 			l := y
 			if valid_index (i, j) and valid_index (k, l) then
-				if not(is_valid_state (i, j)) and not(is_valid_state (k, l)) then
+				if not (is_valid_state (i, j)) and not (is_valid_state (k, l)) then
 					if (g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup = g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_leveldown and g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_leveldown = g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_levelup) then
 							--check if card belongs to player and captures
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (k, l).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (k, l)
+							end
 						end
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -424,14 +609,20 @@ feature {ANY} --Game procedures
 			k := x + 1
 			l := y
 			if valid_index (i, j) and valid_index (k, l) then
-				if not(is_valid_state (i, j)) and not(is_valid_state (k, l)) then
+				if not (is_valid_state (i, j)) and not (is_valid_state (k, l)) then
 					if (g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft = g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_levelright and g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_leveldown = g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_levelup) then
 							--check if card belongs to player and captures
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (k, l).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (k, l)
+							end
 						end
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -441,14 +632,20 @@ feature {ANY} --Game procedures
 			k := x - 1
 			l := y
 			if valid_index (i, j) and valid_index (k, l) then
-				if not(is_valid_state (i, j)) and not(is_valid_state (k, l)) then
+				if not (is_valid_state (i, j)) and not (is_valid_state (k, l)) then
 					if (g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelright = g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_levelleft and g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup = g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_leveldown) then
 							--check if card belongs to player and captures
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (k, l).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (k, l)
+							end
 						end
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -458,14 +655,20 @@ feature {ANY} --Game procedures
 			k := x
 			l := y + 1
 			if valid_index (i, j) and valid_index (k, l) then
-				if not(is_valid_state (i, j)) and not(is_valid_state (k, l)) then
+				if not (is_valid_state (i, j)) and not (is_valid_state (k, l)) then
 					if (g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft = g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_levelright and g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelright = g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_levelleft) then
 							--check if card belongs to player and captures
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (k, l).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (k, l)
+							end
 						end
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -475,14 +678,20 @@ feature {ANY} --Game procedures
 			k := i
 			l := y - 1
 			if valid_index (i, j) and valid_index (k, l) then
-				if not(is_valid_state (i, j)) and not(is_valid_state (k, l)) then
+				if not (is_valid_state (i, j)) and not (is_valid_state (k, l)) then
 					if (g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup = g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_leveldown and g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft = g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_levelright) then
 							--check if card belongs to player and captures
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (k, l).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (k, l).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (k, l)
+							end
 						end
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -506,6 +715,9 @@ feature {ANY} --Game procedures
 
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 					end
 				end
@@ -518,6 +730,9 @@ feature {ANY} --Game procedures
 
 						if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i, j)
+							end
 						end
 						i := x - 1 -- up
 						j := y
@@ -528,6 +743,9 @@ feature {ANY} --Game procedures
 
 								if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 									capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+									if g2_combo = true then
+										operate_combo (i, j)
+									end
 								end
 								i := x + 1 -- down
 								j := y
@@ -538,6 +756,9 @@ feature {ANY} --Game procedures
 
 										if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 											capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
+											if g2_combo = true then
+												operate_combo (i, j)
+											end
 										end
 									end
 								end
@@ -555,11 +776,7 @@ feature {ANY} --Game procedures
 			j1: INTEGER
 			i2: INTEGER
 			j2: INTEGER
-			capture_happened: BOOLEAN
 		do
-
-				--no card is captured
-			capture_happened := false
 
 				--check the card above and the card on the left
 			i1 := x - 1
@@ -567,14 +784,20 @@ feature {ANY} --Game procedures
 			i2 := x
 			j2 := y - 1
 			if valid_index (i1, j1) and valid_index (i2, j2) then
-				if not(is_valid_state (i1, j1)) and not(is_valid_state (i2, j2)) then
+				if not (is_valid_state (i1, j1)) and not (is_valid_state (i2, j2)) then
 					if (g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_leveldown + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup) = (g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_levelright + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft) then
 							--check if card already belongs to the player
 						if g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 						if g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 					end
 				end
@@ -586,14 +809,20 @@ feature {ANY} --Game procedures
 			i2 := x
 			j2 := y + 1
 			if valid_index (i1, j1) and valid_index (i2, j2) then
-				if not(is_valid_state (i1, j1)) and not(is_valid_state (i2, j2)) then
+				if not (is_valid_state (i1, j1)) and not (is_valid_state (i2, j2)) then
 					if (g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_leveldown + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup) = (g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_levelleft + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelright) then
 							--check if card already belongs to the player
 						if g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 						if g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 					end
 				end
@@ -605,14 +834,20 @@ feature {ANY} --Game procedures
 			i2 := x + 1
 			j2 := y
 			if valid_index (i1, j1) and valid_index (i2, j2) then
-				if not(is_valid_state (i1, j1)) and not(is_valid_state (i2, j2)) then
+				if not (is_valid_state (i1, j1)) and not (is_valid_state (i2, j2)) then
 					if (g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_leveldown + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup) = (g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_levelup + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_leveldown) then
 							--check if card already belongs to the player
 						if g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 						if g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 					end
 				end
@@ -624,14 +859,20 @@ feature {ANY} --Game procedures
 			i2 := x
 			j2 := y - 1
 			if valid_index (i1, j1) and valid_index (i2, j2) then
-				if not(is_valid_state (i1, j1)) and not(is_valid_state (i2, j2)) then
+				if not (is_valid_state (i1, j1)) and not (is_valid_state (i2, j2)) then
 					if (g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_levelleft + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelright) = (g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_levelright + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft) then
 							--check if card already belongs to the player
 						if g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 						if g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 					end
 				end
@@ -643,14 +884,20 @@ feature {ANY} --Game procedures
 			i2 := x + 1
 			j2 := y
 			if valid_index (i1, j1) and valid_index (i2, j2) then
-				if not(is_valid_state (i1, j1)) and not(is_valid_state (i2, j2)) then
+				if not (is_valid_state (i1, j1)) and not (is_valid_state (i2, j2)) then
 					if (g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_levelleft + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelright) = (g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_levelup + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_leveldown) then
 							--check if card already belongs to the player
 						if g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 						if g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 					end
 				end
@@ -662,14 +909,20 @@ feature {ANY} --Game procedures
 			i2 := x + 1
 			j2 := y
 			if valid_index (i1, j1) and valid_index (i2, j2) then
-				if not(is_valid_state (i1, j1)) and not(is_valid_state (i2, j2)) then
+				if not (is_valid_state (i1, j1)) and not (is_valid_state (i2, j2)) then
 					if (g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_levelright + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft) = (g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_levelup + g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_leveldown) then
 							--check if card already belongs to the player
 						if g2_state.g2_matrix.item (i1, j1).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 						if g2_state.g2_matrix.item (i2, j2).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color then
 							capture (g2_state.g2_matrix.item (i1, j1).g2_matrix_card)
+							if g2_combo = true then
+								operate_combo (i1, j1)
+							end
 						end
 					end
 				end
@@ -683,52 +936,50 @@ feature {ANY} --Game procedures
 		do
 			i := x - 1 --check the card above the played card
 			j := y
-			if valid_index (i, j) and not(is_valid_state (x, y)) then
+			if valid_index (i, j) and not (is_valid_state (x, y)) then
 				if g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_leveldown < g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelup then
 					if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 						capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
-						operate_combo(i,j)
+						operate_combo (i, j)
 					end
 				end
 			end
 			i := x --check the card at the right of the played card
 			j := y + 1
-			if valid_index (i, j) and not(is_valid_state (x, y)) then
+			if valid_index (i, j) and not (is_valid_state (x, y)) then
 				if g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_levelleft < g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelright then
 					if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 						capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
-						operate_combo(i,j)
+						operate_combo (i, j)
 					end
 				end
 			end
 			i := x + 1 --check the card below the played card
 			j := y
-			if valid_index (i, j) and not(is_valid_state (x, y)) then
+			if valid_index (i, j) and not (is_valid_state (x, y)) then
 				if g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_levelup < g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_leveldown then
 					if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 						capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
-						operate_combo(i,j)
+						operate_combo (i, j)
 					end
 				end
 			end
 			i := x
 			j := y - 1 --check the card at the left of the played card
-			if valid_index (i, j) and not(is_valid_state (x, y)) then
+			if valid_index (i, j) and not (is_valid_state (x, y)) then
 				if g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_levelright < g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_levelleft then
 					if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_color /= g2_state.g2_matrix.item (i, j).g2_matrix_card.g2_card_color then
 						capture (g2_state.g2_matrix.item (i, j).g2_matrix_card)
-						operate_combo(i,j)
+						operate_combo (i, j)
 					end
 				end
 			end
 		end
 
-	operate_elemental(x,y:INTEGER)
-		--checks elements at x,y and card's elements and changes level
+	operate_elemental (x, y: INTEGER)
+			--checks elements at x,y and card's elements and changes level
 		do
-			if
-				g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_element = g2_state.g2_matrix.item (x, y).g2_matrix_element
-			then
+			if g2_state.g2_matrix.item (x, y).g2_matrix_card.g2_card_element = g2_state.g2_matrix.item (x, y).g2_matrix_element then
 				g2_state.g2_matrix.item (x, y).g2_matrix_card.increase_leveldown
 				g2_state.g2_matrix.item (x, y).g2_matrix_card.increase_levelleft
 				g2_state.g2_matrix.item (x, y).g2_matrix_card.increase_levelright
@@ -740,24 +991,12 @@ feature {ANY} --Game procedures
 				g2_state.g2_matrix.item (x, y).g2_matrix_card.decrease_levelup
 			end
 		end
+	operate_sudden_death
+	do
+		define_first_player ()
+	end
 
 feature -- set cards in array
-
-	store_all_cards
-		do
-
-			level_1_cards
-			level_2_cards
-			level_3_cards
-			level_4_cards
-			level_5_cards
-			level_6_cards
-			level_7_cards
-			level_8_cards
-			level_9_cards
-			level_A_cards
-
-		end
 
 	level_1_cards
 		local

@@ -11,8 +11,16 @@ inherit
 	G20_PLAYER
 	redefine move, invalid_move end
 
+create
+	make
+
 feature
-	move : G20_MOVEMENT
+	make
+	do
+
+	end
+	
+	move(currentPlayer: INTEGER) : G20_MOVEMENT
 		do
 
 		end

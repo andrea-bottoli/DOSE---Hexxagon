@@ -16,12 +16,13 @@ create
 
 feature -- Initialization
 
-	make_buy (a_player_id: INTEGER; a_buy: BOOLEAN)
+	make_buy (a_player_id: INTEGER; a_buy: BOOLEAN; a_id: INTEGER)
 		require
 			valid_id_player: a_player_id > 0
 		do
 			player_id := a_player_id
 			buy := a_buy
+			id := a_id
 		end
 
 feature --Measurent
@@ -33,4 +34,6 @@ feature --Measurent
 			-- If you "buy" is true, the player buys the property in that position.
 			-- Else is auction for property
 
+	id: INTEGER
+			-- Id of the deed bought
 end

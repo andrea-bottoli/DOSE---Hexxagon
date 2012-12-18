@@ -23,6 +23,7 @@ feature -- Attributes
 	client_ready: BOOLEAN
 	reader_writer: SED_MEDIUM_READER_WRITER
 	chat_sender_receiver: CP_CHAT_SENDER_RECEIVER
+	move_sender_receiver: CP_MOVE_SENDER_RECEIVER
 
 feature	-- Initialization
 
@@ -48,19 +49,9 @@ feature	-- Initialization
 					client_socket := tmp_socket
 					create reader_writer.make (client_socket)
 					create chat_sender_receiver.make (client_socket, 32)
+					create move_sender_receiver.make (client_socket, 37)
 					-- Say in chat that someone has connected
 				end
-			end
-		end
-
-feature -- Message recievers
-
-	get_game_message
-		-- Listen for new game message
-		do
-			reader_writer.set_for_reading
-			if attached {CP_GAMEMESSAGE} retrieved (reader_writer, True) as new_game_message then
-
 			end
 		end
 
@@ -83,36 +74,6 @@ feature	-- Actions for game
 			end
 		ensure
 			game_has_strated: game_started = TRUE
-		end
-
-
-	send_move(player: CP_PLAYER; insect: CP_INSECT; position: CP_POSITION)
-			-- Send the move you did to the other player
-		require
-			player_not_void: player /= Void
-			insect_not_void: insect/=Void
-			position_not_void: position /= Void
-			player_is_connected: client_socket /= Void
-			game_has_started: game_started = TRUE
-		local
-			new_move: CP_GAMEMOVE
-			new_message: CP_GAMEMESSAGE
-		do
-			create new_move.make_game_move (player, insect, position)
-			create new_message.make_gamemsg (new_move)
-			reader_writer.set_for_writing
-			store (new_message, reader_writer)
-		end
-
-	apply_move(game_msg:CP_GAMEMESSAGE;board:ARRAY[CP_INSECT])
-			-- Applies the move that the client received
-		require
-			game_msg_not_void: game_msg/=Void
-			board_not_void: board/=Void
-			player_is_connected: server_has_started = TRUE
-			game_has_started: game_started = TRUE
-		do
-
 		end
 
 feature -- Actions for connection

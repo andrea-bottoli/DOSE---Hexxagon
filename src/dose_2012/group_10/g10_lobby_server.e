@@ -8,7 +8,10 @@ class
 	G10_LOBBY_SERVER
 inherit
 	THREAD_CONTROL
-	G10_CRSN_MESSAGE_PROTOCOL
+	G10_NET_COM_FUNCS
+	redefine
+		handle_connect_message, handle_disconnect_message
+	end
 create
 	make
 feature {NONE}
@@ -28,7 +31,6 @@ feature
 		create server.make(port)
 		create lobby_logic.make(id,int_ip, ext_ip, port)
 		start_server
-
 		io.put_string ("Lobby Server end %N")
 	end
 
@@ -43,14 +45,11 @@ feature
 			soc1.accept
 			soc2 := soc1.accepted
 			print ("%NSomeone accepted " + soc2.peer_address.host_address.host_address +" Thread id : "+ id.out + " %N")
-			server.add_to_socket_list (soc2)
-			create thread.make_lobby(soc2, Current, id)
+			create thread.make(soc2, Current, id)
 			thread.launch
 
 			print ("%N %N %N")
 			--lobby_logic :=  thread.get_lobby_server.get_lobby_logic
-
-
 
 		end
 
@@ -60,10 +59,8 @@ feature
 		count :	INTEGER
 		thread : G10_THREAD
 	do
-
 				soc := server.get_socket
 
-			--print ("Server runs at: "  + " with port " + soc.port.out + "%N")
 			--lobby_logic :=  thread.get_lobby_server.get_lobby_logic			
 			--server.add_to_socket_list (soc2)
 			from
@@ -71,131 +68,109 @@ feature
 			until
 				count = 15
 			loop
-				soc.accept
-				soc2 := soc.accepted
-				server.add_to_socket_list (soc2)
-				print ("%NSomeone accepted " + soc2.peer_address.host_address.host_address + "%N")
-				create thread.make_lobby(soc2, Current, count)
-				thread.launch
+				process(soc, count)
 				count := count + 1
-				print ("%N %N %N")
 			end
 			join_all
 			server.close_socket
 		end
-handle_get_message(msg : G10_CRSN_MESSAGE; sock : NETWORK_STREAM_SOCKET)
-do
-			print ("Message sender : " + message_recv.get_sender.get_id
-			 + "%NMessage ID : " + msg.get_id + "%N")
-			if msg.get_id.is_equal ("Get")
-			then
-				server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
-				("Response to Get Lists| Games List ",
-				lobby_logic.get_info, message_recv.get_sender, lobby_logic.get_all_games), sock)
-
-				--print ("Games Arrayed_List sent%N")
-
-				server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
-				("Response to Get Lists| Connected Players List",lobby_logic.get_info,
-				 message_recv.get_sender, lobby_logic.get_all_connected_players), sock)
---				 server.broadcast_msg_to_all (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
---				("Response to Get Lists| Connected Players List",lobby_logic.get_info,
---				 message_recv.get_sender, lobby_logic.get_all_connected_players))
-
-				--print ("Players Arrayed_List sent%N")
-			end
-end
-
-handle_join_message (msg : G10_CRSN_SPECIAL_DATA_MESSAGE sock : NETWORK_STREAM_SOCKET)
-do
-		print ("Message sender : "+ message_recv.get_sender.get_id
-		+ "%NMessage ID : " + msg.get_id + "%N")
-
-		if msg.get_id.is_equal ("Join")
-		then
---			server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
---				("Response to Create new Game| Games List ",lobby_logic.get_info,
---					message_recv.get_sender, lobby_logic.get_all_games), sock)
 
 
---			server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
---				("Response to Join Game",lobby_logic.get_info,
---					 message_recv.get_sender, lobby_logic.get_all_connected_players), sock)
 
-
-			server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
-				("Response to Join| Host ",lobby_logic.get_info, message_recv.get_sender,
-					lobby_logic.get_game_by_number (msg.get_first_integer)), sock)
-			end
-end
-
-handle_create_message (msg : G10_CRSN_SPECIAL_DATA_MESSAGE sock : NETWORK_STREAM_SOCKET) : STRING
-do
-
-		if attached{STRING} msg.get_data as title_str
-		then
-			lobby_logic.add_game_to_list (message_recv.get_sender, title_str, msg.get_first_integer)
-		end
-
---		server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
---		("Response to Create new Game| Games List ",lobby_logic.get_info,
---		 message_recv.get_sender, lobby_logic.get_all_games), sock)
-
---		server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
---		("Response to Create new Game| Connected Players List",lobby_logic.get_info,
---		message_recv.get_sender, lobby_logic.get_all_connected_players), sock)
-
-		message_recv := server.receive_msg (sock)
-		if attached {G10_CRSN_MESSAGE} message_recv as nrm_msg
-		then
-			if attached {STRING} nrm_msg.get_id
-			then
-				if nrm_msg.get_id.is_equal ("Disconnect")
-				then
-					Result := "Disconnect"
-				end
-			end
-		end
-end
 	msg_handler (socket : NETWORK_STREAM_SOCKET) : STRING
 	do
-	--	print("Receive messages from client...  %N")
 		message_recv := server.receive_msg (socket)
-
 		if message_recv /= void
 		then
-
-		print ("Not voidddd %N")
-			lobby_logic.add_player_to_list (message_recv.get_sender)
+			print("Receive messages from " + "%"" + message_recv.get_sender.get_id + "%"" +"  started...%N")
 			Result := ""
+			lobby_logic.add_player_to_list (message_recv.get_sender)
+
 			if attached {G10_CRSN_MESSAGE} message_recv as normal_msg
 			then
-				handle_get_message(normal_msg, socket)
+				if normal_msg.get_id.is_equal (message_CONNECT)
+				then
+					handle_connect_message( normal_msg.get_sender, socket)
+				elseif normal_msg.get_id.is_equal (message_DISCONNECT)
+				then
+					Result := handle_disconnect_message( normal_msg.get_sender, socket)
+					socket.close
+				elseif normal_msg.get_id.is_equal (message_GET_USERS)
+				then
+					handle_get_users_msg(Current, normal_msg, socket)
+				elseif normal_msg.get_id.is_equal (message_GET_GAMES)
+				then
+					handle_get_games_msg(Current, normal_msg, socket)
+				end
 			end
+
+			if attached {G10_CRSN_DATA_MESSAGE} message_recv as dt_msg
+			then
+				if dt_msg.get_id.is_equal (message_CHAT)
+				then
+					handle_chat(Current, dt_msg, socket)
+				end
+			end
+
 			if attached{G10_CRSN_SPECIAL_DATA_MESSAGE} message_recv as sp_msg
 			then
-				if sp_msg.get_id.is_equal ("Join")
+				if sp_msg.get_id.is_equal (message_JOIN)
 				then
-					handle_join_message(sp_msg, socket)
+					handle_join_msg(Current,sp_msg, socket)
 				end
-				if sp_msg.get_id.is_equal ("Create")
+				if sp_msg.get_id.is_equal (message_CREATE)
 				then
-					Result := handle_create_message (sp_msg, socket)
+					 handle_create_msg (Current,sp_msg, socket)
 				end
-
-
 			end
-		--	print ("There isn't other message to send. End here! %N")
+		print("Message receiving finished ... %N")
 		end
 	end
 
+feature
+	interaction_for_disconnect
+	do
 
+	end
+	interaction_for_connect
+	do
+
+	end
+	interaction_for_ack
+	do
+	end
+	receive_ack : BOOLEAN
+	do
+		Result := FALSE
+	end
+
+	handle_connect_message ( receiver : G10_NET_INFO sock : NETWORK_STREAM_SOCKET)
+	do
+		print (message_CONNECT + "received %N")
+		server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
+				(message_ACK,lobby_logic.get_info, receiver,message_CONNECT ),sock)
+	end
+
+
+	handle_disconnect_message ( receiver : G10_NET_INFO sock : NETWORK_STREAM_SOCKET): STRING
+	do
+		print (message_DISCONNECT + "received %N")
+		server.send_msg (create {G10_CRSN_DATA_MESSAGE}.make_data_msg
+				(message_ACK,lobby_logic.get_info, receiver,message_DISCONNECT ),sock)
+		sock.close
+		Result := message_DISCONNECT
+	end
 feature --getters
 
 	get_lobby_logic : G10_LOBBY_LOGIC
 	do
 
 		Result := lobby_logic
+	end
+
+	get_server : G10_SERVER
+	do
+		Result := server
 	end
 end
 

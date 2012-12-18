@@ -25,7 +25,7 @@ inherit
 		end
 
 create
-	make_property, make_deed, make_street, make_society, make_prova
+	make_property, make_deed, make_street, make_society
 
 feature {NONE}	-- Attributes
 
@@ -56,88 +56,66 @@ feature {NONE}	-- Attributes
 
 feature {NONE} -- Initialization
 
-	make_prova(a_controller : G1_UI_CONTROLLER; p_id : INTEGER )   -- DA ELIMINARE, SOLO DI PROVA
-	do
-		controller := a_controller
-		make_title(p_id)
-		set_dimension
-		set_house_hotel
-
-		set_button_manage
-
-		create btn_buy_house.make_with_text ("Buy House")
-		popup_area.extend_with_position_and_size (btn_buy_house, 10, 220, 80, 30)
-		btn_buy_house.select_actions.extend (agent buy_house)
-
-		create btn_buy_hotel.make_with_text ("Buy Hotel")
-		popup_area.extend_with_position_and_size (btn_buy_hotel, 105, 220, 80, 30)
-		btn_buy_hotel.select_actions.extend (agent buy_hotel)
-
-		create btn_sell_house.make_with_text ("Sell House")
-		popup_area.extend_with_position_and_size (btn_sell_house, 10, 260, 80, 30)
-		btn_sell_house.select_actions.extend (agent sell_house)
-
-		create btn_sell_hotel.make_with_text ("Sell Hotel")
-		popup_area.extend_with_position_and_size (btn_sell_hotel, 105, 260, 80, 30)
-		btn_sell_hotel.select_actions.extend (agent sell_hotel)
-	end   -- ELIMINA FINO A QUA
-
 	make_property(a_controller : G1_UI_CONTROLLER; a_street : G1_STREET )  -- da usare quando dopo ROLL DICE viene visualizzata una casella di arrivo che è una strada
 		do
 			controller := a_controller
+			deed := a_street
+			street := a_street
 		    make_title(a_street.id_cell)
 			set_dimension
 			set_button
 			set_house_hotel
-			deed := a_street
 		end
 
 	make_deed(a_controller : G1_UI_CONTROLLER; a_deed : G1_DEED )   -- da usare quando dopo ROLL DICE viene visualizzata una casella di arrivo che è una stazione o una società
 		do
 			controller := a_controller
+			deed := a_deed
 		    make_title(a_deed.id_cell)
 			set_dimension
 			set_button
-			deed := a_deed
 		end
 
 	make_street(a_controller : G1_UI_CONTROLLER; a_street : G1_STREET )   -- da usare quando si apre il popup di una strada da MANAGE-HOUSE-HOTEL
-	local
-		l_player : G1_PLAYER
 	do
 		controller := a_controller
+		deed := a_street
+		street := a_street
 		make_title(a_street.id_cell)
 		set_dimension
-		deed := a_street
 
-		set_house_hotel
-		set_button_manage
+        set_house_hotel
 
-		create btn_buy_house.make_with_text ("Buy House")
-		popup_area.extend_with_position_and_size (btn_buy_house, 10, 220, 80, 30)
-		btn_buy_house.select_actions.extend (agent buy_house)
+        if (deed.owner /= Void) and (controller.get_player.id_player = deed.owner.id_player) then
+			set_button_manage
 
-		create btn_buy_hotel.make_with_text ("Buy Hotel")
-		popup_area.extend_with_position_and_size (btn_buy_hotel, 105, 220, 80, 30)
-		btn_buy_hotel.select_actions.extend (agent buy_hotel)
+			create btn_buy_house.make_with_text ("Buy House")
+			popup_area.extend_with_position_and_size (btn_buy_house, 10, 220, 80, 30)
+			btn_buy_house.select_actions.extend (agent buy_house)
 
-		create btn_sell_house.make_with_text ("Sell House")
-		popup_area.extend_with_position_and_size (btn_sell_house, 10, 260, 80, 30)
-		btn_sell_house.select_actions.extend (agent sell_house)
+			create btn_buy_hotel.make_with_text ("Buy Hotel")
+			popup_area.extend_with_position_and_size (btn_buy_hotel, 105, 220, 80, 30)
+			btn_buy_hotel.select_actions.extend (agent buy_hotel)
 
-		create btn_sell_hotel.make_with_text ("Sell Hotel")
-		popup_area.extend_with_position_and_size (btn_sell_hotel, 105, 260, 80, 30)
-		btn_sell_hotel.select_actions.extend (agent sell_hotel)
+			create btn_sell_house.make_with_text ("Sell House")
+			popup_area.extend_with_position_and_size (btn_sell_house, 10, 260, 80, 30)
+			btn_sell_house.select_actions.extend (agent sell_house)
 
+			create btn_sell_hotel.make_with_text ("Sell Hotel")
+			popup_area.extend_with_position_and_size (btn_sell_hotel, 105, 260, 80, 30)
+			btn_sell_hotel.select_actions.extend (agent sell_hotel)
+		end
 	end
 
 	make_society(a_controller : G1_UI_CONTROLLER; a_deed : G1_DEED ) -- da usare quando si apre il popup di una stazione\società da MANAGE-HOUSE-HOTEL
 		do
 			controller := a_controller
+			deed := a_deed
 			make_title(a_deed.id_cell)
 			set_dimension
-			deed := a_deed
-			set_button_manage
+			if (deed.owner /= Void) and (controller.get_player.id_player = deed.owner.id_player) then
+				set_button_manage
+			end
 		end
 
 	initialize
@@ -155,7 +133,11 @@ feature {NONE} -- Initialization
 
 		create label_owner_name
 		label_owner_name.set_background_color (GREEN)
-		label_owner_name.set_text ("NOME PROVA")
+		if deed.owner /= Void then
+			label_owner_name.set_text (deed.owner.name)
+		else
+			label_owner_name.set_text ("--")
+		end
 		label_owner_name.align_text_center
 		popup_area.extend_with_position_and_size (label_owner_name, 220, 5, 80, 20)
 
@@ -167,7 +149,15 @@ feature {NONE} -- Initialization
 
 		create label_status_property
 		label_status_property.set_background_color (GREEN)
-		label_status_property.set_text ("STATO PROVA")
+		if deed.owner /= Void then
+				if deed.is_mortgaged then
+					label_status_property.set_text ("Mortgaged")
+				else
+					label_status_property.set_text ("Owned")
+				end
+		else
+			label_status_property.set_text ("Not Owned")
+		end
 		label_status_property.align_text_center
 		popup_area.extend_with_position_and_size (label_status_property, 220, 25, 80, 20)
 
@@ -321,6 +311,9 @@ feature {NONE} -- Implementation creation
 		end
 
 	set_house_hotel
+		local
+			l_number_houses : STRING
+			l_number_hotels : STRING
 		do
 			create label_house
 			label_house.set_background_color (GREEN)
@@ -330,7 +323,8 @@ feature {NONE} -- Implementation creation
 
 			create label_house_number
 			label_house_number.set_background_color (GREEN)
-			label_house_number.set_text ("0")
+			l_number_houses := street.l_number_of_houses.out
+			label_house_number.set_text (l_number_houses)
 			label_house_number.align_text_center
 			popup_area.extend_with_position_and_size (label_house_number, 210, 45, 20, 20)
 
@@ -342,7 +336,8 @@ feature {NONE} -- Implementation creation
 
 			create label_hotel_number
 			label_hotel_number.set_background_color (GREEN)
-			label_hotel_number.set_text ("0")
+			l_number_hotels := street.l_number_of_hotels.out
+			label_hotel_number.set_text (l_number_hotels)
 			label_hotel_number.align_text_center
 			popup_area.extend_with_position_and_size (label_hotel_number, 210, 65, 20, 20)
 		end
@@ -375,17 +370,29 @@ feature {NONE} -- Implementation features buttons
 
 	buy_property
 		do
-			controller.buy_property (deed)
+			if (controller.get_player.money >= deed.get_price) then
+				controller.buy_property (deed)
+			else
+				error_dialog
+			end
 		end
 
 	buy_house
 		do
-			controller.build(street)
+			if (controller.get_player.money >= street.l_house_cost) and (street.l_number_of_houses<3) then
+				controller.build(street)
+			else
+				error_dialog
+			end
 		end
 
 	buy_hotel
 		do
-			controller.build(street)
+			if (controller.get_player.money >= street.l_house_cost) and (street.l_number_of_hotels<1) then
+				controller.build(street)
+			else
+				error_dialog
+			end
 		end
 
 	sell_property
@@ -395,28 +402,57 @@ feature {NONE} -- Implementation features buttons
 
 	sell_house
 		do
-			controller.sell_hotel_house(street)
+			if(street.l_number_of_houses>0) then
+				controller.sell_hotel_house(street)
+			else
+				error_dialog
+			end
 		end
 
 	sell_hotel
 		do
-			controller.sell_hotel_house(street)
+			if(street.l_number_of_hotels>0) then
+				controller.sell_hotel_house(street)
+			else
+				error_dialog
+			end
 		end
 
 	pay_rent
 		do
-			controller.pay_rent
+			if(controller.get_player.money >= street.get_rent) then
+				controller.pay_rent
+			else
+				error_dialog
+			end
 		end
 
 	mortgage
 		do
-			controller.mortgage (deed)
-			-- update immagine
+			if not deed.is_mortgaged then
+		 		controller.mortgage (deed)
+		 	else
+		 		error_dialog
+		 	end
 		end
 
 	unmortgage
 		do
-			controller.unmortgage (deed)
-			-- update immagine
+			if controller.get_player.money >= deed.mortgaged_value then
+				controller.unmortgage (deed)
+			else
+				error_dialog
+			end
 		end
+
+--- ERROR DIALOG FEATURES ---
+
+	error_dialog()
+			-- The user wants to do something he can't
+		local
+			dialog: EV_INFORMATION_DIALOG
+		do
+			create dialog.make_with_text ("Sorry! You can't perform this action!")
+			dialog.show_modal_to_window (Current)
+	end
 end

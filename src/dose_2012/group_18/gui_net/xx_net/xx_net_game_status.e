@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {XX_NET_GAME_STATUS}."
+	description: "Class for net game status"
 	author: "Team Milano 2"
 	date: "06-12-2012"
 	revision: "0.2$"

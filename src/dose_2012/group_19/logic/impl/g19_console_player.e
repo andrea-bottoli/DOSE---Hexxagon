@@ -10,6 +10,7 @@ create
 feature{NONE}
 
 	player_info: G19_CONSOLE_PLAYER_INFO
+	legeng: ARRAY[STRING]
 
 feature
 	make()
@@ -43,60 +44,70 @@ feature
 	on_next_step(game: G19_GAME): G19_STEP
 		local
 			step : G19_CONSOLE_STEP
-			x: INTEGER
-			y: INTEGER
+			x, y, i: INTEGER
 			step_type: STRING
 			temp: BOOLEAN
 		do
 			print(">>>> " + player_info.get_nickname() + ": on_next_step()%N")
 
-			print(">>>> map:%N")
+
 			print_map(game.get_map())
 
 			temp := game.get_map.get_avaible_cells (player_info, "NORMAL").linear_representation.for_all(agent print_cell)
-
-			print("<< x: ")
-			io.read_integer_32
-			x := io.last_integer_32
-
-			print("<< y: ")
-			io.read_integer_32
-			y := io.last_integer_32
-
---			print("<< type: ")
---			io.read_line
+			print("%N")
 			step_type := "NORMAL"
+			create step.make(player_info)
+			from
+				i := 1
+			until
+				i > 3
+			loop
+				print("Enter x: ")
+				io.read_integer_32
+				x := io.last_integer_32
+				print("Enter y: ")
+				io.read_integer_32
+				y := io.last_integer_32
+				step.add_action ([x, y], "NORMAL")
 
-			create step.make(player_info, [x,y], step_type)
+				i := i + 1
+			end
 			result := step
 		end
 
 	on_wrong_step(game: G19_GAME; wrong_step: G19_STEP): G19_STEP
 		local
 			step : G19_CONSOLE_STEP
-			x: INTEGER
-			y: INTEGER
+			x, y, i: INTEGER
 			step_type: STRING
 			temp: BOOLEAN
 		do
 			print(">>>> " + player_info.get_nickname() + ": on_wrong_step()%N")
 
-			print(">>>> map:%N")
+
 			print_map(game.get_map())
-
+			print("%N")
+			print("Avaible cells:%N")
 			temp := game.get_map.get_avaible_cells (player_info, "NORMAL").linear_representation.for_all(agent print_cell)
-			print("<< x: ")
-			io.read_integer_32
-			x := io.last_integer_32
-			print("<< y: ")
-			io.read_integer_32
-			y := io.last_integer_32
-
-		--	print("<< type: ")
-		--	io.read_line
+			print("%N")
 			step_type := "NORMAL"
+			create step.make(player_info)
+			from
+				i := 1
+			until
+				i > 3
+			loop
+				print("Enter x: ")
+				io.read_integer_32
+				x := io.last_integer_32
+				print("Enter y: ")
+				io.read_integer_32
+				y := io.last_integer_32
+				step.add_action ([x, y], "NORMAL")
 
-			create step.make(player_info, [x,y], step_type)
+				i := i + 1
+			end
+
 			result := step
 		end
 
@@ -118,6 +129,19 @@ feature{NONE}
 		local
 			x, y: INTEGER
 		do
+			print("Legend: %N")
+			print("%T # is caslte%N")
+			print("%T ~ is water%N")
+			print("%T w is grass%N")
+			print("%T ^ is mountain%N")
+			print("%T v is canyone%N")
+			print("%T | is forest%N")
+			print("%T : is desert%N")
+			print("%T _ is flower field%N%N")
+
+			print("Map:%N")
+
+			print("%T1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20%N")
 			from
 				y := 1
 			until
@@ -135,6 +159,7 @@ feature{NONE}
 					x > 20
 				loop
 					io.put_character(cell_to_char(map.get_cell_at(x, y).type))
+					io.put_character(' ')
 					io.put_character(' ')
 
 					x := x + 1
@@ -186,9 +211,9 @@ feature{NONE}
 		print_cell(cell: TUPLE[x,y: INTEGER]):BOOLEAN
 			do
 				io.put_integer (cell.x)
-				print(": ")
+				print(":")
 				io.put_integer (cell.y)
-				print("%N")
+				print("%T")
 				result := true
 			end
 

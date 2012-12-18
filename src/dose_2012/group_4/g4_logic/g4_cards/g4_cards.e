@@ -21,6 +21,7 @@ feature --Atrributes
 	CardNum: INTEGER  --Number of the cards
 	CardSymbol: STRING  --Symbol of the cards
 	Name: STRING --Name of the card
+	destroyed : BOOLEAN
 
 feature --Constructor of the card
 
@@ -38,7 +39,7 @@ feature --Setters and Getters of Name
 		Name := nam
 	end
 
-	getName() : STRING --Get name of the card
+	getName : STRING --Get name of the card
 	do
 		Result := Name
 	end
@@ -80,17 +81,22 @@ feature --Setters and Getters of Symbol
 
 feature
 
-	equals(a_card : G4_CARDS) : BOOLEAN
+	equals(a_card : G4_CARDS; another_card: G4_CARDS) : BOOLEAN
 	do
-		Result := (a_card.get_symbol.is_equal (a_card.get_symbol) )and (a_card.get_number = a_card.get_number)
+		Result := a_card.getname.is_equal (another_card.getname)
 	end
 
-	get_instance : STRING
+	set_destroy(flag: BOOLEAN) --If a card is used (use it for the Dynamite)
 	do
-		Result := "Simple"
+		destroyed := flag
+	end
+
+	is_destroyed : BOOLEAN
+	do
+		Result := destroyed
 	end
 
 feature
-	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE) --Set the action move of the card
+	action(a_Player_array : ARRAYED_LIST[G4_PLAYER];a_player_id: INTEGER;a_player_target: INTEGER;Draw_Pile: G4_DRAW_PILE;DiscardPile : G4_DISCARD_PILE) --Set the action move of the card
 	do end
 end

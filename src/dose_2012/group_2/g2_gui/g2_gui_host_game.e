@@ -37,11 +37,11 @@ feature {NONE} -- Initialization
 			create rules.make_filled (false, 1, 7)
 			load_color
 
-			--event button
+				--event button
 			b_create_game.select_actions.extend (agent host_game)
 			b_back.select_actions.extend (agent back)
 
-		    --event check button rules
+				--event check button rules
 			c_open.select_actions.extend (agent load_rules("open"))
 			c_plus.select_actions.extend (agent load_rules("plus"))
 			c_same.select_actions.extend (agent load_rules("same"))
@@ -50,12 +50,11 @@ feature {NONE} -- Initialization
 			c_combo.select_actions.extend (agent load_rules("combo"))
 			c_element.select_actions.extend (agent load_rules("element"))
 
-			-- Set the title of the window
+				-- Set the title of the window
 			set_title (Window_title)
 
-			--Set size windows
-			set_minimum_size (window_width, window_height)
-			set_maximum_size (Window_width, Window_height)
+				--Set size windows
+			disable_user_resize
 			set_size (Window_width, Window_height)
 		end
 
@@ -85,7 +84,7 @@ feature {NONE} -- Implementation / Begin creation de window
 		end
 
 	build_fixed_port
-		--create fixed the label_port and textfield_port
+			--create fixed the label_port and textfield_port
 		do
 			create f_fixed_port
 			f_fixed_port.set_minimum_size (200, 100)
@@ -96,10 +95,10 @@ feature {NONE} -- Implementation / Begin creation de window
 		end
 
 	build_fixed_rules
-		--create fixed the check_button	
+			--create fixed the check_button
 		do
 			create f_fixed_rules
-			--changes the size fixed rules (before 200,100)
+				--changes the size fixed rules (before 200,100)
 			f_fixed_rules.set_minimum_size (200, 120)
 			build_chech_button_rules
 			create l_rules
@@ -115,9 +114,8 @@ feature {NONE} -- Implementation / Begin creation de window
 			set_position_check_button
 		end
 
-
 	build_fixed_button
-		--create fixed the button
+			--create fixed the button
 		do
 			create f_fixed_button
 			f_fixed_button.set_minimum_size (200, 100)
@@ -127,9 +125,8 @@ feature {NONE} -- Implementation / Begin creation de window
 			set_position_button
 		end
 
-
 	build_port
-	    --create label_port and textfield_port
+			--create label_port and textfield_port
 		do
 			create l_port
 			l_port.set_text ({INTERFACE_NAMES}.label_port)
@@ -137,9 +134,8 @@ feature {NONE} -- Implementation / Begin creation de window
 			t_port.set_text ({INTERFACE_NAMES}.textField_port)
 		end
 
-
 	build_button
-		--creation button
+			--creation button
 		do
 				--create button create_game
 			create b_create_game
@@ -150,9 +146,8 @@ feature {NONE} -- Implementation / Begin creation de window
 			b_back.set_text ({INTERFACE_NAMES}.button_back)
 		end
 
-
 	build_chech_button_rules
-		-- create the check_button
+			-- create the check_button
 		do
 			create c_open
 			c_open.set_text ({INTERFACE_NAMES}.rule_open)
@@ -171,46 +166,44 @@ feature {NONE} -- Implementation / Begin creation de window
 		end
 
 	set_position_port
-		--setter position the label and textfield on fixed
+			--setter position the label and textfield on fixed
 		do
 				--set position label port
-			f_fixed_port.set_item_position_and_size (l_port, 0000 , 0020 , 0060 , 0020)
+			f_fixed_port.set_item_position_and_size (l_port, 0000, 0020, 0060, 0020)
 
 				--set position textfield port
-			f_fixed_port.set_item_position_and_size (t_port, 0100 , 0020 , 0140 , 0020)
+			f_fixed_port.set_item_position_and_size (t_port, 0100, 0020, 0140, 0020)
 		end
-
 
 	set_position_button
-		--setter position the button on fixed
+			--setter position the button on fixed
 		do
 				--set position button create game
-			f_fixed_button.set_item_position_and_size (b_create_game, 0020 , 0060 , 0060 , 0020)
+			f_fixed_button.set_item_position_and_size (b_create_game, 0020, 0060, 0060, 0020)
 				--set position button back
-			f_fixed_button.set_item_position_and_size (b_back, 0120 , 0060 , 0060 , 0020 )
+			f_fixed_button.set_item_position_and_size (b_back, 0120, 0060, 0060, 0020)
 		end
 
-
 	set_position_check_button
-		--setter position the check_button on fixed
+			--setter position the check_button on fixed
 		do
 
 				--set position Label rules
-			f_fixed_rules.set_item_position_and_size (l_rules , 0000, 0000, 0100 , 0020)
+			f_fixed_rules.set_item_position_and_size (l_rules, 0000, 0000, 0100, 0020)
 				--set position  check button  rules open
-			f_fixed_rules.set_item_position_and_size (c_open, 0040 , 0060 , 0120 , 0023 )
+			f_fixed_rules.set_item_position_and_size (c_open, 0040, 0060, 0120, 0023)
 				--set position  check button  rules plus
-			f_fixed_rules.set_item_position_and_size (c_plus, 0040 , 0100 , 0120 , 0023)
+			f_fixed_rules.set_item_position_and_size (c_plus, 0040, 0100, 0120, 0023)
 				--set position  check button  rules Same
-			f_fixed_rules.set_item_position_and_size (c_same, 0040 , 0140 , 0120 , 0023)
+			f_fixed_rules.set_item_position_and_size (c_same, 0040, 0140, 0120, 0023)
 				--set position  check button  rules Same Wall
-			f_fixed_rules.set_item_position_and_size (c_same_wall, 0220 , 0020 , 0120 , 0023)
+			f_fixed_rules.set_item_position_and_size (c_same_wall, 0220, 0020, 0120, 0023)
 				--set position  check button  rules Sudden Death
-			f_fixed_rules.set_item_position_and_size (c_sudden_death, 0220 , 0060 , 0120 , 0023)
-				--set position  check button  rules Combo				
-			f_fixed_rules.set_item_position_and_size (c_combo, 0220 , 0100 , 0120 , 0023)
+			f_fixed_rules.set_item_position_and_size (c_sudden_death, 0220, 0060, 0120, 0023)
+				--set position  check button  rules Combo
+			f_fixed_rules.set_item_position_and_size (c_combo, 0220, 0100, 0120, 0023)
 				--set position  check button  rules Element
-			f_fixed_rules.set_item_position_and_size (c_element, 0040 , 0020 , 0120 , 0023)
+			f_fixed_rules.set_item_position_and_size (c_element, 0040, 0020, 0120, 0023)
 		end
 
 feature {NONE} -- Implementation
@@ -230,18 +223,19 @@ feature {NONE} -- Implementation
 
 	w_main_menu_aux: G2_GUI_MAIN_MENU
 
-	w_board_game : G2_GUI_BOARD_GAME
+	w_board_game: G2_GUI_BOARD_GAME
 
 		-- End creation de window
 
 feature {ANY} -- set main menu
 
 	set_main_menu (main_menu: G2_GUI_MAIN_MENU)
+			--save the instance main_menu
 		do
 			w_main_menu_aux := main_menu;
 		end
 
-feature -- access the event
+feature {NONE} -- access the event
 
 	host_game
 		local
@@ -249,54 +243,54 @@ feature -- access the event
 		do
 			if (t_port.text.is_integer) then
 				port := t_port.text.to_integer
-
 				if (validate_port (port)) then
 					t_port.set_background_color (array_color.at (2))
 					w_main_menu_aux.set_ip ("localHost")
 					w_main_menu_aux.set_port (port)
 					w_main_menu_aux.set_rules (rules)
-					w_main_menu_aux.get_inform_new_game
+					Current.refresh_now
 					Current.hide
+					w_main_menu_aux.get_inform_new_game
 				else
 					t_port.set_background_color (array_color.at (1))
 				end
 			else
 				t_port.set_background_color (array_color.at (3))
 			end
-
 		end
 
 	back
-			--back to the main menu window.		
+			--back to the main menu window.
 		do
 			Current.hide
 		end
 
 feature {NONE} --miscellanies
 
-	array_color : ARRAY [EV_COLOR]
+	array_color: ARRAY [EV_COLOR]
 
 	load_color
-		--initialize array color
+			--initialize array color
 		local
-			color : EV_COLOR
+			color: EV_COLOR
 		do
-			create array_color.make_filled (Void , 1 , 3)
+			create array_color.make_filled (Void, 1, 3)
 
-			--red error port
+				--red error port
 			create color.make_with_8_bit_rgb (255, 0, 0)
-			array_color.put (color , 1)
+			array_color.put (color, 1)
 
-			--green port valid
+				--green port valid
 			create color.make_with_8_bit_rgb (0, 255, 0)
-			array_color.put (color , 2)
+			array_color.put (color, 2)
 
-			--yellow error port not integer			
+				--yellow error port not integer
 			create color.make_with_8_bit_rgb (255, 255, 0)
-			array_color.put (color , 3)
+			array_color.put (color, 3)
 		end
 
-	--saves  the selected rules
+		--saves  the selected rules
+
 	rules: ARRAY [BOOLEAN]
 
 	load_rules (rule: STRING)
@@ -328,7 +322,6 @@ feature {NONE} --miscellanies
 		ensure
 			rules_not_void: rules /= void
 		end
-
 
 	validate_port (port: INTEGER): BOOLEAN
 			-- validates the port.

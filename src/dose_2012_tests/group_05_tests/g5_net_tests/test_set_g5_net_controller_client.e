@@ -25,7 +25,7 @@ feature -- Test negative for feature make
 
 	test_make_0
 		note
-			testing: "G5_NET_CLIENT/make"
+			testing: "G5_NET_CONTROLLER_CLIENT/make"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 			-- test negative for make with port_number < 1024
 		do
@@ -41,17 +41,21 @@ feature -- Test negative for feature make
 		end
 
 feature -- Tests routines for feature make
-
+	-- Fixed by Luca Falsina
 	test_make_1
 		note
-			testing: "G5_NET_CLIENT/make"
+			testing: "G5_NET_CONTROLLER_CLIENT/make"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
 			-- test make attributes_equal_to_arguments
+		local
+			concrete_gui: G5_GUI
 		do
-			--create associated_GUI.make()
-			create a_net_client.make (associated_GUI)
-			rescued := a_net_client.client_gui = associated_GUI
+			create concrete_GUI.make_test
+			create a_net_client.make (concrete_GUI)
+			rescued := a_net_client.client_gui = concrete_GUI
 			assert ("correct make ", rescued)
+			assert("Incorrect initial parameter: client_messenger", a_net_client.client_messenger = void)
+			assert("Incorrect initial parameter: player_name", a_net_client.player_name = void)
 		end
 
 end

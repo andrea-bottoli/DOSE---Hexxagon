@@ -131,7 +131,7 @@ next_is_pressed(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INT
 		-- User klicked Next button
 	do
 		if port_number_text_box.text/=Void and ip_address_text_box.text/=Void and port_number_text_box.text.is_integer  then
-				create client.make(ip_address_text_box.text,port_number_text_box.text.to_integer,1,0,logic)
+				create client.make(ip_address_text_box.text,port_number_text_box.text.to_integer,1,0,logic,l_3rd_layer)
 
 		destroy
 		create l_3rd_layer.make(client,logic)

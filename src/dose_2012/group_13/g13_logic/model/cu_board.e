@@ -7,8 +7,20 @@ note
 class
 	CU_BOARD
 
+inherit
+	--MAIN_WINDOW_CONSTANTS
+	KL_SHARED_FILE_SYSTEM
+		 --use KL_SHARED_FILE_SYSTEM to make file paths OS independent
+	        export {NONE}
+	            all
+	        end
+
 create
 	make
+
+feature -- Access
+	file_path: KL_PATHNAME
+
 
 feature {CU_GAME} -- Initialization
 	make
@@ -18,6 +30,12 @@ feature {CU_GAME} -- Initialization
 
 		do
 			--Initialize a 25x24 matrix
+				create file_path.make
+				file_path.set_relative (TRUE)
+				file_path.append_name ("dose_2012")
+				file_path.append_name ("group_13")
+				file_path.append_name ("g13_logic")
+				file_path.append_name ("files")
 				create board.make (25, 24)
 				make_corridors
 				make_rooms
@@ -37,8 +55,14 @@ feature {CU_GAME} -- Initialization
 			l_e : STRING
 			l_s : STRING
 			l_w : STRING
+			l_path: KL_PATHNAME
+			l_path_string: STRING
 		do
-			create l_file.make_open_read ("./dose_2012/group_13/g13_logic/files/corridors.txt")
+			l_path:=file_path.twin
+			l_path.append_name ("corridors.txt")
+			l_path_string:= file_system.pathname_to_string (l_path)
+			create l_file.make_open_read (l_path_string)
+			--create l_file.make_open_read ("C:\Users\Leobirillo\Documents\GitHub\dose2012\src\dose_2012\group_13\g13_logic\files\corridors.txt")
 			create l_n.make_empty
 			create l_e.make_empty
 			create l_s.make_empty
@@ -60,7 +84,13 @@ feature {CU_GAME} -- Initialization
 				l_s.copy (l_file.last_string)
 				l_file.read_word
 				l_w.copy (l_file.last_string)
-				board.put (create {CU_CORRIDOR}.make(l_n,l_e,l_s,l_w),l_x,l_y)
+				--if(l_x>=1 and l_x<=25)and(l_y>=1 and l_y<=24)and
+				--	(l_n.is_equal ("wall")or l_n.is_equal ("door")or l_n.is_equal ("corridor"))and
+				--	(l_e.is_equal ("wall")or l_e.is_equal ("door")or l_e.is_equal ("corridor"))and
+				--	(l_s.is_equal ("wall")or l_s.is_equal ("door")or l_s.is_equal ("corridor"))and
+				--	(l_w.is_equal ("wall")or l_w.is_equal ("door")or l_w.is_equal ("corridor")) then
+						board.put (create {CU_CORRIDOR}.make(l_n.twin,l_e.twin,l_s.twin,l_w.twin),l_x,l_y)
+				--end
 			end
 			l_file.close
 		ensure
@@ -80,9 +110,15 @@ feature {CU_GAME} -- Initialization
 			l_room_index: INTEGER
 			l_x: INTEGER
 			l_y: INTEGER
+			l_path: KL_PATHNAME
+			l_path_string: STRING
 		do
 			--initialize 9 CU_ROOM objects from file "room_objects.txt"
-			create l_file.make_open_read ("./dose_2012/group_13/g13_logic/files/room_objects.txt")
+			l_path:=file_path.twin
+			l_path.append_name ("room_objects.txt")
+			l_path_string:= file_system.pathname_to_string (l_path)
+			create l_file.make_open_read (l_path_string)
+			--create l_file.make_open_read ("C:\Users\Leobirillo\Documents\GitHub\dose2012\src\dose_2012\group_13\g13_logic\files\room_objects.txt")
 			create l_rooms.make(0,8)
 			from
 				l_room_index:=0
@@ -91,7 +127,7 @@ feature {CU_GAME} -- Initialization
 			loop
 				l_file.read_integer
 				l_door_dim:=l_file.last_integer
-				l_doors.make (1, l_door_dim)
+				create l_doors.make (1, l_door_dim)
 				l_file.read_integer
 				l_x:=l_file.last_integer
 				l_file.read_integer
@@ -106,13 +142,18 @@ feature {CU_GAME} -- Initialization
 					l_x:=l_file.last_integer
 					l_file.read_integer
 					l_y:=l_file.last_integer
+					l_door_index:=l_door_index+1
 				end
 				l_rooms.put (create {CU_ROOM}.make (l_room_index, l_doors.twin, void), l_room_index)
 				l_room_index:=l_room_index+1
 			end
 			l_file.close
 			--associate references in the board squares from file "rooms.txt"
-			create l_file.make_open_read ("./dose_2012/group_13/g13_logic/files/rooms.txt")
+			l_path:=file_path.twin
+			l_path.append_name ("rooms.txt")
+			l_path_string:= file_system.pathname_to_string (l_path)
+			create l_file.make_open_read (l_path_string)
+			--create l_file.make_open_read ("./dose_2012/group_13/g13_logic/files/rooms.txt")
 			from
 				l_room_index:=0
 			until
@@ -128,6 +169,7 @@ feature {CU_GAME} -- Initialization
 					l_x=100 and l_y=100
 				loop
 					board.put (l_rooms.item (l_room_index), l_x, l_y)
+					l_file.read_integer
 					l_x:=l_file.last_integer
 					l_file.read_integer
 					l_y:=l_file.last_integer

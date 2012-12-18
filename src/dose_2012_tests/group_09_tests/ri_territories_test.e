@@ -22,7 +22,7 @@ feature -- Test routines
 			test_terr : RI_TERRITORY
 
 		do
-			test_terr.make
+--			test_terr.make
 			assert("Non void territory",test_terr /= void)
 			assert("Valid ID",test_terr.id > 0)
 			assert("Valid Owner",test_terr.owner /= void)

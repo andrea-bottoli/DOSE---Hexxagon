@@ -2,7 +2,7 @@ note
 	description: "Summary description for {G5_SUPPLY}."
 	author: "Team: Rio Cuarto 4"
 	date: "$17/11/2012$"
-	revision: "$0.2$"
+	revision: "$0.6$"
 
 class
 	G5_SUPPLY
@@ -54,12 +54,12 @@ feature -- State Report
 feature -- Initialization
 
 	init_supply (associated_table: G5_TABLE; cards_kingdom: ARRAY [G5_CARD]; amount_estate: INTEGER; amount_duchy: INTEGER; amount_province: INTEGER; amount_curse: INTEGER)
-		-- Initializes the supply with the "SET_DEFAULT"
+		-- Initializes the supply
 		require
 			supply_not_initialized: ((sub_supply_victory = Void) and (sub_supply_kingdom = Void) and (sub_supply_treasure = Void) and (sub_supply_curse = Void))
 			valid_arg_cards_kingdom: cards_kingdom.count = Kingdom_piles and cards_kingdom.for_all (agent (c: G5_CARD): BOOLEAN do Result := (c.type.has_substring("kingdom") and c /= Void) end)
-			valid_arg_cards_victory: amount_estate > 7 and amount_duchy > 7 and amount_province > 7
-			valid_arg_curse: amount_curse > 19
+			valid_arg_cards_victory: ((amount_estate = 8) and (amount_duchy = 8) and (amount_province = 8)) or ((amount_estate = 12) and (amount_duchy = 12) and (amount_province = 12))
+			valid_arg_curse: (amount_curse = 10) or (amount_curse = 20) or (amount_curse = 30)
 		local
 			card: G5_CARD
 			pile: G5_PILE_CARD_SUPPLY
@@ -147,7 +147,7 @@ feature -- Initialization
 feature -- Obtaining
 
 	take_card (pile: G5_PILE_CARD_SUPPLY) : G5_CARD
-		-- Takes a card from a supply stack
+		-- Take a card of the "pile" passed as parameter
 		require
 			arg_valid: (pile /= Void) and (pile.amount_available > 0)
 		do

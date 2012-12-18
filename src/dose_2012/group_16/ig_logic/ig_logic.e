@@ -154,6 +154,10 @@ feature -- Status Setting
 		end
 
 	abort_game
+		local
+
+			shared_app: EV_SHARED_APPLICATION
+
 		do
 			across players as l_cursor loop
 				if attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player and then l_net_player.is_connected then
@@ -162,12 +166,16 @@ feature -- Status Setting
 					l_net_player.set_abort
 				end
 			end
-			abort_callback.call ([])
+
+			create shared_app
+			shared_app.ev_application.do_once_on_idle (abort_callback) -- This will later, asynchronously, be called
+--			abort_callback.call ([])
 		end
 
 	check_if_full_house
 		local
 			b: BOOLEAN
+			shared_app: EV_SHARED_APPLICATION
 		do
 			from
 				players.start
@@ -194,7 +202,14 @@ feature -- Status Setting
 					players.forth
 				end
 
-				host_join_callback.call ([])
+				print ("All players connected, calling GUI agent...")
+
+				create shared_app
+				shared_app.ev_application.do_once_on_idle (host_join_callback) -- This will later, asynchronously, be called
+
+--				host_join_callback.call ([])
+
+				print ("Call done.%N")
 
 			end
 		end
@@ -209,6 +224,8 @@ feature --During game
 		local
 			l_points: like gameboard.points_for_move
 			i1, i2: INTEGER
+
+			shared_app: EV_SHARED_APPLICATION
 		do
 			if is_game_over then
 				end_game
@@ -250,7 +267,18 @@ feature --During game
 						l_net_player.send_move (a_move)
 					end
 				end
-				game_update_actions.call ([])
+
+				create shared_app
+				from
+					game_update_actions.start
+				until
+					game_update_actions.after
+				loop
+					shared_app.ev_application.do_once_on_idle (game_update_actions.item) -- This will later, asynchronously, be called
+					game_update_actions.forth
+				end
+
+--				game_update_actions.call ([])
 
 				enable_move
 				-- After move has been done, e.v. notify the next player that it's his turn.
@@ -262,11 +290,14 @@ feature --During game
 		end
 
 	enable_move
+		local
+			shared_app: EV_SHARED_APPLICATION
 		do
 			if current_player_moves_left > 1 then
 				current_player_moves_left := current_player_moves_left - 1
 			else
 				--The current player has made a move, now make sure the next player can make one
+				last_player := current_player
 				current_player := next_player
 
 				if players.index_of (next_player, 1) < players.count then
@@ -275,7 +306,10 @@ feature --During game
 					next_player := players.first
 				end
 
-				turn_update_actions.call ([])
+				create shared_app
+				shared_app.ev_application.do_once_on_idle (turn_update_actions.first) -- This will later, asynchronously, be called
+
+--				turn_update_actions.call ([])
 
 				print ("Current player: " + current_player.name + "%T%TNext up: " + next_player.name + ".%N")
 
@@ -298,6 +332,8 @@ feature --During game
 			a_name /= Void
 		local
 			done: BOOLEAN
+
+			shared_app: EV_SHARED_APPLICATION
 		do
 			from
 				players.start
@@ -305,17 +341,33 @@ feature --During game
 				players.after or done
 			loop
 				if players.item.name.is_equal (a_name) then
-					game_over_callback.call ([players.item])
+
+					create shared_app
+					shared_app.ev_application.do_once_on_idle (agent game_over_callback_wrapper(players.item)) -- This will later, asynchronously, be called
+
+--					game_over_callback.call ([players.item])
+
 					done := True
 				end
 			end
 
 			if not done then
-					game_over_callback.call ([Void])	--Game was won, but not by any known player!?
+					create shared_app
+					shared_app.ev_application.do_once_on_idle (agent game_over_callback_wrapper(Void)) -- This will later, asynchronously, be called
+--					game_over_callback.call ([Void])	--Game was won, but not by any known player!?
 			end
 		end
 
+	game_over_callback_wrapper(a_player : IG_PLAYER)
+		do
+			game_over_callback.call ([a_player])
+		end
+
 	receive_abort (a_player: IG_NETWORK_PLAYER)
+		local
+
+			shared_app: EV_SHARED_APPLICATION
+
 		do
 			across players as l_cursor loop
 				if l_cursor.item /= a_player and attached {IG_NETWORK_PLAYER} l_cursor.item as l_net_player and then l_net_player.is_connected then
@@ -326,12 +378,31 @@ feature --During game
 
 			end
 
-			abort_callback.call ([])
+			create shared_app
+			shared_app.ev_application.do_once_on_idle (abort_callback) -- This will later, asynchronously, be called
+
+--			abort_callback.call ([])
 		end
 
 	add_tile (a_player: IG_PLAYER; a_tile: IG_TILE)
+		local
+			shared_app: EV_SHARED_APPLICATION
 		do
+			print ("Adding tile to " + a_player.name)
+
 			a_player.add_tile (a_tile)
+
+			create shared_app
+			from
+				game_update_actions.start
+			until
+				game_update_actions.after
+			loop
+				print ("Calling game_update_actions...%N")
+				shared_app.ev_application.do_once_on_idle (game_update_actions.item) -- This will later, asynchronously, be called
+				game_update_actions.forth
+			end
+			--game_update_actions.call ([])
 		end
 
 	--Fbesser
@@ -365,6 +436,8 @@ feature --During game
 			l_user_player : IG_USER_PLAYER
 			l_generic_player: IG_PLAYER
 			l_scoreboard: IG_SCOREBOARD
+
+			shared_app: EV_SHARED_APPLICATION
 		do
 
 			l_user_player ?= players.at (2)	--This must always succeed
@@ -408,7 +481,16 @@ feature --During game
 				l_cursor.item.set_scoreboard (l_scoreboard)
 			end
 
-			host_join_callback.call ([])
+			print ("All players received, calling GUI agent...")
+
+			create shared_app
+			shared_app.ev_application.do_once_on_idle (host_join_callback) -- This will later, asynchronously, be called
+
+--			host_join_callback.call ([])
+
+			print ("Call sent.%N")
+
+
 		ensure
 			next_player /= Void
 		end
@@ -416,6 +498,10 @@ feature --During game
 	swap_tiles(a_player: IG_PLAYER)
 		require
 			a_player /= Void
+		local
+
+			shared_app: EV_SHARED_APPLICATION
+
 		do
 			from
 				a_player.tiles.start
@@ -433,7 +519,17 @@ feature --During game
 				a_player.tiles.extend (tiles.item)
 				tiles.remove
 			end
-			game_update_actions.call ([])
+
+			create shared_app
+			from
+				game_update_actions.start
+			until
+				game_update_actions.after
+			loop
+				shared_app.ev_application.do_once_on_idle (game_update_actions.item) -- This will later, asynchronously, be called
+				game_update_actions.forth
+			end
+			--game_update_actions.call ([])
 		end
 
 feature -- Game Status
@@ -509,6 +605,8 @@ feature -- Access
 	current_player_moves_left: INTEGER
 	current_player: IG_PLAYER
 		-- Returns the current player
+	last_player: IG_PLAYER
+		-- Returns the player before current_player
 	next_player: IG_PLAYER
 		-- Returns a player and does not produce any side effects
 
@@ -536,7 +634,13 @@ feature {NONE} -- Implementation
 		local
 			l_max_points: INTEGER
 			l_winner: IG_PLAYER
+
+			shared_app: EV_SHARED_APPLICATION
+
 		do
+
+			print ("In LOGIC.end_game")
+
 			l_max_points := 0
 
 			across players as l_cursor loop
@@ -546,7 +650,9 @@ feature {NONE} -- Implementation
 				end
 			end
 
-			game_over_callback.call ([l_winner])
+			create shared_app
+			shared_app.ev_application.do_once_on_idle (agent game_over_callback_wrapper(l_winner)) -- This will later, asynchronously, be called
+--			game_over_callback.call ([l_winner])
 		end
 
 	initialize_tiles

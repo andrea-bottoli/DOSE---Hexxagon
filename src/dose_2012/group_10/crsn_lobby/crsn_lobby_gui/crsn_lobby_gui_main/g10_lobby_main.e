@@ -31,7 +31,7 @@ feature {NONE}	-- Attributes
 	all_buttons: G10_LOBBY_ALL_BUTTONS
 	all_online_users: G10_LOBBY_ONLINE_PLAYERS
 	all_hosted_games: G10_LOBBY_HOSTED_GAMES
-	new_game_info: G10_LOBBY_SOUTH_PANEL
+	south_panel: G10_LOBBY_SOUTH_PANEL
 	----------------------------------
 
 feature {NONE} -- constructor and initializers a titled window
@@ -66,6 +66,7 @@ feature {NONE} -- constructor and initializers a titled window
 		window_is_created: current /= void
 	do
 		create background
+		background.pointer_button_release_actions.extend (agent click_on_background(?, ?, ?, ?, ?, ?, ?, ?))
 		put(background)
 		background.set_background_pixmap (pix_lobby_background)
 		background.set_minimum_size (lobby_window_width, lobby_window_height)
@@ -83,17 +84,18 @@ feature {NONE} -- constructor and initializers a titled window
 		create all_buttons.make_buttons(Current)
 		create all_online_users.make_online_users(Current)
 		create all_hosted_games.make_hosted_games (Current)
-		create new_game_info.make(Current)
+		create south_panel.make(Current)
 	ensure
 		create_button_exists: all_buttons.get_create_button /= void
 		join_button_exists: all_buttons.get_join_button /= void
-		practice_button_exists: all_buttons.get_practice_button /= void
 		return_button_exists: all_buttons.get_return_button /= void
+		online_users_exist: all_online_users /= void
+		online_games_exist: all_hosted_games /=void
 	end
 
-feature {G10_LOBBY_ONLINE_PLAYERS, G10_LOBBY_HOSTED_GAMES}
+feature {G10_LOBBY_ONLINE_PLAYERS, G10_LOBBY_HOSTED_GAMES, G10_LOBBY_GLOBAL_CHAT}
 
-	update_lobby
+	update_lobby(chat_message: STRING)
 	require
 		player_not_null: player /= void
 	local
@@ -105,8 +107,8 @@ feature {G10_LOBBY_ONLINE_PLAYERS, G10_LOBBY_HOSTED_GAMES}
 		old_connected_players_num := get_lobby_logic.get_connected_player_no
 
 		-- get latest lobby data
-		player.keep_lobby_updated
-
+		player.update_lobby (player, chat_message)
+		--south_panel.get_global_chat
 		-- update ui if needed
 		if (get_lobby_logic.get_active_games_no /= old_hosted_games_num or
 			get_lobby_logic.get_connected_player_no /= old_connected_players_num) then
@@ -128,22 +130,14 @@ feature {G10_LOBBY_ALL_BUTTONS, G10_LOBBY_USER, G10_GUI_GAME_MAIN, G10_LOBBY_NEW
 		minimize
 	end
 
-	launch_as_joined_player(host_ip, host_port: STRING)
+	launch_as_joined_player(game_id: STRING)
 	require
-		args_not_void: host_ip /= void and host_port /= void
-		args_not_empty: (not host_ip.is_empty) and (not host_port.is_empty)
+		arg_valid: game_id /= void and game_id.is_integer
 	do
-		player.launch_joined_player(host_ip, host_port)
+		player.launch_joined_player(game_id.to_integer)
 		minimize
 	end
 
-	launch_as_forever_alone
-	do
-		player.launch_dummy
-		minimize
-	ensure
-		game_window_is_not_null: player.get_crsn_game_ui /= void
-	end
 	----------------------------------
 	quit_lobby
 	require
@@ -159,13 +153,19 @@ feature {G10_LOBBY_ALL_BUTTONS, G10_LOBBY_USER, G10_GUI_GAME_MAIN, G10_LOBBY_NEW
 			if attached player.get_main_ui then
 				player.get_main_ui.restore
 				player.get_main_ui.remove_reference_to_game(Current)
+
+			end
+			player.interaction_for_disconnect
+			if player.receive_ack = true
+			then
+				print ("OK DISCONNECTED !! %N")
 			end
 			destroy
 		end
 	end
+
 	----------------------------------
-	add_reference_to_game_window (a_game_window: EV_WINDOW)
-		-- adds the reference to window of a game
+	add_reference_to_game_window (a_game_window: EV_WINDOW) -- adds the reference to window of a game
 	require
 		arg_not_void: a_game_window /= Void
 	do
@@ -174,14 +174,18 @@ feature {G10_LOBBY_ALL_BUTTONS, G10_LOBBY_USER, G10_GUI_GAME_MAIN, G10_LOBBY_NEW
 		game_window_not_null: game_window /= void
 	end
 	----------------------------------
-	remove_reference_to_game_window
-		-- removes the game window reference
+	remove_reference_to_game_window -- removes the game window reference
 	do
 		game_window := void
 	ensure
 		game_window_is_null: game_window = void
 	end
 	----------------------------------
+
+	click_on_background(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+	do
+		get_south_panel.paint_global_chat_panel(Current)
+	end
 
 feature {ANY} --accessors
 
@@ -221,12 +225,16 @@ feature {ANY} --accessors
 		Result := all_hosted_games
 	end
 	----------------------------------
-	get_new_game_info: G10_LOBBY_SOUTH_PANEL
+	get_south_panel: G10_LOBBY_SOUTH_PANEL
 	do
-		Result := new_game_info
+		Result := south_panel
 	end
 	----------------------------------
-
+	get_players_name: STRING
+	do
+		Result := player.get_player_info.get_id
+	end
+	----------------------------------
 invariant
 	player_is_valid: player /= void
 	main_ui_not_null: player.get_main_ui /= void

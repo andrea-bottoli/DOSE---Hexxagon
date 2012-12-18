@@ -176,7 +176,7 @@ feature {G5_MAIN_MENU} -- launcher notifier about user choices as a host used by
 
 			-- Finally when a game is ended the thread created or managing the host as
 			-- a client is terminated.
-			client_for_host_thread.join
+--			client_for_host_thread.join
 
 		ensure
 			-- The game is started: server is up and ready to receive and send messages to

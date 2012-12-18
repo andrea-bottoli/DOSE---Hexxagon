@@ -16,8 +16,7 @@ feature --Atrributes
 	Player_Role: G4_ROLES
 	Player_Character: G4_CHARACTERS
 	Player_Weapon: G4_WEAPON_CARDS
-	Player_Items: LINKED_LIST[G4_ITEM_CARDS]
-	player_id : INTEGER
+	Player_Items: LINKED_LIST[G4_CARDS]
 
 feature --Constructor
 
@@ -39,7 +38,7 @@ feature --Setters Getters
 	do
 		Player_Role := a_role
 	ensure
-		Player_Role.is_equal(a_role)
+		Player_Role = a_role
 	end
 
 	get_player_role(): G4_ROLES
@@ -70,21 +69,11 @@ feature --Setters Getters
 		Player_Life = a_life
 	end
 
-	get_player_life(): INTEGER
+	get_player_life: INTEGER
 	do
 		Result := Player_Life
 	end
 
-feature
-	set_player_id(id:INTEGER)
-	do
-		player_id := id
-	end
-
-	get_player_id : INTEGER
-	do
-		Result := player_id
-	end
 
 
 feature --Distance
@@ -100,19 +89,18 @@ feature --Distance
 		Result := Max_Distance
 	end
 
-	get_distance(a_Player_array : ARRAY[G4_PLAYER];player_target, players_num: INTEGER): INTEGER
+	get_distance(a_Player_array : ARRAYED_LIST[G4_PLAYER];player_id,player_target, players_num: INTEGER): INTEGER
 	local
 		distance_1: INTEGER
 		distance_2: INTEGER
 		final_distance : INTEGER
 	do
-		if(current.get_player_id < player_target) then
-			distance_1 := (current.get_player_id - player_target) + players_num
-
-			distance_2 := player_target - current.get_player_id
+		if(player_id < player_target) then
+			distance_1 := (player_id - player_target) + players_num
+			distance_2 := player_target - player_id
 		else
-			distance_1 := (player_target - current.get_player_id) + players_num
-			distance_2 := current.get_player_id - player_target
+			distance_1 := (player_target - player_id) + players_num
+			distance_2 := player_id - player_target
 		end
 
 		if(distance_1 < distance_2) then
@@ -121,20 +109,39 @@ feature --Distance
 			final_distance := distance_2
 		end
 
-		from a_Player_array[player_target].get_player_hand.start until a_Player_array[player_target].get_player_hand.item = a_Player_array[player_target].get_player_hand.last
-		loop
-			if(a_Player_array[player_target].get_player_hand.item.getname.is_equal ("Mustang")) then
-				final_distance :=  final_distance + 1
+		-- Search for the Mustang and Paul Regret Card
+		if(a_Player_array[player_target].get_item_board.get_player_items.is_empty = False) then
+			from a_Player_array[player_target].get_item_board.get_player_items.start until a_Player_array[player_target].get_item_board.get_player_items.after = False
+			loop
+				if((a_Player_array[player_target].get_item_board.get_player_items.item.getname = "Scope") or
+					(a_Player_array[player_target].get_item_board.get_player_items.item.getname = "Rose Doolan")) then
+
+						final_distance :=  final_distance - 1
+				end
+				a_Player_array[player_target].get_item_board.get_player_items.forth
 			end
-			a_Player_array[player_target].get_player_hand.forth
+		end
+
+
+		if(a_Player_array[player_id].get_item_board.get_player_items.is_empty = False) then
+			from a_Player_array[player_id].get_item_board.get_player_items.start until a_Player_array[player_id].get_item_board.get_player_items.after = False
+			loop
+				if((a_Player_array[player_id].get_item_board.get_player_items.item.getname = "Scope") or
+					(a_Player_array[player_id].get_item_board.get_player_items.item.getname = "Rose Doolan")) then
+
+						final_distance :=  final_distance - 1
+				end
+				a_Player_array[player_id].get_item_board.get_player_items.forth
+			end
 		end
 
 		Result := final_distance
 	end
 
-	check_distance(a_Player_array : ARRAY[G4_PLAYER];player_target,players_num, distance : INTEGER) :BOOLEAN
+
+	check_distance(a_Player_array : ARRAYED_LIST[G4_PLAYER];player_id,player_target,a_players_num : INTEGER) :BOOLEAN
 	do
-		if(current.get_distance (a_Player_array,player_target, players_num) < current.max_distance) then
+		if(current.get_distance (a_Player_array,player_id,player_target, a_players_num) <= current.max_distance) then
 			Result := True
 		else
 			Result := False
@@ -144,7 +151,7 @@ feature --Distance
 feature
 
 	--Items
-	get_player_items: LINKED_LIST[G4_ITEM_CARDS]
+	get_player_items: LINKED_LIST[G4_CARDS]
 	do
 		Result := Player_Items
 	end
@@ -179,7 +186,7 @@ feature --functions
 	end
 
 	--Adds an item to the current Players_Items
-	add_item(a_item: G4_ITEM_CARDS)
+	add_item(a_item: G4_CARDS)
 	do
 		Player_Items.force (a_item)
 	ensure
@@ -187,11 +194,11 @@ feature --functions
 	end
 
 	--Discards an item from the cuurent Players_Items
-	discard_item(a_item: G4_ITEM_CARDS)
+	discard_item(a_item: G4_CARDS)
 	do
 		from Player_Items.start until Player_Items.item = Player_Items.last
 			loop
-				if(Player_Items.item.equals (a_item)) then
+				if(Player_Items.item.equals (a_item, Player_Items.item)) then
 					--Result := Player_Items.item  ???
 					Player_Items.remove
 				end
@@ -205,8 +212,21 @@ feature --functions
 	add_weapon(a_weapon: G4_WEAPON_CARDS)
 	do
 		Player_Weapon := a_weapon
+		set_player_max_distance(Player_Weapon.get_weapon_distance)
 	ensure
-		Player_Weapon.is_equal(a_weapon)
-		Max_Distance = a_weapon.get_weapon_distance
+		Player_Weapon  = a_weapon
+	end
+
+	display_item_board
+	do
+		io.new_line
+		io.putstring ("Item Board of the Player:")
+		io.new_line
+		from Player_Items.start until Player_Items.after = true
+			loop
+				io.new_line
+				io.put_string (Player_Items.item.getname)
+				Player_Items.forth
+			end
 	end
 end

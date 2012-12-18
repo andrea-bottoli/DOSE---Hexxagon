@@ -47,14 +47,21 @@ feature
 		--remove tile from player
 		--confirming correct move so piece must be deleted
 	local
-		tile_index : INTEGER
+		tile_index : INTEGER;
+		found: BOOLEAN
 	do
-		tile_index := tiles.index_of (tile_played,1)
-
-		if tile_index > 0 then
-			tiles.go_i_th (tile_index)
-			tiles.remove
+	 	found := false
+		from
 			tiles.start
+		until
+			tiles.after or found
+		loop
+			if tiles.item.is_equal (tile_played) then
+				tiles.remove
+				found := true
+			else
+				tiles.forth
+			end
 		end
 	end
 
@@ -62,6 +69,12 @@ feature
 	do
 		tiles := void
 		add_tile_set(player_color)
+	end
+
+	reset
+	do
+		reset_set()
+		still_playing := true
 	end
 
 	get_remaining_tiles: LINKED_LIST[BS_TILE]

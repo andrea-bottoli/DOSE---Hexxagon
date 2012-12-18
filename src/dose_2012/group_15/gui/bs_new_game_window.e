@@ -58,27 +58,27 @@ feature {NONE} -- Initialization
 
 			create chk_networking_enabled.make_with_text("Enable Networking")
 			chk_networking_enabled.select_actions.extend(agent toggle_networking)
-			con_main.extend_with_position_and_size (chk_networking_enabled, 30, 40, 150, 15)
+			con_main.extend_with_position_and_size (chk_networking_enabled, 40, 70, 150, 15)
 
 			create lbl_network_port.make_with_text("TCP Port: ")
 			lbl_network_port.align_text_left
-			con_main.extend_with_position_and_size (lbl_network_port, 40, 60, 100, 15)
+			con_main.extend_with_position_and_size (lbl_network_port, 40, 40, 50, 15)
 
 			create txf_network_port.make_with_text("9000")
-			txf_network_port.disable_edit
+--			txf_network_port.disable_edit
 			txf_network_port.align_text_center
 			txf_network_port.change_actions.extend (agent validate_network_port)
-			con_main.extend_with_position_and_size (txf_network_port, 220, 50, 40, 20)
+			con_main.extend_with_position_and_size (txf_network_port, 100, 40, 40, 20)
 
-			create lbl_n_network_players.make_with_text("Number of network players: ")
-			lbl_n_network_players.align_text_left
-			con_main.extend_with_position_and_size (lbl_n_network_players, 40, 80, 210, 15)
+--			create lbl_n_network_players.make_with_text("Number of network players: ")
+--			lbl_n_network_players.align_text_left
+--			con_main.extend_with_position_and_size (lbl_n_network_players, 40, 80, 210, 15)
 
-			create total_players_combo_box.make_with_strings (<< "1", "2", "3">>)
-			total_players_combo_box.align_text_left
-			total_players_combo_box.disable_sensitive
-			total_players_combo_box.disable_edit
-			con_main.extend_with_position_and_size (total_players_combo_box, 250, 80, 30, 24) --154, 70, 30, 24) -- 114, 20, 80, 24)
+--			create total_players_combo_box.make_with_strings (<< "1", "2", "3">>)
+--			total_players_combo_box.align_text_left
+--			total_players_combo_box.disable_sensitive
+--			total_players_combo_box.disable_edit
+--			con_main.extend_with_position_and_size (total_players_combo_box, 250, 80, 30, 24) --154, 70, 30, 24) -- 114, 20, 80, 24)
 			--con_main.extend_with_position_and_size (total_players_combo_box, 220, 80, 50, 20)
 
 			--create total_players_combo_box.make_with_strings (<< "1", "2", "3">>)
@@ -137,8 +137,8 @@ feature {NONE} -- User Actions
 		do
 			if chk_networking_enabled.is_selected then
 				txf_network_port.enable_edit
-				total_players_combo_box.enable_edit
-				total_players_combo_box.enable_sensitive
+--				total_players_combo_box.enable_edit
+--				total_players_combo_box.enable_sensitive
 				--txf_n_network_players.enable_edit
 
 			-- Start the address request
@@ -152,9 +152,9 @@ feature {NONE} -- User Actions
 				--lbl_game_name.change_actions.extend (agent validate_game_name)
 				con_main.extend_with_position_and_size (l_address_label, 40, 100, 210, 15)
 
-				txf_network_port.disable_edit
-				total_players_combo_box.disable_edit
-				total_players_combo_box.disable_sensitive
+--				txf_network_port.disable_edit
+--				total_players_combo_box.disable_edit
+--				total_players_combo_box.disable_sensitive
 
 				--l_address_request.disable_edit
 

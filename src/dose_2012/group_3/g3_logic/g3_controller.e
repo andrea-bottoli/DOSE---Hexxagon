@@ -2,7 +2,7 @@ note
 	description: "Summary description for {G3_CONTROLLER}."
 	author: "R. Martinez, F. Chiotta, S. Permigiani, G. Scilingo"
 	date: "$6 Nov. 2012$"
-	revision: "$0.1$"
+	revision: "$1.0$"
 
 class
 	G3_CONTROLLER
@@ -24,13 +24,11 @@ feature{NONE} --constructors
 		require
 			model_void: first_model /= void
 		local
-			defaul_net : G3_NETWORK
+			default_net : G3_NETWORK_RIO_CUARTO_6
 		do
 			model := first_model
-			create defaul_net.make (false)
-			net.set_controller (current)
-			net := defaul_net
-
+			create default_net.make_thread
+			net := default_net
 		end
 
 feature{G3_START_GAME} -- features for initialize and setting
@@ -40,6 +38,7 @@ feature{G3_START_GAME} -- features for initialize and setting
 			not_void: game_window /= void
 		do
 			window := game_window
+			window.set_model (model) -- OJO
 			model.subscribe (window)
 		end
 
@@ -60,7 +59,6 @@ feature{G3_GAME_WINDOW} -- features for establish a connection
 			new_player_id : G3_PLAYER_ID
 		do
 			-- start running net on server mode and wait connections
-			create model.make
 			create I_am.make
 			create new_player_id.make
 			new_player_id := new_player_id.get_server_id
@@ -68,7 +66,12 @@ feature{G3_GAME_WINDOW} -- features for establish a connection
 			I_am.set_name (player_name)
 			model.add_player (I_am)
 			is_on_server_mode := true
+			-- register on net
+			net.set_controller (current)
 			net.run_server_mode
+			create net2.make_thread
+			net2.set_ip_numbers_of_players (net.ip_numbers_of_players)
+			net.launch
 			-- update window
 			model.update
 		ensure
@@ -83,6 +86,9 @@ feature{G3_GAME_WINDOW} -- features for establish a connection
 			connect_message : G3_MESSAGE
 			new_player_id : G3_PLAYER_ID
 		do
+			-- register on net
+			net.set_controller (current)
+
 			-- make a message for connect
 			create new_player_id.make
 			create connect_message.make_with_parameters (new_player_id.get_server_id, new_player_id)
@@ -92,13 +98,20 @@ feature{G3_GAME_WINDOW} -- features for establish a connection
 			if  new_player_id.is_register then
 				model := connect_message.model
 				I_am := model.get_player (new_player_id)
-				-- update window
-				model.update
+				print ("storing reference to player in controller.connect "+new_player_id.id.out)
 			else
-				-- announce a refused
 				model.set_error_message("Connection refused by server")
-				model.update
+				io.new_line
+				Print ("NO WELL CONNECT !!!!")
 			end
+			create net2.make_thread
+			print ("IP server for net2 :"+net.ip_number_of_server)
+			net2.set_ip_number_of_server (net.ip_number_of_server)
+			net.launch
+			-- update relations
+			window.set_model (model)
+			model.subscribe (window)
+			model.update
 
 		end
 
@@ -121,6 +134,8 @@ feature{G3_INETWORK,EQA_TEST_SET} -- features for establish a connection and rec
 			number_of_players : INTEGER
 			registered_id : G3_PLAYER_ID
 			update_message : G3_MESSAGE
+			model2 : G3_MODEL
+			model3 : G3_MODEL
 
 		do
 			if (attached {STRING} message.optional as new_player_name) and (model.number_of_players < 4) then
@@ -133,6 +148,7 @@ feature{G3_INETWORK,EQA_TEST_SET} -- features for establish a connection and rec
 				model.add_player (new_player)
 				-- check if can start game
 				if model.number_of_players = 4 then
+					print ("LLegaron 4 model.start_game")
 					model.start_game
 					model.set_before_9_cards (true)
 					model.set_passing_cards_stage (false)
@@ -148,15 +164,27 @@ feature{G3_INETWORK,EQA_TEST_SET} -- features for establish a connection and rec
 					create registered_id.make
 					registered_id.set_id (number_of_players)
 					create update_message.make_with_parameters (registered_id, I_am.id)
-					update_message.set_model (model)
+					create model3.make
+					model3.copy(model)
+					model3.unsubscribe (void)
+					update_message.set_model (model3)
 					update_message.set_as_update_msg
-					net.send_to_client (update_message)
+					net2.send_to_client (update_message)
 					number_of_players := number_of_players -1
 				end
 				-- make a message to new connection response
 				message.set_sender_id (I_am.id)
 				message.set_receiver_id (new_player_id)
-				message.set_model (model)
+				--
+				create model2.make
+				model2.copy(model)
+				model2.unsubscribe (void)
+				io.new_line
+				print ("JUGADOR DENTRO del modelo2 "+model2.get_player (new_player_id).name)
+				io.new_line
+				print ("id_register_player in model2: "+model2.get_player (new_player_id).id.id.out+ " - " )
+				io.new_line
+				message.set_model (model2)
 				message.set_as_connection_msg
 			else
 				-- make a message to new connection refused
@@ -172,23 +200,27 @@ feature{G3_INETWORK,EQA_TEST_SET} -- features for establish a connection and rec
 		end
 
 	receive (message : G3_MESSAGE)
-			-- this feature shall be called by net when a message from client arrives
+			-- this feature shall be called by net when a message from client or server arrives
 		require
-			message.sender_id.is_register and message.receiver_id = my_id
+			expected_identifiers : message.sender_id.is_register and message.receiver_id.is_equal (my_id)
 		do
 			-- identify what kind of message and perform associated action
-
+			io.new_line
+			Print ("Dentro de receive ")
+			io.new_line
 			if message.is_update_msg and (attached {G3_MODEL} message.model as attached_model) then
 					-- update message is receive on server mode and client mode
+				io.new_line
+				print ("attached model (for update) my id : "+attached_model.get_player (my_id).id.id.out)
+				io.new_line
 				model := attached_model
+				window.set_model (model)
 				model.subscribe (window)
-				-- solve problem with of reference to model in GAME_WINDOW
-				-- window.set_model(model) or copy all fields
 				model.update
 			end
 
 			if message.is_invoke_msg and (attached {G3_INVOCATION} message.optional as new_invocation) then
-					-- invocation message is receive always on server mode
+					-- invocation message is receive always on server mode (except window_give_dragon)
 
 				if new_invocation.name_invocation.is_equal ("on_play") then
 					-- check turn
@@ -241,12 +273,35 @@ feature{G3_INETWORK,EQA_TEST_SET} -- features for establish a connection and rec
 					-- check turn
 					if message.sender_id = model.turn then
 						internal_on_pass(message.sender_id)
+						-- TODO check when dragon!!!
 					end
+				end
+
+				-- in client mode
+				if new_invocation.name_invocation.is_equal ("window_give_dragon") then
+					internal_window_give_dragon(message.sender_id)
+				end
+
+				-- inserver mode
+				if new_invocation.name_invocation.is_equal ("delivery_dragon_cards") then
+					-- check receiver id
+					if (attached {G3_PLAYER_ID} new_invocation.parameters as receiver_id) then
+						delivery_dragon_cards (receiver_id)
+					end
+
 				end
 
 			end
 
 
+		end
+
+feature {G3_INETWORK}
+
+	special (message: G3_MESSAGE)
+		do
+			message.set_as_update_msg
+			net2.send_to_client (message)
 		end
 
 
@@ -276,6 +331,66 @@ feature{G3_GAME_WINDOW} --features for play
 			end
 		end
 
+	is_possible_play_after_mah_jong(id:G3_PLAYER_ID; combination:G3_COMBINATION):BOOLEAN
+		local
+			player:G3_PLAYER
+			posible_combination, combination_bomb:G3_COMBINATION
+		do
+			Result:=True
+			player:= model.get_player(id)
+			if model.mah_jong_number /= Void and not (is_possible_play_bomba(combination)) then
+				if  (has_chosen_mah_jong(model.mah_jong_number, player.cards)) and
+				    not(has_chosen_mah_jong(model.mah_jong_number, combination.cards))
+				then
+					if not(model.top_play.cards.count=1)then
+						posible_combination:=player.get_biggest_straight(model.mah_jong_number,model.top_play.cards.count)
+						if(posible_combination/=void and then posible_combination.kills(model.top_play)) then
+							Result:=False
+						end
+					else--only one card	in top	
+						posible_combination:=player.get_combination_with_number(model.mah_jong_number)
+						combination_bomb:= player.get_bomba_with_number (model.mah_jong_number)
+						if (posible_combination/=void) and then (posible_combination.kills (model.top_play) or combination_bomb.kills (model.top_play)) then
+							Result:=False
+						end
+					end
+					--else he has the card but doesn't kill the hand (TODO what if he has a biggest bomb with the card?)
+				end
+				--else doesn't has the card or he play the card
+			end
+			--else is not mah jong played or he play a bomb
+
+		end
+
+	is_possible_pass_after_mah_jong(id:G3_PLAYER_ID):BOOLEAN
+		local
+			player:G3_PLAYER
+			posible_combination, combination_bomb:G3_COMBINATION
+		do
+			Result:=True
+			player:= model.get_player(id)
+			if model.mah_jong_number /= Void then
+				if (has_chosen_mah_jong(model.mah_jong_number, player.cards)) then
+					if not(model.top_play.cards.count=1)then
+						posible_combination:=player.get_biggest_straight(model.mah_jong_number,model.top_play.cards.count)
+						if posible_combination/=void and posible_combination.kills(model.top_play) then
+							Result:=False
+						end
+					else --only one card in top	
+						posible_combination:=player.get_combination_with_number(model.mah_jong_number)
+						combination_bomb:=player.get_bomba_with_number (model.mah_jong_number)
+						if (posible_combination/=void) and then (posible_combination.kills (model.top_play) or combination_bomb.kills (model.top_play)) then
+							Result:=False
+						end
+					end
+					--else he has the card but doesn't kill the hand (TODO what if he has a biggest bomb with the card?)
+				end
+				--else doesn't has the card
+			end
+			--else is not mah jong played
+
+		end
+
 	on_play(combination: G3_COMBINATION)
 			-- play the cards if is possible.
 		require
@@ -283,6 +398,7 @@ feature{G3_GAME_WINDOW} --features for play
 			stage_of_game : playing_round_stage
 			valid_combination : is_possible_play (combination)
 			player_is_a_bomber : my_id = model.forced_to_play_bomba implies is_possible_play_bomba(combination)
+			forced_after_mah_jong: is_possible_play_after_mah_jong(my_id,combination)
 		local
 			player_id : G3_PLAYER_ID
 			message : G3_MESSAGE
@@ -291,6 +407,10 @@ feature{G3_GAME_WINDOW} --features for play
 			if is_on_server_mode then
 				-- make a move
 				model.do_a_move (combination)
+				--remove obligation for mah jong chosen card
+				if has_chosen_mah_jong(model.mah_jong_number,combination.cards) then
+					model.set_mah_jong_number (void)
+				end
 				-- remove obligation of bomber
 				if I_am.id = model.forced_to_play_bomba then
 					create player_id.make
@@ -324,7 +444,7 @@ feature{G3_GAME_WINDOW} --features for play
 				invocation.set_parameters (combination)
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 				-- delivery the turn for blocking window
 				model.do_a_pass
 			end
@@ -356,7 +476,7 @@ feature{G3_GAME_WINDOW} --features for play
 				invocation.set_parameters (combination)
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 			end
 		ensure
 			queued_player: old requests_bomba.count < requests_bomba.count
@@ -384,7 +504,7 @@ feature{G3_GAME_WINDOW} --features for play
 				create invocation.make("on_say_tichu")
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 			end
 
 		end
@@ -416,7 +536,7 @@ feature{G3_GAME_WINDOW} --features for play
 				create invocation.make("on_say_grand_tichu")
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 			end
 
 		end
@@ -446,7 +566,7 @@ feature{G3_GAME_WINDOW} --features for play
 				create invocation.make("on_say_not_to_grand_tichu")
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 			end
 
 		end
@@ -456,6 +576,7 @@ feature{G3_GAME_WINDOW} --features for play
 		require
 			stage_of_game: passing_cards_stage
 			number_of_cards : model.get_player (I_am.id).cards.count >= 12
+			forced_after_mah_jong:is_possible_pass_after_mah_jong(my_id)
 		local
 			player_id : G3_PLAYER_ID
 			message : G3_MESSAGE
@@ -485,7 +606,7 @@ feature{G3_GAME_WINDOW} --features for play
 				invocation.set_parameters2 (card)
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 				-- remove card for arrive to condition required for feature
 				model.remove_card_to_player (I_am.id, card)
 				model.update
@@ -517,19 +638,34 @@ feature{G3_GAME_WINDOW} --features for play
 					--restore turn to interrupted player
 					model.restore_interrupted
 				end
-				-- check requires bomba
-				if requests_bomba.count /= 0 and not model.top_play.cards.first.is_the_dog
-				then
-					--store the natural order turn and remember which player must play bombas
-					model.set_interrupted (model.turn)
-					model.set_forced_to_play_bomba ( requests_bomba.first)
+				if model.dragon then
+					-- update local for blocking
+					model.update
+					-- make consult across the net model.continue_interrupted_dragon with remote window.give_dragon)
+					create player_id.make
+					create message.make_with_parameters (model.dragon_id, I_am.id)
+					create invocation.make("window_give_dragon")
+					message.set_optional (invocation)
+					message.set_as_invoke_msg
+					net2.send_to_client (message)
+					-- interrupte normal (go to end)	
+				else
+					-- normal ejecution
+					-- check requires bomba
+					if requests_bomba.count /= 0 and not model.top_play.cards.first.is_the_dog
+					then
+						--store the natural order turn and remember which player must play bombas
+						model.set_interrupted (model.turn)
+						model.set_forced_to_play_bomba ( requests_bomba.first)
 
-					-- altered turn
-					model.detoned_bomb (requests_bomba.first)
-					requests_bomba.start
-					requests_bomba.remove
+						-- altered turn
+						model.detoned_bomb (requests_bomba.first)
+						requests_bomba.start
+						requests_bomba.remove
+					end
+					model.update
+					update_all_clients
 				end
-				update_all_clients
 			else
 				-- send command to server, running on client mode
 				create player_id.make
@@ -537,11 +673,11 @@ feature{G3_GAME_WINDOW} --features for play
 				create invocation.make("on_pass")
 				message.set_optional (invocation)
 				message.set_as_invoke_msg
-				net.send_to_server (message)
+				net2.send_to_server (message)
 				-- free turn for blocking window
 				model.do_a_pass
+				model.update
 			end
-			model.update
 		ensure
 			change_turn: old model.turn /= model.turn
 		end
@@ -550,7 +686,21 @@ feature{G3_GAME_WINDOW} --features for play
 		delivery_dragon_cards (receiver : G3_PLAYER_ID)
 				-- delivery cards to custom receiver player
 			do
-				
+				-- return to normal ejecution (from dragon)
+				model.continue_interrupted_dragon (receiver)
+				-- check requires bomba
+				if requests_bomba.count /= 0 and not model.top_play.cards.first.is_the_dog
+				then
+					--store the natural order turn and remember which player must play bombas
+					model.set_interrupted (model.turn)
+					model.set_forced_to_play_bomba ( requests_bomba.first)
+					-- altered turn
+					model.detoned_bomb (requests_bomba.first)
+					requests_bomba.start
+					requests_bomba.remove
+				end
+				model.update
+				update_all_clients
 			end
 
 
@@ -596,7 +746,9 @@ feature{NONE} --internal structure and methods
 
 	model : G3_MODEL
 
-	net : G3_INETWORK
+	net : G3_NETWORK_RIO_CUARTO_6
+
+	net2 : G3_NETWORK_RIO_CUARTO_6
 
 	I_am : G3_PLAYER
 
@@ -617,6 +769,10 @@ feature{NONE} --internal structure and methods
 		do
 			-- make a move
 			model.do_a_move (combination)
+			--remove obligation for mah jong chosen card
+			if has_chosen_mah_jong(model.mah_jong_number,combination.cards) then
+				model.set_mah_jong_number (void)
+			end
 			-- remove obligation of bomber
 			if id = model.forced_to_play_bomba then
 				create player_id.make
@@ -663,9 +819,7 @@ feature{NONE} --internal structure and methods
 		do
 			model.set_tichu (id)
 			model.update
-			--update all clients
 			update_all_clients
-
 		end
 
 	internal_on_say_grand_tichu(id:G3_PLAYER_ID)
@@ -726,6 +880,8 @@ feature{NONE} --internal structure and methods
 			stage_of_game : playing_round_stage
 		local
 			player_id : G3_PLAYER_ID
+			message : G3_MESSAGE
+			invocation : G3_INVOCATION
 		do
 			-- check no bomba was called
 			-- make a move
@@ -738,22 +894,57 @@ feature{NONE} --internal structure and methods
 				--restore turn to interrupted player
 				model.restore_interrupted
 			end
-			-- check requires bomba
-			if requests_bomba.count /= 0 and not model.top_play.cards.first.is_the_dog
-			then
-				--store the natural order turn and remember which player must play bombas
-				model.set_interrupted (model.turn)
-				model.set_forced_to_play_bomba ( requests_bomba.first)
-				-- altered turn
-				model.detoned_bomb (requests_bomba.first)
-				requests_bomba.start
-				requests_bomba.remove
+			-- check dragon
+			if model.dragon then
+				-- update local for blocking
+				model.update
+				-- make consult across the net model.continue_interrupted_dragon with remote window.give_dragon)
+				create player_id.make
+				create message.make_with_parameters (model.dragon_id, I_am.id)
+				create invocation.make("window_give_dragon")
+				message.set_optional (invocation)
+				message.set_as_invoke_msg
+				net2.send_to_client (message)
+				-- interrupte normal (go to end)
+			else
+				-- normal ejecution
+				-- check requires bomba
+				if requests_bomba.count /= 0 and not model.top_play.cards.first.is_the_dog
+				then
+					--store the natural order turn and remember which player must play bombas
+					model.set_interrupted (model.turn)
+					model.set_forced_to_play_bomba ( requests_bomba.first)
+					-- altered turn
+					model.detoned_bomb (requests_bomba.first)
+					requests_bomba.start
+					requests_bomba.remove
+				end
+				model.update
+				update_all_clients
 			end
-			model.update
-			-- update all client
-			update_all_clients
 		ensure
 			change_turn: old model.turn /= model.turn
+		end
+
+	-- invoke in client mode
+	internal_window_give_dragon (sender_id : G3_PLAYER_ID)
+			-- consult window for know who to give cards of dragon and response to server
+		require
+			server_consult_dragon : sender_id.id = 1
+		local
+			receiver_id : G3_PLAYER_ID
+			message : G3_MESSAGE
+			invocation : G3_INVOCATION
+		do
+			-- consult window
+			receiver_id := window.give_dragon
+			-- send to server
+			create message.make_with_parameters (sender_id, I_am.id)
+			create invocation.make("delivery_dragon_cards")
+			invocation.set_parameters (receiver_id)
+			message.set_optional (invocation)
+			message.set_as_invoke_msg
+			net2.send_to_server (message)
 		end
 
 feature{NONE} -- auxiliar features
@@ -783,7 +974,7 @@ feature{NONE} -- auxiliar features
 				create message.make_with_parameters (player_id, I_am.id)
 				message.set_model (model)
 				message.set_as_update_msg
-				net.send_to_client (message)
+				net2.send_to_client (message)
 				number_of_players := number_of_players -1
 			end
 		end
@@ -805,11 +996,24 @@ feature{NONE} -- auxiliar features
 				create message.make_with_parameters (player_id, I_am.id)
 				message.set_model (model)
 				message.set_as_update_msg
-				net.send_to_client (message)
+				net2.send_to_client (message)
 				number_of_players := number_of_players -1
 			end
 		end
 
+	has_chosen_mah_jong(card_number:STRING;cards:LINKED_LIST[G3_CARD]):BOOLEAN
+		do
+			Result:=False
+			from
+				cards.start
+			until
+				cards.off
+			loop
+				if cards.item.number.is_equal(card_number) then
+					Result:= True
+				end
+			end
+		end
 
 
 

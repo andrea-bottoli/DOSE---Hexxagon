@@ -50,6 +50,7 @@ feature {NONE} -- Initialization
 			player_name_valid := True
 			new_player_type := 0
 			num_players := 0
+			next_player := 1
 			create player_list.make_empty
 			create player_info.make
 			create command_executed_semaphore.make (0)
@@ -93,9 +94,9 @@ feature {NONE} -- Initialization
 			lbl_new_player_name.align_text_left
 			con_main.extend_with_position_and_size(lbl_new_player_name, 450, 55, 50, 20)
 
-			create txf_new_player_name.make_with_text ("Player")
+			create txf_new_player_name.make_with_text ("Player1")
 			txf_new_player_name.change_actions.extend (agent validate_player_name)
-			con_main.extend_with_position_and_size(txf_new_player_name, 500, 55, 110, 20)
+			con_main.extend_with_position_and_size(txf_new_player_name, 500, 55, 150, 20)
 
 			create btn_start_game.make_with_text_and_action ("PLAY", agent start_playing)
 			btn_start_game.disable_sensitive
@@ -216,19 +217,26 @@ feature {NONE} -- User actions
 
 			create l_pixmap_player_type
 
+			if next_player = 999 then
+				next_player:= 1
+			end
+
 			inspect new_player_type
 			when 0 then
 				l_pixmap_player_type.set_with_named_file (get_gfx_file_name("human_player_50x50"))
+				txf_new_player_name.set_text ("Player" + next_player.out)
 			when 1 then
 				l_pixmap_player_type.set_with_named_file (get_gfx_file_name("ai_player_easy_50x50"))
+				txf_new_player_name.set_text ("AIEasyPlayer" +next_player.out)
 			when 2 then
 				l_pixmap_player_type.set_with_named_file (get_gfx_file_name("ai_player_medium_50x50"))
+				txf_new_player_name.set_text ("AIMediumPlayer" +next_player.out)
 			when 3 then
 				l_pixmap_player_type.set_with_named_file (get_gfx_file_name("ai_player_hard_50x50"))
+				txf_new_player_name.set_text ("AIHardPlayer" + next_player.out)
 			else
 
 			end
-
 			btn_new_player_type.set_pixmap (l_pixmap_player_type)
 		end
 
@@ -237,18 +245,44 @@ feature {NONE} -- User actions
 			l_add_success : BOOLEAN
 			l_new_player : BS_PLAYER
 			l_msg_dialog : EV_MESSAGE_DIALOG
-			--l_player_info : BS_LOBBY_PLAYER_INFO
-			l_player_id_and_color : INTEGER
 			l_p_name : STRING
 		do
-			l_player_id_and_color := 1 + player_info.count
 			l_p_name :=  txf_new_player_name.text
 			--btn_rem_player.disable_sensitive
 			game_connection.send_add_player(l_p_name, new_player_type)
 
+			if next_player = 999 then
+				next_player:= 1
+				else if next_player >= num_players then
+					next_player := next_player +1
+					--next_player:=  num_players +1
+					else
+					--next_player:= num_players
+					next_player:=  num_players +2
+					end
+			 end
+
+			-- next_player:=  num_players +2
+--			if next_player > num_players then
+--				next_player:=  next_player +1
+--				else next_player:= num_players
+--				end
+
+
 			if num_players < 3 then
-				txf_new_player_name.set_text ("Player" + num_players.out)
+			inspect new_player_type
+			when 0 then
+				txf_new_player_name.set_text ("Player" + next_player.out)
+			when 1 then
+				txf_new_player_name.set_text ("AIEasyPlayer" + next_player.out)
+			when 2 then
+				txf_new_player_name.set_text ("AIMediumPlayer" +next_player.out)
+			when 3 then
+				txf_new_player_name.set_text ("AIHardPlayer"  +next_player.out)
 			else
+				txf_new_player_name.set_text ("")
+			end
+						else
 				txf_new_player_name.set_text ("")
 				btn_add_player.disable_sensitive
 			end
@@ -570,6 +604,8 @@ feature {NONE} -- Implementation
 	-- other GUI
 	new_player_type : INTEGER
 	num_players : INTEGER
+	next_player : INTEGER
+	-- one more than num_players
 
 	-- Logic related objects
 	game : BS_GAME

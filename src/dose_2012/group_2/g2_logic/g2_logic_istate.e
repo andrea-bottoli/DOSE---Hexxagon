@@ -6,10 +6,7 @@ note
 
 deferred class
 	G2_LOGIC_ISTATE
-
-inherit
-
-	Storable
+	
 
 feature {ANY} --procedure
 

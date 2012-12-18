@@ -4,14 +4,21 @@ note
 
 class
 	G21_GUI
+inherit
+	EV_APPLICATION
+	G21_NOTIFYLISTENER
+	rename message as notifiermessage
+	undefine default_create, copy end
+	G21_CARD_MESSAGE
+	undefine default_create, copy end
 
 create
 	newGUI
 
-feature -- Atributes
+feature {NONE} -- Atributes
 
 		-- A list of player's cards on hand
-		cards: ARRAYED_LIST[G21_CARD]
+		cards: ARRAY[G21_XLABEL]
 		menu: ARRAYED_LIST[STRING]
 		-- A reprasantation of game board
 		board: ARRAY[G21_CARD]
@@ -22,25 +29,72 @@ feature -- Atributes
 		-- The active rule
 		rule : INTEGER
 		actionListener : ARRAYED_LIST[G21_ACTIONLISTENER]
-		notifyListener : ARRAYED_LIST[G21_NOTIFYLISTENER]
+		notifyListener : ARRAYED_LIST[G21_MSG_LISTENER]
+		main_win : G21_MAIN_WINDOW
+		deck : ARRAY[G21_CARD]
 
 feature {ANY} -- Operations
 
 	newGUI () --Constructor of GUI
 		require
+		local
+			i : INTEGER
 		do
+			default_create
+			create main_win
+			--Adds rules
+			from i := 1 until i = rulesList.count
+			loop
+				main_win.add_rule(rulesList.item)
+				rulesList.forth
+			end
+			main_win.show
+			launch
 		ensure
 		end
 
-	updateHand(cards_a : ARRAYED_LIST[g21_Card])
+	updatePlayerHand(cards_a : ARRAYED_LIST[G21_CARD]; player : INTEGER)
 		require
+			cards_a /= Void
+			player < 2
+			player > 0
+		local
+			i : INTEGER
 		do
---			updateGUIHand()
+			cards.make_empty
+			from i := 1
+			until i = cards_a.count
+			loop
+			cards.force (create {G21_XLABEL}.XLabel(cards_a.item), i)
+			cards_a.forth
+			end
+
+			if (player = 1) then main_win.update_p1_hand(cards) end
+			if (player = 2) then main_win.update_p2_hand(cards) end
 		ensure
 			cards = cards_a
 		end
 
-	updateBoard(board_a : g21_Card)
+	updateHand(cards_a : ARRAYED_LIST[G21_CARD])
+		require
+			cards_a /= Void
+		local
+			i : INTEGER
+		do
+--			updateGUIHand()
+			cards.make_empty
+			from i := 1
+			until i = cards_a.count
+			loop
+			cards.force (create {G21_XLABEL}.XLabel(cards_a.item), i)
+			cards_a.forth
+			end
+			main_win.update_p1_hand(cards)
+		ensure
+			cards = cards_a
+		end
+
+	updateBoard(board_a : G21_CARD)
 		require
 			board_a /= Void
 		do
@@ -91,6 +145,15 @@ feature {ANY} -- Operations
 		--	notifyListeners.add(listener_a)
 		end
 
+	 playerDeck(deck_a : ARRAY[G21_CARD]; player_a : INTEGER)
+	 require
+	 	deck_a /= Void
+	 do
+	 	deck := deck_a
+	 ensure
+	 	deck = deck_a
+	 end
+
 feature {G21_GUI} -- Operations
 
 	updateGUIHand()
@@ -123,8 +186,15 @@ feature {G21_GUI} -- Operations
 		ensure
 		end
 
+	newAIGame()
+		do
+
+		end
+
 	newGame(port : INTEGER)
 		require
+			0 > port
+			port < 65535
 		do
 		ensure
 			0 < port
@@ -205,7 +275,12 @@ feature {G21_GUI} -- Operations
 		require
 			0 < port
 			port < 65535
+		local
+			net_game : G21_NET_GAME
 		do
+			create net_game
+			net_game.show
+			--launch
 --			actionListeners.get().newGame(port)
 		ensure
 		end
@@ -250,4 +325,98 @@ feature {G21_GUI} -- Operations
 		ensure
 		end
 
+	errorMessage(msg_a : STRING)
+	do
+
+	end
+
+	statusMessage(msg_a : STRING)
+	do
+
+	end
+
+	sendCardPick(card_a : G21_CARD)
+	do
+		listener.message("Player1 "+"Select Card"+card_a.cardName)
+	end
+
+	sendCardSelect(card : G21_CARD)
+	do
+
+	end
+
+	sendCardPlay(card : G21_CARD; row : INTEGER ; col : INTEGER)
+	do
+		actionListener.playCard(card, row , col)
+	end
+
+	notifiermessage(msg_a : STRING)
+	local
+		i : INTEGER
+		net_game_join : G21_NET_GAME
+		ip_la : STRING
+		port_la : INTEGER
+
+	do
+		--Save Game
+		if (msg_a = "SAVE") then
+			from i := 1
+			until i = actionListener.count
+			loop
+				actionListener.item.save
+				actionListener.forth
+			end
+		end
+
+		if (msg = "EXIT") then
+			from i := 1
+			until i = notifyListener.count
+			loop
+				notifyListener.item.messageReceived("EXIT")
+				notifyListener.forth
+			end
+		end
+
+		if (msg = "AI_EASY") then
+			from i := 1
+			until i = actionListener.count
+			loop
+				actionListener.item.newGame(false,1,0)
+				actionListener.forth
+			end
+		end
+
+		if (msg = "AI_MEDIUM") then
+			from i := 1
+			until i = actionListener.count
+			loop
+				actionListener.item.newGame(false,2,0)
+				actionListener.forth
+			end
+		end
+
+		if (msg = "AI_HARD") then
+			from i := 1
+			until i = actionListener.count
+			loop
+				actionListener.item.newGame(false,3,0)
+				actionListener.forth
+			end
+		end
+
+		--Join Game
+		if (msg_a = "JOINGAME") then
+
+			create net_game_join
+			net_game_join.show
+			net_game_join.addListener(actionListener.item)
+		end
+
+		if (msg_a = "HOSTGAME") then
+
+			create net_game_host
+			net_game_host.show
+			net_game_host.addListener(actionListener.item)
+		end
+	end
 end

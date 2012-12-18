@@ -23,6 +23,9 @@ feature
 	difficulty_level 	: INTEGER	-- only for AI
 	has_finished		: BOOLEAN
 	has_stopped			: BOOLEAN
+	game_window			: HX_G_GAME_SCREEN
+	preferences_changed : BOOLEAN
+
 
 feature
 
@@ -30,12 +33,12 @@ feature
 	do
 		has_finished := FALSE
 		has_stopped  := FALSE
+		preferences_changed := FALSE
 		create logic.initialize (current)
 	end
 
 	initGraphics(a_main_ui_window: MAIN_WINDOW)
 	do
-		-- gives the main_ui as argument so we can restore when hexxagon closes
 		create window.make (a_main_ui_window)
 		window.show
 		-- we inform the Main-UI about the game window; otherwise, the game window might get garbage collected
@@ -44,8 +47,6 @@ feature
 
 	get_num_players :INTEGER
 	do
-		print("UIMANAGER: getnumplayers=")
-		print(current.numplayers)
 		Result:= current.numplayers
 	end
 
@@ -53,26 +54,18 @@ feature
 	set_one_player
 	do
 		numplayers:=1
-		print("UI: set1player=")
-		print(numplayers)
 		one_player := True
 	end
 
 	set_multi_one_player
 	do
 		numplayers:=2
-		print("UI: set2player2=")
-		print(numplayers)
-
 		multi_one_player := True
 	end
 
 	set_multi_two_players
 	do
 		numplayers:=2
-		print("UI: set2player2=")
-		print(numplayers)
-
 		multi_two_players := True
 	end
 
@@ -82,28 +75,30 @@ feature
     	difficulty_level:= a_level
     end
 
-
-	repaint
+	set_preferences(a_true: BOOLEAN)
 	do
-		if window /= void then
-	--			window.repaint
+		preferences_changed:=a_true
+	end
+
+	create_game_window(main_ui: MAIN_WINDOW)
+	do
+		create game_window.make(main_ui,Current)
+  		game_window.show
+	end
+
+	repaint()
+	do
+		print("GUI repaint %N")
+		if game_window /= void then
+				game_window.repaint
 		end
+		print("Repaint ended %N")
 	end
 
 	game_finished(l_message: HX_L_IGAME_END_MESSAGE)
-	local
---		logic : HX_L_LOGIC
-		message : STRING
 	do
 		has_finished := TRUE
---		logic.finnish (l_message) --Is it correct?
-
-		message := "winner_id = "
-		message.append_integer (l_message.winner_id)
-		message.append ("%N player1_pieces = ")
-		message.append_integer (l_message.player1_pieces)
-		message.append ("%N player2_pieces = ")
-		message.append_integer (l_message.player2_pieces)
+		game_window.show_winner_screen
 	end
 
 	game_stopped(code: INTEGER; reason: STRING)
@@ -111,10 +106,6 @@ feature
 		error_screen : HX_G_ERROR_SCREEN
 		main_ui : MAIN_WINDOW
 	do
-		--Code is the unique error identifier.
-		--Reason is the explanation that should be displayed to the user.
-		--TODO
-
 		has_stopped := TRUE
 
 		create error_screen.make (main_ui, reason)
@@ -123,13 +114,9 @@ feature
 	end
 
 	request_move()
-		--it's just to tell the UI, that the user can now make a move, and AI or NET has finished its move.
- 		--So after a move of the AI, logic calls request_move. And then, the user should make a move...
-	local
---		board : HX_L_BOARD
-	do
---		board.change_active_player()
---		repaint() --?
+	do  --decided not to implement
+		--TODO: remember to erase it from LOGIC part
 	end
 
 end
+

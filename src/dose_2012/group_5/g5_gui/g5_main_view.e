@@ -34,6 +34,10 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 			main_ui:= a_main_ui
 			lock_state:= "LOCK"
 			gui:= gui_manager
+
+			create supply_state.make (0)
+			create trash_state.make_empty
+
 			create players_name_list.make_from_array (players_name)
 
 
@@ -68,6 +72,7 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 			until
 				(i> amount_of_players)
 			loop
+
 				if
 					players_name_list[i].is_equal(my_name)
 				then
@@ -94,7 +99,7 @@ feature {G5_GUI, EQA_TEST_SET} -- initialization
 			end
 
 			-- set the new list (without my name as the default list)
-			players_name_list:= new_players_name_list
+			--players_name_list:= new_players_name_list
 
 			--close_request_actions.extend (agent request_close_window)
 			load_main_container
@@ -107,6 +112,8 @@ feature {NONE} -- Initialization container and internal object
 		-- initialize the container
 		do
 			main_container.set_background_pixmap (main_view_background)
+
+			current.lock_update
 
 			-- add the image that will be the "Quit" button
 			create quit_button
@@ -130,11 +137,9 @@ feature {NONE} -- Initialization container and internal object
 			phase_turn_button.set_background_pixmap (phase_turn_button_pixmap_pointer_out)
 			phase_turn_button.pointer_enter_actions.extend (agent pointer_enter_area(phase_turn_button))
 			phase_turn_button.pointer_leave_actions.extend (agent pointer_leave_area(phase_turn_button))
+			phase_turn_button.pointer_button_release_actions.extend (agent gui.next_phase_request_notification(?, ?, ?, ?, ?, ?, ?, ?))
 			phase_turn_button.disable_sensitive
 			main_container.extend_with_position_and_size (phase_turn_button, 753, 499, 105, 50)
-
-			-- ** NOTA ** aggiungere chiamata alla feature new phase sullaNET
-			--quit_button.pointer_button_release_actions.extend (agent request_quitting(?, ?, ?, ?, ?, ?, ?, ?))
 
 			-- set dimension and position of other containers
 			main_container.extend_with_position_and_size (me, 0, 502, 227, 188)
@@ -144,6 +149,8 @@ feature {NONE} -- Initialization container and internal object
 
 			-- add the main_container to the window
 			put(main_container)
+
+			current.unlock_update
 
 		end
 
@@ -231,9 +238,11 @@ feature {NONE} -- Initialization container and internal object
 					main_ui.restore
 					main_ui.remove_reference_to_game (Current)
 				end
-				-- ** NOTA **  chiama il metodo che dice che il giocatore si è disconnesso sulla net
-				-- Destroy the window
 
+				-- sends the reqeust of exit
+				gui.quit_request_notification
+
+				-- Destroy the window
 				destroy
 			end
 		end
@@ -253,8 +262,10 @@ feature {NONE} -- Initialization container and internal object
 					--main_ui.remove_reference_to_game (Current)
 				end
 
-					-- ** NOTA **  chiama il metodo che dice che il giocatore si è disconnesso sulla net
-					-- Destroy the window
+				-- sends the reqeust of exit
+				gui.quit_request_notification
+
+				-- Destroy the window
 				destroy
 			end
 		end
@@ -297,6 +308,7 @@ feature {G5_IGUI_TO_NET, EQA_TEST_SET} -- feature called by the gui interface
 				i> cards.count
 			loop
 				if a_place.is_equal ("HAND") then
+
 					if ((my_hand.cards_in_the_hand.count+1) <= 5) then
 						create a_card.make_slim (cards[i],"hand")
 
@@ -508,6 +520,13 @@ feature {G5_IGUI_TO_NET, EQA_TEST_SET} -- feature called by the gui interface
 			supply_state:= new_supply_state
 		end
 
+	update_state_of_trash (new_trash_state: ARRAY[STRING])
+		require
+			valid_arg: new_trash_state /= void
+		do
+			trash_state:= new_trash_state
+		end
+
 	resolved_card(card: STRING)
 		require
 			valid_arg: card /= void
@@ -554,18 +573,31 @@ feature {G5_IGUI_TO_NET, EQA_TEST_SET} -- feature called by the gui interface
 		local
 			i:INTEGER
 		do
+			result:= false
+
 			from
 				i:=1
 			until
-				i>(amount_of_players-1)
+				i> players_name_list.count
 			loop
-				if
-					players[i].player_name.is_equal (a_name) or me.player_name.is_equal(a_name)
-				then
-					result:= TRUE
+				if(players_name_list[i].is_equal (a_name)) then
+					result:= true
 				end
 				i:=i+1
 			end
+
+--			from
+--				i:=1
+--			until
+--				i>(amount_of_players-1)
+--			loop
+--				if
+--					players[i].player_name.is_equal (a_name) or me.player_name.is_equal(a_name)
+--				then
+--					result:= TRUE
+--				end
+--				i:=i+1
+--			end
 		end
 
 

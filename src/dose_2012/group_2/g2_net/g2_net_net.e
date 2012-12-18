@@ -1,8 +1,8 @@
 note
 	description: "Implementation of a main class for the NET sub-componet of the game TTNG."
-	author: "Rio Cuarto8"
+	author: "Team Rio Cuarto8"
 	date: "$Date$"
-	revision: "1.0"
+	revision: "1.1"
 
 class
 	G2_NET_NET
@@ -132,19 +132,44 @@ feature -- Sharing State
 	receive_state : G2_LOGIC_STATE
 			-- received a valid state from the another player
 			-- and return this state
+			-- if the mesagge receive is the mesagge of leave game
+			-- set quit feature on logic and return a void state.
 		local
 			state : G2_LOGIC_STATE
+			void_state: G2_LOGIC_STATE
+			any_mje: G2_NET_MJE
 		do
 			create state.make
+			create any_mje
 			if master then
+				-- player master
 				if attached socket.accepted as l_soc2 then
-					if attached {G2_LOGIC_STATE} state.retrieved (l_soc2) as new_state then
-						Result := new_state
+					if attached {G2_NET_MJE} any_mje.retrieved (l_soc2) as new_mje then
+						if attached {G2_LOGIC_STATE} new_mje as new_state then
+							-- receive a messagge of a state
+							Result := new_state
+						else
+							if attached {G2_NET_LEAVE_MGE} new_mje as new_leave_msg then
+								-- receive a messagge to leave game
+								logic.set_quit (True)
+								Result := void_state
+							end
+						end
 					end
 				end
 			else
-				if attached {G2_LOGIC_STATE} state.retrieved (socket) as new_state then
-					Result := new_state
+				-- player slave
+				if attached {G2_NET_MJE} any_mje.retrieved (socket) as new_mje then
+					if attached {G2_LOGIC_STATE} new_mje as new_state then
+						-- receive a messagge of a state
+						Result := new_state
+					else
+						if attached {G2_NET_LEAVE_MGE} new_mje as new_leave_msg then
+							-- receive a messagge to leave game
+							logic.set_quit (True)
+							Result := void_state
+						end
+					end
 				end
 			end
 		end
@@ -158,10 +183,12 @@ feature -- Leave game
 		do
 			create leave_msg
 			if master then
+				-- player master
 				if attached socket.accepted as l_soc2 then
 					leave_msg.independent_store (l_soc2)
 				end
 			else
+				-- player slave
 				leave_msg.independent_store (socket)
 			end
 		end
@@ -173,6 +200,7 @@ feature -- Leave game
 		do
 			create leave_msg
 			if master then
+				--player master
 				if attached socket.accepted as l_soc2 then
 					if attached {G2_NET_LEAVE_MGE} leave_msg.retrieved (l_soc2) as new_leave_msg then
 						Result := True
@@ -181,6 +209,7 @@ feature -- Leave game
 					end
 				end
 			else
+				--player slave
 				if attached {G2_NET_LEAVE_MGE} leave_msg.retrieved (socket) as new_leave_msg then
 					Result := True
 				else
@@ -214,17 +243,23 @@ feature -- Miscellaneous
 			valid_length: rules.count = 7
 		end
 
+	set_logic(a_logic: G2_LOGIC_LOGIC)
+	require
+		not_void_logic: a_logic /= Void
+	do
+		logic := a_logic
+	end
+
 feature -- Implementation
 
 	master: BOOLEAN
 			-- is this NET master?
-
+	logic: G2_LOGIC_LOGIC
+			-- a reference to the logic
 	ip_address: STRING
 			-- addres to connect if the NET is slave
-
 	port: INTEGER
 			-- port to connect if the NET is slave or open if the NET is master
-
 	socket: detachable NETWORK_STREAM_SOCKET
 
 invariant

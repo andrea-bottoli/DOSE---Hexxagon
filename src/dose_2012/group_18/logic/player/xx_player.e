@@ -21,7 +21,7 @@ feature {NONE}
 
 feature {ANY}
 
---###############################################################
+
 	make_player(id: STRING; colour: STRING;)	--Constructor of object Player
 	require
 		valid_id: ((id.is_equal("") = False) and (id /= Void))
@@ -42,7 +42,7 @@ feature {ANY}
 
 feature {NONE}
 
---###############################################################
+
 	set_player_id(id: STRING) 	-- Set the unique player id
 	require
 		valid_id: ( id /= Void ) and (id.is_equal("") = False)
@@ -52,7 +52,7 @@ feature {NONE}
 		valid_playerid: (player_id.is_equal(id) = True)
 	end
 
---###############################################################
+
 	set_colour_piece(piece: STRING) -- Set the constant colour piece of the player. Pearls or Rubies
 	require
 		valid_piece: ((piece.is_equal("Rubies") = True) xor (piece.is_equal("Pearls") = True))
@@ -65,7 +65,7 @@ feature {NONE}
 
 feature {XX_HEXXAGON}
 
---###############################################################
+
 	set_priority(prior: INTEGER)	-- Set the priority to play at game turns 1 or 2
 	require
 		valid_prior: (prior >=1 and prior <=2)
@@ -75,7 +75,7 @@ feature {XX_HEXXAGON}
 		valid_priority: priority = prior
 	end
 
---###############################################################
+
 	check_valid_IPv4(ip: STRING) :BOOLEAN	--checks the validity of an ip address
 	require
 		valid_ip: (ip /= Void) and (ip.is_equal("") = False)
@@ -108,7 +108,7 @@ feature {XX_HEXXAGON}
 		bool_result: (Result = True) xor (Result = False)
 	end
 
---###############################################################
+
 	set_ip_net(ip: STRING)	-- Set the IP address of the player
 	require
 		valid_ip: (ip /= Void) and (ip.is_equal("") = False)
@@ -127,17 +127,17 @@ feature {XX_HEXXAGON}
 
 feature {ANY}
 
---###############################################################
+
 	set_port_number(port: INTEGER)	-- Set the port number of NET connection of the player
 	require
-		valid_port: (port >0) and (port <= 65535)
+		valid_port: (port >1024) and (port <= 65535)
 	do
 		port_number := port
 	ensure
 		valid_portnumber: port_number = port
 	end
 
---###############################################################
+
 	set_is_enabled(en: BOOLEAN)	-- Set True if player's turn
 	require
 		valid_en: (en = True xor en = False)
@@ -147,7 +147,7 @@ feature {ANY}
 		valid_isenabled: is_enabled = en
 	end
 
---###############################################################
+
 	set_total_pieces(total: INTEGER) --Set the total pieces of the player
 	require
 		valid_total: total>=0 and total<=58
@@ -157,7 +157,7 @@ feature {ANY}
 		valid_totalpieces: total_pieces = total
 	end
 
---###############################################################
+
 	get_ip_net(): STRING	-- Get the ip of the player
 	do
 		Result := ip_net
@@ -165,7 +165,7 @@ feature {ANY}
 		valid_ipnet: Result /= Void and ip_net.is_equal(Result) = True
 	end
 
---###############################################################
+
 	get_port_number(): INTEGER	-- Get the port number of NET connection of the player
 	do
 		Result := port_number
@@ -173,7 +173,7 @@ feature {ANY}
 		valid_port: Result = port_number
 	end
 
---###############################################################
+
 	get_player_id(): STRING -- Get the unique player id
 	do
 		Result := player_id
@@ -181,7 +181,7 @@ feature {ANY}
 		valid_playerid: Result.is_equal( player_id) = True
 	end
 
---###############################################################
+
 	get_colour_piece(): STRING  -- Get the constant colour of player
 	do
 		Result := colour_piece
@@ -189,7 +189,7 @@ feature {ANY}
 		valid_colour_piece: Result.is_equal(colour_piece) = True
 	end
 
---###############################################################
+
 	get_is_enabled(): BOOLEAN	-- Get the information if player's turn
 	do
 		Result := is_enabled
@@ -197,7 +197,7 @@ feature {ANY}
 		valid_isenabled: Result = is_enabled
 	end
 
---###############################################################
+
 	get_total_pieces(): INTEGER	-- Get the number of total pieces of stones
 	do
 		Result := total_pieces
@@ -205,7 +205,7 @@ feature {ANY}
 		valid_total_pieces: Result = total_pieces
 	end
 
---###############################################################
+
 	get_priority() : INTEGER	-- Get the priority of player at game turns
 	do
 		Result := priority

@@ -42,23 +42,34 @@ feature -- Preparation of Test
 			class_test := net_server
 		end
 
-feature -- Test positive
+feature -- Test negative: not enough players
 
 	end_game0
-		-- end_game ([[35,"JESUS"],[38,"JAIME"],[26,"SERGIO"]])
+		-- end_game ([[35,"JESUS"]])
 		note
 			testing: "G5_INET_TO_LOGIC/.end_game"
 			testing: "user/G5" -- this is the tag based on the group-prefix for our tests
+		local
+			rescued: BOOLEAN
 		do
-			scores.make (3)
-			scores.put (35,"JESUS")
-			scores.put (38,"JAIME")
-			scores.put (26,"SERGIO")
-			class_test.end_game (scores)
-			assert ("scores was successful", True)
+			if not rescued then
+				scores.make (5)
+				scores.put (35,"JESUS")
+--				scores.put (38,"JAIME")
+--				scores.put (26,"SERGIO")
+--				scores.put (20,"RUTH")
+--				scores.put (33,"GABRIELE")
+				class_test.end_game (scores)
+			end
+			assert ("end_game raised problem", rescued)
+			rescue
+				if not rescued then
+					rescued := True
+					retry
+				end
 		end
 
-feature -- Test negative
+feature -- Test negative: too much players
 
 	end_game1
 		-- end_game ([[35,"JESUS"],[38,"JAIME"],[26,"SERGIO"],[[20,"RUTH"],[33,"GABRIELE"]])
@@ -77,7 +88,7 @@ feature -- Test negative
 				scores.put (33,"GABRIELE")
 				class_test.end_game (scores)
 			end
-			assert ("remove_observer raised problem", rescued)
+			assert ("end_game raised problem", rescued)
 			rescue
 				if not rescued then
 					rescued := True

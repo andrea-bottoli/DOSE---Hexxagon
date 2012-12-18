@@ -15,25 +15,22 @@ feature
 
 	make
 		do
-			create team.make
-			global_score := 0
-			partial_score := 0
-		ensure
-			team /= Void
-		end
-
-	make_with_parameters ( player1: G3_PLAYER; player2: G3_PLAYER )
-			-- Initialize Score whit parameters
-		do
-			create team.make
-			team.put (player1, 0)
-			team.put (player2, 0)
 			global_score := 0
 			partial_score := 0
 		ensure
 			global_score = 0
 			partial_score = 0
-			team /= Void
+		end
+
+	make_with_parameters ( player1: G3_PLAYER; player2: G3_PLAYER )
+			-- Initialize Score whit parameters
+		do
+			team := [player1, player2]
+			global_score := 0
+			partial_score := 0
+		ensure
+			global_score = 0
+			partial_score = 0
 		end
 
 feature{G3_MODEL}
@@ -42,8 +39,7 @@ feature{G3_MODEL}
 		require
 			valid_arg: player1 /= Void and player2 /= Void
 		do
-			team.put (player1, 0)
-			team.put (player2, 1)
+			team := [player1, player2]
 		end
 
 	set_global_score(global_score_ : INTEGER)
@@ -61,6 +57,4 @@ feature
 	global_score: INTEGER
 	partial_score: INTEGER
 
-invariant
-	team /= Void
 end

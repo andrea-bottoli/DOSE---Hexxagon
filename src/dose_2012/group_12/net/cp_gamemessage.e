@@ -19,7 +19,7 @@ feature -- Initialization
 		require
 			player_move_not_void: player_move/=Void
 		do
-
+			move := player_move
 		end
 
 	make_start_signal
@@ -37,5 +37,6 @@ feature -- Accessors
 feature {NONE} -- Attributes
 
 	start_signal: BOOLEAN
+	move: CP_GAMEMOVE
 
 end

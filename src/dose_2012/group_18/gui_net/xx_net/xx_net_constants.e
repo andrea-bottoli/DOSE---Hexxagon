@@ -1,8 +1,8 @@
 note
-	description: "Summary description for {XX_NET_CONSTANTS}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "Constants of the net."
+	author: "Team Milano2"
+	date: "05-12-2012"
+	revision: "0.3"
 
 class
 	XX_NET_CONSTANTS
@@ -38,4 +38,7 @@ feature --Constants of the xx_net
 
 	--Command "name_player"
 	command_name_player: STRING = "name_player@"
+
+	--Command "board_sensitive"
+	command_board_sensitive: STRING = "board_sensitive@"
 end

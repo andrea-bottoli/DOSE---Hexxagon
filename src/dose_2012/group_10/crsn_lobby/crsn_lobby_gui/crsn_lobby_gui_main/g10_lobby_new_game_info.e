@@ -17,10 +17,10 @@ inherit
 create
 	make
 
--- attributes
-feature {NONE}
-	chat_new_message: EV_TEXT_FIELD -- the text field that the user is going to type
-	chat_log: EV_LIST -- the text area where the log is displayed
+feature {NONE} -- attributes
+	title_input: EV_TEXT_FIELD
+	player_num_input: EV_TEXT_FIELD
+	start_button: EV_FIXED
 
 feature {ANY}-- constructor
 
@@ -37,10 +37,6 @@ feature {ANY}-- constructor
 		init_start_game_button(lobby)
 	end
 
-feature {NONE} -- attributes
-	title_input: EV_TEXT_FIELD
-	player_num_input: EV_TEXT_FIELD
-	start_button: EV_FIXED
 
 feature {NONE} -- mutators
 

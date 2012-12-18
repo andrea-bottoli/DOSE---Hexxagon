@@ -26,6 +26,7 @@ feature {G21_NET}
 		local
 			active : BOOLEAN
 			i : INTEGER
+			temp : STRING
 		do
 			active := true
 			from
@@ -47,7 +48,14 @@ feature {G21_NET}
 				--		net_in.forth
 				--	end
 
-				listener.messageReceived(net_in)
+				from
+					i := 1
+				until
+					i = net_in.count
+				loop
+--					temp := temp + net_in.item(i)
+				end
+				listener.messageReceived(temp)
 			end
 		end
 

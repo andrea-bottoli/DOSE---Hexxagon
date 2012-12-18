@@ -64,16 +64,7 @@ feature {G5_NET_CONTROLLER_CLIENT}
 
 			create main_view.make (players_name, my_name, current, main_ui)
 			main_view.show
-
---			if (players_name[1].is_equal (my_name)) then
---				main_view.show
---				current_player_name:= my_name
---			else
---				create main_view_as_observer.make
---				main_view_as_observer.show
---				current_player_name:= players_name[1]
---			end
-
+			main_view.refresh_now
 
 			-- ** NOTA ** e questo??
 			-- add reference of G5_GUI to the main launcher to avoid problem of garbage collection
@@ -88,13 +79,53 @@ feature {G5_NET_CONTROLLER_CLIENT}
 
 	pop_up_selection (cards_are_from: STRING; min_choice: INTEGER; max_choice: INTEGER; cards: ARRAY [STRING])
 		-- the implementation of the feature that creates a pop_up with selection
+		local
+			coins_value: INTEGER
+			supply_state: HASH_TABLE[INTEGER,STRING]
 		do
 			if (current_player_name.is_equal (my_name_in_the_game)) then
-				create a_pop_up_selection.make (cards_are_from, cards, min_choice, max_choice, current)
-				a_pop_up_selection.show_modal_to_window (main_view)
+
+				if(cards_are_from.is_equal ("supply")) then
+
+					if(main_view.board.current_phase.is_equal ("Buy")) then
+
+						coins_value:= main_view.board.coins
+						supply_state:= main_view.supply_state
+
+						create a_pop_up_supply_selection.make_with_selection (cards, supply_state, max_choice, coins_value, current)
+						a_pop_up_supply_selection.show_modal_to_window (main_view)
+
+					else
+
+						supply_state:= main_view.supply_state
+
+						create a_pop_up_supply_selection.make_with_selection (cards, supply_state, max_choice, -1, current)
+						a_pop_up_supply_selection.show_modal_to_window (main_view)
+
+					end
+
+				elseif (cards_are_from.is_equal ("hand")) then
+
+					create a_pop_up_selection.make (cards_are_from, cards, min_choice, max_choice, current)
+					a_pop_up_selection.show_modal_to_window (main_view)
+
+				end
 			else
-				create a_pop_up_selection.make (cards_are_from, cards, min_choice, max_choice, current)
-				a_pop_up_selection.show_modal_to_window (main_view_as_observer)
+
+				if(cards_are_from.is_equal ("hand")) then
+
+					create a_pop_up_selection.make (cards_are_from, cards, min_choice, max_choice, current)
+					a_pop_up_selection.show_modal_to_window (main_view_as_observer)
+
+				elseif (cards_are_from.is_equal ("supply")) then
+
+					coins_value:= main_view.board.coins
+					supply_state:= main_view.supply_state
+
+					create a_pop_up_supply_selection.make_with_selection (cards, supply_state, max_choice, coins_value, current)
+					a_pop_up_supply_selection.show_modal_to_window (main_view_as_observer)
+
+				end
 			end
 		end
 
@@ -140,29 +171,30 @@ feature {G5_NET_CONTROLLER_CLIENT}
 				end
 
 			elseif (pop_up_type.is_equal ("UPDATE_GAIN")) then
+
 				if (current_player_name.is_equal (my_name_in_the_game)) then
-					create a_pop_up_thief.make_after_update (player_that_played_thief, cards_revealed_by_players)
+					create a_pop_up_thief.make_after_update_gain (player_that_played_thief, cards_revealed_by_players)
 					a_pop_up_thief.show_modal_to_window (main_view)
 
 					-- wait an amout of time to display the pop-up
 					from
 						i:=1
 					until
-						i>1500
+						i>10000000
 					loop
 						i:=i+1
 					end
 
 					a_pop_up_thief.destroy
 				else
-					create a_pop_up_thief.make_after_update (player_that_played_thief, cards_revealed_by_players)
+					create a_pop_up_thief.make_after_update_gain (player_that_played_thief, cards_revealed_by_players)
 					a_pop_up_thief.show_modal_to_window (main_view_as_observer)
 
 					-- wait an amout of time to display the pop-up
 					from
 						i:=1
 					until
-						i>1500
+						i>10000000
 					loop
 						i:=i+1
 					end
@@ -180,7 +212,10 @@ feature {G5_INET_TO_GUI, EQA_TEST_SET} -- connection initialization
 		local
 			error_dialog: EV_INFORMATION_DIALOG
 		do
-			player_waiting_room.destroy
+			if player_waiting_room /= void then
+				player_waiting_room.destroy
+				player_waiting_room := void
+			end
 
 			--create window_menu.make (main_ui, app_launcher)
 			window_menu.create_container_main_menu
@@ -245,17 +280,18 @@ feature {G5_INET_TO_GUI, EQA_TEST_SET} -- connection initialization
 			-- GESTIRE CON LE DUE VIEW
 
 			main_view.hide
+			main_view_as_observer.hide
 
-			create a_pop_up_end.make(scores)
+			create a_pop_up_end.make(scores, current)
 			a_pop_up_end.show
 
+
 			-- ** NOTA ** cambiarla in base al rematch
+	--		main_ui.restore
+	--		main_ui.remove_reference_to_game (main_view)
 
-			main_ui.restore
-			main_ui.remove_reference_to_game (main_view)
-
-			main_view.destroy
-			main_view:= void
+	--		main_view.destroy
+	--		main_view:= void
 		end
 
 feature {G5_MAIN_VIEW} -- feature used to communicate to the NET user actions
@@ -274,22 +310,22 @@ feature {G5_MAIN_VIEW} -- feature used to communicate to the NET user actions
 			net_component.next_phase
 		end
 
-	quit_request_notification(a_a, a_b, a_c: INTEGER_32; a_d, a_e, a_f: REAL_64; a_g, a_h: INTEGER_32)
+	quit_request_notification
 		-- notify that the player wants to leave the game
 		do
 			net_component.leave_game
 		end
 
-feature {G5_POP_UP_WITH_SELECTION} -- feature called by pop_up
+feature {G5_POP_UP_WITH_SELECTION, G5_POP_UP_SUPPLY_WITH_SELECTION} -- feature called by pop_up
 
-	selected_pop_up_response(a_place: STRING; selected_cards: ARRAY[STRING]; a_pop_up: G5_POP_UP_WITH_SELECTION)
+	selected_pop_up_response(a_place: STRING; selected_cards: ARRAY[STRING]; a_pop_up: G5_POP_UP)
 		-- the feature called in respose to a pop-up with selection
 		do
 			a_pop_up.destroy
 
 			if (a_place.is_equal ("hand")) then
 
-				net_component.select_from_hand (selected_cards)
+				net_component.selected_from_hand (selected_cards)
 
 			elseif (a_place.is_equal ("supply")) then
 
@@ -306,6 +342,53 @@ feature {G5_POP_UP_KEEP_OR_NOT} -- feature called by pop_up
 			a_pop_up.destroy
 			net_component.keep_or_not_card_response (cards)
 
+		end
+
+feature {G5_POP_UP_END_GAME} -- feature called by pop_up end game
+
+	leave_request
+		-- the feature called if a player doesn't want to rematch
+		do
+			net_component.rematch (false)
+			window_menu.create_container_main_menu
+			main_view.destroy
+
+			if (not(current.main_view_as_observer.is_destroyed)) then
+				current.main_view_as_observer.destroy
+			end
+
+			if (not(current.a_pop_up_keep.is_destroyed)) then
+				current.a_pop_up_keep.destroy
+			end
+
+			if (not(current.a_pop_up_message.is_destroyed)) then
+				current.a_pop_up_message.destroy
+			end
+
+			if (not(current.a_pop_up_reveal.is_destroyed)) then
+				current.a_pop_up_reveal.destroy
+			end
+
+			if (not(current.a_pop_up_selection.is_destroyed)) then
+				current.a_pop_up_selection.destroy
+			end
+
+			if (not(current.a_pop_up_thief.is_destroyed)) then
+				current.a_pop_up_thief.destroy
+			end
+
+			if (not(current.a_pop_up_thief_as_owner.is_destroyed)) then
+				current.a_pop_up_thief_as_owner.destroy
+			end
+
+			window_menu.raise
+
+		end
+
+	rematch_request
+		-- the feature called if a player wants to rematch
+		do
+			net_component.rematch (true)
 		end
 
 feature {G5_POP_UP_THIEF_WITH_SELECTION} -- feature called by pop_up

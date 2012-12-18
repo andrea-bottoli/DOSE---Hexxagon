@@ -22,7 +22,7 @@ feature {ANY}
 	make()
 	do
 		default_create()
-		set_follower_number("0")
+		set_follower_number("10")
 		set_img_src("test img src")
 		update_background_color()
 		set_minimum_height (25)
@@ -36,7 +36,6 @@ feature {G10_GUI_PLAYER_INFO}
 		result := follower_number_display.to_integer
 		ensure
 			followers_not_mutated : follower_number_display = old follower_number_display
-			follower_valid_number : follower_number_display.to_integer_8 >= 0
 	end
 
 	get_img_src() : STRING -- routine returns the img_src attribute of this object
@@ -61,7 +60,7 @@ feature {G10_GUI_PLAYER_INFO}
 	end
 
 -- mutator methods.
-feature {NONE}
+feature { G10_GUI_FOLLOWER , G10_GUI_PLAYER_INFO , G10_GUI_SCOREBOARD_PANEL}
 	set_follower_number(num : STRING) -- routine sets the number of the followers of this object to num.
 	require
 		followers_number_is_valid : num /= void

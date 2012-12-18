@@ -1,8 +1,8 @@
 note
 	description: "Launcher for the Triple Triad New Generation main window."
-	author: "RioCuarto8"
-	date: "29/10/2012"
-	revision: "1.0"
+	author: "Group 2 - Crete9 & Rio Cuarto8"
+	date: "$Date$"
+	revision: "1.1"
 
 class
 	G2_LAUNCHER
@@ -21,10 +21,12 @@ feature -- Implemenation
 		do
 			create gui.default_create
 			create logic.make
+
 			gui.set_logic (logic)
 			logic.set_gui (gui)
 			logic.set_net (net)
 			gui.show
-		end
 
+			main_ui_window.add_reference_to_game (gui)
+		end
 end

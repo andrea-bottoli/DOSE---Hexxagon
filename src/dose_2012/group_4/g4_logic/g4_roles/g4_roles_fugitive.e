@@ -22,15 +22,17 @@ feature --Constructor
 
 feature --Special Function
 
-	victory_conditions(a_player_array: ARRAY[G4_PLAYER]): BOOLEAN
-	local i: INTEGER
+	victory_conditions(a_player_array: ARRAYED_LIST[G4_PLAYER]): BOOLEAN
+	local i: INTEGER; flag: BOOLEAN
 	do
-		from i := a_player_array.lower until i = a_player_array.upper
+		flag := true
+		from i := 1 until i = a_player_array.count + 1
 		loop
-			if (a_player_array[i].get_item_board.get_player_role.get_role_name = "Bandit") = true or (a_player_array[i].get_item_board.get_player_role.get_role_name = "Sheriff") = true then
-				Result := false
+			if (a_player_array[i].get_item_board.get_player_role.get_role_name.is_equal ("Bandit")) = true or (a_player_array[i].get_item_board.get_player_role.get_role_name.is_equal ("Sheriff")) = true then
+				flag := false
 			end
+			i := i + 1
 		end
-		Result := true
+		Result := flag
 	end
 end

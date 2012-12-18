@@ -7,11 +7,5 @@ note
 deferred class
 	G4_ITEM_CARDS
 		inherit G4_CARDS
-		redefine get_instance end
 
-feature
-	get_instance : STRING
-	do
-		Result := "Item"
-	end
 end

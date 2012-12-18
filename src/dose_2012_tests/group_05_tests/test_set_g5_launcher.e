@@ -40,14 +40,15 @@ feature {NONE}
 
 feature -- Tests negative routines for feature launch
 
+	-- Fixed by Luca Falsina
 	test_launch_0
 		note
 			testing: "G5_LAUNCHER/launch"
-			-- test negative for launch with valid_ui_to_return
+			-- test negative for launch with invalid_ui_to_return
 		local
 			main_ui_window: MAIN_WINDOW
 		do
-			create main_ui_window.make_and_launch
+--			create main_ui_window.make_and_launch
 			if not rescued then
 				a_launcher.launch (main_ui_window)
 			end

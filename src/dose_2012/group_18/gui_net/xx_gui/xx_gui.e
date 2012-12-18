@@ -247,9 +247,6 @@ feature {XX_MENU_PANEL}	--Methods used by XX_MENU_PANEL
 
 				--Sets the game to multiplayer_server game
 				interface_logic.set_single_player (a_name, a_colour)
-
-				--Start the game
-				interface_logic.receive_game_start
 			else
 				clean_main_window
 			end
@@ -337,7 +334,7 @@ feature{NONE} --Dialog box implementation for information event
 	--Launches the victory dialog
 	victory_dialog
 	do
-		create victory_info_box
+		create victory_info_box.make_with_text ("")
 		victory_info_box.set_pixmap (pixmap_win_image)
 		victory_info_box.show_modal_to_window (Current)
 	end
@@ -345,7 +342,7 @@ feature{NONE} --Dialog box implementation for information event
 	--Launches the defeat dialog
 	defeat_dialog
 	do
-		create defeat_info_box
+		create defeat_info_box.make_with_text ("")
 		defeat_info_box.set_pixmap (pixmap_lose_image)
 		defeat_info_box.show_modal_to_window (Current)
 	end
@@ -353,7 +350,7 @@ feature{NONE} --Dialog box implementation for information event
 	--Launches the draw dialog
 	draw_dialog
 	do
-		create draw_info_box
+		create draw_info_box.make_with_text ("")
 		draw_info_box.set_pixmap (pixmap_draw_image)
 		draw_info_box.show_modal_to_window (Current)
 	end
@@ -632,6 +629,12 @@ feature --Public Methods inherited from XX_IGUI
 		game_panel.show
 	end
 
+	--Blocks and un-blocks the board
+	set_board_sensitive(a_condition: BOOLEAN)
+	do
+		game_panel.set_board_sensitive(a_condition)
+	end
+
 	--Allow to switch the panel from game panel to menu panel
 	switch_panel_game_to_menu
 	do
@@ -654,20 +657,59 @@ feature --Public Methods inherited from XX_IGUI
 
 	--Allow to inform the player about his victory
 	victory
+	local
+		l_i: INTEGER
 	do
+		from
+			l_i:=0
+		until
+			l_i>=58
+		loop
+			gui_board.put (0, l_i)
+			l_i:=l_i+1
+		end
+		clean_board
 		victory_dialog
+		clean_game_window
+		switch_panel_game_to_menu
 	end
 
 	--Allow to inform the player about his defeat
 	defeat
+	local
+		l_i: INTEGER
 	do
+		from
+			l_i:=0
+		until
+			l_i>=58
+		loop
+			gui_board.put (0, l_i)
+			l_i:=l_i+1
+		end
+		clean_board
 		defeat_dialog
+		clean_game_window
+		switch_panel_game_to_menu
 	end
 
 	--Allow to inform the player about a draw status
 	draw_status
+	local
+		l_i: INTEGER
 	do
+		from
+			l_i:=0
+		until
+			l_i>=58
+		loop
+			gui_board.put (0, l_i)
+			l_i:=l_i+1
+		end
+		clean_board
 		draw_dialog
+		clean_game_window
+		switch_panel_game_to_menu
 	end
 
 feature{NONE} --Private Methods inherited from XX_IGUI
@@ -740,24 +782,6 @@ feature{NONE} --Private Methods inherited from XX_IGUI
 		else
 			Result:=FALSE
 		end
-	end
-
-	--Allow to check if victory message is displayed
-	is_victory_message_displayed:BOOLEAN
-	do
-		Result:=victory_info_box.is_displayed
-	end
-
-	--Allow to check if defeat message is displayed
-	is_defeat_message_displayed:BOOLEAN
-	do
-		Result:=defeat_info_box.is_displayed
-	end
-
-	--Allow to check if draw status message is displayed
-	is_draw_status_message_displayed:BOOLEAN
-	do
-		Result:=draw_info_box.is_displayed
 	end
 
 feature --Public Method inherited from XX_CHAT_TO_GUI_INTERFACE

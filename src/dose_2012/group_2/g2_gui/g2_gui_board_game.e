@@ -34,8 +34,8 @@ feature {NONE} -- Initialization
 			Precursor {EV_TITLED_WINDOW}
 				--initialize color
 			create color_blue.make_with_8_bit_rgb (29, 49, 226)
-			create color_green.make_with_8_bit_rgb (128, 255, 128)
-			create color_red.make_with_8_bit_rgb (0, 0, 255)
+			create color_green.make_with_8_bit_rgb (0, 255, 0)
+			create color_red.make_with_8_bit_rgb (255, 0, 0)
 			create color_morrow.make_with_8_bit_rgb (155, 78, 0)
 			create card_captured.make_default
 			build_main_container
@@ -43,11 +43,8 @@ feature {NONE} -- Initialization
 				-- Set the title of the window
 			set_title (Window_title)
 			b_disconnect.select_actions.extend (agent disconnect)
-
-				-- Set the maximum size of the window
-			set_minimum_size (Window_width, Window_height)
-			set_maximum_size (Window_width, Window_height)
 				-- Set the initial size of the window
+			disable_user_resize
 			set_size (Window_width, Window_height)
 		end
 
@@ -254,45 +251,45 @@ feature {NONE} -- Implementation
 	set_position_object_board
 		do
 				--set position label title
-			f_fixed_board.set_item_position_and_size (l_title , 0080 , 0020 , 0272 ,0040)
+			f_fixed_board.set_item_position_and_size (l_title, 0080, 0020, 0272, 0040)
 				--set position button disconnect
-			f_fixed_board.set_item_position_and_size (b_disconnect , 0160 , 0640 , 0125 , 0044)
+			f_fixed_board.set_item_position_and_size (b_disconnect, 0160, 0640, 0125, 0044)
 		end
 
 	set_position_object_player_1
 		do
 				--set position label l_turn
-			f_fixed_player1.set_item_position_and_size (l_turn1 , 0040 , 0020 , 0080 , 0040)
+			f_fixed_player1.set_item_position_and_size (l_turn1, 0040, 0020, 0080, 0040)
 				--set position button b_player1_card1
-			f_fixed_player1.set_item_position_and_size (b_player1_card1, 0020 , 0080 ,0137 , 0166)
+			f_fixed_player1.set_item_position_and_size (b_player1_card1, 0020, 0080, 0137, 0166)
 				--set position button b_player1_card2
-			f_fixed_player1.set_item_position_and_size (b_player1_card2, 0020 , 0160 , 0137 , 0166)
+			f_fixed_player1.set_item_position_and_size (b_player1_card2, 0020, 0160, 0137, 0166)
 				--set position button b_player1_card3
-			f_fixed_player1.set_item_position_and_size (b_player1_card3, 0020 , 0240 , 0137 , 0166)
+			f_fixed_player1.set_item_position_and_size (b_player1_card3, 0020, 0240, 0137, 0166)
 				--set position button b_player1_card4
-			f_fixed_player1.set_item_position_and_size (b_player1_card4, 0020 , 0320 , 0137 , 0166)
+			f_fixed_player1.set_item_position_and_size (b_player1_card4, 0020, 0320, 0137, 0166)
 				--set position button b_player1_card5
-			f_fixed_player1.set_item_position_and_size (b_player1_card5, 0020 , 0400 , 0137 , 0166)
+			f_fixed_player1.set_item_position_and_size (b_player1_card5, 0020, 0400, 0137, 0166)
 				--set position label l_score_player_1
-			f_fixed_player1.set_item_position_and_size (l_score_player_1, 0020 , 0620 , 0140 , 0120)
+			f_fixed_player1.set_item_position_and_size (l_score_player_1, 0020, 0620, 0140, 0120)
 		end
 
 	set_position_object_player_2
 		do
 				--set position label l_turn
-			f_fixed_player2.set_item_position_and_size (l_turn2, 0020 , 0020 , 0080 , 0040)
+			f_fixed_player2.set_item_position_and_size (l_turn2, 0020, 0020, 0080, 0040)
 				--set position button b_player2_card1
-			f_fixed_player2.set_item_position_and_size (b_player2_card1, 0000 , 0080 , 0137 , 0166)
+			f_fixed_player2.set_item_position_and_size (b_player2_card1, 0000, 0080, 0137, 0166)
 				--set position button b_player2_card2
-			f_fixed_player2.set_item_position_and_size (b_player2_card2, 0000 , 0160 , 0136 , 0166)
+			f_fixed_player2.set_item_position_and_size (b_player2_card2, 0000, 0160, 0136, 0166)
 				--set position button b_player2_card3
-			f_fixed_player2.set_item_position_and_size (b_player2_card3, 0000 , 0240 , 0137 ,0166 )
+			f_fixed_player2.set_item_position_and_size (b_player2_card3, 0000, 0240, 0137, 0166)
 				--set position button b_player2_card4
-			f_fixed_player2.set_item_position_and_size (b_player2_card4, 0000 , 0320 , 0137 , 0166)
+			f_fixed_player2.set_item_position_and_size (b_player2_card4, 0000, 0320, 0137, 0166)
 				--set position button b_player2_card5
-			f_fixed_player2.set_item_position_and_size (b_player2_card5, 0000 , 0400 , 0137 , 0166)
+			f_fixed_player2.set_item_position_and_size (b_player2_card5, 0000, 0400, 0137, 0166)
 				--set position label l_score_player_2
-			f_fixed_player2.set_item_position_and_size (l_score_player_2, 0000 , 0620 , 0140 , 0120 )
+			f_fixed_player2.set_item_position_and_size (l_score_player_2, 0000, 0620, 0140, 0120)
 		end
 
 	set_title_board (title_board: STRING)
@@ -318,6 +315,7 @@ feature {NONE} -- Implementation
 feature --set date the Board
 
 	set_main_menu (w_main_menu_1: G2_GUI_MAIN_MENU)
+			--save one instance the main_menu
 		do
 			w_main_menu := w_main_menu_1
 		end
@@ -330,6 +328,7 @@ feature --set date the Board
 		end
 
 	set_turn_player_1 (your_turn: BOOLEAN)
+			--set the turn of the player 1
 		do
 			if (your_turn = true) then
 				l_turn1.set_background_color (color_green)
@@ -339,6 +338,7 @@ feature --set date the Board
 		end
 
 	set_turn_player_2 (your_turn: BOOLEAN)
+			--set the turn of the player 2
 		do
 			if (your_turn = true) then
 				l_turn2.set_background_color (color_green)
@@ -348,6 +348,7 @@ feature --set date the Board
 		end
 
 	set_score_player_1 (value: INTEGER)
+			--set the score of the player 1
 		require
 			value_positive: value >= 0
 		do
@@ -357,6 +358,7 @@ feature --set date the Board
 		end
 
 	set_score_player_2 (value: INTEGER)
+			--set the score of the player 2
 		require
 			value_positive: value >= 0
 		do
@@ -366,24 +368,37 @@ feature --set date the Board
 		end
 
 	set_card_player1 (cards_1: ARRAY [G2_GUI_CARD])
+			--set the card of the player 1
 		do
-			b_player1_card1.set_card (cards_1.at (1))
-			b_player1_card2.set_card (cards_1.at (2))
-			b_player1_card3.set_card (cards_1.at (3))
-			b_player1_card4.set_card (cards_1.at (4))
-			b_player1_card5.set_card (cards_1.at (5))
+			assig_card_or_destroy (b_player1_card1, cards_1.at (1))
+			assig_card_or_destroy (b_player1_card2, cards_1.at (2))
+			assig_card_or_destroy (b_player1_card3, cards_1.at (3))
+			assig_card_or_destroy (b_player1_card4, cards_1.at (4))
+			assig_card_or_destroy (b_player1_card5, cards_1.at (5))
 		end
 
 	set_card_player2 (cards_1: ARRAY [G2_GUI_CARD])
+			--set the score of the player 2
 		do
-			b_player2_card1.set_card (cards_1.at (1))
-			b_player2_card2.set_card (cards_1.at (2))
-			b_player2_card3.set_card (cards_1.at (3))
-			b_player2_card4.set_card (cards_1.at (4))
-			b_player2_card5.set_card (cards_1.at (5))
+			assig_card_or_destroy (b_player2_card1, cards_1.at (1))
+			assig_card_or_destroy (b_player2_card2, cards_1.at (2))
+			assig_card_or_destroy (b_player2_card3, cards_1.at (3))
+			assig_card_or_destroy (b_player2_card4, cards_1.at (4))
+			assig_card_or_destroy (b_player2_card5, cards_1.at (5))
+		end
+
+	assig_card_or_destroy (card_1, card_2: G2_GUI_CARD)
+			--set the card of the player or allows destroy card
+		do
+			if (card_2 = Void or card_1.is_destroyed) then
+				card_1.destroy
+			else
+				card_1.set_card (card_2)
+			end
 		end
 
 	set_board_game (matriz: ARRAY2 [G2_GUI_CELL])
+			--set of the game table
 		local
 			row_1, col_1: INTEGER
 		do
@@ -398,8 +413,9 @@ feature --set date the Board
 					col_1 > 3
 				loop
 					if (attached {G2_GUI_CELL} table_board_game.item_at_position (col_1, row_1) as button) then
-						button.card.set_card (matriz.item (row_1, col_1).card)
-						button.element.set_element (matriz.item (row_1, col_1).element.element)
+						if (matriz.item (row_1, col_1) /= void) then
+							button.set_cell (matriz.item (row_1, col_1).card, matriz.item (row_1, col_1).element.element)
+						end
 					end
 					col_1 := col_1 + 1
 				end
@@ -413,35 +429,44 @@ feature --set date the Board
 		end
 
 	move (row_1, col_1: INTEGER)
+			-- takes the card played
+		local
+			card_copy: G2_GUI_CARD
 		do
-			if (attached {G2_GUI_CELL} table_board_game.item_at_position (col_1, row_1) as button) then
-				if (not button.is_occupied ) then
-					button.set_card (card_captured)
-					w_main_menu.set_move (button.card, row_1, col_1)
-					w_main_menu.get_inform_game
-					card_captured.destroy
-					button.set_occupied (true)
-					block_board
+			if (card_captured.board /= Void and not card_captured.is_destroyed) then
+				if (attached {G2_GUI_CELL} table_board_game.item_at_position (col_1, row_1) as button) then
+					if (not button.is_occupied) then
+						create card_copy.make_gui_card (card_captured.color, card_captured.north, card_captured.south, card_captured.east, card_captured.west, card_captured.element.element)
+						button.set_cell (card_copy, button.element.element)
+						card_captured.destroy
+						button.set_occupied (true)
+						w_main_menu.set_move (card_copy, row_1, col_1)
+						w_main_menu.get_inform_game
+					end
 				end
 			end
 		end
 
 	block_board
+			-- blocks the board game
 		do
 			table_board_game.disable_sensitive
 		end
 
 	unblock_board
+			--unblocks the board game
 		do
 			table_board_game.enable_sensitive
 		end
 
 	block_card_player_1
+			-- blocks the card  game of the player 1
 		do
 			f_fixed_player1.disable_sensitive
 		end
 
 	block_card_player_2
+			-- blocks the card  game of the player 2
 		do
 			f_fixed_player2.disable_sensitive
 		end

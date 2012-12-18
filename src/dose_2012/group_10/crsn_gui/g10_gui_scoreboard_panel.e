@@ -22,7 +22,7 @@ feature {ANY}
 	require
 		game_not_null : game /= void
 	local
-		player , temp : G10_GUI_PLAYER_INFO
+		player : G10_GUI_PLAYER_INFO
 		players_num , iterator : INTEGER -- elpizo na dothei san orisma.
 		players_names : ARRAY[STRING] -- elpizo na dothei san orisma.
 
@@ -73,7 +73,7 @@ feature {ANY}
 	end
 
 -- mutator methods.
-feature {G10_GUI_SCOREBOARD_PANEL}
+feature {G10_GUI_SCOREBOARD_PANEL , G10_GUI_GAME_MAIN}
 	init_player_list(players_num : INTEGER) -- routine inits the player list indeced 1 to 6.
 	do
 		create players.make_filled (void, 1, 6)
@@ -93,13 +93,15 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 	require
 		background_not_null : background /= void
 		valid_player : p /= void
-		not_contained_in_scoreboard : not background.has (p)
+		--not_contained_in_scoreboard : not background.has (p)
 		valid_coordinates : x >= 0 and y >= 0
 	do
-		background.extend_with_position_and_size (p, x, y, p.minimum_width, p.minimum_height)
-		ensure
-			scoreboard_panel_not_void : current /= void
-			player_contained_in_scoreboard_panel : background.has (p)
+		if(background.has (p) = false) then
+			background.extend_with_position_and_size (p, x, y, p.minimum_width, p.minimum_height)
+		end
+	ensure
+		scoreboard_panel_not_void : current /= void
+		player_contained_in_scoreboard_panel : background.has (p)
 	end
 
 	draw_player_list(game : G10_GUI_GAME_MAIN players_num : INTEGER) -- routine draws the players vertically in the scoreboard panel
@@ -156,16 +158,70 @@ feature {G10_GUI_SCOREBOARD_PANEL}
 			list_contains_player : players.has (p)
 			list_not_empty : players.is_empty = false
 	end
+	add_player_to_list_name(player_name : STRING players_num : INTEGER game : G10_GUI_GAME_MAIN) -- routine adds a player to the players list of this object.
+	require
+		valid_player : player_name /= void
+		valid_list : players /= void
+		list_not_full : players.has (void) = true
+	local
+		i : INTEGER
+		player : G10_GUI_PLAYER_INFO
+	do
+		from i := 1 until i > players_num
+		loop
+			if( players.item (i) = void) then
+				create player.make (i, player_name)
+				players.put (player , i)
+				io.put_string ("mesa stin add player to list name : ebala ton player sto list")
+				io.put_new_line
+				i := 7
+			end
+			i := i + 1
+		end
+		draw_player_list(game , players_num)
+	ensure
+		valid_mutate : players /= void
+		--list_contains_player : players.has (p)
+		list_not_empty : players.is_empty = false
+	end
+
+	set_follower_number(player_id , num : INTEGER) -- routine sets follower number to num
+	local
+		p : G10_GUI_PLAYER_INFO
+	do
+		p := players.item (player_id)
+
+		p.get_followers.set_follower_number (num.out)
+	end
+
+	set_score_number(player_id , num : INTEGER) -- routine sets score number to num
+	local
+		p : G10_GUI_PLAYER_INFO
+	do
+		p := players.item (player_id)
+
+		p.get_score.update_score(num.out)
+	end
+
+	decrement_followers(player_num : INTEGER) -- routine decrements the followers of the player i
+	local
+		p : G10_GUI_PLAYER_INFO
+		num : INTEGER
+	do
+		p := players.item (player_num)
+
+		num := p.get_follower_number
+		num := num - 1
+		p.get_followers.set_follower_number (num.out)
+	end
 -- accesor methods.
 feature {G10_GUI_GAME_MAIN}
-	get_follower_number(p : G10_GUI_PLAYER_INFO ) : INTEGER -- routine returns the number of followers of p player.
-	require
-		valid_player : p /= void
-		valid_list : players /= void and players.is_empty = false and players.has (p)
+	get_follower_number(player_num : INTEGER ) : INTEGER -- routine returns the number of followers of p player.
+	local
+		p : G10_GUI_PLAYER_INFO
 	do
-		ensure
-			valid_player : p /= void
-			valid_list : players /= void and players.is_empty = false and players.has (p)
+		p := players.item (player_num)
+		result := p.get_follower_number
 	end
 
 	get_players() : ARRAYED_LIST [G10_GUI_PLAYER_INFO] -- routine returns the list of players of this object.
@@ -208,9 +264,25 @@ feature {G10_GUI_GAME_MAIN}
 	contains_player(n : STRING) : BOOLEAN -- routine returns true if player with name n is contained in players array.
 	require
 		valid_list : players /= void
+	local
+		found : BOOLEAN
+		i : INTEGER
+		p : G10_GUI_PLAYER_INFO
 	do
-		ensure
-			list_unmutated : players = old players
+		found := false
+		from i := 1 until i >= players.index_set.upper
+		loop
+			p := players.item (i)
+			if(p /= void) then
+				if(p.get_player_name.is_equal (n) = true) then
+					found := true
+				end
+			end
+			i := i + 1
+		end
+		result := found
+	ensure
+		list_unmutated : players = old players
 	end
 
 -- class invariants
